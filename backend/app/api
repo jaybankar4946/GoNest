@@ -1,0 +1,29 @@
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from app.models.property import Property
+from app.db.session import SessionLocal
+from app.schemas.property import PropertyCreate
+
+router = APIRouter()
+
+# DB dependency
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+# ✅ CREATE PROPERTY (FIXED)
+@router.post("/properties")
+def create_property(data: PropertyCreate, db: Session = Depends(get_db)):
+    prop = Property(**data.dict())
+    db.add(prop)
+    db.commit()
+    db.refresh(prop)
+    return prop
+
+# ✅ GET ALL PROPERTIES
+@router.get("/properties")
+def get_properties(db: Session = Depends(get_db)):
+    return db.query(Property).all()
