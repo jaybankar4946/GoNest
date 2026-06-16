@@ -1,15 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
 const API = {
   getListings: async () =>
     fetch("https://your-backend-url.onrender.com/listings").then(r => r.json())
 };
+
 export default function Listings() {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<any[]>([]);
 
   useEffect(() => {
-    API.get("/listings").then(res => setData(res.data));
+    API.getListings().then(setData);
   }, []);
 
   return (
