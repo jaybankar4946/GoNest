@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 const API = {
   getListings: async () =>
-    fetch("https://your-backend-url.onrender.com/listings").then(r => r.json())
+    fetch("https://gonest-2.onrender.com//listings")").then(r => r.json())
 };
 
 export default function Listings() {
