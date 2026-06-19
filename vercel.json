@@ -1,0 +1,16 @@
+{
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "outputDirectory": ".next",
+  "env": {
+    "NEXT_PUBLIC_API_URL": "@gonest_api_url"
+  },
+  "build": {
+    "env": {
+      "ANALYZE": "false"
+    }
+  },
+  "crons": []
+}
