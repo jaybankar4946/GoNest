@@ -1,11 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-const API = {
-  getListings: async () =>
-    fetch("https://gonest-1.onrender.com/listings").then(r => r.json())
-};
+import { getListings } from "@/lib/api";
 
 export default function Listings() {
   const [data, setData] = useState<any[]>([]);
@@ -13,25 +9,53 @@ export default function Listings() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    API.getListings()
+    getListings()
       .then(setData)
-      .catch(err => setError(err.message))
+      .catch((err) => setError(err.message || "Failed to load listings"))
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div><p>Loading listings...</p></div>;
-  if (error) return <div><p style={{ color: 'red' }}>Error: {error}</p></div>;
+  if (loading) {
+    return (
+      <div style={{ padding: "20px" }}>
+        <h1>Listings</h1>
+        <p>Loading listings...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ padding: "20px" }}>
+        <h1>Listings</h1>
+        <p style={{ color: "red" }}>Error: {error}</p>
+      </div>
+    );
+  }
 
   return (
-    <div>
+    <div style={{ padding: "20px" }}>
       <h1>Listings</h1>
-
-      {data.map((l: any) => (
-        <div key={l.id} style={{ border: '1px solid #ddd', padding: '10px', margin: '10px 0' }}>
-          <h3>{l.title}</h3>
-          <p>{l.city}</p>
-        </div>
-      ))}
+      <div style={{ display: "grid", gap: "20px" }}>
+        {data && data.length > 0 ? (
+          data.map((listing: any) => (
+            <div
+              key={listing.id}
+              style={{
+                border: "1px solid #ddd",
+                borderRadius: "8px",
+                padding: "15px",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+              }}
+            >
+              <h3 style={{ margin: "0 0 10px 0" }}>{listing.title}</h3>
+              <p style={{ margin: "5px 0", color: "#666" }}>{listing.city}</p>
+            </div>
+          ))
+        ) : (
+          <p>No listings available</p>
+        )}
+      </div>
     </div>
   );
 }
