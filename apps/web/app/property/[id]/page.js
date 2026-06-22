@@ -9,7 +9,7 @@ export default async function Page({ params }) {
 
   return (
     <div style={{ padding: 20 }}>
-      <img src={data.images?.[0]} width="100%" />
+      <img src={data.image} width="100%" />
 
       <h1>{data.title}</h1>
       <h2>{data.price}</h2>
