@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
 export default function Home() {
-  const [properties, setProperties] = useState([]);
+  const [properties, setProperties] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -22,7 +22,7 @@ export default function Home() {
       <a href="/add">➕ Add Property</a>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 20 }}>
-        {properties.map((p) => (
+        {properties.map((p: any) => (
           <a key={p.id} href={`/property/${p.id}`}>
             <div style={{ border: "1px solid #ccc", padding: 10 }}>
               <img src={p.image} width="100%" height="150" />
