@@ -1,1 +1,0 @@
-const SUPABASE_KEY = process.env.sb_publishable_Mqw28yN55n91ePu5s7xaFQ_V_Dybktt;
