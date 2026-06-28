@@ -1,38 +1,47 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "../lib/supabase";
+import { supabase } from "@/lib/supabase";
 
 export default function Home() {
-  const [properties, setProperties] = useState<any[]>([]);
+const [properties, setProperties] = useState<any[]>([]);
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
-    const fetchData = async () => {
-      const { data } = await supabase.from("properties").select("*");
-      setProperties(data || []);
-    };
-
-    fetchData();
+    load();
   }, []);
+
+  const load = async () => {
+    const { data } = await supabase
+      .from("properties")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    setProperties(data || []);
+  };
+
+  const filtered = properties.filter((p) =>
+    p.location?.toLowerCase().includes(query.toLowerCase())
+  );
 
   return (
     <div style={{ padding: 20 }}>
-      <h1>GoNest MVP</h1>
+      <h1>GoNest</h1>
 
-      <a href="/add">➕ Add Property</a>
+      <input
+        placeholder="Search city..."
+        onChange={(e) => setQuery(e.target.value)}
+        style={{ padding: 8, marginBottom: 20 }}
+      />
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 20 }}>
-        {properties.map((p: any) => (
-          <a key={p.id} href={`/property/${p.id}`}>
-            <div style={{ border: "1px solid #ccc", padding: 10 }}>
-              <img src={p.image} width="100%" height="150" />
-              <h3>{p.title}</h3>
-              <p>{p.location}</p>
-              <b>{p.price}</b>
-            </div>
-          </a>
-        ))}
-      </div>
+      {filtered.map((p) => (
+        <div key={p.id} style={{ marginBottom: 20 }}>
+          <img src={p.image} width="300" />
+          <h3>{p.title}</h3>
+          <p>{p.location}</p>
+          <p>{p.price}</p>
+        </div>
+      ))}
     </div>
   );
 }
