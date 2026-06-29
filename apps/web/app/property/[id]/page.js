@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 
 export default async function Page({ params }) {
@@ -9,7 +10,13 @@ export default async function Page({ params }) {
 
   return (
     <div style={{ padding: 20 }}>
-      <img src={data.image} width="100%" />
+      <Image
+        src={data.image}
+        width={1200}
+        height={600}
+        alt={data.title}
+        style={{ width: "100%", height: "auto" }}
+      />
 
       <h1>{data.title}</h1>
       <h2>{data.price}</h2>

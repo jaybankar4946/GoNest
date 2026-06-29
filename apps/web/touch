@@ -1,0 +1,65 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+
+export default function HeroSearch() {
+  const [city, setCity] = useState("");
+  const router = useRouter();
+
+  function handleSearch() {
+    if (!city.trim()) return;
+
+    router.push(`/listings?city=${encodeURIComponent(city)}`);
+  }
+
+  return (
+    <section className="w-full flex flex-col items-center justify-center py-20 px-4 bg-gradient-to-b from-blue-50 to-white">
+
+      {/* Title */}
+      <h1 className="text-4xl md:text-6xl font-bold text-center">
+        Find Your Dream Home
+      </h1>
+
+      <p className="mt-4 text-gray-500 text-center max-w-xl">
+        Search verified properties across cities, builders, and premium listings
+      </p>
+
+      {/* Search Box */}
+      <div className="mt-8 flex w-full max-w-2xl shadow-lg rounded-xl overflow-hidden border bg-white">
+
+        <input
+          type="text"
+          placeholder="Search city, locality, or project..."
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+          className="flex-1 px-4 py-4 outline-none"
+        />
+
+        <button
+          onClick={handleSearch}
+          className="bg-blue-600 text-white px-6 hover:bg-blue-700 transition"
+        >
+          Search
+        </button>
+
+      </div>
+
+      {/* Quick filters (like Zillow) */}
+      <div className="flex gap-3 mt-6 flex-wrap justify-center">
+
+        {["Pune", "Mumbai", "Bangalore", "Delhi"].map((c) => (
+          <button
+            key={c}
+            onClick={() => router.push(`/listings?city=${c}`)}
+            className="px-4 py-2 rounded-full border text-sm hover:bg-gray-100"
+          >
+            {c}
+          </button>
+        ))}
+
+      </div>
+
+    </section>
+  );
+}

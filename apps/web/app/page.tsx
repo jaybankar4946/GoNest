@@ -1,24 +1,30 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 
+type Property = {
+  id: string;
+  title: string;
+  location: string;
+  price: number;
+  image: string;
+};
+
 export default function Home() {
-const [properties, setProperties] = useState<any[]>([]);
+  const [properties, setProperties] = useState<Property[]>([]);
   const [query, setQuery] = useState("");
 
   useEffect(() => {
-    load();
-  }, []);
-
-  const load = async () => {
-    const { data } = await supabase
+    supabase
       .from("properties")
       .select("*")
-      .order("created_at", { ascending: false });
-
-    setProperties(data || []);
-  };
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        setProperties((data as Property[]) || []);
+      });
+  }, []);
 
   const filtered = properties.filter((p) =>
     p.location?.toLowerCase().includes(query.toLowerCase())
@@ -30,13 +36,14 @@ const [properties, setProperties] = useState<any[]>([]);
 
       <input
         placeholder="Search city..."
+        value={query}
         onChange={(e) => setQuery(e.target.value)}
         style={{ padding: 8, marginBottom: 20 }}
       />
 
       {filtered.map((p) => (
         <div key={p.id} style={{ marginBottom: 20 }}>
-          <img src={p.image} width="300" />
+          <Image src={p.image} width={300} height={200} alt={p.title} />
           <h3>{p.title}</h3>
           <p>{p.location}</p>
           <p>{p.price}</p>
