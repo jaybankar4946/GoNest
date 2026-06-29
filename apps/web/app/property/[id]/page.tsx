@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 
-export default async function Page({ params }) {
+export default async function Page({ params }: { params: { id: string } }) {
   const { data } = await supabase
     .from("properties")
     .select("*")
