@@ -7,7 +7,7 @@
 }
 
 :root {
-  --font-display: var(--font-display, 'Plus Jakarta Sans', sans-serif);
+  --font-display: var(--font-body, 'Inter', sans-serif);
   --font-body: var(--font-body, 'Inter', sans-serif);
 }
 
@@ -15,18 +15,23 @@ body {
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  color: #111111;
 }
 
-/* Scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
 
-/* line-clamp utility */
 .line-clamp-1 {
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
+}
+
+select {
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
 }

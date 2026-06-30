@@ -1,14 +1,12 @@
 'use client';
-import { Heart, LayoutDashboard, Shield, Home } from 'lucide-react';
+import { Heart, User } from 'lucide-react';
 import type { ViewMode, ListingTab } from './types';
 
-function Logo({ size = 32 }: { size?: number }) {
+function Logo() {
   return (
-    <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
-      <rect width="32" height="32" rx="8" fill="#0057FF" />
-      <path d="M16 6L6 14v12h7v-7h6v7h7V14L16 6z" fill="white" />
-      <circle cx="16" cy="13" r="2.5" fill="#FF5A5F" />
-    </svg>
+    <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 19, letterSpacing: '-0.02em', color: '#111111' }}>
+      GoNest
+    </span>
   );
 }
 
@@ -16,98 +14,75 @@ type Props = {
   currentView: ViewMode;
   activeTab: ListingTab;
   savedCount: number;
+  isAuthed: boolean;
   onTabChange: (tab: ListingTab) => void;
   onViewChange: (view: ViewMode) => void;
 };
 
-export function GnHeader({ currentView, activeTab, savedCount, onTabChange, onViewChange }: Props) {
-  const tabs: ListingTab[] = ['buy', 'rent', 'resale'];
+const tabs: { id: ListingTab; label: string }[] = [
+  { id: 'buy', label: 'Buy' },
+  { id: 'rent', label: 'Rent' },
+  { id: 'resale', label: 'Resale' },
+  { id: 'new-projects', label: 'New Projects' },
+];
 
+export function GnHeader({ currentView, activeTab, savedCount, isAuthed, onTabChange, onViewChange }: Props) {
   return (
-    <header className="sticky top-0 z-50 bg-white border-b" style={{ borderColor: 'rgba(0,0,0,0.07)', backdropFilter: 'blur(12px)' }}>
-      <div className="mx-auto px-6 lg:px-20 flex items-center justify-between h-16" style={{ maxWidth: 1440 }}>
-
-        {/* Logo */}
-        <button onClick={() => onViewChange('home')} className="flex items-center gap-2.5">
-          <Logo size={30} />
-          <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 20 }}>
-            <span style={{ color: '#0057FF' }}>Go</span><span style={{ color: '#FF5A5F' }}>Nest</span>
-          </span>
+    <header className="sticky top-0 z-50 bg-white border-b" style={{ borderColor: '#E5E5E5' }}>
+      <div className="mx-auto px-6 lg:px-10 flex items-center justify-between h-16" style={{ maxWidth: 1200 }}>
+        <button onClick={() => onViewChange('home')}>
+          <Logo />
         </button>
 
-        {/* Tabs */}
         <nav className="hidden md:flex items-center gap-1">
           {tabs.map((tab) => (
             <button
-              key={tab}
-              onClick={() => onTabChange(tab)}
-              className="px-4 py-2 rounded-xl text-sm capitalize transition-colors"
+              key={tab.id}
+              onClick={() => onTabChange(tab.id)}
+              className="px-3.5 py-2 rounded-full text-sm transition-colors"
               style={{
                 fontFamily: 'var(--font-body)',
-                fontWeight: currentView === 'search' && activeTab === tab ? 600 : 400,
-                background: currentView === 'search' && activeTab === tab ? '#f0f4ff' : 'transparent',
-                color: currentView === 'search' && activeTab === tab ? '#0057FF' : '#6b7280',
+                fontWeight: currentView === 'search' && activeTab === tab.id ? 600 : 400,
+                color: currentView === 'search' && activeTab === tab.id ? '#111111' : '#6B6B6B',
+                background: currentView === 'search' && activeTab === tab.id ? '#F7F7F7' : 'transparent',
               }}
             >
-              {tab}
+              {tab.label}
             </button>
           ))}
         </nav>
 
-        {/* Right actions */}
         <div className="flex items-center gap-2">
           <button
             onClick={() => onViewChange('saved')}
-            className="relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm transition-colors"
+            className="relative flex items-center gap-1.5 px-3 py-2 rounded-full text-sm transition-colors"
             style={{
               fontFamily: 'var(--font-body)',
-              background: currentView === 'saved' ? '#f0f4ff' : 'transparent',
-              color: currentView === 'saved' ? '#0057FF' : '#6b7280',
+              color: currentView === 'saved' ? '#111111' : '#6B6B6B',
+              background: currentView === 'saved' ? '#F7F7F7' : 'transparent',
             }}
           >
-            <Heart className="h-4 w-4" fill={currentView === 'saved' ? '#0057FF' : 'none'} />
+            <Heart className="h-4 w-4" fill={currentView === 'saved' ? '#111111' : 'none'} />
             <span className="hidden sm:inline">Saved</span>
             {savedCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-white text-xs flex items-center justify-center"
-                style={{ background: '#FF5A5F', fontFamily: 'var(--font-body)', fontSize: 10 }}>
+              <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-white flex items-center justify-center"
+                style={{ background: '#111111', fontSize: 10, fontFamily: 'var(--font-body)' }}>
                 {savedCount}
               </span>
             )}
           </button>
 
           <button
-            onClick={() => onViewChange('dashboard')}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm transition-colors"
+            onClick={() => onViewChange(isAuthed ? 'dashboard' : ('auth' as ViewMode))}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium"
             style={{
               fontFamily: 'var(--font-body)',
-              background: currentView === 'dashboard' ? '#f0f4ff' : 'transparent',
-              color: currentView === 'dashboard' ? '#0057FF' : '#6b7280',
+              border: '1px solid #111111',
+              color: '#111111',
             }}
           >
-            <LayoutDashboard className="h-4 w-4" />
-            <span className="hidden sm:inline">Dashboard</span>
-          </button>
-
-          <button
-            onClick={() => onViewChange('admin')}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm transition-colors"
-            style={{
-              fontFamily: 'var(--font-body)',
-              background: currentView === 'admin' ? '#f0f4ff' : 'transparent',
-              color: currentView === 'admin' ? '#0057FF' : '#6b7280',
-            }}
-          >
-            <Shield className="h-4 w-4" />
-            <span className="hidden sm:inline">Admin</span>
-          </button>
-
-          <button
-            onClick={() => onViewChange('home')}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-white text-sm font-semibold ml-1"
-            style={{ background: '#0057FF', fontFamily: 'var(--font-body)', boxShadow: '0 4px 12px rgba(0,87,255,0.3)' }}
-          >
-            <Home className="h-4 w-4" />
-            <span className="hidden sm:inline">Home</span>
+            <User className="h-3.5 w-3.5" />
+            {isAuthed ? 'Account' : 'Sign In'}
           </button>
         </div>
       </div>

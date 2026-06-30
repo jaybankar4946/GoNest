@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
-import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import './globals.css';
+import { AuthProvider } from '@/components/gn/AuthContext';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -8,21 +9,17 @@ const inter = Inter({
   display: 'swap',
 });
 
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ['latin'],
-  variable: '--font-display',
-  display: 'swap',
-});
-
 export const metadata: Metadata = {
-  title: 'GoNest – Find Your Perfect Home',
-  description: '10,000+ verified listings across 500 cities. Buy, rent, or sell with GoNest.',
+  title: 'GoNest – Find Your Next Home',
+  description: 'Search by city, locality or project. Verified listings, transparent pricing.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${jakarta.variable}`}>
-      <body>{children}</body>
+    <html lang="en" className={inter.variable}>
+      <body>
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   );
 }
