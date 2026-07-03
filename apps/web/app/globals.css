@@ -1,37 +1,26 @@
 @import "tailwindcss";
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
+ 
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+ 
 :root {
-  --font-display: var(--font-body, 'Inter', sans-serif);
-  --font-body: var(--font-body, 'Inter', sans-serif);
+  --font:    var(--font-sans,'Inter',system-ui,sans-serif);
+  --black:   #111111;
+  --gray-1:  #F7F7F7;
+  --gray-2:  #EBEBEB;
+  --gray-3:  #C8C8C8;
+  --gray-4:  #6B6B6B;
+  --white:   #FFFFFF;
+  --border:  #E5E5E5;
+  --ok:      #16A34A;
+  --err:     #DC2626;
 }
-
-body {
-  font-family: var(--font-body);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  color: #111111;
-}
-
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
-
-.line-clamp-1 {
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-}
-
-select {
-  -webkit-appearance: none;
-  appearance: none;
-  cursor: pointer;
-}
+ 
+body{font-family:var(--font);color:var(--black);background:var(--white);-webkit-font-smoothing:antialiased;line-height:1.5}
+button{cursor:pointer;border:none;background:none;font:inherit;color:inherit}
+input,select,textarea{font:inherit;color:inherit}
+a{color:inherit;text-decoration:none}
+select{appearance:none;-webkit-appearance:none}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--gray-3);border-radius:2px}
+.line-clamp-2{overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
