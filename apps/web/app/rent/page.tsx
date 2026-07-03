@@ -4,5 +4,5 @@ import { SearchResults } from '../search/SearchResults';
 import { getCities } from '@/lib/api';
 export const metadata = { title: 'Rent Property in Mumbai' };
 export default async function RentPage() {
-  return (<><Nav /><SearchResults cities={await getCities()} init={{ purpose:'rent' }} /><Footer /></>);
+  return (<><Nav /><SearchResults cities={await getCities()} init={{purpose:'rent'}} /><Footer /></>);
 }
