@@ -192,3 +192,34 @@ export async function adminVerifyAgent(userId: string, verified: boolean) {
 export async function adminSetRole(userId: string, role: string) {
   await supabase.from('profiles').update({ role }).eq('id', userId);
 }
+
+// ── Reviews ──────────────────────────────────────────────
+export async function getListingReviews(listingId: string) {
+  const { data } = await supabase.from('reviews').select('*')
+    .eq('listing_id', listingId).order('created_at', { ascending: false });
+  return data ?? [];
+}
+export async function submitReview(input: { listing_id: string; reviewer_id: string; reviewer_name: string; rating: number; comment?: string }) {
+  const { error } = await supabase.from('reviews').insert(input);
+  if (error) throw error;
+}
+export async function getListingRatingSummary(listingId: string) {
+  const { data } = await supabase.from('reviews').select('rating').eq('listing_id', listingId);
+  const ratings = (data ?? []).map((r: any) => r.rating);
+  const avg = ratings.length ? ratings.reduce((a: number, b: number) => a + b, 0) / ratings.length : 0;
+  return { avg, count: ratings.length };
+}
+
+// ── Reports ──────────────────────────────────────────────
+export async function reportListing(input: { listing_id: string; reporter_id: string | null; reason: string; details?: string }) {
+  const { error } = await supabase.from('reports').insert(input);
+  if (error) throw error;
+}
+export async function adminGetReports() {
+  const { data } = await supabase.from('reports')
+    .select('*, listing:listings(id,title)').eq('status', 'open').order('created_at', { ascending: false });
+  return data ?? [];
+}
+export async function adminUpdateReportStatus(reportId: string, status: string) {
+  await supabase.from('reports').update({ status }).eq('id', reportId);
+}

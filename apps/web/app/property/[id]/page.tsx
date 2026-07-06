@@ -5,6 +5,7 @@ import { getListingById, getSimilarListings, imgUrl } from '@/lib/api';
 import { formatPrice, bhkLabel, capitalize } from '@/lib/format';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { ContactForms } from './ContactForms';
+import { ReviewsAndReport } from './ReviewsAndReport';
 import type { Metadata } from 'next';
  
 export async function generateMetadata({ params }: { params: Promise<{id:string}> }): Promise<Metadata> {
@@ -150,6 +151,8 @@ export default async function PropertyPage({ params }: { params: Promise<{id:str
             </div>
           </div>
         )}
+
+        <ReviewsAndReport listingId={l.id} />
       </main>
       <Footer />
     </>

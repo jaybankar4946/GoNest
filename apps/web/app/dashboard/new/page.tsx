@@ -15,6 +15,15 @@ const lbl: React.CSSProperties = { fontSize:13,fontWeight:600,color:'#111',margi
 export default function NewListingPage() {
   const router = useRouter();
   const { user, profile } = useAuth();
+
+  if (profile && !profile.phone_verified) {
+    return (
+      <div style={{minHeight:'60vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:12,padding:24,textAlign:'center'}}>
+        <h2 style={{fontSize:18,fontWeight:700,color:'#111'}}>Verify your phone to post a listing</h2>
+        <p style={{fontSize:14,color:'#6B6B6B',maxWidth:360}}>This helps keep GoNest listings trustworthy for buyers. Verify your phone number in your account settings.</p>
+      </div>
+    );
+  }
   const [step,       setStep]       = useState(0);
   const [cities,     setCities]     = useState<City[]>([]);
   const [localities, setLocalities] = useState<Locality[]>([]);
