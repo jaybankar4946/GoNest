@@ -1,15 +1,18 @@
 import Link from 'next/link';
 export function Footer() {
   return (
-    <footer style={{borderTop:'1px solid #E5E5E5',padding:'36px 24px',marginTop:80}}>
-      <div style={{maxWidth:1200,margin:'0 auto',display:'flex',flexWrap:'wrap',alignItems:'center',justifyContent:'space-between',gap:16}}>
-        <span style={{fontWeight:700,fontSize:15,color:'#111'}}>GoNest</span>
-        <div style={{display:'flex',gap:20,flexWrap:'wrap'}}>
-          {['Buy','Rent','New Projects','Privacy','Terms','Contact'].map(l=>(
-            <Link key={l} href="#" style={{fontSize:13,color:'#6B6B6B'}}>{l}</Link>
+    <footer style={{ borderTop: '1px solid var(--border)', padding: 'var(--space-5) var(--space-4)', marginTop: 'var(--space-8)' }}>
+      <div style={{
+        maxWidth: 1200, margin: '0 auto', display: 'flex', flexWrap: 'wrap',
+        alignItems: 'center', justifyContent: 'space-between', gap: 'var(--space-3)',
+      }}>
+        <span style={{ fontWeight: 700, fontSize: 'var(--text-base)', color: 'var(--ink)', letterSpacing: '-0.01em' }}>GoNest</span>
+        <div style={{ display: 'flex', gap: 'var(--space-4)', flexWrap: 'wrap' }}>
+          {['Buy','Rent','New Projects','Privacy','Terms','Contact'].map(l => (
+            <Link key={l} href="#" style={{ fontSize: 'var(--text-sm)', color: 'var(--ink-soft)' }}>{l}</Link>
           ))}
         </div>
-        <span style={{fontSize:12,color:'#C8C8C8'}}>© 2026 GoNest · Mumbai</span>
+        <span style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-faint)' }}>© 2026 GoNest · Mumbai</span>
       </div>
     </footer>
   );
