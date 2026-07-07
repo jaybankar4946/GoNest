@@ -11,27 +11,26 @@
   --surface-3:  #F2F2F2;
   --border:     #EAEAEA;
   --border-strong: #DCDCDC;
-  --accent:     #0A0A0A;
-  --accent-contrast: #FFFFFF;
+
+  /* Accent — from the premium UI kit */
+  --primary:    #0057FF;
+  --primary-soft: #F0F4FF;
+  --accent:     #FF5A5F;
+  --accent-soft: #FFF1F1;
+
   --success:    #1A8245;
+  --success-soft: #EAF7EF;
   --warn:       #B45309;
+  --warn-soft:  #FEF3E2;
   --error:      #C0362C;
+  --error-soft: #FDEEED;
 
   /* ── Spacing (8px grid) ── */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 16px;
-  --space-4: 24px;
-  --space-5: 32px;
-  --space-6: 48px;
-  --space-7: 64px;
-  --space-8: 96px;
+  --space-1: 4px;  --space-2: 8px;  --space-3: 16px; --space-4: 24px;
+  --space-5: 32px; --space-6: 48px; --space-7: 64px; --space-8: 96px;
 
   /* ── Radius ── */
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
-  --radius-full: 9999px;
+  --radius-sm: 8px; --radius-md: 14px; --radius-lg: 20px; --radius-full: 9999px;
 
   /* ── Shadow ── */
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.04), 0 1px 1px rgba(0,0,0,0.03);
@@ -39,57 +38,29 @@
   --shadow-lg: 0 12px 32px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06);
 
   /* ── Type scale ── */
-  --text-xs: 12px;
-  --text-sm: 13px;
-  --text-base: 15px;
-  --text-md: 17px;
-  --text-lg: 21px;
-  --text-xl: 28px;
-  --text-2xl: 38px;
-  --text-3xl: 52px;
+  --text-xs: 12px; --text-sm: 13px; --text-base: 15px; --text-md: 17px;
+  --text-lg: 21px; --text-xl: 28px; --text-2xl: 38px; --text-3xl: 52px;
 
   /* ── Motion ── */
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
-  --dur-fast: 150ms;
-  --dur-base: 250ms;
-  --dur-slow: 400ms;
+  --dur-fast: 150ms; --dur-base: 250ms; --dur-slow: 400ms;
 
   --font: var(--font-sans, 'Inter', system-ui, sans-serif);
 }
 
-body{
-  font-family:var(--font);
-  color:var(--ink);
-  background:var(--surface);
-  -webkit-font-smoothing:antialiased;
-  line-height:1.5;
-  font-size:var(--text-base);
-}
+body{font-family:var(--font);color:var(--ink);background:var(--surface);-webkit-font-smoothing:antialiased;line-height:1.5;font-size:var(--text-base)}
 button{cursor:pointer;border:none;background:none;font:inherit;color:inherit}
 input,select,textarea{font:inherit;color:inherit}
 a{color:inherit;text-decoration:none}
 select{appearance:none;-webkit-appearance:none}
 img{display:block;max-width:100%}
-
-/* Focus visibility for accessibility */
-:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
-
-/* Smooth, physics-ish transitions on interactive elements */
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
 a,button{transition:transform var(--dur-fast) var(--ease), opacity var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease)}
-
 ::-webkit-scrollbar{width:6px;height:6px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:99px}
-
 .line-clamp-1{overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical}
 .line-clamp-2{overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 
-@keyframes shimmer{
-  0%{background-position:-468px 0}
-  100%{background-position:468px 0}
-}
-.skeleton{
-  background:linear-gradient(90deg, var(--surface-3) 0px, var(--border) 40px, var(--surface-3) 80px);
-  background-size:800px 100%;
-  animation:shimmer 1.4s linear infinite;
-}
+@keyframes shimmer{0%{background-position:-468px 0}100%{background-position:468px 0}}
+.skeleton{background:linear-gradient(90deg, var(--surface-3) 0px, var(--border) 40px, var(--surface-3) 80px);background-size:800px 100%;animation:shimmer 1.4s linear infinite}
