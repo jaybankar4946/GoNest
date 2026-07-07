@@ -30,10 +30,11 @@ export function Nav() {
         display: 'flex', alignItems: 'center', height: 68, gap: 'var(--space-2)',
       }}>
         <Link href="/" style={{
-          fontWeight: 700, fontSize: 'var(--text-md)', color: 'var(--ink)',
+          fontWeight: 700, fontSize: 'var(--text-md)',
           letterSpacing: '-0.02em', marginRight: 'var(--space-5)', flexShrink: 0,
         }}>
-          GoNest
+          <span style={{ color: 'var(--primary)' }}>Go</span>
+          <span style={{ color: 'var(--accent)' }}>Nest</span>
         </Link>
 
         <div style={{ display: 'flex', gap: 2, flex: 1 }}>
