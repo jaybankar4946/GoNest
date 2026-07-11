@@ -13,7 +13,7 @@ const CARD = `id,title,price,purpose,property_type,bedrooms,bathrooms,sqft,
 const FULL = `*,city:cities(id,name,slug,state),
   locality:localities(id,name,slug,latitude,longitude),
   listing_images(id,storage_path,sort_order,is_cover),
-  poster:profiles!posted_by(full_name,phone,role,agency_name,agent_verified,avatar_url,rera_number,rating,review_count)`;
+  poster:profiles!posted_by(full_name,phone,role,agency_name,agent_verified,avatar_url,rera_number)`;
 
 export type SP = {
   q?: string; purpose?: string; cityId?: string; localityId?: string;
