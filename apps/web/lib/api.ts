@@ -172,7 +172,7 @@ export async function adminSetRole(userId: string, role: string) {
 export async function getAgents(cityId?: string) {
   const { data: agents, error } = await supabase
     .from('profiles')
-    .select('id,full_name,phone,phone_verified,role,agency_name,agent_verified,avatar_url,rera_number,rating,review_count,bio')
+    .select('id,full_name,phone,phone_verified,role,agency_name,agent_verified,avatar_url,rera_number')
     .in('role', ['agent', 'owner'])
     .eq('agent_verified', true)
     .order('rating', { ascending: false });
@@ -198,7 +198,7 @@ export async function getAgents(cityId?: string) {
 export async function getAgentById(id: string) {
   const { data, error } = await supabase
     .from('profiles')
-    .select('id,full_name,phone,phone_verified,role,agency_name,agent_verified,avatar_url,rera_number,rating,review_count,bio')
+    .select('id,full_name,phone,phone_verified,role,agency_name,agent_verified,avatar_url,rera_number')
     .eq('id', id)
     .maybeSingle();
   if (error) throw error;
@@ -214,4 +214,36 @@ export async function getAgentListings(agentId: string) {
     .order('created_at', { ascending: false });
   if (error) throw error;
   return (data ?? []) as any[];
+}
+
+export async function getListingReviews(listingId: string) {
+  const { data, error } = await supabase
+    .from('reviews')
+    .select('*')
+    .eq('listing_id', listingId)
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function getListingRatingSummary(listingId: string) {
+  const { data, error } = await supabase
+    .from('reviews')
+    .select('rating')
+    .eq('listing_id', listingId);
+  if (error) throw error;
+  const ratings = (data ?? []).map((r: any) => r.rating);
+  const count = ratings.length;
+  const avg = count > 0 ? ratings.reduce((a: number, b: number) => a + b, 0) / count : 0;
+  return { avg, count };
+}
+
+export async function submitReview(input: { listing_id: string; reviewer_id: string; reviewer_name: string; rating: number; comment?: string }) {
+  const { error } = await supabase.from('reviews').insert(input);
+  if (error) throw error;
+}
+
+export async function reportListing(input: { listing_id: string; reporter_id: string | null; reason: string; details?: string }) {
+  const { error } = await supabase.from('listing_reports').insert(input);
+  if (error) throw error;
 }
