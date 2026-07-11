@@ -170,16 +170,29 @@ export async function adminSetRole(userId: string, role: string) {
 }
 
 export async function getAgents(cityId?: string) {
-  let q = supabase
+  const { data: agents, error } = await supabase
     .from('profiles')
     .select('id,full_name,phone,phone_verified,role,agency_name,agent_verified,avatar_url,rera_number,rating,review_count,bio')
     .in('role', ['agent', 'owner'])
     .eq('agent_verified', true)
     .order('rating', { ascending: false });
 
-  const { data, error } = await q;
   if (error) throw error;
-  return data ?? [];
+  if (!agents || agents.length === 0) return [];
+
+  const ids = agents.map((a: any) => a.id);
+  const { data: activeListings } = await supabase
+    .from('listings')
+    .select('posted_by')
+    .eq('status', 'active')
+    .in('posted_by', ids);
+
+  const countMap: Record<string, number> = {};
+  (activeListings ?? []).forEach((l: any) => {
+    countMap[l.posted_by] = (countMap[l.posted_by] ?? 0) + 1;
+  });
+
+  return agents.map((a: any) => ({ ...a, total_listings: countMap[a.id] ?? 0 }));
 }
 
 export async function getAgentById(id: string) {
