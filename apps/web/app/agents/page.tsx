@@ -76,7 +76,6 @@ export default async function AgentsPage() {
                 </div>
                 <p style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-faint)', marginTop: 'var(--space-3)' }}>
                   {a.total_listings ?? 0} listing{(a.total_listings ?? 0) === 1 ? '' : 's'}
-                  {a.rating ? ` · ★ ${a.rating.toFixed(1)} (${a.review_count})` : ''}
                 </p>
               </Link>
             ))}

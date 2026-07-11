@@ -54,18 +54,6 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ i
           )}
         </div>
 
-        {agent.bio && (
-          <p style={{ fontSize: 14, color: '#3D3D3D', lineHeight: 1.7, maxWidth: 700, marginBottom: 24 }}>
-            {agent.bio}
-          </p>
-        )}
-
-        {agent.rating != null && agent.review_count > 0 && (
-          <p style={{ fontSize: 13, color: '#6B6B6B', marginBottom: 32 }}>
-            ★ {agent.rating.toFixed(1)} average rating from {agent.review_count} review{agent.review_count === 1 ? '' : 's'}
-          </p>
-        )}
-
         <h2 style={{ fontSize: 18, fontWeight: 600, color: '#111', marginBottom: 20, paddingTop: 8, borderTop: '1px solid #E5E5E5' }}>
           {listings.length} active listing{listings.length === 1 ? '' : 's'}
         </h2>
