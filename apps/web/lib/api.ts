@@ -172,7 +172,7 @@ export async function adminSetRole(userId: string, role: string) {
 export async function getAgents(cityId?: string) {
   let q = supabase
     .from('profiles')
-    .select('id,full_name,phone,phone_verified,role,agency_name,agent_verified,avatar_url,rera_number,rating,review_count')
+    .select('id,full_name,phone,phone_verified,role,agency_name,agent_verified,avatar_url,rera_number,rating,review_count,bio')
     .in('role', ['agent', 'owner'])
     .eq('agent_verified', true)
     .order('rating', { ascending: false });
@@ -185,7 +185,7 @@ export async function getAgents(cityId?: string) {
 export async function getAgentById(id: string) {
   const { data, error } = await supabase
     .from('profiles')
-    .select('id,full_name,phone,phone_verified,role,agency_name,agent_verified,avatar_url,rera_number,rating,review_count')
+    .select('id,full_name,phone,phone_verified,role,agency_name,agent_verified,avatar_url,rera_number,rating,review_count,bio')
     .eq('id', id)
     .maybeSingle();
   if (error) throw error;
