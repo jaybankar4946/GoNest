@@ -4,94 +4,105 @@ import { Footer } from '@/components/layout/Footer';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { HomeSearch } from './HomeSearch';
 import { getFeatured, getCities } from '@/lib/api';
-import type { Metadata } from 'next';
-
-export const metadata: Metadata = { title: 'GoNest – Find Your Home in Mumbai' };
 
 export default async function HomePage() {
   const [featured, cities] = await Promise.all([getFeatured(3), getCities()]);
-
   return (
     <>
       <Nav />
       <main>
-        <section style={{
-          position: 'relative', padding: 'var(--space-8) var(--space-4) var(--space-7)',
-          textAlign: 'center', background: 'linear-gradient(180deg, var(--surface-2) 0%, var(--surface) 100%)',
-        }}>
-          <div style={{ maxWidth: 620, margin: '0 auto' }}>
-            <h1 style={{
-              fontFamily: 'var(--font)', fontSize: 'var(--text-3xl)', fontWeight: 700,
-              letterSpacing: '-0.035em', color: 'var(--ink)', lineHeight: 1.08, marginBottom: 'var(--space-3)',
-            }}>
-              Find your next home.
+
+        {/* ── Hero ── */}
+        <section style={{padding:'80px 24px 56px',textAlign:'center'}}>
+          <div style={{maxWidth:600,margin:'0 auto'}}>
+            <div style={{display:'inline-flex',alignItems:'center',gap:6,background:'#F0FDF4',border:'1px solid #BBF7D0',borderRadius:9999,padding:'4px 12px',fontSize:12,fontWeight:500,color:'#15803D',marginBottom:20}}>
+              <div style={{width:6,height:6,borderRadius:'50%',background:'#16A34A'}}/>
+              Verified listings only · Mumbai
+            </div>
+            <h1 style={{fontSize:'clamp(28px,5vw,42px)',fontWeight:700,color:'#111',letterSpacing:'-0.03em',lineHeight:1.15,marginBottom:10}}>
+              Find your next home.<br/>
+              <span style={{color:'#6B6B6B',fontWeight:400,fontSize:'clamp(20px,3vw,28px)'}}>Guided. Verified. Stress-free.</span>
             </h1>
-            <p style={{ fontSize: 'var(--text-md)', color: 'var(--ink-soft)', marginBottom: 'var(--space-5)' }}>
-              Search verified apartments, villas, and plots across Mumbai.
+            <p style={{fontSize:15,color:'#6B6B6B',marginBottom:28,lineHeight:1.6}}>
+              We don&apos;t just show listings — we guide your entire property journey.
             </p>
             <HomeSearch />
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 'var(--space-2)', marginTop: 'var(--space-4)', flexWrap: 'wrap' }}>
-              {[['Buy','/buy'],['Rent','/rent'],['New Projects','/projects']].map(([label,href]) => (
-                <Link key={label} href={href} style={{
-                  padding: '7px 18px', borderRadius: 'var(--radius-full)', fontSize: 'var(--text-sm)',
-                  color: 'var(--ink-soft)', border: '1px solid var(--border)', background: 'var(--surface)',
-                }}>
-                  {label}
-                </Link>
+            <div style={{display:'flex',justifyContent:'center',gap:4,marginTop:14,flexWrap:'wrap'}}>
+              {[['Buy','/buy'],['Rent','/rent'],['New Projects','/projects']].map(([l,h])=>(
+                <Link key={l} href={h} style={{padding:'5px 14px',borderRadius:9999,fontSize:13,color:'#6B6B6B',border:'1px solid transparent'}}>{l}</Link>
               ))}
             </div>
+            {cities.length > 0 && (
+              <div style={{display:'flex',justifyContent:'center',flexWrap:'wrap',gap:8,marginTop:14}}>
+                {cities.slice(0,5).map((c:any)=>(
+                  <Link key={c.id} href={`/search?city=${c.id}`} style={{padding:'5px 14px',borderRadius:9999,fontSize:12,color:'#6B6B6B',border:'1px solid #E5E5E5'}}>{c.name}</Link>
+                ))}
+              </div>
+            )}
           </div>
         </section>
 
-        {featured.length > 0 && (
-          <section style={{ maxWidth: 1200, margin: '0 auto', padding: 'var(--space-7) var(--space-4)' }}>
-            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 'var(--space-5)' }}>
-              <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: 700, color: 'var(--ink)', letterSpacing: '-0.02em' }}>
-                Featured properties
-              </h2>
-              <Link href="/search" style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--ink)' }}>
-                View all →
-              </Link>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: 'var(--space-5) var(--space-4)' }}>
-              {featured.map(l => <PropertyCard key={l.id} listing={l} />)}
-            </div>
-          </section>
-        )}
-
-        <section style={{ background: 'var(--surface-2)', padding: 'var(--space-7) var(--space-4)' }}>
-          <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-            <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: 700, color: 'var(--ink)', letterSpacing: '-0.02em', marginBottom: 'var(--space-5)' }}>
-              Explore by type
-            </h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(180px,1fr))', gap: 'var(--space-3)' }}>
-              {[['Apartments','apartment'],['Villas','villa'],['Houses','house'],['Plots','plot'],['Commercial','commercial']].map(([label,type]) => (
-                <Link key={type} href={`/search?type=${type}`} style={{
-                  display: 'block', background: 'var(--surface)', border: '1px solid var(--border)',
-                  borderRadius: 'var(--radius-md)', padding: 'var(--space-4)', fontSize: 'var(--text-base)',
-                  fontWeight: 600, color: 'var(--ink)', transition: 'box-shadow var(--dur-base) var(--ease)',
-                }}>
-                  {label}
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section style={{ maxWidth: 1200, margin: '0 auto', padding: 'var(--space-7) var(--space-4)' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(240px,1fr))', gap: 'var(--space-6)' }}>
+        {/* ── Trust strip ── */}
+        <section style={{borderTop:'1px solid #E5E5E5',borderBottom:'1px solid #E5E5E5',padding:'20px 24px'}}>
+          <div style={{maxWidth:1200,margin:'0 auto',display:'flex',flexWrap:'wrap',gap:24,justifyContent:'center'}}>
             {[
-              ['Verified listings',      'Every property is checked before going live.'],
-              ['Transparent pricing',    'No hidden charges. What you see is what you pay.'],
-              ['Trusted professionals',  'Verified owners and agents only.'],
-            ].map(([t,b]) => (
-              <div key={t}>
-                <h3 style={{ fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--ink)', marginBottom: 'var(--space-2)' }}>{t}</h3>
-                <p style={{ fontSize: 'var(--text-sm)', color: 'var(--ink-soft)', lineHeight: 1.65 }}>{b}</p>
+              ['✓ Verified listings','Every property checked before going live'],
+              ['◎ Price analysis','Fair value vs market avg on every listing'],
+              ['◈ Area scores','Connectivity, schools, safety rated per locality'],
+              ['☑ Buying guide','Step-by-step checklist for every transaction'],
+            ].map(([t,b])=>(
+              <div key={t} style={{textAlign:'center'}}>
+                <div style={{fontSize:13,fontWeight:600,color:'#111',marginBottom:2}}>{t}</div>
+                <div style={{fontSize:12,color:'#6B6B6B'}}>{b}</div>
               </div>
             ))}
           </div>
         </section>
+
+        {/* ── Featured ── */}
+        {featured.length > 0 && (
+          <section style={{maxWidth:1200,margin:'0 auto',padding:'56px 24px 72px'}}>
+            <div style={{display:'flex',alignItems:'baseline',justifyContent:'space-between',marginBottom:24}}>
+              <h2 style={{fontSize:20,fontWeight:600,color:'#111',letterSpacing:'-0.02em'}}>Featured Properties</h2>
+              <Link href="/search" style={{fontSize:13,color:'#6B6B6B',textDecoration:'underline'}}>View all</Link>
+            </div>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:'32px 20px'}}>
+              {featured.map((l:any)=><PropertyCard key={l.id} listing={l}/>)}
+            </div>
+          </section>
+        )}
+
+        {/* ── Categories ── */}
+        <section style={{background:'#F7F7F7',padding:'52px 24px'}}>
+          <div style={{maxWidth:1200,margin:'0 auto'}}>
+            <h2 style={{fontSize:20,fontWeight:600,color:'#111',letterSpacing:'-0.02em',marginBottom:20}}>Explore by type</h2>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(160px,1fr))',gap:10}}>
+              {[['Apartments','apartment'],['Villas','villa'],['Houses','house'],['Plots','plot'],['Commercial','commercial']].map(([label,type])=>(
+                <Link key={type} href={`/search?type=${type}`} style={{display:'block',background:'#fff',border:'1px solid #E5E5E5',borderRadius:12,padding:'18px 16px',fontSize:14,fontWeight:500,color:'#111'}}>{label}</Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── How it works ── */}
+        <section style={{maxWidth:1200,margin:'0 auto',padding:'56px 24px 80px'}}>
+          <h2 style={{fontSize:20,fontWeight:600,color:'#111',letterSpacing:'-0.02em',marginBottom:8}}>How GoNest works</h2>
+          <p style={{fontSize:14,color:'#6B6B6B',marginBottom:32}}>We guarantee what we control. We facilitate everything else.</p>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(220px,1fr))',gap:32}}>
+            {[
+              ['1. Discover','Search verified listings with price insights and area scores.'],
+              ['2. Schedule','Book a visit in one click. No repeated calls to 10 agents.'],
+              ['3. Analyse','See fair value estimates, EMI breakdown, and checklist.'],
+              ['4. Transact','Follow the guided journey from token to registration.'],
+            ].map(([t,b])=>(
+              <div key={t}>
+                <h3 style={{fontSize:14,fontWeight:600,color:'#111',marginBottom:6}}>{t}</h3>
+                <p style={{fontSize:13,color:'#6B6B6B',lineHeight:1.65}}>{b}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
       </main>
       <Footer />
     </>

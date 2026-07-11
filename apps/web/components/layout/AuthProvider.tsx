@@ -2,14 +2,14 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
-import type { Profile } from '@/lib/types';
-type Ctx = { user: User|null; profile: Profile|null; loading: boolean; signOut: ()=>Promise<void>; refreshProfile: ()=>Promise<void> };
-const AuthCtx = createContext<Ctx>({ user:null, profile:null, loading:true, signOut:async()=>{}, refreshProfile:async()=>{} });
+type Profile = { id: string; full_name: string|null; phone: string|null; role: string; agency_name: string|null; agent_verified: boolean; rera_number: string|null; avatar_url: string|null };
+type Ctx = { user: User|null; profile: Profile|null; loading: boolean; signOut: ()=>Promise<void>; refresh: ()=>Promise<void> };
+const Ctx = createContext<Ctx>({ user:null, profile:null, loading:true, signOut:async()=>{}, refresh:async()=>{} });
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user,setUser]=useState<User|null>(null);
   const [profile,setProfile]=useState<Profile|null>(null);
   const [loading,setLoading]=useState(true);
-  const loadProfile = useCallback(async(uid:string)=>{
+  const loadProfile=useCallback(async(uid:string)=>{
     const{data}=await supabase.from('profiles').select('*').eq('id',uid).maybeSingle();
     setProfile(data as Profile|null);
   },[]);
@@ -23,7 +23,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return()=>sub.subscription.unsubscribe();
   },[loadProfile]);
   const signOut=async()=>{await supabase.auth.signOut();setProfile(null);};
-  const refreshProfile=useCallback(async()=>{ if(user)await loadProfile(user.id); },[user,loadProfile]);
-  return <AuthCtx.Provider value={{user,profile,loading,signOut,refreshProfile}}>{children}</AuthCtx.Provider>;
+  const refresh=useCallback(async()=>{if(user)await loadProfile(user.id);},[user,loadProfile]);
+  return <Ctx.Provider value={{user,profile,loading,signOut,refresh}}>{children}</Ctx.Provider>;
 }
-export const useAuth=()=>useContext(AuthCtx);
+export const useAuth=()=>useContext(Ctx);

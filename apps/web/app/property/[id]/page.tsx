@@ -4,151 +4,126 @@ import { notFound } from 'next/navigation';
 import { getListingById, getSimilarListings, imgUrl } from '@/lib/api';
 import { formatPrice, bhkLabel, capitalize } from '@/lib/format';
 import { PropertyCard } from '@/components/property/PropertyCard';
-import { ImageCarousel } from '@/components/property/ImageCarousel';
 import { ContactForms } from './ContactForms';
-import { ReviewsAndReport } from './ReviewsAndReport';
+import { FairValueWidget } from '@/components/intelligence/FairValueWidget';
+import { NeighbourhoodCard } from '@/components/intelligence/NeighbourhoodCard';
+import { EMICalculator } from '@/components/transaction/EMICalculator';
+import { DocumentChecklist } from '@/components/transaction/DocumentChecklist';
+import { TransactionTimeline } from '@/components/transaction/TransactionTimeline';
 import type { Metadata } from 'next';
 
 export async function generateMetadata({ params }: { params: Promise<{id:string}> }): Promise<Metadata> {
-  const { id } = await params;
-  const l = await getListingById(id);
-  if (!l) return { title: 'Property not found' };
-  const city = (l.city as any)?.name ?? '';
-  return {
-    title: l.title,
-    description: `${bhkLabel(l.bedrooms,l.property_type)} ${capitalize(l.property_type)} for ${l.purpose==='sale'?'sale':'rent'} in ${city}. ${formatPrice(l.price,l.purpose)}.`,
-    openGraph: {
-      title: l.title,
-      description: l.description ?? '',
-      images: l.listing_images[0] ? [imgUrl(l.listing_images[0].storage_path)] : [],
-    },
-  };
+  const{id}=await params;
+  const l=await getListingById(id);
+  if(!l)return{title:'Property not found'};
+  return{title:l.title,description:`${bhkLabel(l.bedrooms,l.property_type)} ${capitalize(l.property_type)} for ${l.purpose==='sale'?'sale':'rent'}. ${formatPrice(l.price,l.purpose)}.`};
 }
 
 export default async function PropertyPage({ params }: { params: Promise<{id:string}> }) {
-  const { id } = await params;
-  const l = await getListingById(id);
-  if (!l) notFound();
-
-  const similar  = await getSimilarListings(l, 3);
-  const imgs     = [...(l.listing_images??[])].sort((a,b)=>a.sort_order-b.sort_order);
-  const city     = (l.city     as any)?.name ?? '';
-  const locality = (l.locality as any)?.name ?? '';
-  const poster   = l.poster as any;
-
-  const badge = l.verification_level==='platform_verified' ? { label: 'GoNest Verified', bg: 'var(--primary)' }
-              : l.verification_level==='verified'           ? { label: 'Verified', bg: 'var(--ink-soft)' } : null;
-
-  const specs = [
-    l.bedrooms  > 0 && `${bhkLabel(l.bedrooms,l.property_type)}`,
-    l.bathrooms > 0 && `${l.bathrooms} bath`,
-    l.sqft          && `${l.sqft.toLocaleString('en-IN')} ft²`,
-    l.furnishing    && l.furnishing.replace('-',' '),
-    l.floor_number  && `Floor ${l.floor_number}${l.total_floors ? '/' + l.total_floors : ''}`,
-    l.facing        && `${capitalize(l.facing)} facing`,
-  ].filter(Boolean) as string[];
-
-  return (
+  const{id}=await params;
+  const l=await getListingById(id);
+  if(!l)notFound();
+  const similar=await getSimilarListings(l,3);
+  const imgs=[...(l.listing_images??[])].sort((a:any,b:any)=>a.sort_order-b.sort_order);
+  const city=l.city?.name??'';
+  const locality=l.locality?.name??'';
+  const localitySlug=l.locality?.slug??'';
+  const poster=l.poster as any;
+  const badge=l.verification_level==='platform_verified'?'GoNest Verified':l.verification_level==='verified'?'Verified':null;
+  const specs=[l.bedrooms>0&&`${bhkLabel(l.bedrooms,l.property_type)}`,l.bathrooms>0&&`${l.bathrooms} bath`,l.sqft&&`${l.sqft.toLocaleString('en-IN')} ft²`,l.furnishing&&l.furnishing.replace('-',' '),l.facing&&`${capitalize(l.facing)} facing`,l.floor_number&&`Floor ${l.floor_number}${l.total_floors?'/'+l.total_floors:''}`].filter(Boolean) as string[];
+  return(
     <>
-      <Nav />
-      <main style={{ maxWidth: 1000, margin: '0 auto', padding: 'var(--space-5) var(--space-4) var(--space-8)' }}>
-        <div style={{ marginBottom: 'var(--space-5)' }}>
-          <ImageCarousel images={imgs} urlFor={imgUrl} alt={l.title} />
-        </div>
-
-        {imgs.length > 1 && (
-          <div style={{ display: 'flex', gap: 8, marginBottom: 'var(--space-6)', overflowX: 'auto' }}>
-            {imgs.slice(0,6).map(img => (
-              <div key={img.id} style={{ width: 104, height: 72, flexShrink: 0, borderRadius: 'var(--radius-sm)', overflow: 'hidden', background: 'var(--surface-3)' }}>
-                <img src={imgUrl(img.storage_path)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+      <Nav/>
+      <main style={{maxWidth:1000,margin:'0 auto',padding:'28px 24px 80px'}}>
+        {/* Images */}
+        {imgs[0]&&(
+          <div style={{borderRadius:16,overflow:'hidden',aspectRatio:'16/9',background:'#F0F0F0',marginBottom:16}}>
+            <img src={imgUrl(imgs[0].storage_path)} alt={l.title} style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}}/>
+          </div>
+        )}
+        {imgs.length>1&&(
+          <div style={{display:'flex',gap:8,marginBottom:32,overflowX:'auto'}}>
+            {imgs.slice(1,6).map((img:any)=>(
+              <div key={img.id} style={{width:100,height:70,flexShrink:0,borderRadius:8,overflow:'hidden',background:'#F0F0F0'}}>
+                <img src={imgUrl(img.storage_path)} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
               </div>
             ))}
           </div>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 'var(--space-7)', alignItems: 'start' }}>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 300px',gap:48,alignItems:'start'}}>
+          {/* Left col */}
           <div>
-            {badge && (
-              <span style={{
-                fontSize: 'var(--text-xs)', fontWeight: 600, color: '#fff', background: badge.bg,
-                padding: '4px 12px', borderRadius: 'var(--radius-full)', display: 'inline-block', marginBottom: 'var(--space-3)',
-              }}>
-                {badge.label}
-              </span>
-            )}
-            <h1 style={{ fontSize: 'var(--text-xl)', fontWeight: 700, color: 'var(--ink)', letterSpacing: '-0.02em', marginBottom: 6 }}>
-              {l.title}
-            </h1>
-            <p style={{ fontSize: 'var(--text-base)', color: 'var(--ink-soft)', marginBottom: 'var(--space-4)' }}>
-              {locality}{locality&&city?', ':''}{city}
-            </p>
-
-            <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 700, color: 'var(--ink)', letterSpacing: '-0.02em', marginBottom: 6 }}>
+            {badge&&<span style={{fontSize:11,fontWeight:600,color:'#fff',background:'#111',padding:'3px 10px',borderRadius:9999,display:'inline-block',marginBottom:12}}>{badge}</span>}
+            <h1 style={{fontSize:26,fontWeight:700,color:'#111',letterSpacing:'-0.02em',marginBottom:6}}>{l.title}</h1>
+            <p style={{fontSize:14,color:'#6B6B6B',marginBottom:20}}>{locality}{locality&&city?', ':''}{city}</p>
+            <div style={{fontSize:28,fontWeight:700,color:'#111',marginBottom:8}}>
               {formatPrice(l.price,l.purpose)}
-              {l.purpose==='rent' && l.security_deposit && (
-                <span style={{ fontSize: 'var(--text-sm)', fontWeight: 400, color: 'var(--ink-faint)', marginLeft: 10 }}>
-                  + ₹{l.security_deposit.toLocaleString('en-IN')} deposit
-                </span>
-              )}
+              {l.purpose==='rent'&&l.security_deposit&&<span style={{fontSize:13,fontWeight:400,color:'#6B6B6B',marginLeft:10}}>+ ₹{l.security_deposit.toLocaleString('en-IN')} deposit</span>}
             </div>
-            {l.price_negotiable && <p style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-faint)', marginBottom: 'var(--space-5)' }}>Price negotiable</p>}
+            {l.price_negotiable&&<p style={{fontSize:12,color:'#6B6B6B',marginBottom:16}}>Price negotiable</p>}
 
-            {specs.length > 0 && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-5)', paddingBottom: 'var(--space-4)', borderBottom: '1px solid var(--border)', marginBottom: 'var(--space-4)' }}>
-                {specs.map(s => (
-                  <div key={s} style={{ fontSize: 'var(--text-base)', fontWeight: 600, color: 'var(--ink)' }}>{s}</div>
-                ))}
+            {/* Specs */}
+            {specs.length>0&&(
+              <div style={{display:'flex',flexWrap:'wrap',gap:20,paddingBottom:20,borderBottom:'1px solid #E5E5E5',marginBottom:20}}>
+                {specs.map((s:string)=><div key={s}><div style={{fontWeight:600,fontSize:15,color:'#111'}}>{s}</div></div>)}
               </div>
             )}
 
-            {l.description && <p style={{ fontSize: 'var(--text-base)', color: 'var(--ink-soft)', lineHeight: 1.75, marginBottom: 'var(--space-5)' }}>{l.description}</p>}
+            {/* LAYER 2: Fair value */}
+            <FairValueWidget price={l.price} sqft={l.sqft} localitySlug={localitySlug} purpose={l.purpose}/>
 
-            {l.landmark && (
-              <p style={{ fontSize: 'var(--text-sm)', color: 'var(--ink-soft)', marginBottom: 'var(--space-4)' }}>
-                <strong style={{ color: 'var(--ink)' }}>Landmark:</strong> {l.landmark}
-              </p>
-            )}
+            {/* LAYER 2: Neighbourhood */}
+            {localitySlug&&<NeighbourhoodCard localitySlug={localitySlug} localityName={locality}/>}
 
-            {poster?.phone && (
+            {l.description&&<p style={{fontSize:14,color:'#3D3D3D',lineHeight:1.75,marginBottom:24}}>{l.description}</p>}
+            {l.landmark&&<p style={{fontSize:13,color:'#6B6B6B',marginBottom:20}}><strong>Landmark:</strong> {l.landmark}</p>}
+
+            {/* WhatsApp */}
+            {poster?.phone&&(
               <a href={`https://wa.me/91${poster.phone.replace(/\D/g,'')}?text=${encodeURIComponent(`Hi, I'm interested in: ${l.title}`)}`}
                 target="_blank" rel="noopener noreferrer"
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 24px', borderRadius: 'var(--radius-full)',
-                  fontSize: 'var(--text-sm)', fontWeight: 600, color: '#fff', background: '#25D366', marginBottom: 'var(--space-4)',
-                }}>
-                WhatsApp Owner
+                style={{display:'inline-flex',alignItems:'center',gap:8,padding:'10px 20px',borderRadius:9999,fontSize:13,fontWeight:600,color:'#fff',background:'#25D366',marginBottom:20}}>
+                WhatsApp Agent
               </a>
             )}
 
-            {poster && (
-              <div style={{ padding: 'var(--space-3)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', marginBottom: 'var(--space-4)' }}>
-                <p style={{ fontSize: 'var(--text-sm)', fontWeight: 600, color: 'var(--ink)', marginBottom: 2 }}>
-                  {poster.full_name ?? 'Agent'} · {poster.role==='agent' ? 'Agent' : 'Owner'}
-                </p>
-                {poster.agency_name && <p style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-soft)' }}>{poster.agency_name}</p>}
-                {poster.agent_verified && <p style={{ fontSize: 'var(--text-xs)', color: 'var(--success)', marginTop: 4 }}>✓ GoNest verified agent</p>}
-                {poster.rera_number && <p style={{ fontSize: 'var(--text-xs)', color: 'var(--ink-soft)' }}>RERA: {poster.rera_number}</p>}
+            {/* Poster */}
+            {poster&&(
+              <div style={{padding:14,border:'1px solid #E5E5E5',borderRadius:12,marginBottom:24}}>
+                <p style={{fontSize:13,fontWeight:600,color:'#111',marginBottom:2}}>{poster.full_name??'Agent'} · {poster.role==='agent'?'Agent':'Owner'}</p>
+                {poster.agency_name&&<p style={{fontSize:12,color:'#6B6B6B'}}>{poster.agency_name}</p>}
+                {poster.agent_verified&&<p style={{fontSize:11,color:'#16A34A',marginTop:4}}>✓ GoNest verified agent</p>}
+                {poster.rera_number&&<p style={{fontSize:11,color:'#6B6B6B'}}>RERA: {poster.rera_number}</p>}
               </div>
             )}
+
+            {/* LAYER 3: EMI */}
+            {l.purpose==='sale'&&<EMICalculator price={l.price}/>}
+
+            {/* LAYER 3: Checklist */}
+            <DocumentChecklist purpose={l.purpose}/>
+
+            <div style={{marginTop:20}}>
+              <TransactionTimeline/>
+            </div>
           </div>
 
-          <ContactForms listingId={l.id} />
+          {/* Right col — contact panel */}
+          <ContactForms listingId={l.id}/>
         </div>
 
-        <ReviewsAndReport listingId={l.id} />
-
-        {similar.length > 0 && (
-          <div style={{ marginTop: 'var(--space-7)', paddingTop: 'var(--space-6)', borderTop: '1px solid var(--border)' }}>
-            <h2 style={{ fontSize: 'var(--text-lg)', fontWeight: 700, color: 'var(--ink)', marginBottom: 'var(--space-5)', letterSpacing: '-0.01em' }}>
-              Similar properties
-            </h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))', gap: 'var(--space-5) var(--space-4)' }}>
-              {similar.map(s=><PropertyCard key={s.id} listing={s} />)}
+        {/* Similar */}
+        {similar.length>0&&(
+          <div style={{marginTop:56,paddingTop:40,borderTop:'1px solid #E5E5E5'}}>
+            <h2 style={{fontSize:18,fontWeight:600,color:'#111',marginBottom:24}}>Similar properties</h2>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(260px,1fr))',gap:'28px 20px'}}>
+              {similar.map((s:any)=><PropertyCard key={s.id} listing={s}/>)}
             </div>
           </div>
         )}
       </main>
-      <Footer />
+      <Footer/>
     </>
   );
 }
