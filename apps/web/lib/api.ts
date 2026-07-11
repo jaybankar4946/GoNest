@@ -168,3 +168,37 @@ export async function adminVerifyAgent(userId: string, verified: boolean) {
 export async function adminSetRole(userId: string, role: string) {
   await supabase.from('profiles').update({ role }).eq('id', userId);
 }
+
+export async function getAgents(cityId?: string) {
+  let q = supabase
+    .from('profiles')
+    .select('id,full_name,phone,role,agency_name,agent_verified,avatar_url,rera_number,rating,review_count')
+    .in('role', ['agent', 'owner'])
+    .eq('agent_verified', true)
+    .order('rating', { ascending: false });
+
+  const { data, error } = await q;
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function getAgentById(id: string) {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id,full_name,phone,role,agency_name,agent_verified,avatar_url,rera_number,rating,review_count')
+    .eq('id', id)
+    .maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
+export async function getAgentListings(agentId: string) {
+  const { data, error } = await supabase
+    .from('listings')
+    .select(CARD)
+    .eq('posted_by', agentId)
+    .eq('status', 'active')
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as any[];
+}
