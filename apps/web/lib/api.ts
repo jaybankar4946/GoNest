@@ -175,7 +175,7 @@ export async function getAgents(cityId?: string) {
     .select('id,full_name,phone,phone_verified,role,agency_name,agent_verified,avatar_url,rera_number')
     .in('role', ['agent', 'owner'])
     .eq('agent_verified', true)
-    .order('rating', { ascending: false });
+    .order('created_at', { ascending: false });
 
   if (error) throw error;
   if (!agents || agents.length === 0) return [];
