@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
 import { useAuth } from '@/components/layout/AuthProvider';
-import { adminGetPending, adminGetAllListings, adminGetBrokers, adminGetLeads, adminGetVisits, adminGetStats, adminModerate, adminToggleFeatured, adminVerifyAgent, adminSetRole } from '@/lib/api';
+import { adminGetPendingListings, adminGetAllListings, adminGetBrokers, adminGetAllLeads, adminGetAllVisits, adminGetStats, adminModerate, adminToggleFeatured, adminVerifyAgent, adminSetRole } from '@/lib/api';
 import { imgUrl } from '@/lib/api';
 import { formatPrice, timeAgo } from '@/lib/format';
 const TABS=['queue','listings','brokers','leads','visits'] as const;
@@ -27,11 +27,11 @@ export default function AdminPage() {
   const[busy,setBusy]=useState(false);
   useEffect(()=>{if(!loading&&profile?.role!=='admin')router.push('/');},[loading,profile,router]);
   useEffect(()=>{
-    adminGetPending().then(setQueue);
+    adminGetPendingListings().then(setQueue);
     adminGetAllListings().then(setListings);
     adminGetBrokers().then(setBrokers);
-    adminGetLeads().then(setLeads);
-    adminGetVisits().then(setVisits);
+    adminGetAllLeads().then(setLeads);
+    adminGetAllVisits().then(setVisits);
     adminGetStats().then(setStats);
   },[]);
   const moderate=async(id:string,status:string,vl:string,rej?:string)=>{setBusy(true);await adminModerate(id,status,vl,rej);setQueue(p=>p.filter(l=>l.id!==id));setListings(p=>p.map(l=>l.id===id?{...l,status,verification_level:vl}:l));setBusy(false);};

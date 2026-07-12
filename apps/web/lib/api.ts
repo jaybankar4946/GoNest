@@ -192,3 +192,51 @@ export async function adminVerifyAgent(userId: string, verified: boolean) {
 export async function adminSetRole(userId: string, role: string) {
   await supabase.from('profiles').update({ role }).eq('id', userId);
 }
+
+// --- Backward-compatible aliases (older names used by admin/page.tsx) ---
+export const adminGetPending = adminGetPendingListings;
+export const adminGetLeads   = adminGetAllLeads;
+export const adminGetVisits  = adminGetAllVisits;
+
+// --- Agents directory (used by app/agents and app/agents/[id]) ---
+export async function getAgents(): Promise<Profile[]> {
+  const { data } = await supabase.from('profiles').select('*')
+    .in('role', ['agent','owner']).order('rating', { ascending: false, nullsFirst: false });
+  return (data ?? []) as Profile[];
+}
+export async function getAgentById(id: string): Promise<Profile | null> {
+  const { data } = await supabase.from('profiles').select('*').eq('id', id).maybeSingle();
+  return data as Profile | null;
+}
+export async function getAgentListings(agentId: string, limit = 24): Promise<ListingFull[]> {
+  const { data } = await supabase.from('listings')
+    .select(CARD).eq('posted_by', agentId).eq('status', 'active')
+    .order('created_at', { ascending: false }).limit(limit);
+  return (data ?? []) as unknown as ListingFull[];
+}
+
+// --- Reviews & Reports (app/property/[id]/ReviewsAndReport.tsx) ---
+export async function getListingReviews(listingId: string) {
+  const { data } = await supabase.from('listing_reviews')
+    .select('id,reviewer_name,rating,comment,created_at')
+    .eq('listing_id', listingId).order('created_at', { ascending: false });
+  return data ?? [];
+}
+
+export async function getListingRatingSummary(listingId: string): Promise<{ avg: number; count: number }> {
+  const { data } = await supabase.from('listing_reviews').select('rating').eq('listing_id', listingId);
+  const rows = data ?? [];
+  if (rows.length === 0) return { avg: 0, count: 0 };
+  const avg = rows.reduce((sum: number, r: any) => sum + r.rating, 0) / rows.length;
+  return { avg, count: rows.length };
+}
+
+export async function submitReview(input: { listing_id: string; reviewer_id: string; reviewer_name: string; rating: number; comment?: string }) {
+  const { error } = await supabase.from('listing_reviews').insert(input);
+  if (error) throw error;
+}
+
+export async function reportListing(input: { listing_id: string; reporter_id: string | null; reason: string; details?: string }) {
+  const { error } = await supabase.from('listing_reports').insert(input);
+  if (error) throw error;
+}
