@@ -240,3 +240,43 @@ export async function reportListing(input: { listing_id: string; reporter_id: st
   const { error } = await supabase.from('listing_reports').insert(input);
   if (error) throw error;
 }
+
+// --- Edit/delete listing, profile, password reset ---
+
+export async function getListingForEdit(id: string): Promise<ListingFull | null> {
+  const { data, error } = await supabase.from('listings').select(FULL).eq('id', id).maybeSingle();
+  if (error) throw error;
+  return data as unknown as ListingFull | null;
+}
+
+export async function updateListing(id: string, input: Record<string, unknown>) {
+  const { error } = await supabase.from('listings').update(input).eq('id', id);
+  if (error) throw error;
+}
+
+export async function deleteListing(id: string) {
+  const { error } = await supabase.from('listings').delete().eq('id', id);
+  if (error) throw error;
+}
+
+export async function deleteListingImage(imageId: string, storagePath: string) {
+  await supabase.storage.from('listing-images').remove([storagePath]);
+  await supabase.from('listing_images').delete().eq('id', imageId);
+}
+
+export async function updateProfile(userId: string, input: Record<string, unknown>) {
+  const { error } = await supabase.from('profiles').update(input).eq('id', userId);
+  if (error) throw error;
+}
+
+export async function requestPasswordReset(email: string) {
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/auth/reset-password`,
+  });
+  if (error) throw error;
+}
+
+export async function updatePassword(newPassword: string) {
+  const { error } = await supabase.auth.updateUser({ password: newPassword });
+  if (error) throw error;
+}

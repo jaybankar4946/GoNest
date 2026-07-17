@@ -14,7 +14,9 @@ const sel: React.CSSProperties = {padding:'8px 14px',borderRadius:9999,fontSize:
 export function SearchResults({ cities, init }: { cities: City[]; init: Record<string,string> }) {
   const [results, setResults] = useState<ListingFull[]>([]);
   const [total,   setTotal]   = useState(0);
+  const [page,    setPage]    = useState(1);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [view,    setView]    = useState<'list'|'map'|'split'>('list');
   const [quickViewId, setQuickViewId] = useState<string|null>(null);
   const [f, setF] = useState({
@@ -28,11 +30,12 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
 
   const load = useCallback(async () => {
     setLoading(true);
+    setPage(1);
     try {
       const r = await searchListings({
         q: f.q||undefined, purpose: f.purpose||undefined, cityId: f.cityId||undefined,
         minBedrooms: f.beds ? Number(f.beds) : undefined,
-        propertyType: f.type||undefined, sort: f.sort,
+        propertyType: f.type||undefined, sort: f.sort, page: 1,
       });
       setResults(r.listings); setTotal(r.total);
     } finally { setLoading(false); }
@@ -41,6 +44,22 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
   useEffect(() => { load(); }, [load]);
   const upd = (k: string, v: string) => setF(p=>({...p,[k]:v}));
 
+  const loadMore = async () => {
+    setLoadingMore(true);
+    try {
+      const nextPage = page + 1;
+      const r = await searchListings({
+        q: f.q||undefined, purpose: f.purpose||undefined, cityId: f.cityId||undefined,
+        minBedrooms: f.beds ? Number(f.beds) : undefined,
+        propertyType: f.type||undefined, sort: f.sort, page: nextPage,
+      });
+      setResults(p => [...p, ...r.listings]);
+      setPage(nextPage);
+    } finally { setLoadingMore(false); }
+  };
+
+  const hasMore = results.length < total;
+
   const viewBtn = (v: typeof view, Icon: any, label: string) => (
     <button onClick={()=>setView(v)}
       style={{display:'flex',alignItems:'center',gap:5,padding:'8px 14px',borderRadius:9999,fontSize:13,fontWeight:view===v?600:400,
@@ -48,6 +67,15 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
       <Icon size={14}/>{label}
     </button>
   );
+
+  const LoadMoreBtn = () => hasMore ? (
+    <div style={{display:'flex',justifyContent:'center',marginTop:36}}>
+      <button onClick={loadMore} disabled={loadingMore}
+        style={{padding:'11px 28px',borderRadius:9999,fontSize:13,fontWeight:600,color:'#111',border:'1px solid #111',background:'#fff',opacity:loadingMore?0.6:1,cursor:loadingMore?'default':'pointer'}}>
+        {loadingMore ? 'Loading…' : `Load more (${total - results.length} remaining)`}
+      </button>
+    </div>
+  ) : null;
 
   return (
     <main style={{maxWidth:1200,margin:'0 auto',padding:'32px 24px'}}>
@@ -97,9 +125,12 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
       )}
 
       {view === 'list' && (
-        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:'36px 20px'}}>
-          {results.map(l=><PropertyCard key={l.id} listing={l} onQuickView={setQuickViewId} />)}
-        </div>
+        <>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:'36px 20px'}}>
+            {results.map(l=><PropertyCard key={l.id} listing={l} onQuickView={setQuickViewId} />)}
+          </div>
+          <LoadMoreBtn />
+        </>
       )}
 
       {view === 'map' && results.length > 0 && (
@@ -110,8 +141,11 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
 
       {view === 'split' && results.length > 0 && (
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-5 items-start">
-          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(240px,1fr))',gap:'28px 16px'}}>
-            {results.map(l=><PropertyCard key={l.id} listing={l} onQuickView={setQuickViewId} />)}
+          <div>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(240px,1fr))',gap:'28px 16px'}}>
+              {results.map(l=><PropertyCard key={l.id} listing={l} onQuickView={setQuickViewId} />)}
+            </div>
+            <LoadMoreBtn />
           </div>
           <div style={{position:'sticky',top:80,height:'calc(100vh - 120px)'}}>
             <MapView listings={results} onSelect={(l)=>setQuickViewId(l.id)} />

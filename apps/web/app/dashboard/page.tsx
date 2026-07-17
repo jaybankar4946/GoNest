@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
 import { useAuth } from '@/components/layout/AuthProvider';
-import { getMyListings, getMyLeads, getMyVisits, updateLeadStatus, updateVisitStatus } from '@/lib/api';
+import { getMyListings, getMyLeads, getMyVisits, updateLeadStatus, updateVisitStatus, deleteListing } from '@/lib/api';
 import { formatPrice, timeAgo } from '@/lib/format';
 import Link from 'next/link';
 const SC: Record<string,string>={active:'#16A34A',pending_review:'#D97706',rejected:'#DC2626',draft:'#6B6B6B',archived:'#6B6B6B',new:'#2563EB',contacted:'#D97706',qualified:'#111',closed:'#16A34A',spam:'#DC2626',requested:'#D97706',confirmed:'#16A34A',completed:'#6B6B6B',cancelled:'#DC2626'};
@@ -18,6 +18,7 @@ export default function DashboardPage() {
   const[leads,setLeads]=useState<any[]>([]);
   const[visits,setVisits]=useState<any[]>([]);
   const[busy,setBusy]=useState(false);
+  const[deletingId,setDeletingId]=useState<string|null>(null);
   useEffect(()=>{if(!loading&&!user)router.push('/auth');},[loading,user,router]);
   useEffect(()=>{
     if(!user)return;
@@ -26,6 +27,12 @@ export default function DashboardPage() {
     getMyVisits(user.id).then(setVisits);
   },[user]);
   const canPost=['owner','agent','admin'].includes(profile?.role??'');
+  const removeListing=async(id:string)=>{
+    if(!confirm('Delete this listing? This cannot be undone.'))return;
+    setDeletingId(id);
+    try{await deleteListing(id);setListings(p=>p.filter(l=>l.id!==id));}
+    finally{setDeletingId(null);}
+  };
   const TB=(t:string): React.CSSProperties=>({padding:'8px 18px',borderRadius:9999,fontSize:13,fontWeight:tab===t?600:400,color:tab===t?'#111':'#6B6B6B',background:tab===t?'#F7F7F7':'transparent',border:'none',cursor:'pointer'});
   const ROW: React.CSSProperties={display:'flex',alignItems:'flex-start',justifyContent:'space-between',padding:'14px 16px',border:'1px solid #E5E5E5',borderRadius:12,flexDirection:'column',gap:10};
   return(
@@ -36,6 +43,7 @@ export default function DashboardPage() {
           <div><h1 style={{fontSize:22,fontWeight:700,color:'#111',letterSpacing:'-0.02em',marginBottom:4}}>Account</h1><p style={{fontSize:13,color:'#6B6B6B'}}>{user?.email} · {profile?.role??'buyer'}</p></div>
           <div style={{display:'flex',gap:8}}>
             {canPost&&<Link href="/dashboard/new" style={{padding:'8px 18px',borderRadius:9999,fontSize:13,fontWeight:600,color:'#fff',background:'#111',display:'inline-flex',alignItems:'center',gap:6}}>+ New listing</Link>}
+            <Link href="/dashboard/settings" style={{padding:'8px 18px',borderRadius:9999,fontSize:13,color:'#111',border:'1px solid #E5E5E5',background:'#fff',display:'inline-flex',alignItems:'center'}}>Settings</Link>
             <button onClick={async()=>{await signOut();router.push('/');}} style={{padding:'8px 18px',borderRadius:9999,fontSize:13,color:'#111',border:'1px solid #111',background:'#fff',cursor:'pointer'}}>Sign out</button>
           </div>
         </div>
@@ -62,6 +70,10 @@ export default function DashboardPage() {
                 <div style={{display:'flex',alignItems:'center',gap:10}}>
                   <span style={SB(SC[l.status]??'#6B6B6B')}>{l.status.replace('_',' ')}</span>
                   <Link href={`/property/${l.id}`} style={{fontSize:12,color:'#6B6B6B',textDecoration:'underline'}}>View</Link>
+                  <Link href={`/dashboard/edit/${l.id}`} style={{fontSize:12,color:'#2563EB',textDecoration:'underline'}}>Edit</Link>
+                  <button onClick={()=>removeListing(l.id)} disabled={deletingId===l.id} style={{fontSize:12,color:'#DC2626',background:'none',border:'none',cursor:'pointer',textDecoration:'underline',opacity:deletingId===l.id?0.5:1}}>
+                    {deletingId===l.id?'Deleting…':'Delete'}
+                  </button>
                 </div>
               </div>
             ))}
