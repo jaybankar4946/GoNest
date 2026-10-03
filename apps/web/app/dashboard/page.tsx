@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
 import { useAuth } from '@/components/layout/AuthProvider';
-import { getMyListings, getMyLeads, getMyVisits, updateLeadStatus, updateVisitStatus, deleteListing } from '@/lib/api';
+import { setMyListingStatus, getMyListings, getMyLeads, getMyVisits, updateLeadStatus, updateVisitStatus, deleteListing } from '@/lib/api';
 import { formatPrice, timeAgo } from '@/lib/format';
 import Link from 'next/link';
 const SC: Record<string,string>={active:'#16A34A',pending_review:'#D97706',rejected:'#DC2626',draft:'#6B6B6B',archived:'#6B6B6B',new:'#2563EB',contacted:'#D97706',qualified:'#111',closed:'#16A34A',spam:'#DC2626',requested:'#D97706',confirmed:'#16A34A',completed:'#6B6B6B',cancelled:'#DC2626'};
@@ -66,10 +66,13 @@ export default function DashboardPage() {
             {listings.length===0&&<p style={{fontSize:14,color:'#6B6B6B'}}>No listings yet. <Link href="/dashboard/new" style={{color:'#111',textDecoration:'underline'}}>Create your first</Link></p>}
             {listings.map((l:any)=>(
               <div key={l.id} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'14px 16px',border:'1px solid #E5E5E5',borderRadius:12}}>
-                <div><p style={{fontSize:14,fontWeight:600,color:'#111',marginBottom:2}}>{l.title}</p><p style={{fontSize:12,color:'#6B6B6B'}}>{formatPrice(l.price,l.purpose)} · {l.view_count} views · {l.lead_count} leads</p></div>
+                <div><p style={{fontSize:14,fontWeight:600,color:'#111',marginBottom:2}}>{l.title}</p><p style={{fontSize:12,color:'#6B6B6B'}}>{formatPrice(l.price,l.purpose)} · {l.view_count} views · {l.lead_count} leads</p>{l.status==='rejected'&&l.rejection_reason&&<p style={{fontSize:12,color:'#DC2626',marginTop:4}}>Rejected: {l.rejection_reason}</p>}</div>
                 <div style={{display:'flex',alignItems:'center',gap:10}}>
                   <span style={SB(SC[l.status]??'#6B6B6B')}>{l.status.replace('_',' ')}</span>
                   <Link href={`/property/${l.id}`} style={{fontSize:12,color:'#6B6B6B',textDecoration:'underline'}}>View</Link>
+                  {l.status==='archived'
+                    ?<button style={sel} onClick={async()=>{await setMyListingStatus(l.id,'pending_review');setListings(p=>p.map(x=>x.id===l.id?{...x,status:'pending_review'}:x));}}>Re-submit</button>
+                    :<button style={sel} onClick={async()=>{await setMyListingStatus(l.id,'archived');setListings(p=>p.map(x=>x.id===l.id?{...x,status:'archived'}:x));}}>Archive</button>}
                   <Link href={`/dashboard/edit/${l.id}`} style={{fontSize:12,color:'#2563EB',textDecoration:'underline'}}>Edit</Link>
                   <button onClick={()=>removeListing(l.id)} disabled={deletingId===l.id} style={{fontSize:12,color:'#DC2626',background:'none',border:'none',cursor:'pointer',textDecoration:'underline',opacity:deletingId===l.id?0.5:1}}>
                     {deletingId===l.id?'Deleting…':'Delete'}

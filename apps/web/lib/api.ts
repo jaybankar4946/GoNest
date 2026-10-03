@@ -14,6 +14,8 @@ const FULL = `*,city:cities(id,name,slug,state),locality:localities(id,name,slug
   listing_images(id,storage_path,sort_order,is_cover),
   poster:profiles!posted_by(full_name,phone,role,agency_name,agent_verified,avatar_url,rera_number)`;
 
+const PUBLIC_PROFILE = 'id,full_name,phone,phone_verified,role,agency_name,rera_number,agent_verified,avatar_url,bio,total_listings,rating,review_count,created_at';
+
 export type SearchParams = {
   q?: string; purpose?: string; cityId?: string; localityId?: string;
   minBedrooms?: number; propertyType?: string; minPrice?: number; maxPrice?: number;
@@ -23,7 +25,14 @@ export type SearchParams = {
 export async function searchListings(p: SearchParams = {}) {
   const page = p.page ?? 1;
   let q = supabase.from('listings').select(CARD, { count: 'exact' }).eq('status', 'active');
-  if (p.q)            q = q.ilike('title', `%${p.q}%`);
+  if (p.q) {
+    const term = p.q.replace(/[%,()]/g, ' ').trim();
+    if (term) {
+      const { data: locs } = await supabase.from('localities').select('id').ilike('name', `%${term}%`).limit(20);
+      const ids = (locs ?? []).map((l: any) => l.id);
+      q = q.or([`title.ilike.%${term}%`, ids.length ? `locality_id.in.(${ids.join(',')})` : ''].filter(Boolean).join(','));
+    }
+  }
   if (p.purpose)      q = q.eq('purpose', p.purpose);
   if (p.cityId)       q = q.eq('city_id', p.cityId);
   if (p.localityId)   q = q.eq('locality_id', p.localityId);
@@ -83,8 +92,14 @@ export async function getSavedIds(userId: string): Promise<Set<string>> {
   return new Set((data ?? []).map((r: any) => r.listing_id));
 }
 export async function toggleSaved(userId: string, listingId: string, isSaved: boolean) {
-  if (isSaved) await supabase.from('saved_listings').delete().eq('user_id', userId).eq('listing_id', listingId);
-  else         await supabase.from('saved_listings').insert({ user_id: userId, listing_id: listingId });
+  const r = isSaved
+    ? await supabase.from('saved_listings').delete().eq('user_id', userId).eq('listing_id', listingId)
+    : await supabase.from('saved_listings').insert({ user_id: userId, listing_id: listingId });
+  if (r.error) throw r.error;
+}
+export async function setMyListingStatus(id: string, status: 'archived' | 'pending_review') {
+  const { error } = await supabase.from('listings').update({ status }).eq('id', id);
+  if (error) throw error;
 }
 export async function getSavedListings(userId: string): Promise<ListingFull[]> {
   const { data } = await supabase.from('saved_listings')
@@ -156,7 +171,7 @@ export async function adminGetAllListings(): Promise<ListingFull[]> {
   return (data ?? []) as unknown as ListingFull[];
 }
 export async function adminGetBrokers(): Promise<Profile[]> {
-  const { data } = await supabase.from('profiles').select('*').in('role', ['agent','owner']).order('created_at', { ascending: false });
+  const { data } = await supabase.from('profiles').select(PUBLIC_PROFILE).in('role', ['agent','owner']).order('created_at', { ascending: false });
   return (data ?? []) as Profile[];
 }
 export async function adminGetAllLeads() {
@@ -200,12 +215,12 @@ export const adminGetVisits  = adminGetAllVisits;
 
 // --- Agents directory (used by app/agents and app/agents/[id]) ---
 export async function getAgents(): Promise<Profile[]> {
-  const { data } = await supabase.from('profiles').select('*')
+  const { data } = await supabase.from('profiles').select(PUBLIC_PROFILE)
     .in('role', ['agent','owner']).order('rating', { ascending: false, nullsFirst: false });
   return (data ?? []) as Profile[];
 }
 export async function getAgentById(id: string): Promise<Profile | null> {
-  const { data } = await supabase.from('profiles').select('*').eq('id', id).maybeSingle();
+  const { data } = await supabase.from('profiles').select(PUBLIC_PROFILE).eq('id', id).maybeSingle();
   return data as Profile | null;
 }
 export async function getAgentListings(agentId: string, limit = 24): Promise<ListingFull[]> {

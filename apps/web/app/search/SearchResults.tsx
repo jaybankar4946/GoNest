@@ -4,7 +4,9 @@ import dynamic from 'next/dynamic';
 import { Map as MapIcon, List, Columns } from 'lucide-react';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { ListingQuickView } from '@/components/property/ListingQuickView';
-import { searchListings } from '@/lib/api';
+import { searchListings, getSavedIds, toggleSaved } from '@/lib/api';
+import { useAuth } from '@/components/layout/AuthProvider';
+import { formatPrice } from '@/lib/format';
 import type { ListingFull, City } from '@/lib/types';
 
 const MapView = dynamic(() => import('@/components/property/MapView').then(m => m.MapView), { ssr: false });
@@ -12,6 +14,8 @@ const MapView = dynamic(() => import('@/components/property/MapView').then(m => 
 const sel: React.CSSProperties = {padding:'8px 14px',borderRadius:9999,fontSize:13,color:'#111',border:'1px solid var(--border)',background:'#fff',cursor:'pointer'};
 
 export function SearchResults({ cities, init }: { cities: City[]; init: Record<string,string> }) {
+  const { user } = useAuth();
+  const [saved, setSaved] = useState<Set<string>>(new Set());
   const [results, setResults] = useState<ListingFull[]>([]);
   const [total,   setTotal]   = useState(0);
   const [page,    setPage]    = useState(1);
@@ -25,6 +29,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
     cityId:  init.city    ?? '',
     beds:    init.beds    ?? '',
     type:    init.type    ?? '',
+    max:     init.max     ?? '',
     sort:    (init.sort   ?? 'newest') as 'newest'|'price_asc'|'price_desc'|'popular',
   });
 
@@ -35,13 +40,21 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
       const r = await searchListings({
         q: f.q||undefined, purpose: f.purpose||undefined, cityId: f.cityId||undefined,
         minBedrooms: f.beds ? Number(f.beds) : undefined,
-        propertyType: f.type||undefined, sort: f.sort, page: 1,
+        propertyType: f.type||undefined, maxPrice: f.max ? Number(f.max) : undefined, sort: f.sort, page: 1,
       });
       setResults(r.listings); setTotal(r.total);
     } finally { setLoading(false); }
   }, [f]);
 
   useEffect(() => { load(); }, [load]);
+  useEffect(() => { if (user) getSavedIds(user.id).then(setSaved); else setSaved(new Set()); }, [user]);
+  const toggle = async (id: string) => {
+    if (!user) { window.location.href = '/auth'; return; }
+    const was = saved.has(id);
+    const flip = (on: boolean) => setSaved(p => { const n = new Set(p); on ? n.add(id) : n.delete(id); return n; });
+    flip(!was);
+    try { await toggleSaved(user.id, id, was); } catch { flip(was); }
+  };
   const upd = (k: string, v: string) => setF(p=>({...p,[k]:v}));
 
   const loadMore = async () => {
@@ -51,7 +64,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
       const r = await searchListings({
         q: f.q||undefined, purpose: f.purpose||undefined, cityId: f.cityId||undefined,
         minBedrooms: f.beds ? Number(f.beds) : undefined,
-        propertyType: f.type||undefined, sort: f.sort, page: nextPage,
+        propertyType: f.type||undefined, maxPrice: f.max ? Number(f.max) : undefined, sort: f.sort, page: nextPage,
       });
       setResults(p => [...p, ...r.listings]);
       setPage(nextPage);
@@ -99,6 +112,11 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
             <option key={t} value={t}>{t.charAt(0).toUpperCase()+t.slice(1)}</option>
           ))}
         </select>
+        <select style={sel} value={f.max} onChange={e=>upd('max',e.target.value)}>
+          <option value="">Any budget</option>
+          {(f.purpose==='rent' ? [15000,25000,40000,60000,100000] : [5000000,10000000,20000000,50000000])
+            .map(n=><option key={n} value={n}>Up to {formatPrice(n, f.purpose==='rent'?'rent':'sale')}</option>)}
+        </select>
         <select style={sel} value={f.sort} onChange={e=>upd('sort',e.target.value as typeof f.sort)}>
           <option value="newest">Newest</option>
           <option value="price_asc">Price ↑</option>
@@ -127,7 +145,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
       {view === 'list' && (
         <>
           <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:'36px 20px'}}>
-            {results.map(l=><PropertyCard key={l.id} listing={l} onQuickView={setQuickViewId} />)}
+            {results.map(l=><PropertyCard key={l.id} listing={l} onQuickView={setQuickViewId} isSaved={saved.has(l.id)} onToggle={toggle} />)}
           </div>
           <LoadMoreBtn />
         </>
@@ -143,7 +161,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-5 items-start">
           <div>
             <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(240px,1fr))',gap:'28px 16px'}}>
-              {results.map(l=><PropertyCard key={l.id} listing={l} onQuickView={setQuickViewId} />)}
+              {results.map(l=><PropertyCard key={l.id} listing={l} onQuickView={setQuickViewId} isSaved={saved.has(l.id)} onToggle={toggle} />)}
             </div>
             <LoadMoreBtn />
           </div>

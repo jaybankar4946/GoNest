@@ -18,3 +18,5 @@ Thumbs.db
 *.swp
 .vercel
 backend/.env.local
+supabase/.temp/
+.DS_Store

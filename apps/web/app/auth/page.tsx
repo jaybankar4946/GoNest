@@ -28,9 +28,8 @@ export default function AuthPage() {
         if(error)throw error;
         setMsg({type:'ok',text:'Magic link sent — check your inbox.'});
       }else if(isSignUp){
-        const{data,error}=await supabase.auth.signUp({email,password:pass,options:{data:{full_name:name}}});
+        const{data,error}=await supabase.auth.signUp({email,password:pass,options:{data:{full_name:name,role}}});
         if(error)throw error;
-        if(data.user)await supabase.from('profiles').update({role,full_name:name}).eq('id',data.user.id);
         if(data.session)router.push('/dashboard');
         else setMsg({type:'ok',text:'Check your email to confirm, then sign in.'});
       }else{

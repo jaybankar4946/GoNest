@@ -10,7 +10,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile,setProfile]=useState<Profile|null>(null);
   const [loading,setLoading]=useState(true);
   const loadProfile=useCallback(async(uid:string)=>{
-    const{data}=await supabase.from('profiles').select('*').eq('id',uid).maybeSingle();
+    const{data}=await supabase.from('profiles').select('id,full_name,phone,role,agency_name,agent_verified,rera_number,avatar_url').eq('id',uid).maybeSingle();
     setProfile(data as Profile|null);
   },[]);
   useEffect(()=>{
