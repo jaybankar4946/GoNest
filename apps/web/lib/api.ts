@@ -14,7 +14,7 @@ const FULL = `*,city:cities(id,name,slug,state),locality:localities(id,name,slug
   listing_images(id,storage_path,sort_order,is_cover),
   poster:profiles!posted_by(full_name,phone,role,agency_name,agent_verified,avatar_url,rera_number)`;
 
-const PUBLIC_PROFILE = 'id,full_name,phone,phone_verified,role,agency_name,rera_number,agent_verified,avatar_url,bio,total_listings,rating,review_count,created_at';
+const PUBLIC_PROFILE = 'id,full_name,phone,role,agency_name,rera_number,agent_verified,avatar_url,created_at';
 
 export type SearchParams = {
   q?: string; purpose?: string; cityId?: string; localityId?: string;
@@ -216,7 +216,7 @@ export const adminGetVisits  = adminGetAllVisits;
 // --- Agents directory (used by app/agents and app/agents/[id]) ---
 export async function getAgents(): Promise<Profile[]> {
   const { data } = await supabase.from('profiles').select(PUBLIC_PROFILE)
-    .in('role', ['agent','owner']).order('rating', { ascending: false, nullsFirst: false });
+    .in('role', ['agent','owner']).order('created_at', { ascending: false });
   return (data ?? []) as Profile[];
 }
 export async function getAgentById(id: string): Promise<Profile | null> {

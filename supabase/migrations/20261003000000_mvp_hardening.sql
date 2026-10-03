@@ -31,8 +31,6 @@ begin
   if auth.uid() is not null and not public.is_admin() then
     if new.role = 'admin' then new.role := old.role; end if;
     new.agent_verified := old.agent_verified;
-    new.phone_verified := old.phone_verified;
-    new.rating := old.rating; new.review_count := old.review_count; new.total_listings := old.total_listings;
   end if;
   return new;
 end $$;
@@ -63,10 +61,13 @@ begin
   where id = p_listing_id;
 end $$;
 
--- Hide email from the public; keep phone/agency/RERA (needed for contact flow)
-revoke select on profiles from anon, authenticated;
-grant select (id, full_name, phone, phone_verified, role, agency_name, rera_number, agent_verified,
-              avatar_url, bio, total_listings, rating, review_count, created_at) on profiles to anon, authenticated;
+-- Hide email from the public: grant every existing column except email
+do $$ declare cols text; begin
+  select string_agg(quote_ident(column_name), ', ') into cols from information_schema.columns
+   where table_schema = 'public' and table_name = 'profiles' and column_name <> 'email';
+  execute 'revoke select on public.profiles from anon, authenticated';
+  execute format('grant select (%s) on public.profiles to anon, authenticated', cols);
+end $$;
 
 alter table profiles enable row level security;
 alter table listings enable row level security;
