@@ -30,13 +30,13 @@ export default function SavedPage() {
         {!user?(
           <div style={{textAlign:'center',padding:'60px 0'}}>
             <p style={{fontSize:15,color:'#6B6B6B',marginBottom:20}}>Sign in to see your saved properties.</p>
-            <Link href="/auth" style={{padding:'10px 24px',borderRadius:9999,fontSize:14,fontWeight:600,color:'#fff',background:'#111',display:'inline-block'}}>Sign in</Link>
+            <Link href="/auth" style={{padding:'10px 24px',borderRadius:9999,fontSize:14,fontWeight:600,color:'#fff',background:'var(--primary)',display:'inline-block'}}>Sign in</Link>
           </div>
         ):loading?<p style={{fontSize:14,color:'#6B6B6B'}}>Loading…</p>
         :listings.length===0?(
           <div style={{textAlign:'center',padding:'60px 0'}}>
             <p style={{fontSize:15,color:'#6B6B6B',marginBottom:16}}>No saved properties yet.</p>
-            <Link href="/search" style={{padding:'9px 22px',borderRadius:9999,fontSize:13,fontWeight:600,color:'#111',border:'1px solid #111',display:'inline-block'}}>Browse properties</Link>
+            <Link href="/search" style={{padding:'9px 22px',borderRadius:9999,fontSize:13,fontWeight:600,color:'#111',border:'1px solid var(--primary)',display:'inline-block'}}>Browse properties</Link>
           </div>
         ):(
           <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:'36px 20px'}}>

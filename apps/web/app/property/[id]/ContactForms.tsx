@@ -2,8 +2,8 @@
 import { useState } from 'react';
 import { useAuth } from '@/components/layout/AuthProvider';
 import { submitLead, submitVisit } from '@/lib/api';
-const inp: React.CSSProperties={width:'100%',padding:'10px 12px',border:'1px solid #E5E5E5',borderRadius:10,fontSize:13,outline:'none'};
-const btn: React.CSSProperties={width:'100%',padding:'11px',borderRadius:9999,fontSize:14,fontWeight:600,cursor:'pointer',border:'none',background:'#111',color:'#fff'};
+const inp: React.CSSProperties={width:'100%',padding:'10px 12px',border:'1px solid #E5E5E5',borderRadius:12,fontSize:13,outline:'none',background:'#F9FAFB'};
+const btn: React.CSSProperties={width:'100%',padding:'13px',borderRadius:14,fontSize:14,fontWeight:700,cursor:'pointer',border:'none',background:'var(--primary)',color:'#fff'};
 export function ContactForms({listingId}:{listingId:string}) {
   const{user,profile}=useAuth();
   const[tab,setTab]=useState<'lead'|'visit'>('lead');
@@ -32,10 +32,10 @@ export function ContactForms({listingId}:{listingId:string}) {
   };
   if(done)return(<div style={{border:'1px solid #E5E5E5',borderRadius:14,padding:20}}><p style={{fontSize:14,color:'#16A34A',lineHeight:1.6}}>{done}</p></div>);
   return(
-    <div style={{border:'1px solid #E5E5E5',borderRadius:14,overflow:'hidden',position:'sticky',top:80}}>
+    <div style={{border:'1px solid #E5E7EB',borderRadius:24,overflow:'hidden',position:'sticky',top:84,boxShadow:'var(--shadow-lg)',background:'#fff'}}>
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',borderBottom:'1px solid #E5E5E5'}}>
         {(['lead','visit'] as const).map(t=>(
-          <button key={t} onClick={()=>setTab(t)} style={{padding:'12px',fontSize:13,fontWeight:tab===t?600:400,color:tab===t?'#111':'#6B6B6B',background:tab===t?'#F7F7F7':'#fff',borderBottom:tab===t?'2px solid #111':'2px solid transparent'}}>
+          <button key={t} onClick={()=>setTab(t)} style={{padding:'12px',fontSize:13,fontWeight:tab===t?600:400,color:tab===t?'#111':'#6B6B6B',background:tab===t?'#F7F7F7':'#fff',borderBottom:tab===t?'2px solid var(--primary)':'2px solid transparent'}}>
             {t==='lead'?'Contact':'Book Visit'}
           </button>
         ))}

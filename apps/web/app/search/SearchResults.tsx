@@ -11,7 +11,7 @@ import type { ListingFull, City } from '@/lib/types';
 
 const MapView = dynamic(() => import('@/components/property/MapView').then(m => m.MapView), { ssr: false });
 
-const sel: React.CSSProperties = {padding:'8px 14px',borderRadius:9999,fontSize:13,color:'#111',border:'1px solid var(--border)',background:'#fff',cursor:'pointer'};
+const sel: React.CSSProperties = {padding:'10px 16px',borderRadius:12,fontSize:13,color:'#111827',border:'1px solid #E5E7EB',background:'#F9FAFB',cursor:'pointer',fontWeight:500};
 
 export function SearchResults({ cities, init }: { cities: City[]; init: Record<string,string> }) {
   const { user } = useAuth();
@@ -75,7 +75,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
 
   const viewBtn = (v: typeof view, Icon: any, label: string) => (
     <button onClick={()=>setView(v)}
-      style={{display:'flex',alignItems:'center',gap:5,padding:'8px 14px',borderRadius:9999,fontSize:13,fontWeight:view===v?600:400,
+      style={{display:'flex',alignItems:'center',gap:5,padding:'8px 14px',borderRadius:12,fontSize:13,fontWeight:view===v?600:500,
         color:view===v?'#fff':'#111', background:view===v?'var(--primary)':'#fff', border:'1px solid '+(view===v?'var(--primary)':'var(--border)')}}>
       <Icon size={14}/>{label}
     </button>
@@ -91,8 +91,12 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
   ) : null;
 
   return (
-    <main style={{maxWidth:1200,margin:'0 auto',padding:'32px 24px'}}>
-      <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:32,alignItems:'center'}}>
+    <div style={{background:'#F9FAFB',minHeight:'70vh'}}>
+    <main style={{maxWidth:1200,margin:'0 auto',padding:'36px 24px'}}>
+      <h1 style={{fontFamily:'var(--font-manrope), var(--font-display)',fontSize:30,fontWeight:800,letterSpacing:'-0.025em',color:'#111827',marginBottom:20}}>
+        {f.purpose==='rent'?'Properties for rent':f.purpose==='sale'?'Properties for sale':'Search properties'}
+      </h1>
+      <div style={{display:'flex',gap:10,flexWrap:'wrap',marginBottom:28,alignItems:'center',background:'#fff',border:'1px solid #E5E7EB',borderRadius:20,padding:14,boxShadow:'var(--shadow-sm)'}}>
         <select style={sel} value={f.purpose} onChange={e=>upd('purpose',e.target.value)}>
           <option value="">Buy or Rent</option>
           <option value="sale">Buy</option>
@@ -173,5 +177,6 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
 
       {quickViewId && <ListingQuickView listingId={quickViewId} onClose={()=>setQuickViewId(null)} />}
     </main>
+    </div>
   );
 }

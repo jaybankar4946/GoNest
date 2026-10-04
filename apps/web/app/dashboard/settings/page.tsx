@@ -8,7 +8,7 @@ import { updateProfile, updatePassword } from '@/lib/api';
 
 const inp: React.CSSProperties={width:'100%',padding:'11px 14px',border:'1px solid #E5E5E5',borderRadius:12,fontSize:14,outline:'none',background:'#fff'};
 const lbl: React.CSSProperties={fontSize:13,fontWeight:600,color:'#111',marginBottom:6,display:'block'};
-const btn: React.CSSProperties={padding:'11px 22px',borderRadius:9999,fontSize:13,fontWeight:600,color:'#fff',background:'#111',border:'none',cursor:'pointer'};
+const btn: React.CSSProperties={padding:'11px 22px',borderRadius:9999,fontSize:13,fontWeight:600,color:'#fff',background:'var(--primary)',border:'none',cursor:'pointer'};
 
 export default function SettingsPage() {
   const router = useRouter();

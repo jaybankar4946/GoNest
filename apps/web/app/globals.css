@@ -4,8 +4,8 @@
 
 :root{
   /* Brand (from Premium Marketplace UI Kit) */
-  --primary:#0057FF;
-  --primary-hover:#0046D1;
+  --primary:#2563EB;
+  --primary-hover:#1D4ED8;
   --accent:#FF5A5F;
 
   /* Neutrals — kept close to GoNest's existing palette so old and new screens match */
@@ -24,9 +24,9 @@
   /* Radius scale */
   --radius-sm:6px;
   --radius-md:10px;
-  --radius-lg:12px;
+  --radius-lg:16px;
   --radius-xl:16px;
-  --radius-2xl:24px;
+  --radius-2xl:28px;
 
   /* Shadow scale (soft/Apple style, from the kit) */
   --shadow-sm:0 1px 2px 0 rgba(0,0,0,.05);

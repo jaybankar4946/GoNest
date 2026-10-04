@@ -42,9 +42,9 @@ export default function DashboardPage() {
         <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:32}}>
           <div><h1 style={{fontSize:22,fontWeight:700,color:'#111',letterSpacing:'-0.02em',marginBottom:4}}>Account</h1><p style={{fontSize:13,color:'#6B6B6B'}}>{user?.email} · {profile?.role??'buyer'}</p></div>
           <div style={{display:'flex',gap:8}}>
-            {canPost&&<Link href="/dashboard/new" style={{padding:'8px 18px',borderRadius:9999,fontSize:13,fontWeight:600,color:'#fff',background:'#111',display:'inline-flex',alignItems:'center',gap:6}}>+ New listing</Link>}
+            {canPost&&<Link href="/dashboard/new" style={{padding:'8px 18px',borderRadius:9999,fontSize:13,fontWeight:600,color:'#fff',background:'var(--primary)',display:'inline-flex',alignItems:'center',gap:6}}>+ New listing</Link>}
             <Link href="/dashboard/settings" style={{padding:'8px 18px',borderRadius:9999,fontSize:13,color:'#111',border:'1px solid #E5E5E5',background:'#fff',display:'inline-flex',alignItems:'center'}}>Settings</Link>
-            <button onClick={async()=>{await signOut();router.push('/');}} style={{padding:'8px 18px',borderRadius:9999,fontSize:13,color:'#111',border:'1px solid #111',background:'#fff',cursor:'pointer'}}>Sign out</button>
+            <button onClick={async()=>{await signOut();router.push('/');}} style={{padding:'8px 18px',borderRadius:9999,fontSize:13,color:'#111',border:'1px solid var(--primary)',background:'#fff',cursor:'pointer'}}>Sign out</button>
           </div>
         </div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12,marginBottom:28}}>
@@ -56,8 +56,8 @@ export default function DashboardPage() {
           {(['listings','leads','visits'] as const).map(t=>(
             <button key={t} onClick={()=>setTab(t)} style={TB(t)}>
               {t.charAt(0).toUpperCase()+t.slice(1)}
-              {t==='leads'&&leads.filter(l=>l.status==='new').length>0&&<span style={{marginLeft:6,fontSize:11,background:'#111',color:'#fff',borderRadius:9999,padding:'1px 6px'}}>{leads.filter(l=>l.status==='new').length}</span>}
-              {t==='visits'&&visits.filter(v=>v.status==='requested').length>0&&<span style={{marginLeft:6,fontSize:11,background:'#111',color:'#fff',borderRadius:9999,padding:'1px 6px'}}>{visits.filter(v=>v.status==='requested').length}</span>}
+              {t==='leads'&&leads.filter(l=>l.status==='new').length>0&&<span style={{marginLeft:6,fontSize:11,background:'var(--primary)',color:'#fff',borderRadius:9999,padding:'1px 6px'}}>{leads.filter(l=>l.status==='new').length}</span>}
+              {t==='visits'&&visits.filter(v=>v.status==='requested').length>0&&<span style={{marginLeft:6,fontSize:11,background:'var(--primary)',color:'#fff',borderRadius:9999,padding:'1px 6px'}}>{visits.filter(v=>v.status==='requested').length}</span>}
             </button>
           ))}
         </div>

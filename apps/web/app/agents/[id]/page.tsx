@@ -38,7 +38,7 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ i
 
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
           {agent.agent_verified && (
-            <span style={{ fontSize: 12, fontWeight: 600, color: '#fff', background: '#111', padding: '4px 12px', borderRadius: 9999 }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: '#fff', background:'var(--primary)', padding: '4px 12px', borderRadius: 9999 }}>
               ✓ GoNest Verified
             </span>
           )}
