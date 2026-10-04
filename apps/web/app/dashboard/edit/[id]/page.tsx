@@ -83,7 +83,7 @@ export default function EditListingPage() {
         <h1 style={{fontSize:20,fontWeight:700,color:'#111',marginBottom:24}}>Edit listing</h1>
 
         <div style={{display:'flex',flexDirection:'column',gap:18}}>
-          <div><label style={lbl}>I want to</label><div style={{display:'flex',gap:8}}>{(['sale','rent'] as const).map(p=><button key={p} onClick={()=>upd('purpose',p)} style={{flex:1,padding:'10px',borderRadius:9999,fontSize:13,fontWeight:500,border:f.purpose===p?'1.5px solid #111':'1px solid #E5E5E5',background:f.purpose===p?'#F7F7F7':'#fff',color:'#111',cursor:'pointer'}}>{p==='sale'?'Sell':'Rent out'}</button>)}</div></div>
+          <div><label style={lbl}>I want to</label><div style={{display:'flex',gap:8}}>{(['sale','rent'] as const).map(p=><button key={p} onClick={()=>upd('purpose',p)} style={{flex:1,padding:'10px',borderRadius:9999,fontSize:13,fontWeight:500,border:f.purpose===p?'1.5px solid var(--primary)':'1px solid #E5E5E5',background:f.purpose===p?'#F7F7F7':'#fff',color:'#111',cursor:'pointer'}}>{p==='sale'?'Sell':'Rent out'}</button>)}</div></div>
           <div><label style={lbl}>Property type</label><select value={f.property_type} onChange={e=>upd('property_type',e.target.value)} style={inp}>{['apartment','villa','house','plot','commercial','office','pg'].map(t=><option key={t} value={t}>{t.charAt(0).toUpperCase()+t.slice(1)}</option>)}</select></div>
           <div><label style={lbl}>Title</label><input value={f.title} onChange={e=>upd('title',e.target.value)} style={inp}/></div>
           <div><label style={lbl}>Description</label><textarea rows={4} value={f.description} onChange={e=>upd('description',e.target.value)} style={{...inp,resize:'vertical'}}/></div>
@@ -111,7 +111,7 @@ export default function EditListingPage() {
                 {remainingImages.map((img,i)=>(
                   <div key={img.id} style={{position:'relative',borderRadius:8,overflow:'hidden',aspectRatio:'1/1',background:'#F0F0F0'}}>
                     <img src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/listing-images/${img.storage_path}`} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
-                    {i===0&&<span style={{position:'absolute',bottom:4,left:4,fontSize:10,fontWeight:600,color:'#fff',background:'#111',padding:'2px 6px',borderRadius:9999}}>Cover</span>}
+                    {i===0&&<span style={{position:'absolute',bottom:4,left:4,fontSize:10,fontWeight:600,color:'#fff',background:'var(--primary)',padding:'2px 6px',borderRadius:9999}}>Cover</span>}
                     <button onClick={()=>removeExistingImage(img.id)} style={{position:'absolute',top:4,right:4,width:20,height:20,borderRadius:'50%',background:'#fff',display:'flex',alignItems:'center',justifyContent:'center',border:'none',cursor:'pointer'}}><X size={11}/></button>
                   </div>
                 ))}
@@ -127,7 +127,7 @@ export default function EditListingPage() {
 
         {err&&<p style={{fontSize:13,color:'#DC2626',marginTop:16}}>{err}</p>}
         <div style={{display:'flex',justifyContent:'flex-end',marginTop:36}}>
-          <button onClick={submit} disabled={saving} style={{display:'flex',alignItems:'center',gap:6,padding:'10px 22px',borderRadius:9999,fontSize:13,fontWeight:600,color:'#fff',background:'#111',border:'none',opacity:saving?0.6:1,cursor:'pointer'}}>{saving?'Saving…':<><Check size={15}/>Save changes</>}</button>
+          <button onClick={submit} disabled={saving} style={{display:'flex',alignItems:'center',gap:6,padding:'10px 22px',borderRadius:9999,fontSize:13,fontWeight:600,color:'#fff',background:'var(--primary)',border:'none',opacity:saving?0.6:1,cursor:'pointer'}}>{saving?'Saving…':<><Check size={15}/>Save changes</>}</button>
         </div>
       </div>
     </div>

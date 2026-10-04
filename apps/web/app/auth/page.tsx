@@ -48,8 +48,8 @@ export default function AuthPage() {
     finally{ setLoad(false); }
   };
   if(isSignUp&&step==='role')return(
-    <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',padding:24}}>
-      <div style={{width:'100%',maxWidth:400}}>
+    <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',padding:24,background:'#F9FAFB'}}>
+      <div style={{width:'100%',maxWidth:440,background:'#fff',border:'1px solid #E5E7EB',borderRadius:28,padding:32,boxShadow:'var(--shadow-xl)'}}>
         <button onClick={()=>router.push('/')} style={{display:'flex',alignItems:'center',gap:6,fontSize:13,color:'#6B6B6B',marginBottom:32,cursor:'pointer'}}><ChevronLeft size={16}/>Back</button>
         <h1 style={{fontSize:24,fontWeight:700,color:'#111',letterSpacing:'-0.02em',marginBottom:6}}>How will you use GoNest?</h1>
         <p style={{fontSize:14,color:'#6B6B6B',marginBottom:28}}>You can change this later in settings.</p>
@@ -68,8 +68,8 @@ export default function AuthPage() {
     </div>
   );
   return(
-    <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',padding:24}}>
-      <div style={{width:'100%',maxWidth:360}}>
+    <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',padding:24,background:'#F9FAFB'}}>
+      <div style={{width:'100%',maxWidth:400,background:'#fff',border:'1px solid #E5E7EB',borderRadius:28,padding:32,boxShadow:'var(--shadow-xl)'}}>
         <button onClick={()=>isSignUp?setStep('role'):router.push('/')} style={{display:'flex',alignItems:'center',gap:6,fontSize:13,color:'#6B6B6B',marginBottom:32,cursor:'pointer'}}><ChevronLeft size={16}/>Back</button>
         <h1 style={{fontSize:24,fontWeight:700,color:'#111',letterSpacing:'-0.02em',marginBottom:6}}>{mode==='magic'?'Sign in with email':isSignUp?'Create your account':'Welcome back'}</h1>
         <p style={{fontSize:14,color:'#6B6B6B',marginBottom:28}}>{mode==='magic'?"We'll email you a secure link.":'Sign in to save and manage properties.'}</p>
@@ -83,17 +83,17 @@ export default function AuthPage() {
             </div>
           )}
           {msg&&<div style={{fontSize:13,padding:'10px 12px',borderRadius:10,background:msg.type==='ok'?'#F0FDF4':'#FEF2F2',color:msg.type==='ok'?'#16A34A':'#DC2626'}}>{msg.text}</div>}
-          <button type="submit" disabled={loading} style={{padding:'12px',borderRadius:9999,fontSize:14,fontWeight:600,color:'#fff',background:'#111',border:'none',cursor:'pointer',marginTop:4,opacity:loading?0.6:1}}>{loading?'Please wait…':mode==='magic'?'Send magic link':isSignUp?'Create account':'Sign in'}</button>
+          <button type="submit" disabled={loading} style={{padding:'13px',borderRadius:14,fontSize:14,fontWeight:700,color:'#fff',background:'var(--primary)',border:'none',cursor:'pointer',marginTop:4,opacity:loading?0.6:1}}>{loading?'Please wait…':mode==='magic'?'Send magic link':isSignUp?'Create account':'Sign in'}</button>
         </form>
         {showForgot&&mode==='password'&&!isSignUp&&(
           resetSent?(
             <p style={{fontSize:13,color:'#16A34A',padding:'10px 12px',background:'#F0FDF4',borderRadius:10,marginTop:10}}>Reset link sent — check your inbox.</p>
           ):(
-            <button onClick={sendReset} disabled={loading} style={{width:'100%',marginTop:10,padding:'10px',borderRadius:9999,fontSize:13,fontWeight:500,color:'#111',border:'1px solid #111',background:'#fff',cursor:'pointer'}}>Send password reset link</button>
+            <button onClick={sendReset} disabled={loading} style={{width:'100%',marginTop:10,padding:'10px',borderRadius:9999,fontSize:13,fontWeight:500,color:'#111',border:'1px solid var(--primary)',background:'#fff',cursor:'pointer'}}>Send password reset link</button>
           )
         )}
         <div style={{display:'flex',alignItems:'center',gap:12,margin:'20px 0'}}><div style={{flex:1,height:1,background:'#E5E5E5'}}/><span style={{fontSize:12,color:'#9B9B9B'}}>or</span><div style={{flex:1,height:1,background:'#E5E5E5'}}/></div>
-        <button onClick={()=>{setMode(m=>m==='password'?'magic':'password');setMsg(null);setShowForgot(false);}} style={{width:'100%',padding:'11px',borderRadius:9999,fontSize:13,fontWeight:500,color:'#111',border:'1px solid #111',background:'#fff',cursor:'pointer'}}>{mode==='password'?'Continue with magic link':'Continue with password'}</button>
+        <button onClick={()=>{setMode(m=>m==='password'?'magic':'password');setMsg(null);setShowForgot(false);}} style={{width:'100%',padding:'11px',borderRadius:9999,fontSize:13,fontWeight:500,color:'#111',border:'1px solid var(--primary)',background:'#fff',cursor:'pointer'}}>{mode==='password'?'Continue with magic link':'Continue with password'}</button>
         {mode==='password'&&!isSignUp&&<button onClick={()=>{setIsSignUp(true);setStep('role');}} style={{width:'100%',marginTop:14,fontSize:13,color:'#6B6B6B',textAlign:'center'}}>Don&apos;t have an account? Sign up</button>}
       </div>
     </div>
