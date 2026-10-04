@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
-import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
+import { Inter, Plus_Jakarta_Sans, Manrope } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/components/layout/AuthProvider';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
+const manrope = Manrope({ subsets: ['latin'], weight: ['600','700','800'], variable: '--font-manrope', display: 'swap' });
 const jakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
   weight: ['600', '700', '800'],
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${jakarta.variable}`}>
+    <html lang="en" className={`${inter.variable} ${jakarta.variable} ${manrope.variable}`}>
       <body><AuthProvider>{children}</AuthProvider></body>
     </html>
   );

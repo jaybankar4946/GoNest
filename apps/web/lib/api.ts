@@ -295,3 +295,14 @@ export async function updatePassword(newPassword: string) {
   const { error } = await supabase.auth.updateUser({ password: newPassword });
   if (error) throw error;
 }
+
+export async function getHomeStats() {
+  const n = async (q: PromiseLike<{ count: number | null }>) => (await q).count ?? 0;
+  const [listings, verified, people, cities] = await Promise.all([
+    n(supabase.from('listings').select('id', { count: 'exact', head: true }).eq('status', 'active')),
+    n(supabase.from('listings').select('id', { count: 'exact', head: true }).eq('status', 'active').neq('verification_level', 'unverified')),
+    n(supabase.from('profiles').select('id', { count: 'exact', head: true }).in('role', ['agent', 'owner'])),
+    n(supabase.from('cities').select('id', { count: 'exact', head: true }).eq('is_active', true)),
+  ]);
+  return { listings, verified, people, cities };
+}
