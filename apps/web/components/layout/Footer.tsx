@@ -8,7 +8,7 @@ export function Footer() {
         </span>
         <div style={{display:'flex',gap:20,flexWrap:'wrap'}}>
           {['Buy','Rent','New Projects','Privacy','Terms','Contact'].map(l=>(
-            <Link key={l} href="#" style={{fontSize:13,color:'#6B6B6B'}}>{l}</Link>
+            <Link key={l} href={({Buy:'/buy',Rent:'/rent','New Projects':'/projects'} as Record<string,string>)[l]??'/'} style={{fontSize:13,color:'#6B6B6B'}}>{l}</Link>
           ))}
         </div>
         <span style={{fontSize:12,color:'#C8C8C8'}}>© 2026 GoNest · Mumbai</span>

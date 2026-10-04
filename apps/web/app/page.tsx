@@ -7,6 +7,7 @@ import { HomeSearch } from './HomeSearch';
 import { getFeatured, getCities } from '@/lib/api';
 import type { Metadata } from 'next';
 
+export const revalidate = 60;
 export const metadata: Metadata = {
   title: 'GoNest – Find Your Home in Mumbai',
 };

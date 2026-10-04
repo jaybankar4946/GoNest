@@ -55,3 +55,15 @@ img{display:block;max-width:100%}
 /* Leaflet map polish */
 .leaflet-container{font-family:var(--font-body);border-radius:var(--radius-lg)}
 .leaflet-popup-content-wrapper{border-radius:var(--radius-md);box-shadow:var(--shadow-lg)}
+
+/* Aliases for components written against an older token set */
+:root{
+  --ink:#111111;--ink-soft:#3D3D3D;--ink-faint:#6B6B6B;
+  --surface:#FFFFFF;--surface-2:#F7F7F7;--surface-3:#EBEBEB;
+  --primary-soft:#E6EEFF;--border-strong:#C8C8C8;--error:#DC2626;--radius-full:9999px;
+  --space-2:8px;--space-3:12px;--space-4:16px;--space-5:24px;--space-6:32px;--space-7:48px;--space-8:80px;
+  --text-xs:12px;--text-sm:13px;--text-base:14px;--text-md:18px;--text-2xl:28px;
+  --dur-fast:.12s;--dur-base:.2s;--ease:cubic-bezier(.4,0,.2,1);
+}
+.skeleton{background:linear-gradient(90deg,#F0F0F0 25%,#E5E5E5 50%,#F0F0F0 75%);background-size:200% 100%;animation:sk 1.2s infinite}
+@keyframes sk{to{background-position:-200% 0}}

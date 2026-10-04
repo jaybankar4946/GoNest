@@ -4,12 +4,14 @@ import { notFound } from 'next/navigation';
 import { getListingById, getSimilarListings, imgUrl } from '@/lib/api';
 import { formatPrice, bhkLabel, capitalize } from '@/lib/format';
 import { PropertyCard } from '@/components/property/PropertyCard';
+import { telHref, waHref } from '@/lib/contact';
+import { SaveButton } from '@/components/property/SaveButton';
+import { DetailMap } from '@/components/property/DetailMap';
+import { ReviewsAndReport } from './ReviewsAndReport';
+import Link from 'next/link';
 import { ContactForms } from './ContactForms';
-import { FairValueWidget } from '@/components/intelligence/FairValueWidget';
-import { NeighbourhoodCard } from '@/components/intelligence/NeighbourhoodCard';
 import { EMICalculator } from '@/components/transaction/EMICalculator';
 import { DocumentChecklist } from '@/components/transaction/DocumentChecklist';
-import { TransactionTimeline } from '@/components/transaction/TransactionTimeline';
 import type { Metadata } from 'next';
 
 export async function generateMetadata({ params }: { params: Promise<{id:string}> }): Promise<Metadata> {
@@ -70,28 +72,23 @@ export default async function PropertyPage({ params }: { params: Promise<{id:str
               </div>
             )}
 
-            {/* LAYER 2: Fair value */}
-            <FairValueWidget price={l.price} sqft={l.sqft} localitySlug={localitySlug} purpose={l.purpose}/>
-
-            {/* LAYER 2: Neighbourhood */}
-            {localitySlug&&<NeighbourhoodCard localitySlug={localitySlug} localityName={locality}/>}
-
             {l.description&&<p style={{fontSize:14,color:'#3D3D3D',lineHeight:1.75,marginBottom:24}}>{l.description}</p>}
             {l.landmark&&<p style={{fontSize:13,color:'#6B6B6B',marginBottom:20}}><strong>Landmark:</strong> {l.landmark}</p>}
 
-            {/* WhatsApp */}
             {poster?.phone&&(
-              <a href={`https://wa.me/91${poster.phone.replace(/\D/g,'')}?text=${encodeURIComponent(`Hi, I'm interested in: ${l.title}`)}`}
-                target="_blank" rel="noopener noreferrer"
-                style={{display:'inline-flex',alignItems:'center',gap:8,padding:'10px 20px',borderRadius:9999,fontSize:13,fontWeight:600,color:'#fff',background:'#25D366',marginBottom:20}}>
-                WhatsApp Agent
-              </a>
+              <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:20}}>
+                <a href={telHref(poster.phone)} style={{padding:'10px 20px',borderRadius:9999,fontSize:13,fontWeight:600,color:'#fff',background:'#111'}}>Call</a>
+                <a href={waHref(poster.phone,`Hi, I'm interested in: ${l.title}`)} target="_blank" rel="noopener noreferrer" style={{padding:'10px 20px',borderRadius:9999,fontSize:13,fontWeight:600,color:'#fff',background:'#25D366'}}>WhatsApp</a>
+                <SaveButton listingId={l.id}/>
+              </div>
             )}
+            <DetailMap listing={l}/>
+            {(l as any).video_url&&<video src={(l as any).video_url} controls style={{width:'100%',borderRadius:12,marginBottom:24}}/>}
 
             {/* Poster */}
             {poster&&(
               <div style={{padding:14,border:'1px solid #E5E5E5',borderRadius:12,marginBottom:24}}>
-                <p style={{fontSize:13,fontWeight:600,color:'#111',marginBottom:2}}>{poster.full_name??'Agent'} · {poster.role==='agent'?'Agent':'Owner'}</p>
+                <p style={{fontSize:13,fontWeight:600,color:'#111',marginBottom:2}}><Link href={`/agents/${l.posted_by}`} style={{textDecoration:'underline'}}>{poster.full_name??'Agent'}</Link> · {poster.role==='agent'?'Agent':'Owner'}</p>
                 {poster.agency_name&&<p style={{fontSize:12,color:'#6B6B6B'}}>{poster.agency_name}</p>}
                 {poster.agent_verified&&<p style={{fontSize:11,color:'#16A34A',marginTop:4}}>✓ GoNest verified agent</p>}
                 {poster.rera_number&&<p style={{fontSize:11,color:'#6B6B6B'}}>RERA: {poster.rera_number}</p>}
@@ -103,15 +100,13 @@ export default async function PropertyPage({ params }: { params: Promise<{id:str
 
             {/* LAYER 3: Checklist */}
             <DocumentChecklist purpose={l.purpose}/>
-
-            <div style={{marginTop:20}}>
-              <TransactionTimeline/>
-            </div>
           </div>
 
           {/* Right col — contact panel */}
           <ContactForms listingId={l.id}/>
         </div>
+
+        <ReviewsAndReport listingId={l.id}/>
 
         {/* Similar */}
         {similar.length>0&&(

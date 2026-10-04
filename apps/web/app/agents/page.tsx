@@ -4,6 +4,7 @@ import { Footer } from '@/components/layout/Footer';
 import { getAgents } from '@/lib/api';
 import type { Metadata } from 'next';
 
+export const revalidate = 60;
 export const metadata: Metadata = { title: 'Verified Agents & Owners in Mumbai' };
 
 export default async function AgentsPage() {
