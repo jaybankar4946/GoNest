@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, MapPin, ChevronDown } from 'lucide-react';
 import { formatPrice } from '@/lib/format';
+import { parseQuery } from '@/lib/parseQuery';
 import type { City } from '@/lib/types';
 
 const sel = 'w-full px-4 py-3 border border-gray-200 rounded-xl text-sm bg-white appearance-none focus:outline-none focus:border-blue-400';
@@ -16,11 +17,14 @@ export function HomeSearch({ cities }: { cities: City[] }) {
   const [max, setMax] = useState('');
   const budgets = purpose === 'rent' ? [15000, 25000, 40000, 60000, 100000] : [5000000, 10000000, 20000000, 50000000];
   const go = () => {
-    const p = new URLSearchParams({ purpose });
-    if (q.trim()) p.set('q', q.trim());
+    const t = parseQuery(q);
+    const p = new URLSearchParams({ purpose: t.purpose ?? purpose });
+    if (t.q) p.set('q', t.q);
     if (city) p.set('city', city);
-    if (beds) p.set('beds', beds);
-    if (max) p.set('max', max);
+    if (t.beds ?? beds) p.set('beds', (t.beds ?? beds) as string);
+    if (t.maxPrice ?? max) p.set('max', String(t.maxPrice ?? max));
+    if (t.minPrice) p.set('min', String(t.minPrice));
+    if (t.type) p.set('type', t.type);
     router.push(`/search?${p.toString()}`);
   };
   const Chev = () => <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />;
@@ -38,7 +42,7 @@ export function HomeSearch({ cities }: { cities: City[] }) {
         <div className="relative mb-4">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-blue-500" />
           <input value={q} onChange={e => setQ(e.target.value)} onKeyDown={e => e.key === 'Enter' && go()}
-            placeholder="Search locality or project, e.g. Andheri, Powai, Thane"
+            placeholder="Try: 2 BHK apartment in Thane under 1 crore"
             className="w-full pl-12 pr-4 py-3.5 border border-gray-200 rounded-2xl text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">

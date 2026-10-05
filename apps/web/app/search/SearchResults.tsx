@@ -7,6 +7,7 @@ import { ListingQuickView } from '@/components/property/ListingQuickView';
 import { searchListings, getSavedIds, toggleSaved } from '@/lib/api';
 import { useAuth } from '@/components/layout/AuthProvider';
 import { formatPrice } from '@/lib/format';
+import { parseQuery } from '@/lib/parseQuery';
 import type { ListingFull, City } from '@/lib/types';
 
 const MapView = dynamic(() => import('@/components/property/MapView').then(m => m.MapView), { ssr: false });
@@ -15,6 +16,8 @@ const sel: React.CSSProperties = {padding:'10px 16px',borderRadius:12,fontSize:1
 
 export function SearchResults({ cities, init }: { cities: City[]; init: Record<string,string> }) {
   const { user } = useAuth();
+  const [text, setText] = useState(init.q ?? '');
+  const runText = () => { const t = parseQuery(text); setF(p => ({ ...p, q: t.q, purpose: t.purpose ?? p.purpose, beds: t.beds ?? '', type: t.type ?? '', max: t.maxPrice ? String(t.maxPrice) : '', min: t.minPrice ? String(t.minPrice) : '' })); };
   const [saved, setSaved] = useState<Set<string>>(new Set());
   const [results, setResults] = useState<ListingFull[]>([]);
   const [total,   setTotal]   = useState(0);
@@ -30,6 +33,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
     beds:    init.beds    ?? '',
     type:    init.type    ?? '',
     max:     init.max     ?? '',
+    min:     init.min     ?? '',
     sort:    (init.sort   ?? 'newest') as 'newest'|'price_asc'|'price_desc'|'popular',
   });
 
@@ -40,7 +44,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
       const r = await searchListings({
         q: f.q||undefined, purpose: f.purpose||undefined, cityId: f.cityId||undefined,
         minBedrooms: f.beds ? Number(f.beds) : undefined,
-        propertyType: f.type||undefined, maxPrice: f.max ? Number(f.max) : undefined, sort: f.sort, page: 1,
+        propertyType: f.type||undefined, maxPrice: f.max ? Number(f.max) : undefined, minPrice: f.min ? Number(f.min) : undefined, sort: f.sort, page: 1,
       });
       setResults(r.listings); setTotal(r.total);
     } finally { setLoading(false); }
@@ -64,7 +68,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
       const r = await searchListings({
         q: f.q||undefined, purpose: f.purpose||undefined, cityId: f.cityId||undefined,
         minBedrooms: f.beds ? Number(f.beds) : undefined,
-        propertyType: f.type||undefined, maxPrice: f.max ? Number(f.max) : undefined, sort: f.sort, page: nextPage,
+        propertyType: f.type||undefined, maxPrice: f.max ? Number(f.max) : undefined, minPrice: f.min ? Number(f.min) : undefined, sort: f.sort, page: nextPage,
       });
       setResults(p => [...p, ...r.listings]);
       setPage(nextPage);
@@ -97,6 +101,8 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
         {f.purpose==='rent'?'Properties for rent':f.purpose==='sale'?'Properties for sale':'Search properties'}
       </h1>
       <div style={{display:'flex',gap:10,flexWrap:'wrap',marginBottom:28,alignItems:'center',background:'#fff',border:'1px solid #E5E7EB',borderRadius:20,padding:14,boxShadow:'var(--shadow-sm)'}}>
+        <input value={text} onChange={e=>setText(e.target.value)} onKeyDown={e=>e.key==='Enter'&&runText()} onBlur={runText}
+          placeholder="e.g. 2 BHK apartment in Thane under 1 crore" style={{...sel,minWidth:260,flex:'1 1 260px',cursor:'text',background:'#fff'}} />
         <select style={sel} value={f.purpose} onChange={e=>upd('purpose',e.target.value)}>
           <option value="">Buy or Rent</option>
           <option value="sale">Buy</option>

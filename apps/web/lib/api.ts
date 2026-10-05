@@ -97,7 +97,7 @@ export async function toggleSaved(userId: string, listingId: string, isSaved: bo
     : await supabase.from('saved_listings').insert({ user_id: userId, listing_id: listingId });
   if (r.error) throw r.error;
 }
-export async function setMyListingStatus(id: string, status: 'archived' | 'pending_review') {
+export async function setMyListingStatus(id: string, status: 'archived' | 'pending_review' | 'sold' | 'rented') {
   const { error } = await supabase.from('listings').update({ status }).eq('id', id);
   if (error) throw error;
 }
@@ -160,7 +160,7 @@ export async function uploadListingImage(userId: string, listingId: string, file
 
 export async function adminGetPendingListings(): Promise<ListingFull[]> {
   const { data } = await supabase.from('listings')
-    .select(CARD + ',status,rejection_reason,poster_type,poster:profiles!posted_by(full_name,role,agent_verified,rera_number)')
+    .select(CARD + ',status,rejection_reason,poster_type,risk_flags,poster:profiles!posted_by(full_name,role,agent_verified,rera_number)')
     .eq('status', 'pending_review').order('created_at', { ascending: true });
   return (data ?? []) as unknown as ListingFull[];
 }

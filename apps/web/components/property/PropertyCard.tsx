@@ -35,7 +35,7 @@ export function PropertyCard({ listing: l, isSaved, onToggle, onQuickView }: Pro
 
         <div style={{ position: 'relative', aspectRatio: '4/3', background: 'var(--gray-1)', overflow: 'hidden' }}>
           {imgs.length > 0 ? (
-            <img src={imgUrl(imgs[idx].storage_path)} alt={l.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            <img loading="lazy" src={imgUrl(imgs[idx].storage_path)} alt={l.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
           ) : (
             <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: 'var(--gray-3)' }}>No photo</div>
           )}

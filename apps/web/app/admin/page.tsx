@@ -65,6 +65,7 @@ export default function AdminPage() {
                       <p style={{fontSize:13,color:'#6B6B6B',marginBottom:2}}>{l.city?.name} · {formatPrice(l.price,l.purpose)}</p>
                       <p style={{fontSize:12,color:'#9B9B9B'}}>by {poster?.full_name??'—'} ({poster?.role}) · {timeAgo(l.created_at)}</p>
                       {poster?.rera_number&&<p style={{fontSize:11,color:'#6B6B6B',marginTop:2}}>RERA: {poster.rera_number}</p>}
+                      {l.risk_flags?.length>0&&<p style={{fontSize:12,fontWeight:600,color:'#DC2626',marginTop:4}}>⚠ Review: {l.risk_flags.join(', ').replace(/_/g,' ')}</p>}
                     </div>
                   </div>
                   <div style={{display:'flex',gap:8,flexWrap:'wrap',alignItems:'center'}}>
