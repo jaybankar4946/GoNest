@@ -27,7 +27,7 @@ export function ContactForms({listingId}:{listingId:string}) {
         await submitVisit({listing_id:listingId,requested_by:user?.id??null,requester_name:name,requester_phone:phone,slot_date:date,slot_time:time,notes:notes||undefined});
         setDone('Visit requested. The owner will confirm your slot.');
       }
-    }catch{setErr('Could not send. Please try again.');}
+    }catch(e){const m=(e as {message?:string})?.message??'';setErr(m.includes('duplicate_enquiry')?"You've already contacted about this property. The owner will get back to you.":m.includes('rate_limited')?'Too many requests from this number. Please try again in an hour.':m.includes('_valid_chk')?'Please check your name and enter a valid 10-digit mobile number.':'Could not send. Please try again.');}
     finally{setLoad(false);}
   };
   if(done)return(<div style={{border:'1px solid #E5E5E5',borderRadius:14,padding:20}}><p style={{fontSize:14,color:'#16A34A',lineHeight:1.6}}>{done}</p></div>);
@@ -42,7 +42,7 @@ export function ContactForms({listingId}:{listingId:string}) {
       </div>
       <form onSubmit={send} style={{padding:16,display:'flex',flexDirection:'column',gap:10}}>
         <input required placeholder="Your name" value={name} onChange={e=>setName(e.target.value)} style={inp}/>
-        <input required placeholder="Phone" value={phone} onChange={e=>setPhone(e.target.value)} style={inp}/>
+        <input required inputMode="tel" autoComplete="tel" maxLength={15} placeholder="Mobile number (10 digits)" value={phone} onChange={e=>setPhone(e.target.value)} style={inp}/>
         {tab==='lead'?(
           <>
             <input type="email" placeholder="Email (optional)" value={email} onChange={e=>setEmail(e.target.value)} style={inp}/>

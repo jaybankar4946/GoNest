@@ -5,6 +5,7 @@ import { getListingById, getSimilarListings, imgUrl } from '@/lib/api';
 import { formatPrice, bhkLabel, capitalize } from '@/lib/format';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { telHref, waHref } from '@/lib/contact';
+import { ShareButton } from '@/components/property/ShareButton';
 import { SaveButton } from '@/components/property/SaveButton';
 import { DetailMap } from '@/components/property/DetailMap';
 import { ReviewsAndReport } from './ReviewsAndReport';
@@ -19,7 +20,9 @@ export async function generateMetadata({ params }: { params: Promise<{id:string}
   const{id}=await params;
   const l=await getListingById(id);
   if(!l)return{title:'Property not found'};
-  return{title:l.title,description:`${bhkLabel(l.bedrooms,l.property_type)} ${capitalize(l.property_type)} for ${l.purpose==='sale'?'sale':'rent'}. ${formatPrice(l.price,l.purpose)}.`};
+  const cover=[...(l.listing_images??[])].sort((a:any,b:any)=>a.sort_order-b.sort_order)[0];
+  const desc=`${bhkLabel(l.bedrooms,l.property_type)} ${capitalize(l.property_type)} for ${l.purpose==='sale'?'sale':'rent'}. ${formatPrice(l.price,l.purpose)}.`;
+  return{title:l.title,description:desc,alternates:{canonical:`https://www.gonest.in/property/${id}`},openGraph:{title:l.title,description:desc,type:'website',url:`https://www.gonest.in/property/${id}`,images:cover?[imgUrl(cover.storage_path)]:undefined},twitter:{card:'summary_large_image'}};
 }
 
 export default async function PropertyPage({ params }: { params: Promise<{id:string}> }) {
@@ -37,6 +40,7 @@ export default async function PropertyPage({ params }: { params: Promise<{id:str
   return(
     <>
       <Nav/>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify({'@context':'https://schema.org','@type':'RealEstateListing',name:l.title,url:`https://www.gonest.in/property/${l.id}`,description:l.description??undefined,image:imgs.slice(0,5).map((i:any)=>imgUrl(i.storage_path)),datePosted:l.published_at??l.created_at,offers:{'@type':'Offer',price:l.price,priceCurrency:'INR',availability:'https://schema.org/InStock'},address:{'@type':'PostalAddress',addressLocality:locality,addressRegion:city,addressCountry:'IN'}}).replace(/</g,'\\u003c')}}/>
       <main style={{maxWidth:1120,margin:'0 auto',padding:'32px 24px 80px'}}>
         {/* Images */}
         <div style={{marginBottom:28}}><ImageCarousel images={imgs} urlFor={imgUrl} alt={l.title}/></div>
@@ -68,6 +72,7 @@ export default async function PropertyPage({ params }: { params: Promise<{id:str
                 <a href={telHref(poster.phone)} style={{padding:'10px 20px',borderRadius:9999,fontSize:13,fontWeight:600,color:'#fff',background:'#111'}}>Call</a>
                 <a href={waHref(poster.phone,`Hi, I'm interested in: ${l.title}`)} target="_blank" rel="noopener noreferrer" style={{padding:'10px 20px',borderRadius:9999,fontSize:13,fontWeight:600,color:'#fff',background:'#25D366'}}>WhatsApp</a>
                 <SaveButton listingId={l.id}/>
+                <ShareButton title={l.title}/>
               </div>
             )}
             <DetailMap listing={l}/>
