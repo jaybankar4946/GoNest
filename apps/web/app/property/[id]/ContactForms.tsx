@@ -32,7 +32,7 @@ export function ContactForms({listingId}:{listingId:string}) {
   };
   if(done)return(<div style={{border:'1px solid #E5E5E5',borderRadius:14,padding:20}}><p style={{fontSize:14,color:'#16A34A',lineHeight:1.6}}>{done}</p></div>);
   return(
-    <div style={{border:'1px solid #E5E7EB',borderRadius:24,overflow:'hidden',position:'sticky',top:84,boxShadow:'var(--shadow-lg)',background:'#fff'}}>
+    <div className="pd-aside" style={{border:'1px solid #E5E7EB',borderRadius:24,overflow:'hidden',boxShadow:'var(--shadow-lg)',background:'#fff'}}>
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',borderBottom:'1px solid #E5E5E5'}}>
         {(['lead','visit'] as const).map(t=>(
           <button key={t} onClick={()=>setTab(t)} style={{padding:'12px',fontSize:13,fontWeight:tab===t?600:400,color:tab===t?'#111':'#6B6B6B',background:tab===t?'#F7F7F7':'#fff',borderBottom:tab===t?'2px solid var(--primary)':'2px solid transparent'}}>

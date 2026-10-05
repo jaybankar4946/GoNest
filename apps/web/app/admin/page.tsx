@@ -41,7 +41,7 @@ export default function AdminPage() {
       <Nav/>
       <main style={{maxWidth:1100,margin:'0 auto',padding:'40px 24px 80px'}}>
         <h1 style={{fontSize:22,fontWeight:700,color:'#111',marginBottom:24}}>Admin Panel</h1>
-        {stats&&<div style={{display:'grid',gridTemplateColumns:'repeat(5,1fr)',gap:10,marginBottom:28}}>
+        {stats&&<div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(140px,1fr))',gap:10,marginBottom:28}}>
           {[{l:'Total listings',v:stats.totalListings},{l:'Pending review',v:stats.pendingReview,warn:true},{l:'Total leads',v:stats.totalLeads},{l:'Total visits',v:stats.totalVisits},{l:'Total users',v:stats.totalUsers}].map(s=>(
             <div key={s.l} style={{background:s.warn&&s.v>0?'#FEF2F2':'#F7F7F7',borderRadius:12,padding:'14px 16px'}}><div style={{fontSize:22,fontWeight:700,color:s.warn&&s.v>0?'#DC2626':'#111'}}>{s.v}</div><div style={{fontSize:12,color:'#6B6B6B',marginTop:2}}>{s.l}</div></div>
           ))}
