@@ -33,13 +33,13 @@ export function Nav() {
     <header style={{ position: 'sticky', top: 0, zIndex: 50, background: '#fff', borderBottom: '1px solid var(--border)', backdropFilter: 'blur(12px)' }}>
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 20px', display: 'flex', alignItems: 'center', height: 68, gap: 8 }}>
         {/* Logo */}
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, order: 2 }}>
           <span style={{ width: 34, height: 34, borderRadius: 12, background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}><Home size={17} color="#fff" /><span style={{ position: 'absolute', top: -3, right: -3, width: 11, height: 11, borderRadius: '50%', background: '#34D399', border: '2px solid #fff' }} /></span>
           <span style={{ fontFamily: 'var(--font-manrope), var(--font-display)', fontWeight: 800, fontSize: 21, letterSpacing: '-0.03em', color: '#111827' }}>GoNest</span>
         </Link>
 
         {/* Desktop nav */}
-        <nav style={{ display: 'flex', gap: 2, marginLeft: 28 }} className="hidden md:flex">
+        <nav style={{ gap: 2, flex: 1, order: 1 }} className="hidden md:flex">
           {LINKS.map(l => (
             <Link key={l.href} href={l.href}
               style={{
@@ -59,10 +59,8 @@ export function Nav() {
           )}
         </nav>
 
-        <div style={{ flex: 1 }} />
-
         {/* Desktop right side */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }} className="hidden md:flex">
+        <div style={{ alignItems: 'center', gap: 6, flex: 1, order: 3, justifyContent: 'flex-end' }} className="hidden md:flex">
           {!user && <Link href="/auth" style={{ padding: '8px 16px', borderRadius: 12, fontSize: 13, fontWeight: 600, color: '#fff', background: 'var(--primary)', marginRight: 4 }}>Post Property Free</Link>}
           <Link href="/saved" style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: '50%' }}
             onMouseOver={e => (e.currentTarget.style.background = 'var(--gray-1)')}
@@ -109,7 +107,7 @@ export function Nav() {
         </div>
 
         {/* Mobile hamburger */}
-        <button className="md:hidden" onClick={() => setMobileOpen(o => !o)} style={{ padding: 8, marginLeft: 'auto' }}>
+        <button className="md:hidden" onClick={() => setMobileOpen(o => !o)} style={{ padding: 8, marginLeft: 'auto', order: 4 }}>
           {mobileOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
       </div>

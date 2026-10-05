@@ -1,9 +1,10 @@
 import Link from 'next/link';
-import { ShieldCheck, Layers, Eye, Search, Heart, MessageCircle, Check, ClipboardCheck, BadgeCheck, Star } from 'lucide-react';
+import { ShieldCheck, Layers, Eye, Search, Heart, MessageCircle, Check, ClipboardCheck, BadgeCheck, Calendar, FileCheck2, Landmark, Flag, Users, Navigation } from 'lucide-react';
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { HomeSearch } from './HomeSearch';
+import { HomeEMI } from './HomeEMI';
 import { getFeatured, getCities, getHomeStats, getAgents } from '@/lib/api';
 import type { Metadata } from 'next';
 
@@ -20,6 +21,21 @@ const WHY = [
   { icon: Search, title: 'Search that matches how you look', desc: 'Filter by locality, budget, BHK and type, then switch between list and map.' },
   { icon: Heart, title: 'Save and come back', desc: 'Shortlist homes to your account and compare them later.' },
   { icon: MessageCircle, title: 'Talk to the owner directly', desc: 'Call, WhatsApp, send an enquiry or book a visit slot in one tap.' },
+];
+
+const TRUST = [
+  { icon: ClipboardCheck, title: 'Reviewed listings', items: ['Checked by the GoNest team before going live', 'Duplicate and unusual-price warnings for reviewers', 'Rejected listings never appear in search'] },
+  { icon: BadgeCheck, title: 'Verified badge', items: ['Shown only after GoNest review', 'Platform-verified marks a deeper check', 'Not a guarantee of title or ownership'] },
+  { icon: Users, title: 'Agent profiles', items: ['RERA number shown when the agent provides it', 'Verified agents carry a badge', 'See every active listing by an agent'] },
+  { icon: Flag, title: 'Report anything', items: ['Report button on every listing', 'Reasons include fake, wrong price, already sold', 'Owners can mark listings sold or rented'] },
+];
+const JOURNEY = [
+  { n: '01', icon: Search, color: 'bg-blue-600', t: 'Search', d: 'Filter by locality, budget, BHK and type. Switch between list and map.' },
+  { n: '02', icon: Heart, color: 'bg-violet-600', t: 'Shortlist', d: 'Save the homes you like to your account and come back to them.' },
+  { n: '03', icon: MessageCircle, color: 'bg-emerald-600', t: 'Enquire', d: 'Call, WhatsApp or send an enquiry to the owner or agent.' },
+  { n: '04', icon: Calendar, color: 'bg-amber-500', t: 'Visit', d: 'Request a visit slot and see the property in person.' },
+  { n: '05', icon: FileCheck2, color: 'bg-rose-500', t: 'Check the paperwork', d: 'Use the buying checklist on each listing: legal title, loan sanction, agreement.' },
+  { n: '06', icon: Landmark, color: 'bg-teal-600', t: 'Register', d: 'Complete stamp duty and registration at the sub-registrar office.' },
 ];
 
 export default async function HomePage() {
@@ -72,6 +88,26 @@ export default async function HomePage() {
           </div>
         </section>
 
+        {/* Why GoNest */}
+        <section className="bg-gray-950 py-24">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center gap-2 text-xs font-semibold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-3 py-1.5 rounded-full mb-5"><Eye className="w-3.5 h-3.5" /> Why GoNest</div>
+              <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4" style={{ ...display, letterSpacing: '-0.03em' }}>
+                Property portals show listings.<br /><span className="text-blue-400">GoNest helps you decide.</span>
+              </h2>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {WHY.map(w => { const Icon = w.icon; return (
+                <div key={w.title} className="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-blue-500/30 rounded-2xl p-6 transition-all">
+                  <div className="w-10 h-10 bg-blue-600/20 rounded-xl flex items-center justify-center mb-4"><Icon className="w-5 h-5 text-blue-400" /></div>
+                  <h3 className="font-bold text-white text-base mb-2" style={display}>{w.title}</h3>
+                  <p className="text-gray-400 text-sm leading-relaxed">{w.desc}</p>
+                </div>); })}
+            </div>
+          </div>
+        </section>
+
         {/* Featured */}
         {featured.length > 0 && (
           <section className="bg-gray-50 py-24">
@@ -90,21 +126,38 @@ export default async function HomePage() {
           </section>
         )}
 
-        {/* Why GoNest */}
+        {/* Trust */}
+        <section className="py-24 bg-white border-y border-gray-100">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center gap-2 text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full mb-5"><ShieldCheck className="w-3.5 h-3.5" /> How trust works on GoNest</div>
+              <h2 className="text-3xl font-extrabold text-gray-900 mb-3" style={{ ...display, letterSpacing: '-0.025em' }}>What “Verified” actually means.</h2>
+              <p className="text-gray-500 max-w-lg mx-auto">A badge only appears after a real review step, and we say plainly what it does and does not cover.</p>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {TRUST.map(c => { const Icon = c.icon; return (
+                <div key={c.title} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+                  <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center mb-4"><Icon className="w-6 h-6 text-blue-600" /></div>
+                  <h3 className="font-bold text-gray-900 mb-3" style={display}>{c.title}</h3>
+                  <ul className="space-y-2">{c.items.map(it => <li key={it} className="flex items-start gap-2 text-sm text-gray-600"><Check className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-1" /> {it}</li>)}</ul>
+                </div>); })}
+            </div>
+          </div>
+        </section>
+
+        {/* Journey */}
         <section className="bg-gray-950 py-24">
           <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 text-xs font-semibold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-3 py-1.5 rounded-full mb-5"><Eye className="w-3.5 h-3.5" /> Why GoNest</div>
-              <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4" style={{ ...display, letterSpacing: '-0.03em' }}>
-                Property portals show listings.<br /><span className="text-blue-400">GoNest helps you decide.</span>
-              </h2>
+              <div className="inline-flex items-center gap-2 text-xs font-semibold text-white/60 border border-white/10 px-3 py-1.5 rounded-full mb-5"><Navigation className="w-3.5 h-3.5" /> From first search to registration day</div>
+              <h2 className="text-4xl font-extrabold text-white mb-4" style={{ ...display, letterSpacing: '-0.03em' }}>Your home search, step by step.</h2>
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {WHY.map(w => { const Icon = w.icon; return (
-                <div key={w.title} className="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-blue-500/30 rounded-2xl p-6 transition-all">
-                  <div className="w-10 h-10 bg-blue-600/20 rounded-xl flex items-center justify-center mb-4"><Icon className="w-5 h-5 text-blue-400" /></div>
-                  <h3 className="font-bold text-white text-base mb-2" style={display}>{w.title}</h3>
-                  <p className="text-gray-400 text-sm leading-relaxed">{w.desc}</p>
+              {JOURNEY.map(j => { const Icon = j.icon; return (
+                <div key={j.n} className="p-6 rounded-2xl border bg-white/5 border-white/10 hover:bg-white/10 transition-all">
+                  <div className="flex items-center gap-3 mb-4"><div className={`w-10 h-10 rounded-xl flex items-center justify-center ${j.color}`}><Icon className="w-5 h-5 text-white" /></div><span className="text-xs font-bold uppercase tracking-widest text-white/30">{j.n}</span></div>
+                  <h3 className="font-bold text-lg mb-2 text-white" style={display}>{j.t}</h3>
+                  <p className="text-sm leading-relaxed text-white/50">{j.d}</p>
                 </div>); })}
             </div>
           </div>
@@ -136,6 +189,8 @@ export default async function HomePage() {
             </div>
           </section>
         )}
+
+        <HomeEMI />
 
         {/* Post property CTA */}
         <section className="bg-blue-600 py-24 overflow-hidden relative">
