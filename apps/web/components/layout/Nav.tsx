@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Home, Heart, User, Plus, Menu, X, LogOut, LayoutDashboard, ShieldCheck } from 'lucide-react';
+import { MessageSquare, Home, Heart, User, Plus, Menu, X, LogOut, LayoutDashboard, ShieldCheck } from 'lucide-react';
 import { useAuth } from './AuthProvider';
 
 const LINKS = [
@@ -61,7 +61,7 @@ export function Nav() {
 
         {/* Desktop right side */}
         <div style={{ alignItems: 'center', gap: 6, flex: 1, order: 3, justifyContent: 'flex-end' }} className="hidden md:flex">
-          {!user && <Link href="/auth" style={{ padding: '8px 16px', borderRadius: 12, fontSize: 13, fontWeight: 600, color: '#fff', background: 'var(--primary)', marginRight: 4 }}>Post Property Free</Link>}
+          <Link href={canPost ? '/dashboard/new' : user ? '/dashboard' : '/auth'} style={{ padding: '8px 16px', borderRadius: 12, fontSize: 13, fontWeight: 600, color: '#fff', background: 'var(--primary)', marginRight: 4 }}>Add Property</Link>
           <Link href="/saved" style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: '50%' }}
             onMouseOver={e => (e.currentTarget.style.background = 'var(--gray-1)')}
             onMouseOut={e => (e.currentTarget.style.background = 'transparent')}>
@@ -86,6 +86,9 @@ export function Nav() {
                     <Link href="/dashboard" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 10px', borderRadius: 8, fontSize: 13, color: '#111' }}>
                       <LayoutDashboard size={14} /> Dashboard
                     </Link>
+                    <Link href="/enquiries" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 10px', borderRadius: 8, fontSize: 13, color: '#111' }}>
+                      <MessageSquare size={14} /> My enquiries
+                    </Link>
                     {canPost && (
                       <Link href="/dashboard/new" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 10px', borderRadius: 8, fontSize: 13, color: '#111' }}>
                         <Plus size={14} /> Post a listing
@@ -100,7 +103,7 @@ export function Nav() {
               )}
             </div>
           ) : (
-            <Link href="/auth" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 18px', borderRadius: 9999, fontSize: 13, fontWeight: 600, color: '#fff', background: 'var(--primary)' }}>
+            <Link href="/auth" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 9999, fontSize: 13, fontWeight: 600, color: '#111827' }}>
               <User size={14} /> Sign in
             </Link>
           )}
@@ -126,6 +129,7 @@ export function Nav() {
           {user ? (
             <>
               <Link href="/dashboard" onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>Dashboard</Link>
+              <Link href="/enquiries" onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>My enquiries</Link>
               {canPost && <Link href="/dashboard/new" onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>Post a listing</Link>}
               <button onClick={doSignOut} style={{ padding: '11px 4px', fontSize: 14, color: 'var(--err)', textAlign: 'left' }}>Sign out</button>
             </>

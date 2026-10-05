@@ -306,3 +306,23 @@ export async function getHomeStats() {
   ]);
   return { listings, verified, people, cities };
 }
+
+export async function getMyEnquiries(userId: string) {
+  const { data } = await supabase.from('leads').select('id,status,message,created_at,listing:listings(id,title,status)').eq('buyer_id', userId).order('created_at', { ascending: false });
+  return (data ?? []) as any[];
+}
+export async function getMyVisitRequests(userId: string) {
+  const { data } = await supabase.from('visits').select('id,status,slot_date,slot_time,created_at,listing:listings(id,title,status)').eq('requested_by', userId).order('created_at', { ascending: false });
+  return (data ?? []) as any[];
+}
+export async function getPopularLocalities(limit = 8): Promise<{ id: string; name: string; cityId: string; city: string; count: number }[]> {
+  const { data: rows } = await supabase.from('listings').select('locality_id').eq('status', 'active').limit(1000);
+  const counts = new Map<string, number>();
+  (rows ?? []).forEach((r: any) => counts.set(r.locality_id, (counts.get(r.locality_id) ?? 0) + 1));
+  const ids = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, limit).map(e => e[0]);
+  let q = supabase.from('localities').select('id,name,city:cities(id,name)');
+  q = ids.length ? q.in('id', ids) : q.limit(limit);
+  const { data } = await q;
+  return (data ?? []).map((l: any) => ({ id: l.id, name: l.name, cityId: l.city?.id ?? '', city: l.city?.name ?? '', count: counts.get(l.id) ?? 0 }))
+    .sort((a, b) => b.count - a.count);
+}

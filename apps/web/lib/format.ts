@@ -11,6 +11,9 @@ export function formatPrice(price: number, purpose: 'sale' | 'rent'): string {
 }
 export function bhkLabel(bedrooms: number, type: string): string {
   if (type === 'plot') return 'Plot';
+  if (type === 'studio') return 'Studio';
+  if (type === 'shop') return 'Shop';
+  if (type === 'warehouse') return 'Warehouse';
   if (['commercial','office'].includes(type)) return 'Commercial';
   if (bedrooms === 0) return 'Studio';
   return `${bedrooms} BHK`;

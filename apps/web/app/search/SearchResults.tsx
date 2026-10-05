@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { Map as MapIcon, List, Columns } from 'lucide-react';
+import { PropertyCardSkeleton } from '@/components/ui/Skeleton';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { ListingQuickView } from '@/components/property/ListingQuickView';
 import { searchListings, getSavedIds, toggleSaved } from '@/lib/api';
@@ -118,7 +119,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
         </select>
         <select style={sel} value={f.type} onChange={e=>upd('type',e.target.value)}>
           <option value="">Any type</option>
-          {['apartment','villa','house','plot','commercial'].map(t=>(
+          {['apartment','villa','house','plot','studio','office','shop','warehouse','commercial'].map(t=>(
             <option key={t} value={t}>{t.charAt(0).toUpperCase()+t.slice(1)}</option>
           ))}
         </select>
@@ -145,6 +146,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
         {loading ? 'Searching…' : `${total} ${total===1?'property':'properties'} found`}
       </p>
 
+      {loading && results.length === 0 && (<div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:'36px 20px'}}>{[1,2,3,4,5,6].map(i=><PropertyCardSkeleton key={i}/>)}</div>)}
       {!loading && results.length === 0 && (
         <div style={{textAlign:'center',padding:'80px 0'}}>
           <p style={{fontSize:17,fontWeight:600,marginBottom:6}}>No properties found</p>

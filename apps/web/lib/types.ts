@@ -1,6 +1,6 @@
 export type Role              = 'buyer' | 'owner' | 'agent' | 'admin';
 export type Purpose           = 'sale' | 'rent';
-export type PropertyType      = 'apartment' | 'villa' | 'house' | 'plot' | 'commercial' | 'office' | 'pg';
+export type PropertyType      = 'apartment' | 'villa' | 'house' | 'plot' | 'commercial' | 'office' | 'pg' | 'studio' | 'shop' | 'warehouse';
 export type ListingStatus     = 'draft' | 'pending_review' | 'active' | 'rejected' | 'archived' | 'sold' | 'rented' | 'expired' | 'suspended';
 export type VerificationLevel = 'unverified' | 'verified' | 'platform_verified';
 export type LeadStatus        = 'new' | 'contacted' | 'qualified' | 'closed' | 'spam';

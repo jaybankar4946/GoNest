@@ -82,6 +82,7 @@ export default function AuthPage() {
               <button type="button" onClick={()=>{setShowForgot(s=>!s);setResetSent(false);}} style={{fontSize:12,color:'#6B6B6B',textDecoration:'underline',background:'none',border:'none',cursor:'pointer'}}>Forgot password?</button>
             </div>
           )}
+          {mode==='password'&&!isSignUp&&<button type="button" onClick={async()=>{if(!email){setMsg({type:'err',text:'Enter your email above first.'});return;}const{error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:`${window.location.origin}/auth/reset`});setMsg(error?{type:'err',text:'Could not send the reset email. Please try again.'}:{type:'ok',text:'If that email has an account, a reset link is on its way.'});}} style={{fontSize:12,color:'var(--primary)',textAlign:'right',cursor:'pointer'}}>Forgot password?</button>}
           {msg&&<div style={{fontSize:13,padding:'10px 12px',borderRadius:10,background:msg.type==='ok'?'#F0FDF4':'#FEF2F2',color:msg.type==='ok'?'#16A34A':'#DC2626'}}>{msg.text}</div>}
           <button type="submit" disabled={loading} style={{padding:'13px',borderRadius:14,fontSize:14,fontWeight:700,color:'#fff',background:'var(--primary)',border:'none',cursor:'pointer',marginTop:4,opacity:loading?0.6:1}}>{loading?'Please wait…':mode==='magic'?'Send magic link':isSignUp?'Create account':'Sign in'}</button>
         </form>
