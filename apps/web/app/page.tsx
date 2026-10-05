@@ -22,7 +22,6 @@ const WHY = [
   { icon: MessageCircle, title: 'Talk to the owner directly', desc: 'Call, WhatsApp, send an enquiry or book a visit slot in one tap.' },
 ];
 
-const TYPES = [{ type: 'apartment', label: 'Apartments' }, { type: 'villa', label: 'Villas' }, { type: 'house', label: 'Independent houses' }, { type: 'plot', label: 'Plots' }, { type: 'studio', label: 'Studios' }, { type: 'office', label: 'Offices' }, { type: 'shop', label: 'Shops' }, { type: 'warehouse', label: 'Warehouses' }, { type: 'commercial', label: 'Commercial' }, { type: 'pg', label: 'PG' }];
 const TRUST = [
   { icon: ClipboardCheck, title: 'Reviewed listings', items: ['Checked by the GoNest team before going live', 'Duplicate and unusual-price warnings for reviewers', 'Rejected listings never appear in search'] },
   { icon: BadgeCheck, title: 'Verified badge', items: ['Shown only after GoNest review', 'Platform-verified marks a deeper check', 'Not a guarantee of title or ownership'] },
@@ -78,19 +77,6 @@ export default async function HomePage() {
             ))}
           </div>
         </section>)}
-
-        {/* Explore by property type */}
-        <section className="py-16 bg-white">
-          <div className="max-w-7xl mx-auto px-6">
-            <h2 className="text-2xl font-extrabold text-gray-900 mb-6" style={{ ...display, letterSpacing: '-0.02em' }}>Explore by property type</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-              {TYPES.map(t => (
-                <Link key={t.type} href={`/search?type=${t.type}`} className="block bg-white border border-gray-200 hover:border-blue-500 hover:shadow-md rounded-2xl p-5 transition-all">
-                  <p className="text-sm font-semibold text-gray-900">{t.label}</p>
-                </Link>))}
-            </div>
-          </div>
-        </section>
 
         {/* Featured */}
         {featured.length > 0 && (
