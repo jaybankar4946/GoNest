@@ -37,7 +37,7 @@ export function ImageCarousel({ images, urlFor, alt }: { images: Img[]; urlFor: 
         style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'opacity var(--dur-base) var(--ease)' }}
       />
 
-      {images.length > 1 && hover && (
+      {images.length > 1 && (
         <>
           <button onClick={prev} style={{
             position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)',

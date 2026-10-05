@@ -9,6 +9,7 @@ import { SaveButton } from '@/components/property/SaveButton';
 import { DetailMap } from '@/components/property/DetailMap';
 import { ReviewsAndReport } from './ReviewsAndReport';
 import Link from 'next/link';
+import { ImageCarousel } from '@/components/property/ImageCarousel';
 import { ContactForms } from './ContactForms';
 import { EMICalculator } from '@/components/transaction/EMICalculator';
 import { DocumentChecklist } from '@/components/transaction/DocumentChecklist';
@@ -38,22 +39,9 @@ export default async function PropertyPage({ params }: { params: Promise<{id:str
       <Nav/>
       <main style={{maxWidth:1120,margin:'0 auto',padding:'32px 24px 80px'}}>
         {/* Images */}
-        {imgs[0]&&(
-          <div style={{borderRadius:28,overflow:'hidden',aspectRatio:'16/9',background:'#F0F0F0',marginBottom:16}}>
-            <img src={imgUrl(imgs[0].storage_path)} alt={l.title} style={{width:'100%',height:'100%',objectFit:'cover',display:'block'}}/>
-          </div>
-        )}
-        {imgs.length>1&&(
-          <div style={{display:'flex',gap:8,marginBottom:32,overflowX:'auto'}}>
-            {imgs.slice(1,6).map((img:any)=>(
-              <div key={img.id} style={{width:100,height:70,flexShrink:0,borderRadius:8,overflow:'hidden',background:'#F0F0F0'}}>
-                <img src={imgUrl(img.storage_path)} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
-              </div>
-            ))}
-          </div>
-        )}
+        <div style={{marginBottom:28}}><ImageCarousel images={imgs} urlFor={imgUrl} alt={l.title}/></div>
 
-        <div style={{display:'grid',gridTemplateColumns:'1fr 300px',gap:48,alignItems:'start'}}>
+        <div className="pd-grid">
           {/* Left col */}
           <div>
             {badge&&<span style={{fontSize:11,fontWeight:600,color:'#fff',background:'var(--primary)',padding:'4px 12px',borderRadius:9999,display:'inline-block',marginBottom:12}}>{badge}</span>}
