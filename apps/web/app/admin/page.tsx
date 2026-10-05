@@ -72,7 +72,7 @@ export default function AdminPage() {
                     <button onClick={()=>moderate(l.id,'active','platform_verified')} disabled={busy} style={BTN('#111')}>★ Platform Verify</button>
                     <input placeholder="Rejection reason (required)" value={reason[l.id]??''} onChange={e=>setReason(p=>({...p,[l.id]:e.target.value}))} style={{...INP,width:240}}/>
                     <button onClick={()=>moderate(l.id,'rejected','unverified',reason[l.id])} disabled={busy||!reason[l.id]} style={{...BTN('#DC2626'),opacity:reason[l.id]?1:0.4}}>✗ Reject</button>
-                    <a href={`/property/${l.id}`} target="_blank" rel="noopener noreferrer" style={{fontSize:12,color:'#6B6B6B',textDecoration:'underline'}}>Preview</a>
+                    <a href={`/preview/${l.id}`} target="_blank" rel="noopener noreferrer" style={{fontSize:12,color:'#6B6B6B',textDecoration:'underline'}}>Preview</a>
                   </div>
                 </div>
               );

@@ -27,7 +27,7 @@ export default function NewListingPage() {
       const id=await createListing({posted_by:user.id,poster_type:profile?.role==='agent'?'agent':'owner',title:f.title,description:f.description||null,property_type:f.property_type,purpose:f.purpose,city_id:f.city_id,locality_id:f.locality_id,address_line:f.address_line||null,landmark:f.landmark||null,price:Number(f.price),maintenance_monthly:f.maintenance_monthly?Number(f.maintenance_monthly):null,security_deposit:f.security_deposit?Number(f.security_deposit):null,price_negotiable:f.price_negotiable,brokerage:f.brokerage,bedrooms:f.bedrooms,bathrooms:f.bathrooms,balconies:f.balconies,sqft:f.sqft?Number(f.sqft):null,furnishing:f.furnishing||null,facing:f.facing||null});
       for(let i=0;i<images.length;i++)await uploadListingImage(user.id,id,images[i],i);
       router.push('/dashboard');
-    }catch(e){setErr(e instanceof Error?e.message:'Something went wrong.');}
+    }catch(e){setErr(e instanceof Error?e.message:((e as {message?:string})?.message??'Something went wrong.'));}
     finally{setSaving(false);}
   };
   return(
