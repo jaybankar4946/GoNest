@@ -69,7 +69,7 @@ export default function DashboardPage() {
                 <div><p style={{fontSize:14,fontWeight:600,color:'#111',marginBottom:2}}>{l.title}</p><p style={{fontSize:12,color:'#6B6B6B'}}>{formatPrice(l.price,l.purpose)} · {l.view_count} views · {l.lead_count} leads</p>{l.status==='rejected'&&l.rejection_reason&&<p style={{fontSize:12,color:'#DC2626',marginTop:4}}>Rejected: {l.rejection_reason}</p>}</div>
                 <div style={{display:'flex',alignItems:'center',gap:10}}>
                   <span style={SB(SC[l.status]??'#6B6B6B')}>{l.status.replace('_',' ')}</span>
-                  <Link href={`/property/${l.id}`} style={{fontSize:12,color:'#6B6B6B',textDecoration:'underline'}}>View</Link>
+                  <Link href={l.status==='active'?`/property/${l.id}`:`/preview/${l.id}`} style={{fontSize:12,color:'#6B6B6B',textDecoration:'underline'}}>{l.status==='active'?'View':'Preview'}</Link>
                   {l.status==='archived'
                     ?<button style={sel} onClick={async()=>{await setMyListingStatus(l.id,'pending_review');setListings(p=>p.map(x=>x.id===l.id?{...x,status:'pending_review'}:x));}}>Re-submit</button>
                     :<button style={sel} onClick={async()=>{await setMyListingStatus(l.id,'archived');setListings(p=>p.map(x=>x.id===l.id?{...x,status:'archived'}:x));}}>Archive</button>}
