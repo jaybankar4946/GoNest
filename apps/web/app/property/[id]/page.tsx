@@ -64,6 +64,7 @@ export default async function PropertyPage({ params }: { params: Promise<{id:str
               </div>
             )}
 
+            {(l as any).amenities?.length>0&&(<div style={{marginBottom:24}}><p style={{fontSize:13,fontWeight:700,color:'#111827',marginBottom:10}}>Amenities</p><div style={{display:'flex',flexWrap:'wrap',gap:8}}>{((l as any).amenities as string[]).map(a=><span key={a} style={{fontSize:13,color:'#065F46',background:'#ECFDF5',padding:'6px 12px',borderRadius:10}}>✓ {a}</span>)}</div></div>)}
             {l.description&&<p style={{fontSize:14,color:'#3D3D3D',lineHeight:1.75,marginBottom:24}}>{l.description}</p>}
             {l.landmark&&<p style={{fontSize:13,color:'#6B6B6B',marginBottom:20}}><strong>Landmark:</strong> {l.landmark}</p>}
 

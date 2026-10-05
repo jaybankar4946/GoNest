@@ -4,8 +4,7 @@ import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { HomeSearch } from './HomeSearch';
-import { HomeEMI } from './HomeEMI';
-import { getFeatured, getCities, getHomeStats, getAgents } from '@/lib/api';
+import { getFeatured, getCities, getHomeStats, getAgents, getPopularLocalities } from '@/lib/api';
 import type { Metadata } from 'next';
 
 export const revalidate = 60;
@@ -23,23 +22,15 @@ const WHY = [
   { icon: MessageCircle, title: 'Talk to the owner directly', desc: 'Call, WhatsApp, send an enquiry or book a visit slot in one tap.' },
 ];
 
+const TYPES = [{ type: 'apartment', label: 'Apartments' }, { type: 'villa', label: 'Villas' }, { type: 'house', label: 'Independent houses' }, { type: 'plot', label: 'Plots' }, { type: 'studio', label: 'Studios' }, { type: 'office', label: 'Offices' }, { type: 'shop', label: 'Shops' }, { type: 'warehouse', label: 'Warehouses' }, { type: 'commercial', label: 'Commercial' }, { type: 'pg', label: 'PG' }];
 const TRUST = [
   { icon: ClipboardCheck, title: 'Reviewed listings', items: ['Checked by the GoNest team before going live', 'Duplicate and unusual-price warnings for reviewers', 'Rejected listings never appear in search'] },
   { icon: BadgeCheck, title: 'Verified badge', items: ['Shown only after GoNest review', 'Platform-verified marks a deeper check', 'Not a guarantee of title or ownership'] },
   { icon: Users, title: 'Agent profiles', items: ['RERA number shown when the agent provides it', 'Verified agents carry a badge', 'See every active listing by an agent'] },
   { icon: Flag, title: 'Report anything', items: ['Report button on every listing', 'Reasons include fake, wrong price, already sold', 'Owners can mark listings sold or rented'] },
 ];
-const JOURNEY = [
-  { n: '01', icon: Search, color: 'bg-blue-600', t: 'Search', d: 'Filter by locality, budget, BHK and type. Switch between list and map.' },
-  { n: '02', icon: Heart, color: 'bg-violet-600', t: 'Shortlist', d: 'Save the homes you like to your account and come back to them.' },
-  { n: '03', icon: MessageCircle, color: 'bg-emerald-600', t: 'Enquire', d: 'Call, WhatsApp or send an enquiry to the owner or agent.' },
-  { n: '04', icon: Calendar, color: 'bg-amber-500', t: 'Visit', d: 'Request a visit slot and see the property in person.' },
-  { n: '05', icon: FileCheck2, color: 'bg-rose-500', t: 'Check the paperwork', d: 'Use the buying checklist on each listing: legal title, loan sanction, agreement.' },
-  { n: '06', icon: Landmark, color: 'bg-teal-600', t: 'Register', d: 'Complete stamp duty and registration at the sub-registrar office.' },
-];
-
 export default async function HomePage() {
-  const [featured, cities, stats, agents] = await Promise.all([getFeatured(6), getCities(), getHomeStats(), getAgents()]);
+  const [featured, cities, stats, agents, popular] = await Promise.all([getFeatured(6), getCities(), getHomeStats(), getAgents(), getPopularLocalities(8)]);
   const topAgents = [...agents].sort((a, b) => Number(b.agent_verified) - Number(a.agent_verified)).slice(0, 4);
   const strip = [
     { v: stats.listings, l: 'Live listings' },
@@ -77,7 +68,7 @@ export default async function HomePage() {
         </section>
 
         {/* Live stats (real counts) */}
-        <section className="border-y border-gray-100 bg-white">
+        {stats.listings >= 20 && (<section className="border-y border-gray-100 bg-white">
           <div className="max-w-7xl mx-auto px-6 py-6 grid grid-cols-2 md:grid-cols-4 divide-x divide-gray-100">
             {strip.map(s => (
               <div key={s.l} className="text-center py-2 px-4">
@@ -86,24 +77,17 @@ export default async function HomePage() {
               </div>
             ))}
           </div>
-        </section>
+        </section>)}
 
-        {/* Why GoNest */}
-        <section className="bg-gray-950 py-24">
+        {/* Explore by property type */}
+        <section className="py-16 bg-white">
           <div className="max-w-7xl mx-auto px-6">
-            <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 text-xs font-semibold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-3 py-1.5 rounded-full mb-5"><Eye className="w-3.5 h-3.5" /> Why GoNest</div>
-              <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4" style={{ ...display, letterSpacing: '-0.03em' }}>
-                Property portals show listings.<br /><span className="text-blue-400">GoNest helps you decide.</span>
-              </h2>
-            </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {WHY.map(w => { const Icon = w.icon; return (
-                <div key={w.title} className="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-blue-500/30 rounded-2xl p-6 transition-all">
-                  <div className="w-10 h-10 bg-blue-600/20 rounded-xl flex items-center justify-center mb-4"><Icon className="w-5 h-5 text-blue-400" /></div>
-                  <h3 className="font-bold text-white text-base mb-2" style={display}>{w.title}</h3>
-                  <p className="text-gray-400 text-sm leading-relaxed">{w.desc}</p>
-                </div>); })}
+            <h2 className="text-2xl font-extrabold text-gray-900 mb-6" style={{ ...display, letterSpacing: '-0.02em' }}>Explore by property type</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+              {TYPES.map(t => (
+                <Link key={t.type} href={`/search?type=${t.type}`} className="block bg-white border border-gray-200 hover:border-blue-500 hover:shadow-md rounded-2xl p-5 transition-all">
+                  <p className="text-sm font-semibold text-gray-900">{t.label}</p>
+                </Link>))}
             </div>
           </div>
         </section>
@@ -121,6 +105,21 @@ export default async function HomePage() {
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: '36px 24px' }}>
                 {featured.map(l => <PropertyCard key={l.id} listing={l} />)}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Popular locations */}
+        {popular.length > 0 && (
+          <section className="py-16 bg-white">
+            <div className="max-w-7xl mx-auto px-6">
+              <h2 className="text-2xl font-extrabold text-gray-900 mb-6" style={{ ...display, letterSpacing: '-0.02em' }}>Popular locations</h2>
+              <div className="flex flex-wrap gap-3">
+                {popular.map(l => (
+                  <Link key={l.id} href={`/search?q=${encodeURIComponent(l.name)}${l.cityId ? `&city=${l.cityId}` : ''}`} className="px-5 py-3 rounded-full border border-gray-200 hover:border-blue-500 hover:text-blue-600 text-sm font-medium text-gray-800 transition-all">
+                    {l.name}<span className="text-gray-400">, {l.city}</span>
+                  </Link>))}
               </div>
             </div>
           </section>
@@ -145,19 +144,21 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Journey */}
+        {/* Why GoNest */}
         <section className="bg-gray-950 py-24">
           <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 text-xs font-semibold text-white/60 border border-white/10 px-3 py-1.5 rounded-full mb-5"><Navigation className="w-3.5 h-3.5" /> From first search to registration day</div>
-              <h2 className="text-4xl font-extrabold text-white mb-4" style={{ ...display, letterSpacing: '-0.03em' }}>Your home search, step by step.</h2>
+              <div className="inline-flex items-center gap-2 text-xs font-semibold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-3 py-1.5 rounded-full mb-5"><Eye className="w-3.5 h-3.5" /> Why GoNest</div>
+              <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4" style={{ ...display, letterSpacing: '-0.03em' }}>
+                Property portals show listings.<br /><span className="text-blue-400">GoNest helps you decide.</span>
+              </h2>
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {JOURNEY.map(j => { const Icon = j.icon; return (
-                <div key={j.n} className="p-6 rounded-2xl border bg-white/5 border-white/10 hover:bg-white/10 transition-all">
-                  <div className="flex items-center gap-3 mb-4"><div className={`w-10 h-10 rounded-xl flex items-center justify-center ${j.color}`}><Icon className="w-5 h-5 text-white" /></div><span className="text-xs font-bold uppercase tracking-widest text-white/30">{j.n}</span></div>
-                  <h3 className="font-bold text-lg mb-2 text-white" style={display}>{j.t}</h3>
-                  <p className="text-sm leading-relaxed text-white/50">{j.d}</p>
+              {WHY.map(w => { const Icon = w.icon; return (
+                <div key={w.title} className="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-blue-500/30 rounded-2xl p-6 transition-all">
+                  <div className="w-10 h-10 bg-blue-600/20 rounded-xl flex items-center justify-center mb-4"><Icon className="w-5 h-5 text-blue-400" /></div>
+                  <h3 className="font-bold text-white text-base mb-2" style={display}>{w.title}</h3>
+                  <p className="text-gray-400 text-sm leading-relaxed">{w.desc}</p>
                 </div>); })}
             </div>
           </div>
@@ -189,8 +190,6 @@ export default async function HomePage() {
             </div>
           </section>
         )}
-
-        <HomeEMI />
 
         {/* Post property CTA */}
         <section className="bg-blue-600 py-24 overflow-hidden relative">

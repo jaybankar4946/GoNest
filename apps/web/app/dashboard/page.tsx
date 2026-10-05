@@ -71,8 +71,8 @@ export default function DashboardPage() {
                   <span style={SB(SC[l.status]??'#6B6B6B')}>{l.status.replace('_',' ')}</span>
                   <Link href={l.status==='active'?`/property/${l.id}`:`/preview/${l.id}`} style={{fontSize:12,color:'#6B6B6B',textDecoration:'underline'}}>{l.status==='active'?'View':'Preview'}</Link>
                   {l.status==='active'&&<button style={sel} onClick={async()=>{if(!confirm(l.purpose==='rent'?'Mark this property as rented? It will be removed from search.':'Mark this property as sold? It will be removed from search.'))return;const st=l.purpose==='rent'?'rented':'sold';await setMyListingStatus(l.id,st);setListings(p=>p.map(x=>x.id===l.id?{...x,status:st}:x));}}>{l.purpose==='rent'?'Mark rented':'Mark sold'}</button>}
-                  {l.status==='archived'
-                    ?<button style={sel} onClick={async()=>{await setMyListingStatus(l.id,'pending_review');setListings(p=>p.map(x=>x.id===l.id?{...x,status:'pending_review'}:x));}}>Re-submit</button>
+                  {(l.status==='archived'||l.status==='rejected')
+                    ?<button style={sel} onClick={async()=>{await setMyListingStatus(l.id,'pending_review');setListings(p=>p.map(x=>x.id===l.id?{...x,status:'pending_review'}:x));}}>{l.status==='rejected'?'Fix & resubmit':'Re-submit'}</button>
                     :<button style={sel} onClick={async()=>{await setMyListingStatus(l.id,'archived');setListings(p=>p.map(x=>x.id===l.id?{...x,status:'archived'}:x));}}>Archive</button>}
                   <Link href={`/dashboard/edit/${l.id}`} style={{fontSize:12,color:'#2563EB',textDecoration:'underline'}}>Edit</Link>
                   <button onClick={()=>removeListing(l.id)} disabled={deletingId===l.id} style={{fontSize:12,color:'#DC2626',background:'none',border:'none',cursor:'pointer',textDecoration:'underline',opacity:deletingId===l.id?0.5:1}}>

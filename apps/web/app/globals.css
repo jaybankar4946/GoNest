@@ -74,3 +74,5 @@ img{display:block;max-width:100%}
 .pd-grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:48px;align-items:start}
 .pd-aside{position:sticky;top:84px}
 @media (max-width:900px){.pd-grid{grid-template-columns:minmax(0,1fr);gap:24px}.pd-aside{position:static}}
+
+@media (max-width:767px){body{padding-bottom:64px}}
