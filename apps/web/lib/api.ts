@@ -326,3 +326,16 @@ export async function getPopularLocalities(limit = 8): Promise<{ id: string; nam
   return (data ?? []).map((l: any) => ({ id: l.id, name: l.name, cityId: l.city?.id ?? '', city: l.city?.name ?? '', count: counts.get(l.id) ?? 0 }))
     .sort((a, b) => b.count - a.count);
 }
+
+export async function adminGetReports() {
+  const { data } = await supabase.from('listing_reports').select('id,reason,details,status,created_at,resolution_note,listing:listings(id,title,status)').order('created_at', { ascending: false }).limit(200);
+  return (data ?? []) as any[];
+}
+export async function adminResolveReport(id: string, action: 'dismiss' | 'resolve' | 'suspend_listing', note?: string) {
+  const { error } = await supabase.rpc('admin_resolve_report', { p_report_id: id, p_action: action, p_note: note ?? null });
+  if (error) throw error;
+}
+export async function adminGetAuditLog() {
+  const { data } = await supabase.from('admin_audit_log').select('id,action,entity_type,entity_id,details,created_at,actor_id').order('created_at', { ascending: false }).limit(100);
+  return (data ?? []) as any[];
+}
