@@ -4,10 +4,10 @@ import { useRouter } from 'next/navigation';
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
 import { useAuth } from '@/components/layout/AuthProvider';
-import { adminGetPendingListings, adminGetAllListings, adminGetBrokers, adminGetAllLeads, adminGetAllVisits, adminGetStats, adminModerate, adminToggleFeatured, adminVerifyAgent, adminSetRole } from '@/lib/api';
+import { adminGetPendingListings, adminGetAllListings, adminGetBrokers, adminGetAllLeads, adminGetAllVisits, adminGetStats, adminModerate, adminToggleFeatured, adminVerifyAgent, adminSetRole, adminGetReports, adminResolveReport, adminGetAuditLog } from '@/lib/api';
 import { imgUrl } from '@/lib/api';
 import { formatPrice, timeAgo } from '@/lib/format';
-const TABS=['queue','listings','brokers','leads','visits'] as const;
+const TABS=['queue','listings','brokers','leads','visits','reports','audit'] as const;
 type Tab=typeof TABS[number];
 const SC: Record<string,string>={active:'#16A34A',pending_review:'#D97706',rejected:'#DC2626',draft:'#6B6B6B',archived:'#6B6B6B',new:'#2563EB',contacted:'#D97706',closed:'#16A34A',confirmed:'#16A34A',requested:'#D97706',completed:'#6B6B6B'};
 const SB=(c:string): React.CSSProperties=>({fontSize:11,fontWeight:500,padding:'3px 10px',borderRadius:9999,background:c+'18',color:c});
@@ -22,6 +22,9 @@ export default function AdminPage() {
   const[brokers,setBrokers]=useState<any[]>([]);
   const[leads,setLeads]=useState<any[]>([]);
   const[visits,setVisits]=useState<any[]>([]);
+  const[reports,setReports]=useState<any[]>([]);
+  const[audit,setAudit]=useState<any[]>([]);
+  const[rnote,setRnote]=useState<Record<string,string>>({});
   const[stats,setStats]=useState<any>(null);
   const[reason,setReason]=useState<Record<string,string>>({});
   const[busy,setBusy]=useState(false);
@@ -32,6 +35,8 @@ export default function AdminPage() {
     adminGetBrokers().then(setBrokers);
     adminGetAllLeads().then(setLeads);
     adminGetAllVisits().then(setVisits);
+    adminGetReports().then(setReports);
+    adminGetAuditLog().then(setAudit);
     adminGetStats().then(setStats);
   },[]);
   const moderate=async(id:string,status:string,vl:string,rej?:string)=>{setBusy(true);await adminModerate(id,status,vl,rej);setQueue(p=>p.filter(l=>l.id!==id));setListings(p=>p.map(l=>l.id===id?{...l,status,verification_level:vl}:l));setBusy(false);};
@@ -47,7 +52,7 @@ export default function AdminPage() {
           ))}
         </div>}
         <div style={{display:'flex',gap:4,marginBottom:28,flexWrap:'wrap'}}>
-          {TABS.map(t=><button key={t} onClick={()=>setTab(t)} style={TS(t)}>{t==='queue'?`Review queue (${queue.length})`:t.charAt(0).toUpperCase()+t.slice(1)}</button>)}
+          {TABS.map(t=><button key={t} onClick={()=>setTab(t)} style={TS(t)}>{t==='queue'?`Review queue (${queue.length})`:t==='reports'?`Reports (${reports.filter(r=>r.status==='open').length})`:t==='audit'?'Audit log':t.charAt(0).toUpperCase()+t.slice(1)}</button>)}
         </div>
         {tab==='queue'&&(
           <div style={{display:'flex',flexDirection:'column',gap:12}}>
@@ -90,6 +95,8 @@ export default function AdminPage() {
                   <span style={SB(SC[l.status]??'#6B6B6B')}>{l.status.replace('_',' ')}</span>
                   <button onClick={()=>adminToggleFeatured(l.id,!l.featured).then(()=>setListings(p=>p.map(x=>x.id===l.id?{...x,featured:!x.featured}:x)))} style={{...BTN(l.featured?'#6B6B6B':'#2563EB'),fontSize:11}}>{l.featured?'Unfeature':'Feature'}</button>
                   {l.status==='pending_review'&&<button onClick={()=>moderate(l.id,'active','verified')} disabled={busy} style={{...BTN('#16A34A'),fontSize:11}}>Approve</button>}
+                  {l.status==='active'&&<button onClick={()=>{if(confirm('Suspend this listing? It will be hidden from the public.'))moderate(l.id,'suspended','unverified','Suspended by admin');}} disabled={busy} style={{...BTN('#DC2626'),fontSize:11}}>Suspend</button>}
+                  {l.status==='suspended'&&<button onClick={()=>moderate(l.id,'active','verified')} disabled={busy} style={{...BTN('#16A34A'),fontSize:11}}>Restore</button>}
                 </div>
               </div>
             ))}
@@ -129,6 +136,48 @@ export default function AdminPage() {
                 <div style={{display:'flex',justifyContent:'space-between',marginBottom:4}}><p style={{fontSize:13,fontWeight:600,color:'#111'}}>{v.requester_name} — {v.requester_phone}</p><span style={SB(SC[v.status]??'#6B6B6B')}>{v.status}</span></div>
                 <p style={{fontSize:12,color:'#3D3D3D'}}>{v.slot_date} at {v.slot_time}</p>
                 <p style={{fontSize:11,color:'#9B9B9B',marginTop:4}}>{v.listing?.title} · {v.listing?.city?.name}</p>
+              </div>
+            ))}
+          </div>
+        )}
+        {tab==='reports'&&(
+          <div style={{display:'flex',flexDirection:'column',gap:10}}>
+            {reports.length===0&&<p style={{fontSize:14,color:'#16A34A'}}>No reports. Nothing to review.</p>}
+            {reports.map((r:any)=>(
+              <div key={r.id} style={{padding:'14px 16px',border:'1px solid #E5E5E5',borderRadius:12}}>
+                <div style={{display:'flex',justifyContent:'space-between',gap:12,marginBottom:6}}>
+                  <div>
+                    <p style={{fontSize:14,fontWeight:600,color:'#111'}}>{r.reason} <span style={{fontWeight:400,color:'#6B6B6B'}}>· {timeAgo(r.created_at)}</span></p>
+                    <p style={{fontSize:12,color:'#6B6B6B',marginTop:2}}>{r.listing?<a href={`/preview/${r.listing.id}`} target="_blank" rel="noopener noreferrer" style={{textDecoration:'underline'}}>{r.listing.title}</a>:'Listing removed'} {r.listing&&<span>({r.listing.status})</span>}</p>
+                    {r.details&&<p style={{fontSize:13,color:'#3D3D3D',marginTop:6}}>{r.details}</p>}
+                    {r.resolution_note&&<p style={{fontSize:12,color:'#6B6B6B',marginTop:6}}>Note: {r.resolution_note}</p>}
+                  </div>
+                  <span style={SB(r.status==='open'?'#D97706':r.status==='dismissed'?'#6B6B6B':'#16A34A')}>{r.status}</span>
+                </div>
+                {r.status==='open'&&(
+                  <div style={{display:'flex',gap:8,flexWrap:'wrap',alignItems:'center'}}>
+                    <input placeholder="Note (optional)" value={rnote[r.id]??''} onChange={e=>setRnote(p=>({...p,[r.id]:e.target.value}))} style={{...INP,width:220}}/>
+                    {(['dismiss','resolve','suspend_listing'] as const).map(a=>(
+                      <button key={a} disabled={busy} onClick={async()=>{
+                        if(a==='suspend_listing'&&!confirm('Suspend this listing? It will be hidden from the public.'))return;
+                        setBusy(true);
+                        try{await adminResolveReport(r.id,a,rnote[r.id]);}catch{alert('Could not complete that action.');}
+                        adminGetReports().then(setReports);adminGetAllListings().then(setListings);adminGetAuditLog().then(setAudit);setBusy(false);
+                      }} style={BTN(a==='suspend_listing'?'#DC2626':a==='resolve'?'#16A34A':'#6B6B6B')}>{a==='dismiss'?'Dismiss':a==='resolve'?'Mark reviewed':'Suspend listing'}</button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+        {tab==='audit'&&(
+          <div style={{display:'flex',flexDirection:'column',gap:6}}>
+            {audit.length===0&&<p style={{fontSize:14,color:'#6B6B6B'}}>No admin actions recorded yet.</p>}
+            {audit.map((a:any)=>(
+              <div key={a.id} style={{display:'flex',justifyContent:'space-between',gap:12,padding:'10px 14px',border:'1px solid #E5E5E5',borderRadius:10,fontSize:12}}>
+                <div><p style={{fontWeight:600,color:'#111',fontSize:13}}>{a.action}</p><p style={{color:'#6B6B6B',marginTop:2,wordBreak:'break-all'}}>{a.entity_type} {String(a.entity_id).slice(0,8)} · {JSON.stringify(a.details)}</p></div>
+                <span style={{color:'#9B9B9B',whiteSpace:'nowrap'}}>{timeAgo(a.created_at)}</span>
               </div>
             ))}
           </div>
