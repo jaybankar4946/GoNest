@@ -61,7 +61,7 @@ export function Nav() {
 
         {/* Desktop right side */}
         <div style={{ alignItems: 'center', gap: 6, flex: 1, order: 3, justifyContent: 'flex-end' }} className="hidden md:flex">
-          <Link href={canPost ? '/dashboard/new' : user ? '/dashboard' : '/auth'} style={{ padding: '8px 16px', borderRadius: 12, fontSize: 13, fontWeight: 600, color: '#fff', background: 'var(--primary)', marginRight: 4 }}>Add Property</Link>
+          <Link href={user ? '/dashboard/new' : '/auth?next=/dashboard/new'} style={{ padding: '8px 16px', borderRadius: 12, fontSize: 13, fontWeight: 600, color: '#fff', background: 'var(--primary)', marginRight: 4 }}>Add Property</Link>
           <Link href="/saved" style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: '50%' }}
             onMouseOver={e => (e.currentTarget.style.background = 'var(--gray-1)')}
             onMouseOut={e => (e.currentTarget.style.background = 'transparent')}>
