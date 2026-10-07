@@ -339,3 +339,8 @@ export async function adminGetAuditLog() {
   const { data } = await supabase.from('admin_audit_log').select('id,action,entity_type,entity_id,details,created_at,actor_id').order('created_at', { ascending: false }).limit(100);
   return (data ?? []) as any[];
 }
+
+export async function chooseAccountType(role: 'owner' | 'agent') {
+  const { error } = await supabase.rpc('choose_account_type', { p_role: role });
+  if (error) throw error;
+}
