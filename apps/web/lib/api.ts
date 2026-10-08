@@ -2,11 +2,12 @@ import { supabase } from './supabase';
 import type { ListingFull, City, Locality, Profile, Lead, Visit } from './types';
 
 export const imgUrl = (path: string) =>
+  /^https?:\/\//.test(path) ? path :
   `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/listing-images/${path}`;
 
 const CARD = `id,title,price,purpose,property_type,bedrooms,bathrooms,sqft,
   verification_level,status,featured,view_count,lead_count,price_negotiable,
-  furnishing,created_at,published_at,latitude,longitude,
+  furnishing,created_at,published_at,latitude,longitude,is_sample,
   city:cities(id,name,slug),locality:localities(id,name,slug,latitude,longitude),
   listing_images(id,storage_path,sort_order,is_cover)`;
 

@@ -47,6 +47,7 @@ export function PropertyCard({ listing: l, isSaved, onToggle, onQuickView }: Pro
           </div>
 
           <div style={{ position: 'absolute', top: 10, left: 10, display: 'flex', gap: 6 }}>
+            {l.is_sample && <span style={{ fontSize: 11, fontWeight: 700, color: '#92400E', background: '#FEF3C7', padding: '4px 10px', borderRadius: 9999 }}>Sample listing</span>}
             {badge && <span style={{ fontSize: 11, fontWeight: 600, color: '#fff', background: badge.bg, padding: '4px 10px', borderRadius: 9999 }}>{badge.label}</span>}
             {l.featured && !badge && <span style={{ fontSize: 11, fontWeight: 600, color: '#fff', background: 'var(--accent)', padding: '4px 10px', borderRadius: 9999 }}>Featured</span>}
           </div>

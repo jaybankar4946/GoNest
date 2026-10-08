@@ -2,9 +2,9 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-type Img = { id: string; storage_path: string };
+type Img = { id: string; url: string };
 
-export function ImageCarousel({ images, urlFor, alt }: { images: Img[]; urlFor: (path: string) => string; alt: string }) {
+export function ImageCarousel({ images, alt }: { images: Img[]; alt: string }) {
   const [index, setIndex] = useState(0);
   const [hover, setHover] = useState(false);
 
@@ -32,7 +32,7 @@ export function ImageCarousel({ images, urlFor, alt }: { images: Img[]; urlFor: 
       }}
     >
       <img
-        src={urlFor(images[index].storage_path)}
+        src={images[index].url}
         alt={alt}
         style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'opacity var(--dur-base) var(--ease)' }}
       />

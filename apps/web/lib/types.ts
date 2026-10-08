@@ -28,7 +28,7 @@ export type Listing = {
   carpet_area: number | null; floor_number: number | null; total_floors: number | null;
   furnishing: 'unfurnished' | 'semi-furnished' | 'fully-furnished' | null;
   property_age: number | null; facing: string | null; available_from: string | null;
-  status: ListingStatus; verification_level: VerificationLevel; featured: boolean;
+  status: ListingStatus; verification_level: VerificationLevel; featured: boolean; is_sample?: boolean;
   rejection_reason: string | null; view_count: number; lead_count: number;
   saved_count: number; slug: string | null; created_at: string; updated_at: string; published_at: string | null;
 };
