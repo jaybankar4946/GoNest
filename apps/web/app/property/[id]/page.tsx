@@ -44,7 +44,7 @@ export default async function PropertyPage({ params }: { params: Promise<{id:str
       <main style={{maxWidth:1120,margin:'0 auto',padding:'32px 24px 80px'}}>
         {(l as any).is_sample&&<div style={{background:'#FFFBEB',border:'1px solid #FDE68A',color:'#92400E',borderRadius:14,padding:'10px 16px',fontSize:13,fontWeight:600,marginBottom:20}}>Sample listing for demonstration. This is not a real property and details are illustrative.</div>}
         {/* Images */}
-        <div style={{marginBottom:28}}><ImageCarousel images={imgs} urlFor={imgUrl} alt={l.title}/></div>
+        <div style={{marginBottom:28}}><ImageCarousel images={imgs.map((i:any)=>({id:i.id,url:imgUrl(i.storage_path)}))} alt={l.title}/></div>
 
         <div className="pd-grid">
           {/* Left col */}
