@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next';
 import { supabase } from '@/lib/supabase';
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = 'https://gonest.in';
-  const { data } = await supabase.from('listings').select('id,updated_at').eq('status','active').order('updated_at',{ascending:false}).limit(1000);
+  const { data } = await supabase.from('listings').select('id,updated_at').eq('status','active').eq('is_sample',false).order('updated_at',{ascending:false}).limit(1000);
   return [
     { url: base, lastModified: new Date(), changeFrequency: 'daily', priority: 1 },
     { url: `${base}/buy`, lastModified: new Date(), changeFrequency: 'hourly', priority: 0.9 },
