@@ -4,10 +4,10 @@ import { useRouter } from 'next/navigation';
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
 import { useAuth } from '@/components/layout/AuthProvider';
-import { adminGetPendingListings, adminGetAllListings, adminGetBrokers, adminGetAllLeads, adminGetAllVisits, adminGetStats, adminModerate, adminToggleFeatured, adminVerifyAgent, adminSetRole, adminGetReports, adminResolveReport, adminGetAuditLog } from '@/lib/api';
+import { adminGetPendingListings, adminGetAllListings, adminGetBrokers, adminGetAllLeads, adminGetAllVisits, adminGetStats, adminModerate, adminToggleFeatured, adminVerifyAgent, adminSetRole, adminGetReports, adminResolveReport, adminGetAuditLog, adminGetFunnel } from '@/lib/api';
 import { imgUrl } from '@/lib/api';
 import { formatPrice, timeAgo } from '@/lib/format';
-const TABS=['queue','listings','brokers','leads','visits','reports','audit'] as const;
+const TABS=['queue','listings','brokers','leads','visits','reports','audit','funnel'] as const;
 type Tab=typeof TABS[number];
 const SC: Record<string,string>={active:'#16A34A',pending_review:'#D97706',rejected:'#DC2626',draft:'#6B6B6B',archived:'#6B6B6B',new:'#2563EB',contacted:'#D97706',closed:'#16A34A',confirmed:'#16A34A',requested:'#D97706',completed:'#6B6B6B'};
 const SB=(c:string): React.CSSProperties=>({fontSize:11,fontWeight:500,padding:'3px 10px',borderRadius:9999,background:c+'18',color:c});
@@ -24,6 +24,8 @@ export default function AdminPage() {
   const[visits,setVisits]=useState<any[]>([]);
   const[reports,setReports]=useState<any[]>([]);
   const[audit,setAudit]=useState<any[]>([]);
+  const[funnel,setFunnel]=useState<{name:string;events:number;sessions:number}[]>([]);
+  const[fdays,setFdays]=useState(7);
   const[rnote,setRnote]=useState<Record<string,string>>({});
   const[stats,setStats]=useState<any>(null);
   const[reason,setReason]=useState<Record<string,string>>({});
@@ -39,6 +41,7 @@ export default function AdminPage() {
     adminGetAuditLog().then(setAudit);
     adminGetStats().then(setStats);
   },[]);
+  useEffect(()=>{adminGetFunnel(fdays).then(setFunnel);},[fdays]);
   const moderate=async(id:string,status:string,vl:string,rej?:string)=>{setBusy(true);await adminModerate(id,status,vl,rej);setQueue(p=>p.filter(l=>l.id!==id));setListings(p=>p.map(l=>l.id===id?{...l,status,verification_level:vl}:l));setBusy(false);};
   const TS=(t:string): React.CSSProperties=>({padding:'7px 18px',borderRadius:9999,fontSize:13,fontWeight:tab===t?600:400,color:tab===t?'#111':'#6B6B6B',background:tab===t?'#F7F7F7':'transparent',border:'none',cursor:'pointer'});
   return(
@@ -182,6 +185,24 @@ export default function AdminPage() {
             ))}
           </div>
         )}
+        {tab==='funnel'&&(()=>{
+          const steps:[string,string][]=[['session_start','Visitors (sessions)'],['search','Searched'],['property_view','Viewed a property'],['save','Saved a property'],['call_click','Clicked Call'],['whatsapp_click','Clicked WhatsApp'],['lead_submitted','Sent an enquiry'],['visit_requested','Requested a visit']];
+          const get=(k:string)=>funnel.find(f=>f.name===k);
+          const top=get('session_start')?.sessions??0;
+          return(
+            <div>
+              <div style={{display:'flex',gap:8,marginBottom:16}}>{[7,30,90].map(d=><button key={d} onClick={()=>setFdays(d)} style={{...BTN(fdays===d?'#111':'#9B9B9B'),fontSize:12}}>Last {d} days</button>)}</div>
+              <div style={{border:'1px solid #E5E5E5',borderRadius:12,overflow:'hidden'}}>
+                {steps.map(([k,label],i)=>{const f=get(k);const n=f?.sessions??0;const pct=top>0?Math.round((n/top)*100):0;return(
+                  <div key={k} style={{display:'flex',alignItems:'center',gap:12,padding:'12px 16px',borderTop:i?'1px solid #F0F0F0':'none'}}>
+                    <div style={{width:190,fontSize:13,fontWeight:600}}>{label}</div>
+                    <div style={{flex:1,background:'#F3F4F6',borderRadius:6,height:10,overflow:'hidden'}}><div style={{width:`${Math.min(100,pct)}%`,height:'100%',background:'var(--primary)'}}/></div>
+                    <div style={{width:150,textAlign:'right',fontSize:13}}><b>{n}</b> <span style={{color:'#6B6B6B'}}>sessions · {f?.events??0} events · {pct}%</span></div>
+                  </div>);})}
+              </div>
+              <p style={{fontSize:12,color:'#6B6B6B',marginTop:10}}>Counts are anonymous and per browser session. Percentages are of all visitors. Use this to see where people drop off.</p>
+            </div>);
+        })()}
       </main>
       <Footer/>
     </>

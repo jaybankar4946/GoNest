@@ -45,6 +45,7 @@ export function ListingFacts({ l }: { l: ListingFull }) {
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>{amenities.map(a => <span key={a} style={{ fontSize: 13, color: '#065F46', background: '#ECFDF5', padding: '6px 12px', borderRadius: 10 }}>✓ {a}</span>)}</div>
         </div>)}
       <Group title="Listing" rows={[
+        ['Property ID', `GN-${l.id.slice(0, 8).toUpperCase()}`],
         ['Listed by', poster?.full_name ? `${poster.full_name} (${poster.role === 'agent' ? 'Agent' : 'Owner'})` : null],
         ['Listed', l.published_at ? `${date(l.published_at)} (${timeAgo(l.published_at)})` : null], ['Last updated', l.updated_at ? timeAgo(l.updated_at) : null]]} />
     </section>
@@ -71,6 +72,33 @@ export function PriceHistory({ rows, purpose, sqft }: { rows: { id: string; even
               </tr>))}</tbody>
           </table>
         </div>)}
+    </section>
+  );
+}
+
+export function DecisionSummary({ l, emi }: { l: ListingFull; emi: number | null }) {
+  const poster = l.poster as any;
+  const level = l.verification_level === 'platform_verified' ? 'GoNest verified' : l.verification_level === 'verified' ? 'Reviewed and verified' : 'Not yet verified';
+  const amen = ((l as any).amenities ?? []) as string[];
+  const na = 'Not provided';
+  const total = l.purpose === 'rent' && l.maintenance_monthly ? l.price + l.maintenance_monthly : null;
+  const Col = ({ q, rows }: { q: string; rows: [string, string][] }) => (
+    <div style={{ flex: '1 1 220px', minWidth: 0 }}>
+      <p style={{ fontSize: 12, fontWeight: 700, color: '#2563EB', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 8 }}>{q}</p>
+      {rows.map(([k, v]) => (<p key={k} style={{ fontSize: 13, color: '#374151', marginBottom: 4 }}><span style={{ color: '#6B7280' }}>{k}: </span><span style={{ fontWeight: 600, color: v === na ? '#9CA3AF' : '#111827' }}>{v}</span></p>))}
+    </div>
+  );
+  return (
+    <section aria-label="Before you decide" style={{ border: '1px solid #E5E7EB', borderRadius: 20, padding: 20, marginBottom: 28, background: '#F9FAFB' }}>
+      <h2 style={{ fontSize: 16, fontWeight: 800, color: '#111827', marginBottom: 14 }}>Before you decide</h2>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 24 }}>
+        <Col q="Can I trust it?" rows={[['Status', level], ['Listed by', poster?.full_name ? `${poster.role === 'agent' ? 'Agent' : 'Owner'}${poster.agent_verified ? ' (verified)' : ''}` : na], ['Last updated', l.updated_at ? timeAgo(l.updated_at) : na]]} />
+        <Col q="Can I afford it?" rows={l.purpose === 'rent'
+          ? [['Monthly rent', formatPrice(l.price, 'rent')], ['Maintenance', l.maintenance_monthly ? inr(l.maintenance_monthly) + '/mo' : na], ['Rent + maintenance', total ? inr(total) + '/mo' : na], ['Security deposit', l.security_deposit ? inr(l.security_deposit) : na]]
+          : [['Price', formatPrice(l.price, 'sale')], ['Per sq ft', l.sqft ? inr(Math.round(l.price / l.sqft)) : na], ['Est. EMI', emi ? inr(emi) + '/mo*' : na], ['Maintenance', l.maintenance_monthly ? inr(l.maintenance_monthly) + '/mo' : na]]} />
+        <Col q="Will I like living here?" rows={[['Area', l.sqft ? `${l.sqft.toLocaleString('en-IN')} sq ft` : na], ['Floor', l.floor_number != null ? `${l.floor_number}${l.total_floors ? ` of ${l.total_floors}` : ''}` : na], ['Furnishing', l.furnishing ? capitalize(l.furnishing.replace('-', ' ')) : na], ['Amenities', amen.length ? `${amen.length} listed` : na]]} />
+      </div>
+      <p style={{ fontSize: 11, color: '#9CA3AF', marginTop: 12 }}>Only information supplied for this listing is shown. “Not provided” means the owner or agent has not given it. Commute, schools and neighbourhood details are not available yet.</p>
     </section>
   );
 }

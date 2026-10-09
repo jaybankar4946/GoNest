@@ -2,7 +2,9 @@ import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
 import { notFound } from 'next/navigation';
 import { getListingById, getSimilarListings, getPriceHistory, imgUrl } from '@/lib/api';
-import { ListingFacts, PriceHistory } from '@/components/property/ListingFacts';
+import { ListingFacts, PriceHistory, DecisionSummary } from '@/components/property/ListingFacts';
+import { TrackedLink } from '@/components/property/TrackedLink';
+import { TrackView } from '@/components/property/TrackView';
 import { formatPrice, bhkLabel, capitalize, calcEMI, timeAgo } from '@/lib/format';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { telHref, waHref } from '@/lib/contact';
@@ -44,6 +46,7 @@ export default async function PropertyPage({ params }: { params: Promise<{id:str
     <>
       <Nav/>
       <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify({'@context':'https://schema.org','@type':'RealEstateListing',name:l.title,url:`https://gonest.in/property/${l.id}`,description:l.description??undefined,image:imgs.slice(0,5).map((i:any)=>imgUrl(i.storage_path)),datePosted:l.published_at??l.created_at,offers:{'@type':'Offer',price:l.price,priceCurrency:'INR',availability:'https://schema.org/InStock'},address:{'@type':'PostalAddress',addressLocality:locality,addressRegion:city,addressCountry:'IN'}}).replace(/</g,'\\u003c')}}/>
+      <TrackView listingId={l.id}/>
       <main style={{maxWidth:1120,margin:'0 auto',padding:'32px 24px 80px'}}>
         {(l as any).is_sample&&<div style={{background:'#FFFBEB',border:'1px solid #FDE68A',color:'#92400E',borderRadius:14,padding:'10px 16px',fontSize:13,fontWeight:600,marginBottom:20}}>Sample listing for demonstration. This is not a real property and details are illustrative.</div>}
         {/* Images */}
@@ -72,6 +75,7 @@ export default async function PropertyPage({ params }: { params: Promise<{id:str
               {emiEst&&<span>Est. ₹{emiEst.toLocaleString('en-IN')}/mo <span style={{fontWeight:400,color:'#6B7280'}}>EMI*</span></span>}
             </div>
             <p style={{fontSize:12,color:'#6B7280',marginBottom:18}}>Listed {timeAgo(l.published_at??l.created_at)} · {l.view_count} views · {l.saved_count??0} saves · Updated {timeAgo(l.updated_at)}{emiEst?<> · *Estimate with 20% down, 8.5% for 20 years. Adjust in the payment calculator.</>:null}</p>
+            <DecisionSummary l={l} emi={emiEst}/>
             {/* Specs */}
             {specs.length>0&&(
               <div style={{display:'flex',flexWrap:'wrap',gap:8,paddingBottom:20,borderBottom:'1px solid #E5E7EB',marginBottom:20}}>
@@ -86,8 +90,8 @@ export default async function PropertyPage({ params }: { params: Promise<{id:str
 
             {poster?.phone&&(
               <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:20}}>
-                <a href={telHref(poster.phone)} style={{padding:'10px 20px',borderRadius:9999,fontSize:13,fontWeight:600,color:'#fff',background:'#111'}}>Call</a>
-                <a href={waHref(poster.phone,`Hi, I'm interested in: ${l.title}`)} target="_blank" rel="noopener noreferrer" style={{padding:'10px 20px',borderRadius:9999,fontSize:13,fontWeight:600,color:'#fff',background:'#25D366'}}>WhatsApp</a>
+                <TrackedLink event="call_click" listingId={l.id} href={telHref(poster.phone)} style={{padding:'10px 20px',borderRadius:9999,fontSize:13,fontWeight:600,color:'#fff',background:'#111'}}>Call</TrackedLink>
+                <TrackedLink event="whatsapp_click" external listingId={l.id} href={waHref(poster.phone,`Hi, I'm interested in: ${l.title}`)} style={{padding:'10px 20px',borderRadius:9999,fontSize:13,fontWeight:600,color:'#fff',background:'#25D366'}}>WhatsApp</TrackedLink>
                 <SaveButton listingId={l.id}/>
                 <ShareButton title={l.title}/>
               </div>

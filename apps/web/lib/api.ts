@@ -350,3 +350,8 @@ export async function getPriceHistory(listingId: string) {
   const { data } = await supabase.from('listing_price_history').select('id,event,price,created_at').eq('listing_id', listingId).order('created_at', { ascending: true });
   return (data ?? []) as { id: string; event: string; price: number | null; created_at: string }[];
 }
+
+export async function adminGetFunnel(days: number) {
+  const { data } = await supabase.rpc('admin_funnel', { p_days: days });
+  return (data ?? []) as { name: string; events: number; sessions: number }[];
+}
