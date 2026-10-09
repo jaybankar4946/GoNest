@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/components/layout/AuthProvider';
 import { submitLead, submitVisit } from '@/lib/api';
+import { track } from '@/lib/track';
 const inp: React.CSSProperties={width:'100%',padding:'10px 12px',border:'1px solid #E5E5E5',borderRadius:12,fontSize:13,outline:'none',background:'#F9FAFB'};
 const btn: React.CSSProperties={width:'100%',padding:'13px',borderRadius:14,fontSize:14,fontWeight:700,cursor:'pointer',border:'none',background:'var(--primary)',color:'#fff'};
 export function ContactForms({listingId}:{listingId:string}) {
@@ -23,10 +24,10 @@ export function ContactForms({listingId}:{listingId:string}) {
     try{
       if(tab==='lead'){
         await submitLead({consent_at:new Date().toISOString(),consent_version:'2026-10-v1',listing_id:listingId,buyer_id:user?.id??null,buyer_name:name,buyer_phone:phone,buyer_email:email||undefined,message:message||undefined});
-        setDone('Enquiry sent. The owner will contact you shortly.');
+        track('lead_submitted',listingId);setDone('Enquiry sent. The owner will contact you shortly.');
       }else{
         await submitVisit({consent_at:new Date().toISOString(),consent_version:'2026-10-v1',listing_id:listingId,requested_by:user?.id??null,requester_name:name,requester_phone:phone,slot_date:date,slot_time:time,notes:notes||undefined});
-        setDone('Visit requested. The owner will confirm your slot.');
+        track('visit_requested',listingId);setDone('Visit requested. The owner will confirm your slot.');
       }
     }catch(e){const m=(e as {message?:string})?.message??'';setErr(m.includes('duplicate_enquiry')?"You've already contacted about this property. The owner will get back to you.":m.includes('rate_limited')?'Too many requests from this number. Please try again in an hour.':m.includes('_valid_chk')?'Please check your name and enter a valid 10-digit mobile number.':'Could not send. Please try again.');}
     finally{setLoad(false);}

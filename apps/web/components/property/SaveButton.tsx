@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Heart } from 'lucide-react';
 import { useAuth } from '@/components/layout/AuthProvider';
 import { getSavedIds, toggleSaved } from '@/lib/api';
+import { track } from '@/lib/track';
 
 const s: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 20px', borderRadius: 9999, fontSize: 13, fontWeight: 600, border: '1px solid #111', background: '#fff', color: '#111' };
 
@@ -14,7 +15,7 @@ export function SaveButton({ listingId }: { listingId: string }) {
   if (!user) return <Link href="/auth" style={s}><Heart size={14} />Save</Link>;
   const click = async () => {
     const was = saved; setSaved(!was);
-    try { await toggleSaved(user.id, listingId, was); } catch { setSaved(was); }
+    try { await toggleSaved(user.id, listingId, was); if (!was) track('save', listingId); } catch { setSaved(was); }
   };
   return (
     <button onClick={click} style={s}>

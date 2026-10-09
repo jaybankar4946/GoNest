@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { Map as MapIcon, List, Columns } from 'lucide-react';
+import { track } from '@/lib/track';
 import { PropertyCardSkeleton } from '@/components/ui/Skeleton';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { ListingQuickView } from '@/components/property/ListingQuickView';
@@ -47,7 +48,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
         minBedrooms: f.beds ? Number(f.beds) : undefined,
         propertyType: f.type||undefined, maxPrice: f.max ? Number(f.max) : undefined, minPrice: f.min ? Number(f.min) : undefined, sort: f.sort, page: 1,
       });
-      setResults(r.listings); setTotal(r.total);
+      setResults(r.listings); setTotal(r.total); track('search', undefined, { total: r.total, purpose: f.purpose || 'any', hasText: !!f.q });
     } finally { setLoading(false); }
   }, [f]);
 
@@ -58,7 +59,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
     const was = saved.has(id);
     const flip = (on: boolean) => setSaved(p => { const n = new Set(p); on ? n.add(id) : n.delete(id); return n; });
     flip(!was);
-    try { await toggleSaved(user.id, id, was); } catch { flip(was); }
+    try { await toggleSaved(user.id, id, was); if (!was) track('save', id); } catch { flip(was); }
   };
   const upd = (k: string, v: string) => setF(p=>({...p,[k]:v}));
 
