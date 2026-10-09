@@ -108,7 +108,7 @@ export async function getSavedListings(userId: string): Promise<ListingFull[]> {
   return ((data ?? []).map((r: any) => r.listing).filter(Boolean)) as unknown as ListingFull[];
 }
 
-export async function submitLead(input: { listing_id: string; buyer_id: string | null; buyer_name: string; buyer_phone: string; buyer_email?: string; message?: string }) {
+export async function submitLead(input: { consent_at?: string; consent_version?: string; listing_id: string; buyer_id: string | null; buyer_name: string; buyer_phone: string; buyer_email?: string; message?: string }) {
   const { error } = await supabase.from('leads').insert(input);
   if (error) throw error;
 }
@@ -122,7 +122,7 @@ export async function updateLeadStatus(leadId: string, status: string, notes?: s
   await supabase.from('leads').update({ status, notes: notes ?? null }).eq('id', leadId);
 }
 
-export async function submitVisit(input: { listing_id: string; requested_by: string | null; requester_name: string; requester_phone: string; slot_date: string; slot_time: string; notes?: string }) {
+export async function submitVisit(input: { consent_at?: string; consent_version?: string; listing_id: string; requested_by: string | null; requester_name: string; requester_phone: string; slot_date: string; slot_time: string; notes?: string }) {
   const { error } = await supabase.from('visits').insert(input);
   if (error) throw error;
 }
@@ -344,4 +344,9 @@ export async function adminGetAuditLog() {
 export async function chooseAccountType(role: 'owner' | 'agent') {
   const { error } = await supabase.rpc('choose_account_type', { p_role: role });
   if (error) throw error;
+}
+
+export async function getPriceHistory(listingId: string) {
+  const { data } = await supabase.from('listing_price_history').select('id,event,price,created_at').eq('listing_id', listingId).order('created_at', { ascending: true });
+  return (data ?? []) as { id: string; event: string; price: number | null; created_at: string }[];
 }

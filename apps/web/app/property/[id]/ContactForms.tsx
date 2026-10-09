@@ -15,16 +15,17 @@ export function ContactForms({listingId}:{listingId:string}) {
   const[time,setTime]=useState('10:00');
   const[notes,setNotes]=useState('');
   const[loading,setLoad]=useState(false);
+  const[consent,setConsent]=useState(false);
   const[done,setDone]=useState<string|null>(null);
   const[err,setErr]=useState<string|null>(null);
   const send=async(e:React.FormEvent)=>{
     e.preventDefault();setLoad(true);setErr(null);
     try{
       if(tab==='lead'){
-        await submitLead({listing_id:listingId,buyer_id:user?.id??null,buyer_name:name,buyer_phone:phone,buyer_email:email||undefined,message:message||undefined});
+        await submitLead({consent_at:new Date().toISOString(),consent_version:'2026-10-v1',listing_id:listingId,buyer_id:user?.id??null,buyer_name:name,buyer_phone:phone,buyer_email:email||undefined,message:message||undefined});
         setDone('Enquiry sent. The owner will contact you shortly.');
       }else{
-        await submitVisit({listing_id:listingId,requested_by:user?.id??null,requester_name:name,requester_phone:phone,slot_date:date,slot_time:time,notes:notes||undefined});
+        await submitVisit({consent_at:new Date().toISOString(),consent_version:'2026-10-v1',listing_id:listingId,requested_by:user?.id??null,requester_name:name,requester_phone:phone,slot_date:date,slot_time:time,notes:notes||undefined});
         setDone('Visit requested. The owner will confirm your slot.');
       }
     }catch(e){const m=(e as {message?:string})?.message??'';setErr(m.includes('duplicate_enquiry')?"You've already contacted about this property. The owner will get back to you.":m.includes('rate_limited')?'Too many requests from this number. Please try again in an hour.':m.includes('_valid_chk')?'Please check your name and enter a valid 10-digit mobile number.':'Could not send. Please try again.');}
@@ -58,6 +59,7 @@ export function ContactForms({listingId}:{listingId:string}) {
           </>
         )}
         {err&&<p style={{fontSize:12,color:'#DC2626'}}>{err}</p>}
+        <label style={{display:'flex',gap:8,alignItems:'flex-start',fontSize:12,color:'#4B5563',lineHeight:1.5}}><input type="checkbox" required checked={consent} onChange={e=>setConsent(e.target.checked)} style={{marginTop:2}}/><span>I agree that GoNest may share my name and contact details with the owner or agent of this listing so they can contact me about it. See the <a href="/privacy" style={{textDecoration:'underline'}}>Privacy Policy</a>.</span></label>
         <button type="submit" disabled={loading} style={{...btn,opacity:loading?0.6:1}}>
           {loading?'Sending…':tab==='lead'?'Send enquiry':'Request visit'}
         </button>

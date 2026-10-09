@@ -3,7 +3,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'motion/react';
 import { Heart, Eye, MapPin, BedDouble, Bath, Ruler, ChevronLeft, ChevronRight } from 'lucide-react';
-import { formatPrice, bhkLabel, capitalize } from '@/lib/format';
+import { formatPrice, bhkLabel, capitalize, timeAgo } from '@/lib/format';
 import { imgUrl } from '@/lib/api';
 import type { ListingFull } from '@/lib/types';
 
@@ -21,6 +21,7 @@ export function PropertyCard({ listing: l, isSaved, onToggle, onQuickView }: Pro
   const city = (l.city as any)?.name ?? '';
   const loc = (l.locality as any)?.name ?? '';
   const badge = BADGE[l.verification_level];
+  const ppsf = l.purpose === 'sale' && l.sqft ? Math.round(l.price / l.sqft) : null;
   const sub = l.bedrooms > 0 ? `${bhkLabel(l.bedrooms, l.property_type)} ${capitalize(l.property_type)}` : capitalize(l.property_type);
 
   const go = (dir: 1 | -1, e: React.MouseEvent) => {
@@ -90,6 +91,7 @@ export function PropertyCard({ listing: l, isSaved, onToggle, onQuickView }: Pro
 
         <div style={{ padding: '14px 14px 16px' }}>
           <h3 className="line-clamp-1" style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 15, color: '#111', marginBottom: 4 }}>{sub}</h3>
+          <p style={{ fontSize: 12, color: '#6B7280', marginBottom: 4 }}>{[l.bedrooms > 0 ? `${l.bedrooms} bd` : null, l.bathrooms > 0 ? `${l.bathrooms} ba` : null, l.sqft ? `${l.sqft.toLocaleString('en-IN')} sq ft` : null, ppsf ? `₹${ppsf.toLocaleString('en-IN')}/sq ft` : null].filter(Boolean).join(' · ')}{(l.published_at || l.created_at) ? ` · Listed ${timeAgo(l.published_at ?? l.created_at)}` : ''}</p>
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 12 }}>
             <MapPin size={12} color="var(--gray-3)" />
             <span style={{ fontSize: 13, color: 'var(--gray-4)' }} className="line-clamp-1">{loc}{loc && city ? ', ' : ''}{city}</span>
