@@ -76,3 +76,7 @@ img{display:block;max-width:100%}
 @media (max-width:900px){.pd-grid{grid-template-columns:minmax(0,1fr);gap:24px}.pd-aside{position:static}}
 
 @media (max-width:767px){body{padding-bottom:64px}}
+
+.pd-tabs{position:sticky;top:64px;z-index:40;background:#fff;border-bottom:1px solid #E5E7EB;margin:0 -24px 24px;padding:0 24px;display:flex;gap:4px;overflow-x:auto;white-space:nowrap}
+.pd-tabs a{padding:14px 14px;font-size:14px;font-weight:600;color:#4B5563;border-bottom:2px solid transparent}
+.pd-tabs a:hover{color:var(--primary);border-bottom-color:var(--primary)}
