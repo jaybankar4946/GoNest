@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { NotificationBell } from './NotificationBell';
 import { MessageSquare, Home, Heart, User, Plus, Menu, X, LogOut, LayoutDashboard, ShieldCheck } from 'lucide-react';
 import { useAuth } from './AuthProvider';
 
@@ -62,6 +63,7 @@ export function Nav() {
         {/* Desktop right side */}
         <div style={{ alignItems: 'center', gap: 6, flex: 1, order: 3, justifyContent: 'flex-end' }} className="hidden md:flex">
           <Link href={user ? '/dashboard/new' : '/auth?next=/dashboard/new'} style={{ padding: '8px 16px', borderRadius: 12, fontSize: 13, fontWeight: 600, color: '#fff', background: 'var(--primary)', marginRight: 4 }}>Add Property</Link>
+          <NotificationBell />
           <Link href="/saved" style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: '50%' }}
             onMouseOver={e => (e.currentTarget.style.background = 'var(--gray-1)')}
             onMouseOut={e => (e.currentTarget.style.background = 'transparent')}>
@@ -89,6 +91,8 @@ export function Nav() {
                     <Link href="/enquiries" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 10px', borderRadius: 8, fontSize: 13, color: '#111' }}>
                       <MessageSquare size={14} /> My enquiries
                     </Link>
+                    <Link href="/saved-searches" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 10px', borderRadius: 8, fontSize: 13, color: '#111' }}>Saved searches</Link>
+                    <Link href="/notifications" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 10px', borderRadius: 8, fontSize: 13, color: '#111' }}>Notifications</Link>
                     {canPost && (
                       <Link href="/dashboard/new" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 10px', borderRadius: 8, fontSize: 13, color: '#111' }}>
                         <Plus size={14} /> Post a listing

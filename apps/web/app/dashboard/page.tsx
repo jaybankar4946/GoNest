@@ -108,7 +108,7 @@ export default function DashboardPage() {
             {visits.map((v:any)=>(
               <div key={v.id} style={ROW}>
                 <div style={{display:'flex',justifyContent:'space-between',width:'100%'}}>
-                  <div><p style={{fontSize:14,fontWeight:600,color:'#111'}}>{v.requester_name} — {v.requester_phone}</p><p style={{fontSize:13,color:'#3D3D3D',marginTop:2}}>{v.slot_date} at {v.slot_time}</p><p style={{fontSize:12,color:'#6B6B6B',marginTop:2}}>{v.listing?.title}</p></div>
+                  <div><p style={{fontSize:14,fontWeight:600,color:'#111'}}>{v.requester_name} — {v.requester_phone}</p><p style={{fontSize:13,color:'#3D3D3D',marginTop:2}}>{v.slot_date} at {String(v.slot_time).slice(0,5)}{v.booking_ref?` · ${v.booking_ref}`:''}{v.visitors>1?` · ${v.visitors} visitors`:''}</p><p style={{fontSize:12,color:'#6B6B6B',marginTop:2}}>{v.listing?.title}</p></div>
                   <span style={SB(SC[v.status]??'#6B6B6B')}>{v.status}</span>
                 </div>
                 <select style={sel} value={v.status} onChange={async e=>{setBusy(true);await updateVisitStatus(v.id,e.target.value,user?.id);setVisits(p=>p.map(x=>x.id===v.id?{...x,status:e.target.value}:x));setBusy(false);}} disabled={busy}>

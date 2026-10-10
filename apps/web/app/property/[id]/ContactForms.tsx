@@ -5,6 +5,7 @@ import { submitLead, submitVisit } from '@/lib/api';
 import { track } from '@/lib/track';
 const inp: React.CSSProperties={width:'100%',padding:'10px 12px',border:'1px solid #E5E5E5',borderRadius:12,fontSize:13,outline:'none',background:'#F9FAFB'};
 const btn: React.CSSProperties={width:'100%',padding:'13px',borderRadius:14,fontSize:14,fontWeight:700,cursor:'pointer',border:'none',background:'var(--primary)',color:'#fff'};
+import { ScheduleVisit } from '@/components/property/ScheduleVisit';
 export function ContactForms({listingId}:{listingId:string}) {
   const{user,profile}=useAuth();
   const[tab,setTab]=useState<'lead'|'visit'>('lead');
@@ -42,6 +43,7 @@ export function ContactForms({listingId}:{listingId:string}) {
           </button>
         ))}
       </div>
+      {tab==='visit'?<ScheduleVisit listingId={listingId} prefill={{name,phone,email}}/>:(
       <form onSubmit={send} style={{padding:16,display:'flex',flexDirection:'column',gap:10}}>
         <input required placeholder="Your name" value={name} onChange={e=>setName(e.target.value)} style={inp}/>
         <input required inputMode="tel" autoComplete="tel" maxLength={15} placeholder="Mobile number (10 digits)" value={phone} onChange={e=>setPhone(e.target.value)} style={inp}/>
@@ -65,6 +67,7 @@ export function ContactForms({listingId}:{listingId:string}) {
           {loading?'Sending…':tab==='lead'?'Send enquiry':'Request visit'}
         </button>
       </form>
+      )}
     </div>
   );
 }

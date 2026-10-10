@@ -313,7 +313,7 @@ export async function getMyEnquiries(userId: string) {
   return (data ?? []) as any[];
 }
 export async function getMyVisitRequests(userId: string) {
-  const { data } = await supabase.from('visits').select('id,status,slot_date,slot_time,created_at,listing:listings(id,title,status)').eq('requested_by', userId).order('created_at', { ascending: false });
+  const { data } = await supabase.from('visits').select('id,status,slot_date,slot_time,booking_ref,visitors,created_at,listing:listings(id,title,status)').eq('requested_by', userId).order('created_at', { ascending: false });
   return (data ?? []) as any[];
 }
 export async function getPopularLocalities(limit = 8): Promise<{ id: string; name: string; cityId: string; city: string; count: number }[]> {
@@ -355,3 +355,38 @@ export async function adminGetFunnel(days: number) {
   const { data } = await supabase.rpc('admin_funnel', { p_days: days });
   return (data ?? []) as { name: string; events: number; sessions: number }[];
 }
+
+// ---- Visit booking
+export async function getBookedSlots(listingId: string, date: string): Promise<string[]> {
+  const { data } = await supabase.rpc('get_booked_slots', { p_listing: listingId, p_date: date });
+  return (data ?? []) as string[];
+}
+export type BookingResult = { booking_ref: string; title: string; slot_date: string; slot_time: string; visitors: number };
+export async function bookVisit(i: { listingId: string; name: string; phone: string; email: string; date: string; time: string; visitors: number; method: string; notes: string; consent: boolean }): Promise<BookingResult> {
+  const { data, error } = await supabase.rpc('book_visit', { p_listing: i.listingId, p_name: i.name, p_phone: i.phone, p_email: i.email, p_date: i.date, p_time: i.time, p_visitors: i.visitors, p_method: i.method, p_notes: i.notes, p_consent: i.consent });
+  if (error) throw error;
+  return data as BookingResult;
+}
+// ---- Notifications
+export async function getNotifications() {
+  const { data } = await supabase.from('notifications').select('id,type,title,body,link,read_at,created_at').order('created_at', { ascending: false }).limit(50);
+  return (data ?? []) as { id: string; type: string; title: string; body: string | null; link: string | null; read_at: string | null; created_at: string }[];
+}
+export async function getUnreadCount(): Promise<number> {
+  const { count } = await supabase.from('notifications').select('id', { count: 'exact', head: true }).is('read_at', null);
+  return count ?? 0;
+}
+export async function markNotificationRead(id: string) { await supabase.from('notifications').update({ read_at: new Date().toISOString() }).eq('id', id); }
+export async function markAllNotificationsRead() { await supabase.from('notifications').update({ read_at: new Date().toISOString() }).is('read_at', null); }
+// ---- Saved searches
+export type SavedSearch = { id: string; name: string | null; city_id: string | null; locality_id: string | null; purpose: string | null; property_type: string | null; min_price: number | null; max_price: number | null; min_bedrooms: number | null; notify_enabled: boolean; created_at: string };
+export async function getSavedSearches() {
+  const { data } = await supabase.from('saved_searches').select('id,name,city_id,locality_id,purpose,property_type,min_price,max_price,min_bedrooms,notify_enabled,created_at').order('created_at', { ascending: false });
+  return (data ?? []) as SavedSearch[];
+}
+export async function saveSearch(userId: string, f: { name: string; cityId?: string; purpose?: string; type?: string; min?: number; max?: number; beds?: number }) {
+  const { error } = await supabase.from('saved_searches').insert({ user_id: userId, name: f.name, city_id: f.cityId || null, purpose: f.purpose || null, property_type: f.type || null, min_price: f.min ?? null, max_price: f.max ?? null, min_bedrooms: f.beds ?? null, notify_enabled: true });
+  if (error) throw error;
+}
+export async function setSearchAlerts(id: string, enabled: boolean) { await supabase.from('saved_searches').update({ notify_enabled: enabled }).eq('id', id); }
+export async function deleteSavedSearch(id: string) { await supabase.from('saved_searches').delete().eq('id', id); }

@@ -6,7 +6,7 @@ import { track } from '@/lib/track';
 import { PropertyCardSkeleton } from '@/components/ui/Skeleton';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { ListingQuickView } from '@/components/property/ListingQuickView';
-import { searchListings, getSavedIds, toggleSaved } from '@/lib/api';
+import { searchListings, getSavedIds, toggleSaved, saveSearch } from '@/lib/api';
 import { useAuth } from '@/components/layout/AuthProvider';
 import { formatPrice } from '@/lib/format';
 import { parseQuery } from '@/lib/parseQuery';
@@ -62,6 +62,14 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
     try { await toggleSaved(user.id, id, was); if (!was) track('save', id); } catch { flip(was); }
   };
   const upd = (k: string, v: string) => setF(p=>({...p,[k]:v}));
+  const [savedMsg, setSavedMsg] = useState<string|null>(null);
+  const saveThis = async () => {
+    if (!user) { window.location.href = '/auth?next=/search'; return; }
+    const cityName = cities.find(c => c.id === f.cityId)?.name;
+    const name = [f.purpose==='rent'?'Rent':f.purpose==='sale'?'Buy':null, f.beds?`${f.beds}+ BHK`:null, f.type?f.type.charAt(0).toUpperCase()+f.type.slice(1):null, cityName, f.q||null, f.max?`under ₹${Number(f.max).toLocaleString('en-IN')}`:null].filter(Boolean).join(' · ') || 'All properties';
+    try { await saveSearch(user.id, { name, cityId: f.cityId||undefined, purpose: f.purpose||undefined, type: f.type||undefined, min: f.min?Number(f.min):undefined, max: f.max?Number(f.max):undefined, beds: f.beds?Number(f.beds):undefined }); setSavedMsg('Saved. We will notify you about new matches.'); } catch { setSavedMsg('Could not save this search.'); }
+    setTimeout(() => setSavedMsg(null), 4000);
+  };
 
   const loadMore = async () => {
     setLoadingMore(true);
@@ -129,6 +137,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
           {(f.purpose==='rent' ? [15000,25000,40000,60000,100000] : [5000000,10000000,20000000,50000000])
             .map(n=><option key={n} value={n}>Up to {formatPrice(n, f.purpose==='rent'?'rent':'sale')}</option>)}
         </select>
+        <button onClick={saveThis} style={{...sel,fontWeight:600,color:'var(--primary)',borderColor:'var(--primary)'}}>Save this search</button>
         <select style={sel} value={f.sort} onChange={e=>upd('sort',e.target.value as typeof f.sort)}>
           <option value="newest">Newest</option>
           <option value="price_asc">Price ↑</option>
@@ -143,6 +152,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
         </div>
       </div>
 
+      {savedMsg&&<p role="status" style={{fontSize:13,color:'#065F46',background:'#ECFDF5',padding:'8px 12px',borderRadius:10,marginBottom:12}}>{savedMsg} <a href="/saved-searches" style={{textDecoration:'underline'}}>View saved searches</a></p>}
       <p style={{fontSize:13,color:'var(--gray-4)',marginBottom:20}}>
         {loading ? 'Searching…' : `${total} ${total===1?'property':'properties'} found`}
       </p>
