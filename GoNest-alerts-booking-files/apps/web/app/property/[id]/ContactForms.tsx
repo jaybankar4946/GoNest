@@ -1,0 +1,73 @@
+'use client';
+import { useState } from 'react';
+import { useAuth } from '@/components/layout/AuthProvider';
+import { submitLead, submitVisit } from '@/lib/api';
+import { track } from '@/lib/track';
+const inp: React.CSSProperties={width:'100%',padding:'10px 12px',border:'1px solid #E5E5E5',borderRadius:12,fontSize:13,outline:'none',background:'#F9FAFB'};
+const btn: React.CSSProperties={width:'100%',padding:'13px',borderRadius:14,fontSize:14,fontWeight:700,cursor:'pointer',border:'none',background:'var(--primary)',color:'#fff'};
+import { ScheduleVisit } from '@/components/property/ScheduleVisit';
+export function ContactForms({listingId}:{listingId:string}) {
+  const{user,profile}=useAuth();
+  const[tab,setTab]=useState<'lead'|'visit'>('lead');
+  const[name,setName]=useState(profile?.full_name??'');
+  const[phone,setPhone]=useState(profile?.phone??'');
+  const[email,setEmail]=useState(user?.email??'');
+  const[message,setMsg]=useState('');
+  const[date,setDate]=useState('');
+  const[time,setTime]=useState('10:00');
+  const[notes,setNotes]=useState('');
+  const[loading,setLoad]=useState(false);
+  const[consent,setConsent]=useState(false);
+  const[done,setDone]=useState<string|null>(null);
+  const[err,setErr]=useState<string|null>(null);
+  const send=async(e:React.FormEvent)=>{
+    e.preventDefault();setLoad(true);setErr(null);
+    try{
+      if(tab==='lead'){
+        await submitLead({consent_at:new Date().toISOString(),consent_version:'2026-10-v1',listing_id:listingId,buyer_id:user?.id??null,buyer_name:name,buyer_phone:phone,buyer_email:email||undefined,message:message||undefined});
+        track('lead_submitted',listingId);setDone('Enquiry sent. The owner will contact you shortly.');
+      }else{
+        await submitVisit({consent_at:new Date().toISOString(),consent_version:'2026-10-v1',listing_id:listingId,requested_by:user?.id??null,requester_name:name,requester_phone:phone,slot_date:date,slot_time:time,notes:notes||undefined});
+        track('visit_requested',listingId);setDone('Visit requested. The owner will confirm your slot.');
+      }
+    }catch(e){const m=(e as {message?:string})?.message??'';setErr(m.includes('duplicate_enquiry')?"You've already contacted about this property. The owner will get back to you.":m.includes('rate_limited')?'Too many requests from this number. Please try again in an hour.':m.includes('_valid_chk')?'Please check your name and enter a valid 10-digit mobile number.':'Could not send. Please try again.');}
+    finally{setLoad(false);}
+  };
+  if(done)return(<div style={{border:'1px solid #E5E5E5',borderRadius:14,padding:20}}><p style={{fontSize:14,color:'#16A34A',lineHeight:1.6}}>{done}</p></div>);
+  return(
+    <div className="pd-aside" style={{border:'1px solid #E5E7EB',borderRadius:24,overflow:'hidden',boxShadow:'var(--shadow-lg)',background:'#fff'}}>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',borderBottom:'1px solid #E5E5E5'}}>
+        {(['lead','visit'] as const).map(t=>(
+          <button key={t} onClick={()=>setTab(t)} style={{padding:'12px',fontSize:13,fontWeight:tab===t?600:400,color:tab===t?'#111':'#6B6B6B',background:tab===t?'#F7F7F7':'#fff',borderBottom:tab===t?'2px solid var(--primary)':'2px solid transparent'}}>
+            {t==='lead'?'Contact':'Book Visit'}
+          </button>
+        ))}
+      </div>
+      {tab==='visit'?<ScheduleVisit listingId={listingId} prefill={{name,phone,email}}/>:(
+      <form onSubmit={send} style={{padding:16,display:'flex',flexDirection:'column',gap:10}}>
+        <input required placeholder="Your name" value={name} onChange={e=>setName(e.target.value)} style={inp}/>
+        <input required inputMode="tel" autoComplete="tel" maxLength={15} placeholder="Mobile number (10 digits)" value={phone} onChange={e=>setPhone(e.target.value)} style={inp}/>
+        {tab==='lead'?(
+          <>
+            <input type="email" placeholder="Email (optional)" value={email} onChange={e=>setEmail(e.target.value)} style={inp}/>
+            <textarea placeholder="Message (optional)" rows={3} value={message} onChange={e=>setMsg(e.target.value)} style={{...inp,resize:'none'}}/>
+          </>
+        ):(
+          <>
+            <input required type="date" value={date} onChange={e=>setDate(e.target.value)} min={new Date().toISOString().split('T')[0]} style={inp}/>
+            <select value={time} onChange={e=>setTime(e.target.value)} style={inp}>
+              {['09:00','10:00','11:00','12:00','14:00','15:00','16:00','17:00','18:00'].map(t=><option key={t} value={t}>{t}</option>)}
+            </select>
+            <textarea placeholder="Notes (optional)" rows={2} value={notes} onChange={e=>setNotes(e.target.value)} style={{...inp,resize:'none'}}/>
+          </>
+        )}
+        {err&&<p style={{fontSize:12,color:'#DC2626'}}>{err}</p>}
+        <label style={{display:'flex',gap:8,alignItems:'flex-start',fontSize:12,color:'#4B5563',lineHeight:1.5}}><input type="checkbox" required checked={consent} onChange={e=>setConsent(e.target.checked)} style={{marginTop:2}}/><span>I agree that GoNest may share my name and contact details with the owner or agent of this listing so they can contact me about it. See the <a href="/privacy" style={{textDecoration:'underline'}}>Privacy Policy</a>.</span></label>
+        <button type="submit" disabled={loading} style={{...btn,opacity:loading?0.6:1}}>
+          {loading?'Sending…':tab==='lead'?'Send enquiry':'Request visit'}
+        </button>
+      </form>
+      )}
+    </div>
+  );
+}
