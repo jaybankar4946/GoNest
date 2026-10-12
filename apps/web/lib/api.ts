@@ -142,7 +142,7 @@ export async function updateVisitStatus(visitId: string, status: string, confirm
 
 export async function getMyListings(userId: string): Promise<ListingFull[]> {
   const { data } = await supabase.from('listings')
-    .select(CARD + ',status,rejection_reason,poster_type,lead_count,view_count')
+    .select(CARD + ',status,rejection_reason,poster_type,lead_count,view_count,saved_count')
     .eq('posted_by', userId).order('created_at', { ascending: false });
   return (data ?? []) as unknown as ListingFull[];
 }
