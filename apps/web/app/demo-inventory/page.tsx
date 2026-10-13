@@ -4,7 +4,7 @@ import { Footer } from '@/components/layout/Footer';
 import { supabase } from '@/lib/supabase';
 
 export const revalidate = 60;
-export const metadata = { title: 'Thane West Demo Inventory | GoNest' };
+export const metadata = { title: 'Thane West Demo Inventory | GoNest', robots: { index: false, follow: false } };
 
 const inr = (value: number, purpose: string) => {
   const amount = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(value);

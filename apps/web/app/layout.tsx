@@ -15,10 +15,11 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://gonest.in'),
   title: { default: 'GoNest – Find Your Home in Mumbai', template: '%s | GoNest' },
   description: 'Search verified properties to buy or rent in Mumbai. Apartments, villas, and plots from verified owners and agents.',
   keywords: ['property Mumbai', 'apartments for sale Mumbai', 'rent flat Mumbai', 'real estate Mumbai'],
-  openGraph: { siteName: 'GoNest', type: 'website', locale: 'en_IN' },
+  openGraph: { siteName: 'GoNest', type: 'website', locale: 'en_IN', title: 'GoNest – Find Your Home in Mumbai', description: 'Search verified properties to buy or rent in Mumbai. Apartments, villas, and plots from verified owners and agents.', url: 'https://gonest.in' },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

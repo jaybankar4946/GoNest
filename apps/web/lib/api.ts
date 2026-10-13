@@ -25,7 +25,7 @@ export type SearchParams = {
 
 export async function searchListings(p: SearchParams = {}) {
   const page = p.page ?? 1;
-  let q = supabase.from('listings').select(CARD, { count: 'exact' }).eq('status', 'active');
+  let q = supabase.from('listings').select(CARD, { count: 'exact' }).eq('status', 'active').eq('is_sample', false);
   if (p.q) {
     const term = p.q.replace(/[%,()]/g, ' ').trim();
     if (term) {
@@ -56,7 +56,7 @@ export async function searchListings(p: SearchParams = {}) {
 
 export async function getFeatured(limit = 3): Promise<ListingFull[]> {
   const { data } = await supabase.from('listings').select(CARD)
-    .eq('status', 'active').eq('featured', true)
+    .eq('status', 'active').eq('is_sample', false).eq('featured', true)
     .order('view_count', { ascending: false }).limit(limit);
   return (data ?? []) as unknown as ListingFull[];
 }
@@ -68,7 +68,7 @@ export async function getListingById(id: string): Promise<ListingFull | null> {
   // as missing listings so callers can render a normal not-found page (HTTP 404).
   if (!UUID_RE.test(id)) return null;
 
-  const { data, error } = await supabase.from('listings').select(FULL).eq('id', id).maybeSingle();
+  const { data, error } = await supabase.from('listings').select(FULL).eq('id', id).eq('status', 'active').eq('is_sample', false).maybeSingle();
   if (error) throw error;
   if (data) supabase.rpc('increment_listing_views', { listing_id: id }).then(() => {});
   return data as unknown as ListingFull | null;
@@ -76,7 +76,7 @@ export async function getListingById(id: string): Promise<ListingFull | null> {
 
 export async function getSimilarListings(l: ListingFull, limit = 3): Promise<ListingFull[]> {
   const { data } = await supabase.from('listings').select(CARD)
-    .eq('status', 'active').eq('city_id', l.city_id)
+    .eq('status', 'active').eq('is_sample', false).eq('city_id', l.city_id)
     .eq('purpose', l.purpose).eq('property_type', l.property_type)
     .neq('id', l.id).limit(limit);
   return (data ?? []) as unknown as ListingFull[];
@@ -232,7 +232,7 @@ export async function getAgentById(id: string): Promise<Profile | null> {
 }
 export async function getAgentListings(agentId: string, limit = 24): Promise<ListingFull[]> {
   const { data } = await supabase.from('listings')
-    .select(CARD).eq('posted_by', agentId).eq('status', 'active')
+    .select(CARD).eq('posted_by', agentId).eq('status', 'active').eq('is_sample', false)
     .order('created_at', { ascending: false }).limit(limit);
   return (data ?? []) as unknown as ListingFull[];
 }
@@ -306,8 +306,8 @@ export async function updatePassword(newPassword: string) {
 export async function getHomeStats() {
   const n = async (q: PromiseLike<{ count: number | null }>) => (await q).count ?? 0;
   const [listings, verified, people, cities] = await Promise.all([
-    n(supabase.from('listings').select('id', { count: 'exact', head: true }).eq('status', 'active')),
-    n(supabase.from('listings').select('id', { count: 'exact', head: true }).eq('status', 'active').neq('verification_level', 'unverified')),
+    n(supabase.from('listings').select('id', { count: 'exact', head: true }).eq('status', 'active').eq('is_sample', false)),
+    n(supabase.from('listings').select('id', { count: 'exact', head: true }).eq('status', 'active').eq('is_sample', false).neq('verification_level', 'unverified')),
     n(supabase.from('profiles').select('id', { count: 'exact', head: true }).in('role', ['agent', 'owner'])),
     n(supabase.from('cities').select('id', { count: 'exact', head: true }).eq('is_active', true)),
   ]);
@@ -323,7 +323,7 @@ export async function getMyVisitRequests(userId: string) {
   return (data ?? []) as any[];
 }
 export async function getPopularLocalities(limit = 8): Promise<{ id: string; name: string; cityId: string; city: string; count: number }[]> {
-  const { data: rows } = await supabase.from('listings').select('locality_id').eq('status', 'active').limit(1000);
+  const { data: rows } = await supabase.from('listings').select('locality_id').eq('status', 'active').eq('is_sample', false).limit(1000);
   const counts = new Map<string, number>();
   (rows ?? []).forEach((r: any) => counts.set(r.locality_id, (counts.get(r.locality_id) ?? 0) + 1));
   const ids = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, limit).map(e => e[0]);
