@@ -54,12 +54,14 @@ The script checks public routes and confirms malformed property IDs return 404. 
 
 ## Current execution status (2026-10-13)
 
-- Latest Vercel Preview deployment for this branch is READY at `https://gonest-6i07hn0e3-jackfink9663-hues-projects.vercel.app`, commit `9fbf351f00221be0a9be276f702115b9f624d149`. READY means the deployment built; it does not prove the routes or user journeys passed.
+- Local production build passed on the branch commit after supplying the public Supabase URL and publishable key as environment variables. A build with those variables absent fails during static generation of `/sitemap.xml`; ensure Vercel production/preview environment variables are configured.
+- The smoke script passed all 10 checks against the current live production domain `https://gonest.in`: 9 expected public routes returned 200 and a malformed property ID returned 404. This is a limited HTTP route check, not authenticated browser E2E.
+- Latest branch preview deployment `https://gonest-6i07hn0e3-jackfink9663-hues-projects.vercel.app` is READY at commit `9fbf351f00221be0a9be276f702115b9f624d149`, but Vercel SSO protection redirects unauthenticated HTTP requests to sign-in, so the route smoke script could not validate the preview URL directly.
 - Supabase access-hardening migration was applied to the connected project. Public listing reads are limited to active real listings plus the explicit `demo-thane-west-*` sample namespace. Verified counts at that check: 4 active real listings, 0 active sample listings, 50 namespaced demo rows.
 - Trigger-based protection for leads/visits is active; the trigger function is no longer callable as an RPC by `anon` or `authenticated`.
-- Current Supabase Security Advisor still reports: leaked-password protection disabled; 5 SECURITY DEFINER functions callable by anon (including visit booking, booked-slot lookup, view counting, admin-status helper and analytics); 9 authenticated-callable SECURITY DEFINER findings (including admin RPCs); and 2 RLS-enabled internal tables with no policies. Some public RPCs may be intentional, but their behavior and exposure must be reviewed before launch.
-- Route smoke tests have not been executed against the preview, and authenticated buyer/owner/agent/admin browser E2E tests are not confirmed. The available web inspection path could not reach the preview URL, so no route pass is claimed.
+- Current Supabase Security Advisor still reports leaked-password protection disabled; 5 SECURITY DEFINER functions callable by anon (including visit booking, booked-slot lookup, view counting, admin-status helper and analytics); 9 authenticated-callable SECURITY DEFINER findings (including admin RPCs); and 2 RLS-enabled internal tables with no policies. Some public RPCs may be intentional, but their behavior and exposure must be reviewed before launch.
+- Authenticated buyer/owner/agent/admin browser E2E tests, secret scan, accessibility/mobile checks, and operational readiness checks are not confirmed.
 
 ## Launch gate
 
-A successful build or smoke test alone is not launch approval. Do not merge/release to production until the automated build and smoke checks pass, the authenticated journeys above are tested, high-risk security findings are resolved or explicitly risk-accepted, and the product owner explicitly approves launch.
+A successful build or smoke test alone is not launch approval. Do not merge/release to production until the authenticated journeys are tested, high-risk security findings are resolved or explicitly risk-accepted, and the product owner explicitly approves launch.
