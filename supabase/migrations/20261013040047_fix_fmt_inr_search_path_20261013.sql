@@ -1,0 +1,1 @@
+alter function public.fmt_inr(numeric) set search_path = pg_catalog, public;
