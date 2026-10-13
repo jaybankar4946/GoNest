@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
 import { useAuth } from '@/components/layout/AuthProvider';
-import { getListingById, imgUrl } from '@/lib/api';
+import { getListingForEdit, imgUrl } from '@/lib/api';
 import { formatPrice, bhkLabel, capitalize } from '@/lib/format';
 import type { ListingFull } from '@/lib/types';
 
@@ -19,7 +19,7 @@ export default function PreviewPage() {
 
   useEffect(() => {
     if (authLoading) return;
-    getListingById(id).then(d => { setL(d); setState(d ? 'ready' : 'missing'); }).catch(() => setState('missing'));
+    getListingForEdit(id).then(d => { setL(d); setState(d ? 'ready' : 'missing'); }).catch(() => setState('missing'));
   }, [id, authLoading, user]);
 
   const imgs = l ? [...(l.listing_images ?? [])].sort((a, b) => a.sort_order - b.sort_order) : [];
