@@ -53,3 +53,16 @@ The live project returned the following security advisories at the time of inspe
 - No secret-scanning result across full Git history was obtained.
 - No role-context penetration tests were run.
 - No production settings, schema, policies, grants or secrets were changed.
+
+## Additional live RPC inspection
+A read-only query checked effective `EXECUTE` privileges and function definitions for the main advisor-flagged RPCs:
+- `admin_funnel`, `admin_moderate_listing`, and `admin_resolve_report` were not executable by `anon`; their inspected function bodies also call `is_admin()`. They remain callable by `authenticated`, so keep their internal role checks and test them using non-admin sessions.
+- `book_visit` is executable by `anon` and `authenticated`; the inspected body requires consent and validates listing availability, date window and allowed time values. Public booking may be intentional, but it still needs spam/rate limiting, input-length validation, duplicate/replay handling and privacy review.
+- `get_booked_slots` is executable by `anon` and returns booked slot times for an active listing. Confirm that this is the intended public disclosure and that no contact details or other private fields can be returned.
+- `increment_listing_views` is executable by `anon` and increments the counter for a supplied listing ID. Consider abuse controls or server-side aggregation because public calls can inflate counts.
+- `track_event` is executable by `anon`; its body restricts event names, limits metadata length, and has a per-session/minute check. Session IDs are client supplied, so treat that check as basic noise reduction rather than robust anti-abuse protection.
+- `is_admin()` is executable by `anon` and returns only whether the caller's auth UID has an admin profile. That return alone is not a privilege escalation; do not expose any admin data through it.
+- `choose_account_type` is executable by authenticated users only and checks `auth.uid()`, permits only owner/agent, and only changes a buyer role. Verify the intended role-transition policy against the product's agent/owner verification rules.
+- `public.fmt_inr` is not SECURITY DEFINER but has no fixed function search_path. Pin it or qualify references as appropriate.
+
+These observations are based on the current live function definitions and effective role privileges queried read-only. They are not a substitute for end-to-end RLS/RPC abuse tests.
