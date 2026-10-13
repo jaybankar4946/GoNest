@@ -61,7 +61,13 @@ export async function getFeatured(limit = 3): Promise<ListingFull[]> {
   return (data ?? []) as unknown as ListingFull[];
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
 export async function getListingById(id: string): Promise<ListingFull | null> {
+  // Reject malformed route IDs before they reach Postgres UUID columns. Treat them
+  // as missing listings so callers can render a normal not-found page (HTTP 404).
+  if (!UUID_RE.test(id)) return null;
+
   const { data, error } = await supabase.from('listings').select(FULL).eq('id', id).maybeSingle();
   if (error) throw error;
   if (data) supabase.rpc('increment_listing_views', { listing_id: id }).then(() => {});
