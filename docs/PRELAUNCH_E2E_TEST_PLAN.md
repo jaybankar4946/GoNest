@@ -32,7 +32,9 @@ The script checks public routes and confirms malformed property IDs return 404. 
 
 ## Security / data checks
 
-- [ ] Review remaining Supabase Security Advisor findings: SECURITY DEFINER RPCs (confirm each is intentionally callable and has authorization checks), disabled leaked-password protection, and internal tables with RLS but no policies.
+- [ ] Review each SECURITY DEFINER RPC for intended public exposure, input validation, authorization, abuse resistance and data leakage.
+- [ ] Enable Supabase leaked-password protection in Auth settings; current Security Advisor reports it disabled.
+- [ ] Review whether `events` and `notification_outbox` should remain inaccessible through client roles (RLS enabled, no policies); do not add permissive policies just to silence the advisor.
 - [x] Applied access-hardening migration to the connected Supabase project and verified the resulting policies, triggers, and key privileges. Test any follow-up migration in a non-production environment first.
 - [ ] Verify public listing reads return active non-sample listings plus only the explicitly namespaced demo inventory.
 - [ ] Verify public price history is limited to active, non-sample listings; owners/admins can see their own/authorized records.
@@ -50,6 +52,14 @@ The script checks public routes and confirms malformed property IDs return 404. 
 - [ ] Keyboard navigation, mobile layout, loading/error states and basic accessibility are checked.
 - [ ] Record results, screenshots, build SHA and unresolved defects before launch review.
 
-## Current execution status (2026-10-13)\n\n- Supabase access-hardening migration applied to the connected project. Public listing reads are limited to active real listings plus the explicit `demo-thane-west-*` sample namespace. Current counts: 4 active real listings, 0 active sample listings, 50 namespaced demo rows.\n- Trigger-based protection for leads/visits is active; the trigger function is no longer callable as an RPC by `anon` or `authenticated`.\n- A Vercel preview build for an earlier branch commit succeeded. Latest branch changes are still building/queued. HTTP route smoke tests and authenticated browser E2E tests are not yet confirmed.\n- Preview URLs could not be inspected through the available browser access path, so do not interpret a successful build as a passed route test.\n\n## Launch gate
+## Current execution status (2026-10-13)
 
-A successful build or smoke test alone is not launch approval. Do not merge/release to production until the automated build and smoke checks pass, the authenticated journeys above are tested, high-risk security findings are resolved, and the product owner explicitly approves launch.
+- Latest Vercel Preview deployment for this branch is READY at `https://gonest-6i07hn0e3-jackfink9663-hues-projects.vercel.app`, commit `9fbf351f00221be0a9be276f702115b9f624d149`. READY means the deployment built; it does not prove the routes or user journeys passed.
+- Supabase access-hardening migration was applied to the connected project. Public listing reads are limited to active real listings plus the explicit `demo-thane-west-*` sample namespace. Verified counts at that check: 4 active real listings, 0 active sample listings, 50 namespaced demo rows.
+- Trigger-based protection for leads/visits is active; the trigger function is no longer callable as an RPC by `anon` or `authenticated`.
+- Current Supabase Security Advisor still reports: leaked-password protection disabled; 5 SECURITY DEFINER functions callable by anon (including visit booking, booked-slot lookup, view counting, admin-status helper and analytics); 9 authenticated-callable SECURITY DEFINER findings (including admin RPCs); and 2 RLS-enabled internal tables with no policies. Some public RPCs may be intentional, but their behavior and exposure must be reviewed before launch.
+- Route smoke tests have not been executed against the preview, and authenticated buyer/owner/agent/admin browser E2E tests are not confirmed. The available web inspection path could not reach the preview URL, so no route pass is claimed.
+
+## Launch gate
+
+A successful build or smoke test alone is not launch approval. Do not merge/release to production until the automated build and smoke checks pass, the authenticated journeys above are tested, high-risk security findings are resolved or explicitly risk-accepted, and the product owner explicitly approves launch.
