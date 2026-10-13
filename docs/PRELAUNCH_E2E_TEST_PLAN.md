@@ -32,12 +32,12 @@ The script checks public routes and confirms malformed property IDs return 404. 
 
 ## Security / data checks
 
-- [ ] Run Supabase Security Advisor and review every remaining finding; SECURITY DEFINER functions must have pinned search paths and authorization checks.
-- [ ] Apply and verify `20261013050000_prelaunch_access_hardening.sql` in a non-production environment first.
+- [ ] Review remaining Supabase Security Advisor findings: SECURITY DEFINER RPCs (confirm each is intentionally callable and has authorization checks), disabled leaked-password protection, and internal tables with RLS but no policies.
+- [x] Applied access-hardening migration to the connected Supabase project and verified the resulting policies, triggers, and key privileges. Test any follow-up migration in a non-production environment first.
 - [ ] Verify public listing reads return active non-sample listings plus only the explicitly namespaced demo inventory.
 - [ ] Verify public price history is limited to active, non-sample listings; owners/admins can see their own/authorized records.
 - [ ] Verify direct INSERT/RPC attempts for leads and visits against sample/inactive listings fail.
-- [ ] Verify authenticated users can update only their own notification `read_at`, not title/body/link/type/user_id.
+- [x] Verified at database privilege level that anonymous users cannot update notifications and authenticated users can update `read_at` but not `title`. Complete signed-in RLS behavior checks in the browser.
 - [ ] Confirm no service-role key or other secret is exposed to browser bundles or committed files.
 - [ ] Check RLS policies for leads, visits, saved listings/searches, listing reports, images, profiles, verification log and audit log using separate buyer, owner, agent and admin test accounts.
 
@@ -50,6 +50,6 @@ The script checks public routes and confirms malformed property IDs return 404. 
 - [ ] Keyboard navigation, mobile layout, loading/error states and basic accessibility are checked.
 - [ ] Record results, screenshots, build SHA and unresolved defects before launch review.
 
-## Launch gate
+## Current execution status (2026-10-13)\n\n- Supabase access-hardening migration applied to the connected project. Public listing reads are limited to active real listings plus the explicit `demo-thane-west-*` sample namespace. Current counts: 4 active real listings, 0 active sample listings, 50 namespaced demo rows.\n- Trigger-based protection for leads/visits is active; the trigger function is no longer callable as an RPC by `anon` or `authenticated`.\n- A Vercel preview build for an earlier branch commit succeeded. Latest branch changes are still building/queued. HTTP route smoke tests and authenticated browser E2E tests are not yet confirmed.\n- Preview URLs could not be inspected through the available browser access path, so do not interpret a successful build as a passed route test.\n\n## Launch gate
 
 A successful build or smoke test alone is not launch approval. Do not merge/release to production until the automated build and smoke checks pass, the authenticated journeys above are tested, high-risk security findings are resolved, and the product owner explicitly approves launch.
