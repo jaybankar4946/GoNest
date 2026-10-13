@@ -1,0 +1,40 @@
+name: Temporary prelaunch dependency remediation
+
+on:
+  push:
+    branches:
+      - fix/production-hardening-20261013
+
+permissions:
+  contents: write
+
+jobs:
+  audit-fix:
+    if: "!contains(github.event.head_commit.message, 'fix(deps): resolve npm audit vulnerabilities')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/production-hardening-20261013
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Update vulnerable transitive dependencies within declared ranges
+        working-directory: apps/web
+        run: |
+          npm ci
+          npm audit fix
+          npm audit --audit-level=moderate
+      - name: Commit regenerated lockfile only
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apps/web/package-lock.json
+          if git diff --cached --quiet; then
+            echo "No lockfile changes needed."
+          else
+            git commit -m "fix(deps): resolve npm audit vulnerabilities"
+            git push origin HEAD:fix/production-hardening-20261013
+          fi
