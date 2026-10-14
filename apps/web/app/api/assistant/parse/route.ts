@@ -14,7 +14,7 @@ type Criteria = {
 
 function fallbackParse(message: string): Criteria {
   const text = message.toLowerCase();
-  const location = text.match(/\\b(?:in|around|near)\\s+([a-z][a-z .'-]{1,35}?)(?=\\s+(?:under|below|less than|up to|between|with|near|for|within|at)\\b|[,;.!?]|$)/i);
+  const location = text.match(/\b(?:in|around|near)\s+([a-z][a-z .'-]{1,35}?)(?=\s+(?:under|below|less than|up to|between|with|near|for|within|at)\b|[,;.!?]|$)/i);
   const c: Criteria = { q: location?.[1]?.trim() || undefined };
   if (/\b(rent|rental|lease|monthly)\b/.test(text)) c.purpose = 'rent';
   else if (/\b(buy|buying|purchase|sale|sell|own)\b/.test(text)) c.purpose = 'sale';
