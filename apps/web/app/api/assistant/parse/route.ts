@@ -14,7 +14,8 @@ type Criteria = {
 
 function fallbackParse(message: string): Criteria {
   const text = message.toLowerCase();
-  const c: Criteria = { q: message.trim() };
+  const location = text.match(/\\b(?:in|around|near)\\s+([a-z][a-z .'-]{1,35}?)(?=\\s+(?:under|below|less than|up to|between|with|near|for|within|at)\\b|[,;.!?]|$)/i);
+  const c: Criteria = { q: location?.[1]?.trim() || undefined };
   if (/\b(rent|rental|lease|monthly)\b/.test(text)) c.purpose = 'rent';
   else if (/\b(buy|buying|purchase|sale|sell|own)\b/.test(text)) c.purpose = 'sale';
   const beds = text.match(/\b(\d+)\s*(?:bhk|bed(?:room)?s?)\b/);
@@ -48,7 +49,7 @@ function fallbackParse(message: string): Criteria {
 
 function cleanCriteria(input: unknown, original: string): Criteria {
   const raw = (input && typeof input === 'object' ? input : {}) as Record<string, unknown>;
-  const out: Criteria = { q: original.trim() };
+  const out: Criteria = { q: fallbackParse(original).q };
   if (raw.purpose === 'sale' || raw.purpose === 'rent') out.purpose = raw.purpose;
   if (typeof raw.minBedrooms === 'number' && raw.minBedrooms >= 0 && raw.minBedrooms <= 10) out.minBedrooms = Math.floor(raw.minBedrooms);
   for (const key of ['minPrice', 'maxPrice'] as const) {
