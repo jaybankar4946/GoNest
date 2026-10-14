@@ -9,6 +9,7 @@ const LINKS = [
   { href: '/buy', label: 'Buy' },
   { href: '/rent', label: 'Rent' },
   { href: '/projects', label: 'New Projects' },
+  { href: '/assistant', label: 'AI Home Finder' },
   { href: '/agents', label: 'Agents' },
 ];
 
