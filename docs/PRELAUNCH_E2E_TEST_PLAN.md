@@ -77,10 +77,12 @@ Automated checks actually run:
 - `BASE_URL=https://gonest.in node scripts/smoke-routes.mjs`: PASS, 10/10 checks: home, search, buy, rent, projects, auth, privacy, terms and demo inventory returned HTTP 200; malformed property ID returned 404. This is production public-route smoke testing, not preview E2E.
 - Direct anonymous PostgREST read of active, non-sample listings: PASS; 4 rows returned, all active and non-sample.
 - Direct anonymous read of profile columns including `email`: BLOCKED as expected (HTTP 401 / permission denied).
+- Anonymous booking RPC negative tests: PASS; booking against an archived sample listing returned HTTP 400 `listing_unavailable`; booking without consent returned HTTP 400 `consent_required`. Both calls were rejected before insertion.
+- Tracked-file secret-pattern scan (private keys, JWT-shaped literals, common token formats and service-role assignments): PASS with 0 hits. This is a targeted heuristic scan, not a comprehensive secret-scanner guarantee.
 - Anonymous `is_admin()` RPC: PASS for negative authorization check; returned `false`.
 - Anonymous `get_booked_slots` against an archived sample listing: returned an empty array.
 - Database role simulation (transaction-scoped `SET LOCAL ROLE` and JWT claims, rolled back): owner role could not update own profile to admin (RLS rejected); agent role could not call admin listing moderation (function raised “Only admins can moderate listings”); agent saw zero listing reports; admin profile passed `is_admin()`.
-- These role checks are database-level simulations, not authenticated browser sessions with separate test accounts.
+- These role checks are database-level simulations, not authenticated browser sessions with separate test accounts. A synthetic buyer login and isolated owner/agent/admin browser sessions were not created because the current preview is SSO-protected and no isolated preview Auth environment or test credentials were available.
 
 Findings / blockers:
 - Anonymous listing query currently returns 54 rows: 4 active real listings plus 50 explicitly namespaced `demo-thane-west-*` sample rows that are archived. This matches the current policy's explicit demo exception, but the public demo/archive behavior should be confirmed against intended product behavior.
