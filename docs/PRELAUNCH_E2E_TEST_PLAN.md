@@ -62,6 +62,41 @@ The script checks public routes and confirms malformed property IDs return 404. 
 - Current Supabase Security Advisor still reports leaked-password protection disabled; 5 SECURITY DEFINER functions callable by anon (including visit booking, booked-slot lookup, view counting, admin-status helper and analytics); 9 authenticated-callable SECURITY DEFINER findings (including admin RPCs); and 2 RLS-enabled internal tables with no policies. Some public RPCs may be intentional, but their behavior and exposure must be reviewed before launch.
 - Authenticated buyer/owner/agent/admin browser E2E tests, secret scan, accessibility/mobile checks, and operational readiness checks are not confirmed.
 
+## Execution evidence (2026-10-15)
+
+Environment and scope:
+- Tested source branch: `codex/prelaunch-end-to-end-hardening`.
+- Tested source SHA: `78670fa89221a8b7e1e141d4a8e8a7afadb27f9e`.
+- Vercel reports the preview deployment for this SHA as `READY`; direct unauthenticated requests to its URL redirect to Vercel SSO. This blocks external HTTP/browser testing of the preview itself.
+- The sandbox could reach `https://gonest.in`; it could not reach the protected preview without an SSO bypass credential. Production was used only for read-only HTTP smoke checks and read-only/rolled-back database checks.
+- No real customer records were created or changed. No production migration was applied in this pass.
+
+Automated checks actually run:
+- `npm ci`: PASS; 70 packages installed, npm reported 0 vulnerabilities for the installed dependency tree.
+- `npm run build` with public Supabase URL and publishable key: PASS; Next.js production build and TypeScript finished successfully.
+- `BASE_URL=https://gonest.in node scripts/smoke-routes.mjs`: PASS, 10/10 checks: home, search, buy, rent, projects, auth, privacy, terms and demo inventory returned HTTP 200; malformed property ID returned 404. This is production public-route smoke testing, not preview E2E.
+- Direct anonymous PostgREST read of active, non-sample listings: PASS; 4 rows returned, all active and non-sample.
+- Direct anonymous read of profile columns including `email`: BLOCKED as expected (HTTP 401 / permission denied).
+- Anonymous `is_admin()` RPC: PASS for negative authorization check; returned `false`.
+- Anonymous `get_booked_slots` against an archived sample listing: returned an empty array.
+- Database role simulation (transaction-scoped `SET LOCAL ROLE` and JWT claims, rolled back): owner role could not update own profile to admin (RLS rejected); agent role could not call admin listing moderation (function raised “Only admins can moderate listings”); agent saw zero listing reports; admin profile passed `is_admin()`.
+- These role checks are database-level simulations, not authenticated browser sessions with separate test accounts.
+
+Findings / blockers:
+- Anonymous listing query currently returns 54 rows: 4 active real listings plus 50 explicitly namespaced `demo-thane-west-*` sample rows that are archived. This matches the current policy's explicit demo exception, but the public demo/archive behavior should be confirmed against intended product behavior.
+- Security Advisor still flags five anonymous-callable SECURITY DEFINER functions, nine authenticated-callable SECURITY DEFINER functions, and two RLS-enabled internal tables with no policies. The admin functions inspected enforce `is_admin()`; intentional public RPCs still need an endpoint-by-endpoint decision. Do not treat the advisor findings as resolved.
+- Leaked-password protection remains unverified/enabled status is still flagged by Supabase Security Advisor.
+- No separate buyer test profile exists in the current profile table snapshot; current profiles found were one admin, three agents and one owner. No test-account passwords or SSO bypass credential were available to this run.
+- Authenticated browser journeys, cross-user enquiry/visit visibility with separate login sessions, signup/reset-password flows, image upload, mobile/accessibility checks, and a secret scan remain NOT RUN.
+- Two follow-up migrations have been committed to this branch but NOT applied to the connected database:
+  - `20261015130000_harden_public_visit_rpc_sample_inventory.sql` — ensures anonymous visit booking and booked-slot lookup reject sample inventory; adds required contact-field validation.
+  - `20261015133000_revoke_unneeded_client_table_privileges.sql` — revokes client-role TRUNCATE, REFERENCES and TRIGGER table privileges and updates default privileges.
+
+Release decision:
+- NOT READY FOR LAUNCH based on available evidence.
+- Preview E2E is blocked by Vercel SSO and lack of separate test-account credentials/environment.
+- Do not merge these migrations or promote a release until they are applied to a non-production database and tested, role-based browser E2E passes, remaining security findings are resolved or risk-accepted, and the product owner approves.
+
 ## Launch gate
 
 A successful build or smoke test alone is not launch approval. Do not merge/release to production until the authenticated journeys are tested, high-risk security findings are resolved or explicitly risk-accepted, and the product owner explicitly approves launch.
