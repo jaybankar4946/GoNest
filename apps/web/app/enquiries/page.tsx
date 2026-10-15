@@ -46,7 +46,7 @@ export default function EnquiriesPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {visits.map(v => (
                 <div key={v.id} style={{ border: '1px solid #E5E7EB', borderRadius: 16, padding: 16, display: 'flex', justifyContent: 'space-between', gap: 12 }}>
-                  <div><p style={{ fontWeight: 600, fontSize: 14 }}>{title(v)}</p><p style={{ fontSize: 13, color: '#6B7280', marginTop: 4 }}>{v.slot_date} at {v.slot_time}</p></div>
+                  <div><p style={{ fontWeight: 600, fontSize: 14 }}>{title(v)}</p><p style={{ fontSize: 13, color: '#6B7280', marginTop: 4 }}>{v.slot_date} at {String(v.slot_time).slice(0,5)}{v.booking_ref?` · ${v.booking_ref}`:''}{v.visitors>1?` · ${v.visitors} visitors`:''}</p></div>
                   <Chip s={v.status} />
                 </div>))}
             </div>

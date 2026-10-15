@@ -7,13 +7,14 @@ import { useAuth } from '@/components/layout/AuthProvider';
 import { setMyListingStatus, getMyListings, getMyLeads, getMyVisits, updateLeadStatus, updateVisitStatus, deleteListing } from '@/lib/api';
 import { formatPrice, timeAgo } from '@/lib/format';
 import Link from 'next/link';
+import { Overview } from '@/components/dashboard/Overview';
 const SC: Record<string,string>={active:'#16A34A',pending_review:'#D97706',rejected:'#DC2626',draft:'#6B6B6B',archived:'#6B6B6B',new:'#2563EB',contacted:'#D97706',qualified:'#111',closed:'#16A34A',spam:'#DC2626',requested:'#D97706',confirmed:'#16A34A',completed:'#6B6B6B',cancelled:'#DC2626'};
 const SB=(c:string): React.CSSProperties=>({fontSize:11,fontWeight:500,padding:'3px 10px',borderRadius:9999,background:c+'18',color:c});
 const sel: React.CSSProperties={padding:'5px 10px',borderRadius:8,fontSize:12,border:'1px solid #E5E5E5',background:'#fff',cursor:'pointer'};
 export default function DashboardPage() {
   const router=useRouter();
   const{user,profile,signOut,loading}=useAuth();
-  const[tab,setTab]=useState<'listings'|'leads'|'visits'>('listings');
+  const[tab,setTab]=useState<'overview'|'listings'|'leads'|'visits'>('overview');
   const[listings,setListings]=useState<any[]>([]);
   const[leads,setLeads]=useState<any[]>([]);
   const[visits,setVisits]=useState<any[]>([]);
@@ -53,7 +54,7 @@ export default function DashboardPage() {
           ))}
         </div>
         <div style={{display:'flex',gap:4,marginBottom:24}}>
-          {(['listings','leads','visits'] as const).map(t=>(
+          {(['overview','listings','leads','visits'] as const).map(t=>(
             <button key={t} onClick={()=>setTab(t)} style={TB(t)}>
               {t.charAt(0).toUpperCase()+t.slice(1)}
               {t==='leads'&&leads.filter(l=>l.status==='new').length>0&&<span style={{marginLeft:6,fontSize:11,background:'var(--primary)',color:'#fff',borderRadius:9999,padding:'1px 6px'}}>{leads.filter(l=>l.status==='new').length}</span>}
@@ -61,6 +62,9 @@ export default function DashboardPage() {
             </button>
           ))}
         </div>
+        {tab==='overview'&&<Overview role={profile?.role??'buyer'} profile={profile as any} listings={listings} leads={leads} visits={visits} busy={busy} onGo={setTab}
+          onLeadStatus={async(id,s)=>{setBusy(true);await updateLeadStatus(id,s);setLeads(p=>p.map(x=>x.id===id?{...x,status:s}:x));setBusy(false);}}
+          onVisitStatus={async(id,s)=>{setBusy(true);await updateVisitStatus(id,s,user?.id);setVisits(p=>p.map(x=>x.id===id?{...x,status:s}:x));setBusy(false);}}/>}
         {tab==='listings'&&(
           <div style={{display:'flex',flexDirection:'column',gap:10}}>
             {listings.length===0&&<p style={{fontSize:14,color:'#6B6B6B'}}>No listings yet. <Link href="/dashboard/new" style={{color:'#111',textDecoration:'underline'}}>Create your first</Link></p>}
@@ -108,7 +112,7 @@ export default function DashboardPage() {
             {visits.map((v:any)=>(
               <div key={v.id} style={ROW}>
                 <div style={{display:'flex',justifyContent:'space-between',width:'100%'}}>
-                  <div><p style={{fontSize:14,fontWeight:600,color:'#111'}}>{v.requester_name} — {v.requester_phone}</p><p style={{fontSize:13,color:'#3D3D3D',marginTop:2}}>{v.slot_date} at {v.slot_time}</p><p style={{fontSize:12,color:'#6B6B6B',marginTop:2}}>{v.listing?.title}</p></div>
+                  <div><p style={{fontSize:14,fontWeight:600,color:'#111'}}>{v.requester_name} — {v.requester_phone}</p><p style={{fontSize:13,color:'#3D3D3D',marginTop:2}}>{v.slot_date} at {String(v.slot_time).slice(0,5)}{v.booking_ref?` · ${v.booking_ref}`:''}{v.visitors>1?` · ${v.visitors} visitors`:''}</p><p style={{fontSize:12,color:'#6B6B6B',marginTop:2}}>{v.listing?.title}</p></div>
                   <span style={SB(SC[v.status]??'#6B6B6B')}>{v.status}</span>
                 </div>
                 <select style={sel} value={v.status} onChange={async e=>{setBusy(true);await updateVisitStatus(v.id,e.target.value,user?.id);setVisits(p=>p.map(x=>x.id===v.id?{...x,status:e.target.value}:x));setBusy(false);}} disabled={busy}>
