@@ -8,6 +8,7 @@ import { setMyListingStatus, getMyListings, getMyLeads, getMyVisits, updateLeadS
 import { formatPrice, timeAgo } from '@/lib/format';
 import Link from 'next/link';
 import { Overview } from '@/components/dashboard/Overview';
+import { CustomerDashboard } from '@/components/dashboard/CustomerDashboard';
 const SC: Record<string,string>={active:'#16A34A',pending_review:'#D97706',rejected:'#DC2626',draft:'#6B6B6B',archived:'#6B6B6B',new:'#2563EB',contacted:'#D97706',qualified:'#111',closed:'#16A34A',spam:'#DC2626',requested:'#D97706',confirmed:'#16A34A',completed:'#6B6B6B',cancelled:'#DC2626'};
 const SB=(c:string): React.CSSProperties=>({fontSize:11,fontWeight:500,padding:'3px 10px',borderRadius:9999,background:c+'18',color:c});
 const sel: React.CSSProperties={padding:'5px 10px',borderRadius:8,fontSize:12,border:'1px solid #E5E5E5',background:'#fff',cursor:'pointer'};
@@ -36,6 +37,7 @@ export default function DashboardPage() {
   };
   const TB=(t:string): React.CSSProperties=>({padding:'8px 18px',borderRadius:9999,fontSize:13,fontWeight:tab===t?600:400,color:tab===t?'#111':'#6B6B6B',background:tab===t?'#F7F7F7':'transparent',border:'none',cursor:'pointer'});
   const ROW: React.CSSProperties={display:'flex',alignItems:'flex-start',justifyContent:'space-between',padding:'14px 16px',border:'1px solid #E5E5E5',borderRadius:12,flexDirection:'column',gap:10};
+  if (!canPost) return <CustomerDashboard />;
   return(
     <>
       <Nav/>
