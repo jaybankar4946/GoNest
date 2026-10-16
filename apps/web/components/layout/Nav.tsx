@@ -62,7 +62,7 @@ export function Nav() {
 
         {/* Desktop right side */}
         <div style={{ alignItems: 'center', gap: 6, flex: 1, order: 3, justifyContent: 'flex-end' }} className="hidden md:flex">
-          <Link href={user ? '/dashboard/new' : '/auth?next=/dashboard/new'} style={{ padding: '8px 16px', borderRadius: 12, fontSize: 13, fontWeight: 600, color: '#fff', background: 'var(--primary)', marginRight: 4 }}>Add Property</Link>
+          {canPost && <Link href="/dashboard/new" style={{ padding: '8px 16px', borderRadius: 12, fontSize: 13, fontWeight: 600, color: '#fff', background: 'var(--primary)', marginRight: 4 }}>Add Property</Link>}
           <NotificationBell />
           <Link href="/saved" style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: '50%' }}
             onMouseOver={e => (e.currentTarget.style.background = 'var(--gray-1)')}
@@ -134,6 +134,8 @@ export function Nav() {
             <>
               <Link href="/dashboard" onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>Dashboard</Link>
               <Link href="/enquiries" onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>My enquiries</Link>
+              <Link href="/saved-searches" onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>Saved searches</Link>
+              <Link href="/notifications" onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>Notifications</Link>
               {canPost && <Link href="/dashboard/new" onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>Post a listing</Link>}
               <button onClick={doSignOut} style={{ padding: '11px 4px', fontSize: 14, color: 'var(--err)', textAlign: 'left' }}>Sign out</button>
             </>
