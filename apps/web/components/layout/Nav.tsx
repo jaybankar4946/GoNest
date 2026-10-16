@@ -62,7 +62,7 @@ export function Nav() {
 
         {/* Desktop right side */}
         <div style={{ alignItems: 'center', gap: 6, flex: 1, order: 3, justifyContent: 'flex-end' }} className="hidden md:flex">
-          {canPost && <Link href="/dashboard/new" style={{ padding: '8px 16px', borderRadius: 12, fontSize: 13, fontWeight: 600, color: '#fff', background: 'var(--primary)', marginRight: 4 }}>Add Property</Link>}
+          <Link href="/dashboard/new" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 12, fontSize: 13, fontWeight: 600, color: '#fff', background: 'var(--primary)', marginRight: 4, whiteSpace: 'nowrap' }}><Plus size={14} /> Post a property</Link>
           <NotificationBell />
           <Link href="/saved" style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: '50%' }}
             onMouseOver={e => (e.currentTarget.style.background = 'var(--gray-1)')}
@@ -93,11 +93,9 @@ export function Nav() {
                     </Link>
                     <Link href="/saved-searches" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 10px', borderRadius: 8, fontSize: 13, color: '#111' }}>Saved searches</Link>
                     <Link href="/notifications" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 10px', borderRadius: 8, fontSize: 13, color: '#111' }}>Notifications</Link>
-                    {canPost && (
-                      <Link href="/dashboard/new" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 10px', borderRadius: 8, fontSize: 13, color: '#111' }}>
-                        <Plus size={14} /> Post a listing
-                      </Link>
-                    )}
+                    <Link href="/dashboard/new" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 10px', borderRadius: 8, fontSize: 13, color: '#111' }}>
+                      <Plus size={14} /> Post a property
+                    </Link>
                     <div style={{ height: 1, background: 'var(--border)', margin: '4px 0' }} />
                     <button onClick={doSignOut} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 10px', borderRadius: 8, fontSize: 13, color: 'var(--err)', width: '100%', textAlign: 'left' }}>
                       <LogOut size={14} /> Sign out
@@ -130,13 +128,13 @@ export function Nav() {
           {isAdmin && <Link href="/admin" onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>Admin</Link>}
           <div style={{ height: 1, background: 'var(--border)', margin: '10px 0' }} />
           <Link href="/saved" onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>Saved homes</Link>
+          <Link href="/dashboard/new" onClick={() => setMobileOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6, padding: '11px 12px', borderRadius: 12, fontSize: 14, fontWeight: 600, color: '#fff', background: 'var(--primary)' }}><Plus size={15} /> Post a property</Link>
           {user ? (
             <>
               <Link href="/dashboard" onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>Dashboard</Link>
               <Link href="/enquiries" onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>My enquiries</Link>
               <Link href="/saved-searches" onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>Saved searches</Link>
               <Link href="/notifications" onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>Notifications</Link>
-              {canPost && <Link href="/dashboard/new" onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>Post a listing</Link>}
               <button onClick={doSignOut} style={{ padding: '11px 4px', fontSize: 14, color: 'var(--err)', textAlign: 'left' }}>Sign out</button>
             </>
           ) : (
