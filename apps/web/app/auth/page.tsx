@@ -10,8 +10,10 @@ type Tab = 'signin' | 'signup';
 type Method = 'password' | 'link' | 'phone';
 type Msg = { type: 'ok' | 'err'; text: string };
 
-// Social / phone methods are switched on with env vars once configured in Supabase (see .env.local.example)
-const PROVIDERS = (process.env.NEXT_PUBLIC_AUTH_PROVIDERS ?? '').split(',').map(s => s.trim()).filter(Boolean) as Provider[];
+// Google is always offered in the UI. OAuth still requires Google credentials and the provider to be enabled in Supabase.
+// Additional social providers can be enabled after their Supabase configuration is complete.
+const EXTRA_PROVIDERS = (process.env.NEXT_PUBLIC_AUTH_PROVIDERS ?? '').split(',').map(s => s.trim()).filter(Boolean) as Provider[];
+const PROVIDERS = Array.from(new Set<Provider>(['google', ...EXTRA_PROVIDERS]));
 const PHONE_ENABLED = process.env.NEXT_PUBLIC_AUTH_PHONE === 'true';
 const LABEL: Record<string, string> = { google: 'Google', apple: 'Apple', facebook: 'Facebook' };
 
@@ -29,7 +31,8 @@ function explain(err: { message?: string; status?: number } | null): string {
   if (err?.status === 429 || /rate limit|too many/i.test(m)) return 'Too many attempts. Please wait a few minutes and try again.';
   if (/expired|invalid.*(token|otp)|token.*invalid/i.test(m)) return 'That code is invalid or has expired. Request a new one.';
   if (/password/i.test(m) && /(short|weak|least|characters)/i.test(m)) return 'Choose a stronger password (at least 8 characters).';
-  if (/sms|phone|provider/i.test(m)) return 'Phone sign-in is not available right now. Please use email instead.';
+  if (/provider.*(not enabled|disabled|unsupported)|unsupported provider|provider is not enabled/i.test(m)) return 'Google sign-in is not configured yet. You can use email and password or an email sign-in link for now.';
+  if (/sms|phone/i.test(m)) return 'Phone sign-in is not available right now. Please use email instead.';
   return 'Something went wrong. Please try again.';
 }
 
@@ -144,7 +147,10 @@ function AuthInner() {
           <>
             <div className="space-y-2.5 mb-5">
               {PROVIDERS.map(p => (
-                <button key={p} disabled={busy} onClick={() => oauth(p)} className="w-full py-3.5 rounded-xl border border-gray-300 hover:bg-gray-50 text-sm font-semibold text-gray-900 disabled:opacity-60 transition-colors">Continue with {LABEL[p] ?? p}</button>
+                <button key={p} type="button" disabled={busy} onClick={() => oauth(p)} className="relative flex w-full items-center justify-center gap-3 py-3.5 rounded-xl border border-gray-300 hover:bg-gray-50 text-sm font-semibold text-gray-900 disabled:opacity-60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
+                  {p === 'google' && <svg aria-hidden="true" viewBox="0 0 48 48" className="h-5 w-5"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 3.05 13.22l7.98 6.19C12.92 13.72 18.02 9.5 24 9.5Z" transform="translate(0 4)"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.74 7.18l7.64 5.92c4.46-4.12 7.14-10.2 7.14-17.57Z"/><path fill="#FBBC05" d="M10.03 28.59a14.4 14.4 0 0 1 0-9.18l-7.98-6.19a24 24 0 0 0 0 21.56l7.98-6.19Z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.9-5.78l-7.64-5.92c-2.12 1.42-4.84 2.27-8.26 2.27-5.98 0-11.08-4.22-12.97-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48Z" transform="translate(0 -2)"/></svg>}
+                  <span>{p === 'google' ? 'Continue with Google' : `Continue with ${LABEL[p] ?? p}`}</span>
+                </button>
               ))}
             </div>
             <div className="flex items-center gap-3 mb-5"><div className="flex-1 h-px bg-gray-200" /><span className="text-xs text-gray-400">or</span><div className="flex-1 h-px bg-gray-200" /></div>
@@ -167,6 +173,10 @@ function AuthInner() {
             </div>
             {tab === 'signin' && <button type="button" onClick={forgot} className="self-end text-xs font-semibold text-blue-600 hover:underline">Forgot password?</button>}
             <button disabled={busy} className={primary}>{busy ? 'Please wait…' : tab === 'signin' ? 'Sign in' : 'Create account'}</button>
+            <p className="text-center text-sm text-gray-500 pt-1">
+              {tab === 'signin' ? "New to GoNest?" : "Already have an account?"}{' '}
+              <button type="button" onClick={() => { setTab(tab === 'signin' ? 'signup' : 'signin'); reset(); }} className="font-semibold text-blue-600 hover:underline">{tab === 'signin' ? 'Create account' : 'Sign in'}</button>
+            </p>
           </form>
         )}
 
@@ -176,6 +186,10 @@ function AuthInner() {
             <input required type="email" autoComplete="email" aria-label="Email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className={field} />
             <button disabled={busy} className={primary}>{busy ? 'Sending…' : 'Email me a sign-in link'}</button>
             <p className="text-xs text-gray-500">No password needed. We email you a secure one-time link.</p>
+            <p className="text-center text-sm text-gray-500 pt-1">
+              {tab === 'signin' ? "New to GoNest?" : "Already have an account?"}{' '}
+              <button type="button" onClick={() => { setTab(tab === 'signin' ? 'signup' : 'signin'); reset(); }} className="font-semibold text-blue-600 hover:underline">{tab === 'signin' ? 'Create account' : 'Sign in'}</button>
+            </p>
           </form>
         )}
 

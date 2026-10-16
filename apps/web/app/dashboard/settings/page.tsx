@@ -71,7 +71,7 @@ export default function SettingsPage() {
       <main style={{ maxWidth: 560, margin: '0 auto', padding: '40px 24px 80px' }}>
         <h1 style={{ fontSize: 22, fontWeight: 700, color: '#111', letterSpacing: '-0.02em', marginBottom: 32 }}>Account settings</h1>
 
-        <form onSubmit={saveProfile} style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 40, paddingBottom: 32, borderBottom: '1px solid #E5E5E5' }}>
+        <form onSubmit={saveProfile} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <h2 style={{ fontSize: 15, fontWeight: 600, color: '#111', marginBottom: 4 }}>Profile</h2>
           <div><label style={lbl}>Full name</label><input value={name} onChange={e=>setName(e.target.value)} style={inp}/></div>
           <div><label style={lbl}>Phone</label><input value={phone} onChange={e=>setPhone(e.target.value)} style={inp}/></div>
@@ -84,13 +84,14 @@ export default function SettingsPage() {
           <div><button type="submit" disabled={savingProfile} style={{ ...btn, opacity: savingProfile ? 0.6 : 1 }}>{savingProfile ? 'Saving…' : 'Save profile'}</button></div>
         </form>
 
-        <form onSubmit={changePassword} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <form onSubmit={changePassword} style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 40, paddingBottom: 32, borderBottom: '1px solid #E5E5E5' }}>
           <h2 style={{ fontSize: 15, fontWeight: 600, color: '#111', marginBottom: 4 }}>Change password</h2>
           <div><label style={lbl}>New password</label><input type="password" value={newPass} onChange={e=>setNewPass(e.target.value)} style={inp}/></div>
           <div><label style={lbl}>Confirm new password</label><input type="password" value={confirmPass} onChange={e=>setConfirmPass(e.target.value)} style={inp}/></div>
           {passMsg && <p style={{ fontSize: 13, color: passMsg.type === 'ok' ? '#16A34A' : '#DC2626' }}>{passMsg.text}</p>}
           <div><button type="submit" disabled={savingPass} style={{ ...btn, opacity: savingPass ? 0.6 : 1 }}>{savingPass ? 'Saving…' : 'Change password'}</button></div>
         </form>
+
       </main>
       <Footer />
     </>
