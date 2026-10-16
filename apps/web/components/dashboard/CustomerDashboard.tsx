@@ -8,7 +8,7 @@ import { useAuth } from '@/components/layout/AuthProvider';
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
 import { PropertyCard } from '@/components/property/PropertyCard';
-import { getSavedListings, getSavedIds, getMyEnquiries, getMyVisitRequests, getSavedSearches, type SavedSearch } from '@/lib/api';
+import { getSavedListings, getSavedIds, getMyEnquiries, getMyVisitRequests, getSavedSearches, toggleSaved as persistSaved, type SavedSearch } from '@/lib/api';
 
 type Activity = { id: string; status: string; created_at?: string; slot_date?: string; slot_time?: string; listing?: { id?: string; title?: string; locality?: { name?: string } | null } | null };
 const card: React.CSSProperties = { border: '1px solid #E5E7EB', borderRadius: 18, background: '#fff' };
@@ -52,7 +52,26 @@ export function CustomerDashboard() {
 
   const upcoming = visits.filter(v => ['requested', 'confirmed'].includes(v.status) && (!v.slot_date || v.slot_date >= new Date().toISOString().slice(0, 10))).length;
   const firstName = profile?.full_name?.trim().split(/\\s+/)[0] || 'there';
-  const toggleSaved = async (_id: string) => { router.push('/saved'); };
+  const toggleSaved = async (id: string) => {
+    if (!user) return;
+    const wasSaved = savedIds.has(id);
+    setSavedIds(current => { const next = new Set(current); wasSaved ? next.delete(id) : next.add(id); return next; });
+    if (wasSaved) setSaved(current => current.filter(item => item.id !== id));
+    try {
+      await persistSaved(user.id, id, wasSaved);
+      if (!wasSaved) {
+        const homes = await getSavedListings(user.id);
+        setSaved(homes);
+      }
+    } catch {
+      setSavedIds(current => { const next = new Set(current); wasSaved ? next.add(id) : next.delete(id); return next; });
+      if (wasSaved) {
+        const homes = await getSavedListings(user.id);
+        setSaved(homes);
+      }
+      setLoadError(true);
+    }
+  };
 
   return (
     <>
