@@ -6,6 +6,22 @@ import type { Profile } from '@/lib/types';
 
 type Props = { agents: Profile[] };
 
+
+type LocalBrokerage = { name: string; area: string; address: string; phone: string; rating: string; reviews: number; focus: string; rera?: string; website?: string; source: string };
+
+const LOCAL_BROKERAGES: LocalBrokerage[] = [
+  { name: 'R.B Estate Agency', area: 'Thane West · Kasarvadavali', address: 'Shop 4, Mayuresh Apartment, Ghodbunder Road, Thane West', phone: '+919820975747', rating: '4.9', reviews: 1635, focus: 'Residential property · Ghodbunder Road corridor', source: 'Public business listing' },
+  { name: 'Shivam Properties', area: 'Thane West · Dhokali', address: 'Shop 14, Runwal Estate, behind R Mall, Dhokali, Thane West', phone: '+918080807060', rating: '4.9', reviews: 219, focus: 'Residential buying, renting and resale', source: 'Public business listing' },
+  { name: 'Stanley Estate Consultants', area: 'Mumbai · Andheri East', address: 'Twin Arcade Premises, Military Road, Marol, Andheri East', phone: '+919821026455', rating: '4.9', reviews: 490, focus: 'Residential and commercial property', source: 'Public business listing' },
+  { name: 'Kwick Property Consultants', area: 'Mumbai · Andheri West', address: 'Amar Jyoti Building, Manish Nagar, Four Bungalows, Andheri West', phone: '+919833220013', rating: '4.9', reviews: 297, focus: 'Buying, renting and property consulting', source: 'Public business listing' },
+  { name: 'Chembur Properties (Roopam Estate Agency)', area: 'Mumbai · Chembur', address: 'Central Avenue Road, Vishwakarma G, Chembur', phone: '+919820182285', rating: '4.9', reviews: 174, focus: 'Chembur residential and commercial property', source: 'Public business listing' },
+  { name: 'Jagah Dekho', area: 'Mumbai · Mulund West', address: 'Sai Arcade, Netaji Subhash Chandra Road, near Mulund station', phone: '+918879135850', rating: '4.9', reviews: 389, focus: 'Residential, rental and commercial consulting', source: 'Public business listing' },
+  { name: 'EK-OM Real Estate', area: 'Mumbai · Chembur / Deonar', address: 'Raikar Chambers, Govandi Station Road, Deonar, Chembur', phone: '+919820720888', rating: '4.9', reviews: 336, focus: 'Residential and commercial property', source: 'Public business listing' },
+  { name: 'Namo Property Consultant', area: 'Mumbai · Kandivali East', address: 'Whispering Palms Shopping Center, Lokhandwala Township, Kandivali East', phone: '+919833529163', rating: '5.0', reviews: 270, focus: 'Residential and commercial property consulting', source: 'Public business listing' },
+  { name: 'Krishna Housing', area: 'Thane West · Panch Pakhadi', address: 'Shop 5, Gagangiri CHS, Bhakti Mandir, Panch Pakhadi, Thane West', phone: '+919769560646', rating: '4.9', reviews: 244, focus: 'Residential, commercial and rental consulting', source: 'Public business listing' },
+  { name: 'RTF Properties', area: 'Thane West · Wagle Estate / MMR', address: '316, 3rd Floor, Centrum, S.G. Barve Road, Wagle Estate, Thane West', phone: '+919920630736', rating: '', reviews: 0, focus: 'Buying, selling and residential/commercial advisory', rera: 'A031182600909', website: 'https://rtfproperties.in/', source: 'Agency website; RERA claim should be checked on MahaRERA' },
+];
+
 const FAQ = [
   { q: 'How do I find a good real estate agent?', a: 'Look for relevant local experience, clear communication, current listings and registration details where applicable. Speak with more than one professional before deciding.' },
   { q: 'How can I check an agent’s RERA registration?', a: 'Use the official MahaRERA search to verify the registration details. A number displayed on a profile is not, by itself, proof that it is current.' },
@@ -117,6 +133,45 @@ export function AgentDirectory({ agents }: Props) {
             </div>
           </>
         )}
+      </section>
+
+
+      <section className="mx-auto max-w-7xl px-5 pb-12 md:px-8 md:pb-16">
+        <div className="mb-7">
+          <p className="text-sm font-bold uppercase tracking-wider text-blue-700">Mumbai & MMR · public business shortlist</p>
+          <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-950 md:text-4xl">10 local brokerages to contact</h2>
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600">An initial discovery shortlist built from publicly available business profiles and agency websites—not a GoNest endorsement or a verified “top 10” ranking. Ratings and review counts shown are from public business listings and may change. Confirm the agent’s identity, active MahaRERA registration where required, fees and current property availability before proceeding.</p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {LOCAL_BROKERAGES.map((broker, index) => {
+            const waMessage = encodeURIComponent(`Hi, I found ${broker.name} through GoNest. I am looking for property in ${broker.area}. Please share current available options, full costs, your MahaRERA registration details (if applicable), and whether I can schedule a site visit.`);
+            return (
+              <article key={broker.name} className="flex flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-sm font-extrabold text-blue-700">{String(index + 1).padStart(2, '0')}</div>
+                  <span className="rounded-full bg-amber-50 px-3 py-1 text-[11px] font-bold text-amber-800">External business · not GoNest-verified</span>
+                </div>
+                <h3 className="mt-4 text-lg font-extrabold text-slate-950">{broker.name}</h3>
+                <p className="mt-1 text-sm font-semibold text-blue-700">{broker.area}</p>
+                <p className="mt-3 text-sm leading-6 text-slate-600">{broker.focus}</p>
+                <p className="mt-3 text-xs leading-5 text-slate-500">{broker.address}</p>
+                {broker.rating && <p className="mt-3 text-sm font-bold text-slate-900">★ {broker.rating} <span className="font-normal text-slate-500">· {broker.reviews.toLocaleString('en-IN')} public reviews</span></p>}
+                {broker.rera && <p className="mt-2 text-xs leading-5 text-slate-600">Agency-published MahaRERA number: <span className="font-semibold">{broker.rera}</span> · verify current status on the official register.</p>}
+                <div className="mt-auto flex flex-wrap gap-2 border-t border-slate-100 pt-4 mt-4">
+                  <a href={`tel:${broker.phone}`} className="flex-1 rounded-xl bg-blue-600 px-3 py-3 text-center text-sm font-bold text-white hover:bg-blue-700">Call</a>
+                  <a href={`https://wa.me/${broker.phone.replace(/\D/g, '')}?text=${waMessage}`} target="_blank" rel="noreferrer" className="flex-1 rounded-xl bg-emerald-600 px-3 py-3 text-center text-sm font-bold text-white hover:bg-emerald-700">Ask / schedule visit</a>
+                  {broker.website && <a href={broker.website} target="_blank" rel="noreferrer" className="rounded-xl border border-slate-200 px-3 py-3 text-sm font-bold text-slate-700 hover:border-blue-400">Website ↗</a>}
+                </div>
+                <p className="mt-2 text-[11px] text-slate-400">{broker.source} · Contact details should be reconfirmed before use.</p>
+              </article>
+            );
+          })}
+        </div>
+        <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+          <h3 className="font-bold text-slate-900">Customer safety checklist</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-600">Ask for the agent’s full name and MahaRERA registration certificate; verify it on the official portal; request written brokerage/fees; never pay a token amount to an unverified personal account; and confirm the property’s current availability directly before travelling.</p>
+          <a href="https://www.maharera.maharashtra.gov.in/" target="_blank" rel="noreferrer" className="mt-3 inline-flex text-sm font-bold text-blue-700 hover:underline">Open official MahaRERA ↗</a>
+        </div>
       </section>
 
       <section className="bg-slate-50 py-14 md:py-16">
