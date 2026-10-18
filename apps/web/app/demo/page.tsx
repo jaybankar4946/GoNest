@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState, type FormEvent } from 'react';
-import { ArrowRight, Building2, CheckCircle2, ClipboardList, Home, Search, ShieldAlert, UserRound, Users } from 'lucide-react';
+import { ArrowRight, Building2, CheckCircle2, ClipboardList, Home, Search, ShieldAlert, Users } from 'lucide-react';
 
 type Role = 'customer' | 'owner' | 'agent' | 'builder';
 
