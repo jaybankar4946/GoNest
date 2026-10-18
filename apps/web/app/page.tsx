@@ -14,7 +14,7 @@ const HERO = 'https://images.unsplash.com/photo-1762811054947-605b20298615?w=160
 const display = { fontFamily: 'var(--font-manrope), var(--font-display)' } as const;
 
 const WHY = [
-  { icon: ClipboardCheck, title: 'Reviewed before it goes live', desc: 'Every listing is checked by the GoNest team before it appears in search.' },
+  { icon: ClipboardCheck, title: 'Clear listing status', desc: 'See the review and verification status shown for each listing before you enquire.' },
   { icon: ShieldCheck, title: 'Verified owners & agents', desc: 'Look for the verification badge and the RERA number on agent profiles.' },
   { icon: Layers, title: 'Everything on one page', desc: 'Price, area, BHK, photos, location on a map and contact options together.' },
   { icon: Search, title: 'Search that matches how you look', desc: 'Filter by locality, budget, BHK and type, then switch between list and map.' },
@@ -23,8 +23,8 @@ const WHY = [
 ];
 
 const TRUST = [
-  { icon: ClipboardCheck, title: 'Reviewed listings', items: ['Checked by the GoNest team before going live', 'Duplicate and unusual-price warnings for reviewers', 'Rejected listings never appear in search'] },
-  { icon: BadgeCheck, title: 'Verified badge', items: ['Shown only after GoNest review', 'Platform-verified marks a deeper check', 'Not a guarantee of title or ownership'] },
+  { icon: ClipboardCheck, title: 'Reviewed listings', items: ['Review status is shown where available', 'Duplicate and unusual-price warnings for reviewers', 'Rejected listings never appear in search'] },
+  { icon: BadgeCheck, title: 'Verified badge', items: ['Badge status reflects the review recorded on the listing', 'Platform-verified marks a deeper check', 'Not a guarantee of title or ownership'] },
   { icon: Users, title: 'Agent profiles', items: ['RERA number shown when the agent provides it', 'Verified agents carry a badge', 'See every active listing by an agent'] },
   { icon: Flag, title: 'Report anything', items: ['Report button on every listing', 'Reasons include fake, wrong price, already sold', 'Owners can mark listings sold or rented'] },
 ];
@@ -47,15 +47,25 @@ export default async function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-b from-gray-950/65 via-gray-950/50 to-gray-950/85" />
           <div className="relative z-10 flex flex-col items-center text-center px-4 pt-20 pb-20">
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-lg border border-white/20 text-white text-xs font-semibold px-4 py-2 rounded-full mb-8">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Reviewed listings from verified owners and agents
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Property discovery with clearer details and review status
             </div>
             <h1 className="text-5xl md:text-6xl lg:text-[68px] font-extrabold text-white leading-none max-w-4xl mb-4" style={{ ...display, letterSpacing: '-0.035em' }}>
               Find your next home.
             </h1>
             <p className="text-lg text-white/70 max-w-lg leading-relaxed mb-10">
-              Search apartments, villas and plots to buy or rent, with clear prices, real photos and direct contact.
+              Explore homes across Mumbai and nearby markets. Compare prices, configurations and listing details, then contact the owner or agent.
             </p>
             <HomeSearch cities={cities} />
+            <div className="mt-5 grid w-full max-w-3xl grid-cols-1 gap-3 sm:grid-cols-2">
+              <Link href="/projects" className="rounded-2xl border border-white/25 bg-white px-5 py-4 text-left text-gray-900 transition hover:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+                <span className="block text-sm font-bold">Explore new homes</span>
+                <span className="mt-1 block text-xs text-gray-500">Browse apartment listings and project opportunities</span>
+              </Link>
+              <Link href="/developers" className="rounded-2xl border border-white/25 bg-white/10 px-5 py-4 text-left text-white transition hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+                <span className="block text-sm font-bold">I’m a developer</span>
+                <span className="mt-1 block text-xs text-white/70">Learn how to bring your inventory to GoNest</span>
+              </Link>
+            </div>
             {cities.length > 0 && (
               <div className="mt-8 flex flex-wrap justify-center gap-2.5">
                 {cities.slice(0, 6).map(c => (
@@ -117,7 +127,7 @@ export default async function HomePage() {
             <div className="text-center mb-12">
               <div className="inline-flex items-center gap-2 text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full mb-5"><ShieldCheck className="w-3.5 h-3.5" /> How trust works on GoNest</div>
               <h2 className="text-3xl font-extrabold text-gray-900 mb-3" style={{ ...display, letterSpacing: '-0.025em' }}>What “Verified” actually means.</h2>
-              <p className="text-gray-500 max-w-lg mx-auto">A badge only appears after a real review step, and we say plainly what it does and does not cover.</p>
+              <p className="text-gray-500 max-w-lg mx-auto">Verification labels describe the checks recorded by GoNest. They are not a guarantee of title, ownership, or legal status.</p>
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
               {TRUST.map(c => { const Icon = c.icon; return (
@@ -183,10 +193,10 @@ export default async function HomePage() {
           <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-700 rounded-full opacity-30 -translate-x-1/3 translate-y-1/3" />
           <div className="max-w-3xl mx-auto px-6 relative z-10 text-center">
             <h2 className="text-4xl font-extrabold text-white mb-4" style={{ ...display, letterSpacing: '-0.025em' }}>List your property.<br />Reach people looking right now.</h2>
-            <p className="text-blue-100 text-base leading-relaxed mb-8">Create an account as an owner or agent, add photos and details, and submit for review. Approved listings go live on GoNest.</p>
+            <p className="text-blue-100 text-base leading-relaxed mb-8">Owners and agents can submit property details for review. Developers interested in project-level inventory can start with our onboarding page.</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/dashboard/new" className="bg-white text-blue-700 font-bold px-8 py-4 rounded-2xl hover:bg-blue-50 transition-colors text-sm shadow-lg">Post a property</Link>
-              <Link href="/agents" className="bg-white/10 border border-white/20 text-white font-semibold px-8 py-4 rounded-2xl hover:bg-white/20 transition-colors text-sm">Browse agents →</Link>
+              <Link href="/dashboard/new" className="bg-white text-blue-700 font-bold px-8 py-4 rounded-2xl hover:bg-blue-50 transition-colors text-sm shadow-lg">Submit a property</Link>
+              <Link href="/developers" className="bg-white/10 border border-white/20 text-white font-semibold px-8 py-4 rounded-2xl hover:bg-white/20 transition-colors text-sm">Developer onboarding →</Link>
             </div>
           </div>
         </section>
