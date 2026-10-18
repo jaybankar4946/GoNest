@@ -23,5 +23,11 @@ This branch improves buyer/developer entry points and the new-homes discovery pa
 - Performance advisor reports 15 foreign keys without covering indexes, including events, listing reports/reviews, notifications, saved listings/searches, verification log, and visits. Add indexes only after checking existing indexes and query patterns.
 - The current Vercel project has a READY production deployment, but deployment readiness alone does not validate live user journeys or business correctness.
 
+## Login-free workflow preview
+
+- `/demo` is a frontend-only workflow test centre for Customer, Owner, Agent, and Builder roles. It does not require sign-in and uses local form state only; it does not persist data, create listings, send enquiries, or change production records.
+- Use it to review the visible journey, required fields, and confirmation states. It does **not** validate Supabase authorization, protected dashboards, file uploads, notifications, or actual enquiry persistence.
+- Keep this preview-only workflow separate from real role permissions. Do not add a production auth bypass or impersonation selector. Test real authenticated flows separately with dedicated staging accounts and test records.
+
 ## Launch rule
 Do not call GoNest launch-ready until a preview build passes, the Supabase findings have been reviewed, and buyer/developer/enquiry flows have been tested using non-production test accounts and records.
