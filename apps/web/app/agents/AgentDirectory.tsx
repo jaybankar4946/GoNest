@@ -7,21 +7,20 @@ import type { Profile } from '@/lib/types';
 type Props = { agents: Profile[] };
 
 
-type LocalBrokerage = { name: string; area: string; address: string; phone: string; rating: string; reviews: number; focus: string; rera?: string; website?: string; source: string };
+type LocalBrokerage = { name: string; area: string; address: string; phone?: string; rating?: string; reviews?: number; focus: string; rera?: string; website?: string; source: string };
 
 const LOCAL_BROKERAGES: LocalBrokerage[] = [
-  { name: 'R.B Estate Agency', area: 'Thane West · Kasarvadavali', address: 'Shop 4, Mayuresh Apartment, Ghodbunder Road, Thane West', phone: '+919820975747', rating: '4.9', reviews: 1635, focus: 'Residential property · Ghodbunder Road corridor', source: 'Public business listing' },
-  { name: 'Shivam Properties', area: 'Thane West · Dhokali', address: 'Shop 14, Runwal Estate, behind R Mall, Dhokali, Thane West', phone: '+918080807060', rating: '4.9', reviews: 219, focus: 'Residential buying, renting and resale', source: 'Public business listing' },
-  { name: 'Stanley Estate Consultants', area: 'Mumbai · Andheri East', address: 'Twin Arcade Premises, Military Road, Marol, Andheri East', phone: '+919821026455', rating: '4.9', reviews: 490, focus: 'Residential and commercial property', source: 'Public business listing' },
-  { name: 'Kwick Property Consultants', area: 'Mumbai · Andheri West', address: 'Amar Jyoti Building, Manish Nagar, Four Bungalows, Andheri West', phone: '+919833220013', rating: '4.9', reviews: 297, focus: 'Buying, renting and property consulting', source: 'Public business listing' },
-  { name: 'Chembur Properties (Roopam Estate Agency)', area: 'Mumbai · Chembur', address: 'Central Avenue Road, Vishwakarma G, Chembur', phone: '+919820182285', rating: '4.9', reviews: 174, focus: 'Chembur residential and commercial property', source: 'Public business listing' },
-  { name: 'Jagah Dekho', area: 'Mumbai · Mulund West', address: 'Sai Arcade, Netaji Subhash Chandra Road, near Mulund station', phone: '+918879135850', rating: '4.9', reviews: 389, focus: 'Residential, rental and commercial consulting', source: 'Public business listing' },
-  { name: 'EK-OM Real Estate', area: 'Mumbai · Chembur / Deonar', address: 'Raikar Chambers, Govandi Station Road, Deonar, Chembur', phone: '+919820720888', rating: '4.9', reviews: 336, focus: 'Residential and commercial property', source: 'Public business listing' },
-  { name: 'Namo Property Consultant', area: 'Mumbai · Kandivali East', address: 'Whispering Palms Shopping Center, Lokhandwala Township, Kandivali East', phone: '+919833529163', rating: '5.0', reviews: 270, focus: 'Residential and commercial property consulting', source: 'Public business listing' },
-  { name: 'Krishna Housing', area: 'Thane West · Panch Pakhadi', address: 'Shop 5, Gagangiri CHS, Bhakti Mandir, Panch Pakhadi, Thane West', phone: '+919769560646', rating: '4.9', reviews: 244, focus: 'Residential, commercial and rental consulting', source: 'Public business listing' },
-  { name: 'RTF Properties', area: 'Thane West · Wagle Estate / MMR', address: '316, 3rd Floor, Centrum, S.G. Barve Road, Wagle Estate, Thane West', phone: '+919920630736', rating: '', reviews: 0, focus: 'Buying, selling and residential/commercial advisory', rera: 'A031182600909', website: 'https://rtfproperties.in/', source: 'Agency website; RERA claim should be checked on MahaRERA' },
+  { name: 'R.B Estate Agency', area: 'Thane West · Kasarvadavali', address: 'Shop 4, Mayuresh Apartment, Ghodbunder Road, opposite Hypercity Mall, Thane West', phone: '+919820975747', rating: '4.9', reviews: 1635, focus: 'Local residential property consultancy', source: 'Public business profile' },
+  { name: 'Shivam Properties', area: 'Thane West · Dhokali', address: 'Shop 14, Runwal Estate, behind R Mall, Dhokali, Thane West', phone: '+918080807060', rating: '4.9', reviews: 219, focus: 'Residential buying, renting and resale', source: 'Public business profile' },
+  { name: 'Krishna Housing', area: 'Thane West · Panch Pakhadi', address: 'Shop 5, Gagangiri CHS, Bhakti Mandir, Panch Pakhadi, Thane West', phone: '+919769560646', rating: '4.9', reviews: 244, focus: 'Residential and commercial property consultancy', source: 'Public business profile' },
+  { name: 'Homesfy Realty Ltd', area: 'Thane West · Cadbury Junction', address: 'Dev Corpora, 1602, Eastern Express Highway, near Cadbury Junction, Thane West', phone: '+917314496911', rating: '4.6', reviews: 889, focus: 'Property brokerage and home-buying advisory', source: 'Public business profile' },
+  { name: 'Kanhaiya Properties', area: 'Thane West · Hiranandani Estate', address: 'Arcadia Building, 512-A, Ghodbunder Road, Hiranandani Estate, Thane West', phone: '+919820600127', rating: '5.0', reviews: 270, focus: 'Local buying, selling and rental consultancy', source: 'Public business profile' },
+  { name: 'Seed Realty Private Limited', area: 'Thane West · Kasarvadavali', address: 'Office C, Level 1, Building C, MBC Park, Ghodbunder Road, Thane West', phone: '+917064900900', rating: '4.9', reviews: 244, focus: 'Research-led residential advisory and site-visit coordination', source: 'Public business profile' },
+  { name: 'Akhtar Realtors', area: 'Thane · Piramal Vaikunth / Balkum', address: 'Vatsal Tower, Piramal Vaikunth, near ISKCON temple gate, Balkum Pada, Thane', phone: '+919193106653', rating: '5.0', reviews: 112, focus: 'Residential buying, renting and property advisory', source: 'Public business profile' },
+  { name: 'Avenue Properties', area: 'Thane West · Uthalsar', address: 'Shop 48, Nirmaladevi C Dighe Sankul, Meenatai Thakrey Chowk, Uthalsar, Thane West', phone: '+917506371026', rating: '5.0', reviews: 110, focus: 'Residential and commercial property consultancy', source: 'Public business profile' },
+  { name: 'Royalti', area: 'Thane West · Kolshet Road', address: 'Office 1110, 11th Floor, Gate 2, Lodha Supremus, Kolshet Road, Thane West', phone: '+918007000000', rating: '4.8', reviews: 191, focus: 'Real estate consulting and brokerage', source: 'Public business profile' },
+  { name: 'Mudwalls', area: 'Mumbai · Thane · Panvel', address: 'Contact through official agency website', focus: 'Residential and commercial advisory; agency publishes MahaRERA agent number A031182401449', rera: 'A031182401449', website: 'https://mudwalls.in/', source: 'Agency website; verify registration status on MahaRERA' },
 ];
-
 const FAQ = [
   { q: 'How do I find a good real estate agent?', a: 'Look for relevant local experience, clear communication, current listings and registration details where applicable. Speak with more than one professional before deciding.' },
   { q: 'How can I check an agent’s RERA registration?', a: 'Use the official MahaRERA search to verify the registration details. A number displayed on a profile is not, by itself, proof that it is current.' },
@@ -158,9 +157,9 @@ export function AgentDirectory({ agents }: Props) {
                 {broker.rating && <p className="mt-3 text-sm font-bold text-slate-900">★ {broker.rating} <span className="font-normal text-slate-500">· {broker.reviews.toLocaleString('en-IN')} public reviews</span></p>}
                 {broker.rera && <p className="mt-2 text-xs leading-5 text-slate-600">Agency-published MahaRERA number: <span className="font-semibold">{broker.rera}</span> · verify current status on the official register.</p>}
                 <div className="mt-auto flex flex-wrap gap-2 border-t border-slate-100 pt-4 mt-4">
-                  <a href={`tel:${broker.phone}`} className="flex-1 rounded-xl bg-blue-600 px-3 py-3 text-center text-sm font-bold text-white hover:bg-blue-700">Call</a>
-                  <a href={`https://wa.me/${broker.phone.replace(/\D/g, '')}?text=${waMessage}`} target="_blank" rel="noreferrer" className="flex-1 rounded-xl bg-emerald-600 px-3 py-3 text-center text-sm font-bold text-white hover:bg-emerald-700">Ask / schedule visit</a>
-                  {broker.website && <a href={broker.website} target="_blank" rel="noreferrer" className="rounded-xl border border-slate-200 px-3 py-3 text-sm font-bold text-slate-700 hover:border-blue-400">Website ↗</a>}
+                  {broker.phone && <a href={`tel:${broker.phone}`} className="flex-1 rounded-xl bg-blue-600 px-3 py-3 text-center text-sm font-bold text-white hover:bg-blue-700">Call</a>}
+                  {broker.phone && <a href={`https://wa.me/${broker.phone.replace(/\D/g, '')}?text=${waMessage}`} target="_blank" rel="noreferrer" className="flex-1 rounded-xl bg-emerald-600 px-3 py-3 text-center text-sm font-bold text-white hover:bg-emerald-700">Ask / schedule visit</a>}
+                  {broker.website && <a href={broker.website} target="_blank" rel="noreferrer" className="flex-1 rounded-xl border border-slate-200 px-3 py-3 text-center text-sm font-bold text-slate-700 hover:border-blue-400">Website / enquiry ↗</a>}
                 </div>
                 <p className="mt-2 text-[11px] text-slate-400">{broker.source} · Contact details should be reconfirmed before use.</p>
               </article>
