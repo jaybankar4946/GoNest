@@ -5,7 +5,7 @@ import { getAgents } from '@/lib/api';
 import type { Metadata } from 'next';
 
 export const revalidate = 60;
-export const metadata: Metadata = { title: 'Verified Agents & Owners in Mumbai' };
+export const metadata: Metadata = { title: 'Agents & Owners | GoNest' };
 
 export default async function AgentsPage() {
   const agents = await getAgents();
@@ -18,10 +18,10 @@ export default async function AgentsPage() {
           fontFamily: 'var(--font)', fontSize: 'var(--text-2xl)', fontWeight: 700,
           letterSpacing: '-0.03em', color: 'var(--ink)', marginBottom: 'var(--space-2)',
         }}>
-          Agents &amp; Owners
+          Agents &amp; Property Owners
         </h1>
         <p style={{ fontSize: 'var(--text-base)', color: 'var(--ink-soft)', marginBottom: 'var(--space-6)' }}>
-          Browse verified professionals listing on GoNest.
+          Browse agent and owner profiles on GoNest. Verification badges and RERA numbers appear only when recorded on a profile; confirm registration and current availability independently.
         </p>
 
         {agents.length === 0 ? (
@@ -29,7 +29,7 @@ export default async function AgentsPage() {
             padding: 'var(--space-6)', textAlign: 'center', background: 'var(--surface-2)',
             borderRadius: 'var(--radius-md)', border: '1px solid var(--border)',
           }}>
-            <p style={{ fontSize: 'var(--text-base)', color: 'var(--ink-soft)' }}>No agents or owners yet.</p>
+            <p style={{ fontSize: 'var(--text-base)', color: 'var(--ink-soft)' }}>No public agent or owner profiles are available yet. New profiles will appear here when they are created on GoNest.</p>
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))', gap: 'var(--space-4)' }}>
