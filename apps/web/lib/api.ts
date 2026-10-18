@@ -178,7 +178,7 @@ export async function adminGetAllListings(): Promise<ListingFull[]> {
   return (data ?? []) as unknown as ListingFull[];
 }
 export async function adminGetBrokers(): Promise<Profile[]> {
-  const { data } = await supabase.from('profiles').select(PUBLIC_PROFILE).in('role', ['agent','owner']).order('created_at', { ascending: false });
+  const { data } = await supabase.from('profiles').select(PUBLIC_PROFILE).in('role', ['agent','owner']).order('agent_verified', { ascending: false }).order('total_listings', { ascending: false }).order('created_at', { ascending: false });
   return (data ?? []) as Profile[];
 }
 export async function adminGetAllLeads() {
