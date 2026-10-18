@@ -154,7 +154,7 @@ export function AgentDirectory({ agents }: Props) {
                 <p className="mt-1 text-sm font-semibold text-blue-700">{broker.area}</p>
                 <p className="mt-3 text-sm leading-6 text-slate-600">{broker.focus}</p>
                 <p className="mt-3 text-xs leading-5 text-slate-500">{broker.address}</p>
-                {broker.rating && <p className="mt-3 text-sm font-bold text-slate-900">★ {broker.rating} <span className="font-normal text-slate-500">· {broker.reviews.toLocaleString('en-IN')} public reviews</span></p>}
+                {broker.rating && <p className="mt-3 text-sm font-bold text-slate-900">★ {broker.rating} <span className="font-normal text-slate-500">· {(broker.reviews ?? 0).toLocaleString('en-IN')} public reviews</span></p>}
                 {broker.rera && <p className="mt-2 text-xs leading-5 text-slate-600">Agency-published MahaRERA number: <span className="font-semibold">{broker.rera}</span> · verify current status on the official register.</p>}
                 <div className="mt-auto flex flex-wrap gap-2 border-t border-slate-100 pt-4 mt-4">
                   {broker.phone && <a href={`tel:${broker.phone}`} className="flex-1 rounded-xl bg-blue-600 px-3 py-3 text-center text-sm font-bold text-white hover:bg-blue-700">Call</a>}
