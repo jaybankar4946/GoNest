@@ -111,6 +111,29 @@ export default async function HomePage() {
           </section>
         )}
 
+        {/* Supply and demand directories */}
+        <section className="border-y border-gray-100 bg-gray-50 py-16">
+          <div className="mx-auto max-w-7xl px-6">
+            <div className="mb-8 max-w-2xl">
+              <p className="mb-2 text-xs font-bold uppercase tracking-widest text-blue-600">Explore GoNest</p>
+              <h2 className="text-3xl font-extrabold text-gray-950" style={{ ...display, letterSpacing: '-0.025em' }}>Start with the right people or project.</h2>
+              <p className="mt-3 text-gray-600">Browse developers and local property professionals, then verify project details and live availability before making a decision.</p>
+            </div>
+            <div className="grid gap-5 md:grid-cols-2">
+              <Link href="/builders" className="group rounded-2xl border border-gray-200 bg-white p-7 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md">
+                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50"><Landmark className="h-6 w-6 text-blue-700" /></div>
+                <h3 className="text-xl font-bold text-gray-950">Builders &amp; new projects <span className="text-blue-700">→</span></h3>
+                <p className="mt-2 text-sm leading-6 text-gray-600">Explore established Mumbai and MMR developers, visit their official project pages and check the exact MahaRERA registration.</p>
+              </Link>
+              <Link href="/agents" className="group rounded-2xl border border-gray-200 bg-white p-7 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md">
+                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50"><Users className="h-6 w-6 text-emerald-700" /></div>
+                <h3 className="text-xl font-bold text-gray-950">Agents &amp; property owners <span className="text-blue-700">→</span></h3>
+                <p className="mt-2 text-sm leading-6 text-gray-600">Browse actual GoNest profiles, available RERA details and each professional’s active listings.</p>
+              </Link>
+            </div>
+          </div>
+        </section>
+
         {/* Trust */}
         <section className="py-24 bg-white border-y border-gray-100">
           <div className="max-w-7xl mx-auto px-6">
