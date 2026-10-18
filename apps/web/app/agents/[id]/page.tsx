@@ -1,7 +1,9 @@
+import Link from 'next/link';
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { getAgentById, getAgentListings } from '@/lib/api';
+import { telHref, waHref } from '@/lib/contact';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 
@@ -15,56 +17,53 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ i
   const { id } = await params;
   const agent = await getAgentById(id);
   if (!agent) notFound();
-
   const listings = await getAgentListings(id);
 
   return (
     <>
       <Nav />
-      <main style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 24px 80px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12 }}>
-          <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#F7F7F7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 700, color: '#111', flexShrink: 0 }}>
-            {(agent.full_name ?? '?').charAt(0).toUpperCase()}
+      <main className="mx-auto max-w-7xl px-5 py-10 md:px-8 md:py-16">
+        <Link href="/agents" className="text-sm font-semibold text-blue-700 hover:underline">← All agents & owners</Link>
+        <section className="mt-5 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm md:p-9">
+          <div className="flex flex-col gap-6 md:flex-row md:items-start">
+            <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-slate-100 text-3xl font-extrabold text-slate-500">
+              {agent.avatar_url ? <img src={agent.avatar_url} alt="" className="h-full w-full object-cover" /> : (agent.full_name ?? 'G').charAt(0).toUpperCase()}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-bold uppercase tracking-widest text-blue-700">{agent.role === 'agent' ? 'Real estate agent / broker' : 'Property owner'}</p>
+              <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-950 md:text-4xl">{agent.full_name ?? 'GoNest member'}</h1>
+              <p className="mt-2 text-base text-slate-600">{agent.agency_name ?? 'Independent professional'}</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {agent.agent_verified && <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800">✓ GoNest verified</span>}
+                {agent.phone_verified && <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800">✓ Phone verified</span>}
+                {agent.rera_number && <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700">RERA: {agent.rera_number}</span>}
+                {agent.rating != null && <span className="rounded-full bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-900">★ {agent.rating.toFixed(1)} · {agent.review_count} reviews</span>}
+              </div>
+              {agent.bio && <p className="mt-5 max-w-3xl whitespace-pre-line text-sm leading-7 text-slate-600">{agent.bio}</p>}
+              <div className="mt-6 flex flex-wrap gap-3">
+                {agent.phone && <a href={telHref(agent.phone)} className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700">Call professional</a>}
+                {agent.phone && <a href={waHref(agent.phone, `Hi ${agent.full_name ?? ''}, I found your profile on GoNest and would like to enquire about your properties.`)} target="_blank" rel="noreferrer" className="rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white hover:bg-emerald-700">WhatsApp</a>}
+                {listings.length > 0 && <a href={`/property/${listings[0].id}`} className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-800 hover:border-blue-400">Schedule a property visit ↓</a>}
+              </div>
+              {!agent.phone && <p className="mt-4 text-xs text-slate-500">Direct contact details have not been published for this profile. Open a listing below to use its available enquiry or visit-request options.</p>}
+            </div>
           </div>
-          <div>
-            <h1 style={{ fontSize: 24, fontWeight: 700, color: '#111', letterSpacing: '-0.02em', marginBottom: 2 }}>
-              {agent.full_name ?? 'Unnamed'}
-            </h1>
-            <p style={{ fontSize: 14, color: '#6B6B6B' }}>
-              {agent.role === 'agent' ? 'Agent' : 'Owner'}{agent.agency_name ? ` · ${agent.agency_name}` : ''}
-            </p>
+        </section>
+
+        <section className="mt-12">
+          <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div><p className="text-sm font-bold uppercase tracking-widest text-blue-700">Available properties</p><h2 className="mt-2 text-2xl font-extrabold text-slate-950 md:text-3xl">Listings from {agent.full_name ?? 'this professional'}</h2></div>
+            <p className="text-sm text-slate-500">{listings.length} active listing{listings.length === 1 ? '' : 's'}</p>
           </div>
-        </div>
-
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
-          {agent.agent_verified && (
-            <span style={{ fontSize: 12, fontWeight: 600, color: '#fff', background:'var(--primary)', padding: '4px 12px', borderRadius: 9999 }}>
-              ✓ GoNest Verified
-            </span>
+          {listings.length === 0 ? (
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-8 text-center"><h3 className="font-bold text-slate-900">No active listings right now</h3><p className="mt-2 text-sm text-slate-600">Check back later or browse other GoNest professionals.</p><Link href="/agents" className="mt-4 inline-flex rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white">Browse other profiles</Link></div>
+          ) : (
+            <>
+              <p className="mb-5 max-w-3xl text-sm leading-6 text-slate-600">Open a property to review its details, contact the poster and request a visit. Visit requests are subject to confirmation by the owner or agent.</p>
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{listings.map((listing) => <PropertyCard key={listing.id} listing={listing} />)}</div>
+            </>
           )}
-          {agent.rera_number && (
-            <span style={{ fontSize: 12, color: '#374151', background: '#F7F7F7', padding: '4px 12px', borderRadius: 9999 }}>
-              RERA: {agent.rera_number}
-            </span>
-          )}
-          {agent.phone_verified && (
-            <span style={{ fontSize: 12, color: '#16A34A', background: '#F0FDF4', padding: '4px 12px', borderRadius: 9999 }}>
-              ✓ Phone Verified
-            </span>
-          )}
-        </div>
-
-        <h2 style={{ fontSize: 18, fontWeight: 600, color: '#111', marginBottom: 20, paddingTop: 8, borderTop: '1px solid #E5E5E5' }}>
-          {listings.length} active listing{listings.length === 1 ? '' : 's'}
-        </h2>
-
-        {listings.length === 0 ? (
-          <p style={{ fontSize: 14, color: '#6B6B6B' }}>No active listings right now.</p>
-        ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))', gap: '36px 20px' }}>
-            {listings.map((l) => <PropertyCard key={l.id} listing={l} />)}
-          </div>
-        )}
+        </section>
       </main>
       <Footer />
     </>
