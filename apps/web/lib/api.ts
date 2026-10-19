@@ -84,7 +84,7 @@ export async function getSimilarListings(l: ListingFull, limit = 3): Promise<Lis
 
 export async function getCities(): Promise<City[]> {
   const { data } = await supabase.from('cities').select('id,name,state,slug,listing_count')
-    .eq('is_active', true).in('name', ['Mumbai', 'Pune']).order('name');
+    .eq('is_active', true).in('name', ['Mumbai', 'Bengaluru', 'Delhi NCR', 'Pune', 'Hyderabad']).order('name');
   return (data ?? []) as City[];
 }
 
