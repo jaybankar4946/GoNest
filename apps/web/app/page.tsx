@@ -8,7 +8,7 @@ import { getFeatured, getCities, getHomeStats, getAgents, getPopularLocalities }
 import type { Metadata } from 'next';
 
 export const revalidate = 60;
-export const metadata: Metadata = { title: 'GoNest – Find Your Home in Mumbai' };
+export const metadata: Metadata = { title: 'GoNest — Find Your Next Home with More Clarity', description: 'Explore homes for sale and rent, new projects, and property professionals in Mumbai and Pune. Clear listing status, useful search tools, and transparent property information.' };
 
 const HERO = 'https://images.unsplash.com/photo-1762811054947-605b20298615?w=1600&h=900&fit=crop&auto=format';
 const display = { fontFamily: 'var(--font-manrope), var(--font-display)' } as const;
@@ -47,13 +47,13 @@ export default async function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-b from-gray-950/65 via-gray-950/50 to-gray-950/85" />
           <div className="relative z-10 flex flex-col items-center text-center px-4 pt-20 pb-20">
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-lg border border-white/20 text-white text-xs font-semibold px-4 py-2 rounded-full mb-8">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> First-wave launch · Mumbai & Pune
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Property search, with more context · Mumbai & Pune
             </div>
             <h1 className="text-5xl md:text-6xl lg:text-[68px] font-extrabold text-white leading-none max-w-4xl mb-4" style={{ ...display, letterSpacing: '-0.035em' }}>
               Find your next home.
             </h1>
             <p className="text-lg text-white/70 max-w-lg leading-relaxed mb-10">
-              We’re onboarding owners, agents and developers across Mumbai and Pune. Join early and help build a more transparent property marketplace.
+              Explore homes, compare the details that matter, and make a more informed property decision. GoNest is currently focused on onboarding genuine inventory in Mumbai and Pune.
             </p>
             <HomeSearch cities={cities} />
             {cities.length > 0 && (
@@ -99,6 +99,39 @@ export default async function HomePage() {
             ))}
           </div>
         </section>)}
+
+
+        {/* Intent-led search examples */}
+        <section className="bg-white py-20 sm:py-24">
+          <div className="mx-auto max-w-7xl px-6">
+            <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
+              <div>
+                <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-blue-700">Search your way</p>
+                <h2 className="text-3xl font-extrabold tracking-tight text-gray-950 sm:text-4xl" style={{ ...display, letterSpacing: '-0.03em' }}>Tell us what matters in your next home.</h2>
+                <p className="mt-4 max-w-xl text-base leading-7 text-gray-600">Start with a locality, BHK, budget or property type in everyday language. Search results only include active, non-sample listings available in the current inventory.</p>
+                <div className="mt-6 flex flex-wrap gap-2">
+                  {['3 BHK in Bandra', '2 BHK in Pune', 'Near metro', 'Under ₹1 Cr', 'Villa in a gated community'].map((q) => (
+                    <Link key={q} href={`/search?q=${encodeURIComponent(q)}`} className="rounded-full border border-gray-200 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700">{q}</Link>
+                  ))}
+                </div>
+              </div>
+              <div className="rounded-3xl border border-gray-200 bg-gray-50 p-6 sm:p-8">
+                <div className="flex items-center justify-between gap-3">
+                  <div><p className="text-sm font-bold text-gray-950">A more useful property shortlist</p><p className="mt-1 text-sm text-gray-500">The details to compare before a visit</p></div>
+                  <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-gray-600 ring-1 ring-gray-200">GoNest approach</span>
+                </div>
+                <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                  {[
+                    ['Listing status', 'Check whether a home is active and confirm availability with the advertiser.'],
+                    ['Total monthly cost', 'Compare rent or EMI alongside society maintenance and other known charges.'],
+                    ['Connectivity', 'Review the locality and independently check commute routes and transit updates.'],
+                    ['Registration details', 'Look for available RERA information and verify it with the relevant official authority.'],
+                  ].map(([title,desc]) => <div key={title} className="rounded-2xl border border-gray-200 bg-white p-4"><h3 className="font-bold text-gray-950">{title}</h3><p className="mt-2 text-sm leading-6 text-gray-600">{desc}</p></div>)}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* Featured */}
         {featured.length > 0 && (
@@ -245,6 +278,48 @@ export default async function HomePage() {
             </div>
           </section>
         )}
+
+
+        {/* Transparency and decision support */}
+        <section className="border-y border-gray-100 bg-slate-950 py-20 text-white sm:py-24">
+          <div className="mx-auto max-w-7xl px-6">
+            <div className="max-w-3xl">
+              <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-sky-300">Transparency first</p>
+              <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl" style={{ ...display, letterSpacing: '-0.03em' }}>The details behind the listing matter.</h2>
+              <p className="mt-4 text-base leading-7 text-slate-300">A property card is only the start. Use GoNest to organise the questions you need answered before committing time, money or paperwork. We distinguish published information from checks that still need to be confirmed.</p>
+            </div>
+            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {[
+                ['RERA and project details', 'Check the registration number and project status with the official RERA authority.'],
+                ['Society and monthly charges', 'Ask for current maintenance, deposits, taxes and other recurring costs.'],
+                ['Commute and neighbourhood', 'Review transit, schools, hospitals and everyday amenities; verify distances for your route.'],
+                ['Photos and floor plans', 'Compare available media with the actual property during a visit.'],
+                ['Ownership and authority', 'Confirm the advertiser’s authority to sell or rent and have documents reviewed independently.'],
+                ['Price and availability', 'Ask the owner or authorised agent to reconfirm the latest price and availability.'],
+              ].map(([title,desc]) => <div key={title} className="rounded-2xl border border-white/10 bg-white/5 p-5"><h3 className="font-bold">{title}</h3><p className="mt-2 text-sm leading-6 text-slate-300">{desc}</p></div>)}
+            </div>
+            <p className="mt-6 text-xs leading-5 text-slate-400">GoNest does not represent third-party directory information as independently verified unless a specific check has actually been completed.</p>
+          </div>
+        </section>
+        <section className="bg-white py-20 sm:py-24">
+          <div className="mx-auto max-w-7xl px-6">
+            <div className="max-w-2xl">
+              <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-blue-700">From search to site visit</p>
+              <h2 className="text-3xl font-extrabold tracking-tight text-gray-950 sm:text-4xl" style={{ ...display, letterSpacing: '-0.03em' }}>A clearer process for a big decision.</h2>
+              <p className="mt-4 text-base leading-7 text-gray-600">Keep the key steps organised. For legal, financing and registration decisions, confirm details with qualified professionals and official sources.</p>
+            </div>
+            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {[
+                ['01', 'Discover', 'Search by location, budget, BHK and property type.'],
+                ['02', 'Compare', 'Review available listing details, charges and locality questions.'],
+                ['03', 'Verify', 'Confirm ownership, RERA status, documents and current availability.'],
+                ['04', 'Visit', 'Contact the advertiser and arrange a site visit before deciding.'],
+                ['05', 'Plan finance', 'Estimate EMI and transaction costs, then confirm current terms with a lender.'],
+                ['06', 'Complete safely', 'Use independent legal advice and official registration processes.'],
+              ].map(([n,title,desc]) => <div key={n} className="rounded-2xl border border-gray-200 p-5 sm:p-6"><p className="text-sm font-extrabold text-blue-700">{n}</p><h3 className="mt-3 text-lg font-bold text-gray-950">{title}</h3><p className="mt-2 text-sm leading-6 text-gray-600">{desc}</p></div>)}
+            </div>
+          </div>
+        </section>
 
         {/* Post property CTA */}
         <section className="bg-blue-600 py-24 overflow-hidden relative">
