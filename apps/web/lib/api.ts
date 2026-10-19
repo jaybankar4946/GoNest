@@ -20,7 +20,7 @@ const PUBLIC_PROFILE = 'id,full_name,phone,role,agency_name,rera_number,agent_ve
 export type SearchParams = {
   q?: string; purpose?: string; cityId?: string; localityId?: string;
   minBedrooms?: number; propertyType?: string; minPrice?: number; maxPrice?: number;
-  furnishing?: string; sort?: 'newest' | 'price_asc' | 'price_desc' | 'popular'; page?: number;
+  furnishing?: string; sort?: 'newest' | 'price_asc' | 'price_desc' | 'popular' | 'trust_first'; page?: number;
 };
 
 export async function searchListings(p: SearchParams = {}) {
@@ -46,6 +46,8 @@ export async function searchListings(p: SearchParams = {}) {
     case 'price_asc':  q = q.order('price', { ascending: true });       break;
     case 'price_desc': q = q.order('price', { ascending: false });      break;
     case 'popular':    q = q.order('view_count', { ascending: false });  break;
+    // Transparent v1 trust ordering: verification first, then freshness. This is not yet a full personalized fit score.
+    case 'trust_first': q = q.order('verification_level', { ascending: false }).order('published_at', { ascending: false, nullsFirst: false }).order('created_at', { ascending: false }); break;
     default:           q = q.order('created_at', { ascending: false });
   }
   q = q.range((page - 1) * 24, page * 24 - 1);
@@ -84,7 +86,7 @@ export async function getSimilarListings(l: ListingFull, limit = 3): Promise<Lis
 
 export async function getCities(): Promise<City[]> {
   const { data } = await supabase.from('cities').select('id,name,state,slug,listing_count')
-    .eq('is_active', true).in('name', ['Mumbai', 'Bengaluru', 'Delhi NCR', 'Pune', 'Hyderabad']).order('name');
+    .eq('is_active', true).in('name', ['Mumbai', 'Pune']).order('name');
   return (data ?? []) as City[];
 }
 
