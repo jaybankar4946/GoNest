@@ -8,14 +8,14 @@ import { getFeatured, getCities, getHomeStats, getAgents, getPopularLocalities }
 import type { Metadata } from 'next';
 
 export const revalidate = 60;
-export const metadata: Metadata = { title: 'GoNest — Find Homes in Mumbai & Pune', description: 'Explore property options in Mumbai and Pune. Owners, agents and developers can submit genuine properties and projects for review.' };
+export const metadata: Metadata = { title: 'GoNest – Find Your Home in Mumbai' };
 
 const HERO = 'https://images.unsplash.com/photo-1762811054947-605b20298615?w=1600&h=900&fit=crop&auto=format';
 const display = { fontFamily: 'var(--font-manrope), var(--font-display)' } as const;
 
 const WHY = [
-  { icon: ClipboardCheck, title: 'A clear review process', desc: 'Submitted properties can be reviewed before approval. Check each listing’s status and confirm details before deciding.' },
-  { icon: ShieldCheck, title: 'Transparent verification', desc: 'Verification labels should reflect checks actually completed. Confirm registration and property details independently.' },
+  { icon: ClipboardCheck, title: 'Reviewed before it goes live', desc: 'Every listing is checked by the GoNest team before it appears in search.' },
+  { icon: ShieldCheck, title: 'Verified owners & agents', desc: 'Look for the verification badge and the RERA number on agent profiles.' },
   { icon: Layers, title: 'Everything on one page', desc: 'Price, area, BHK, photos, location on a map and contact options together.' },
   { icon: Search, title: 'Search that matches how you look', desc: 'Filter by locality, budget, BHK and type, then switch between list and map.' },
   { icon: Heart, title: 'Save and come back', desc: 'Shortlist homes to your account and compare them later.' },
@@ -47,21 +47,15 @@ export default async function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-b from-gray-950/65 via-gray-950/50 to-gray-950/85" />
           <div className="relative z-10 flex flex-col items-center text-center px-4 pt-20 pb-20">
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-lg border border-white/20 text-white text-xs font-semibold px-4 py-2 rounded-full mb-8">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Building a genuine Mumbai–Pune property marketplace
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Reviewed listings from verified owners and agents
             </div>
             <h1 className="text-5xl md:text-6xl lg:text-[68px] font-extrabold text-white leading-none max-w-4xl mb-4" style={{ ...display, letterSpacing: '-0.035em' }}>
-              Find your next home in Mumbai & Pune.
+              Find your next home.
             </h1>
             <p className="text-lg text-white/70 max-w-lg leading-relaxed mb-10">
-              Explore property options as genuine local inventory comes online. Owners, agents and developers can help build a more transparent marketplace.
+              Search apartments, villas and plots to buy or rent, with clear prices, real photos and direct contact.
             </p>
             <HomeSearch cities={cities} />
-            <div className="mt-5 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <Link href="/buy" className="inline-flex min-h-12 items-center justify-center rounded-xl bg-white px-6 py-3 text-sm font-bold text-gray-950 shadow-lg transition hover:bg-blue-50">Explore homes to buy</Link>
-              <Link href="/rent" className="inline-flex min-h-12 items-center justify-center rounded-xl border border-white/30 bg-white/10 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/20">Find a rental</Link>
-              <Link href="/dashboard/new" className="inline-flex min-h-12 items-center justify-center rounded-xl border border-white/30 bg-white/10 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/20">Owners &amp; agents: submit a property</Link>
-              <Link href="/builders" className="inline-flex min-h-12 items-center justify-center rounded-xl border border-white/20 px-5 py-3 text-sm font-semibold text-white/90 transition hover:bg-white/10">Developers: partner with GoNest</Link>
-            </div>
             {cities.length > 0 && (
               <div className="mt-8 flex flex-wrap justify-center gap-2.5">
                 {cities.slice(0, 6).map(c => (
@@ -83,22 +77,6 @@ export default async function HomePage() {
             ))}
           </div>
         </section>)}
-
-        {featured.length === 0 && (
-          <section className="border-y border-gray-100 bg-blue-50/70">
-            <div className="mx-auto flex max-w-5xl flex-col items-start gap-4 px-6 py-10 sm:flex-row sm:items-center sm:justify-between">
-              <div className="max-w-2xl">
-                <p className="mb-2 text-xs font-bold uppercase tracking-widest text-blue-700">Mumbai &amp; Pune launch</p>
-                <h2 className="text-2xl font-extrabold text-gray-950">We’re building genuine local inventory.</h2>
-                <p className="mt-2 text-sm leading-6 text-gray-600">There are no featured non-sample properties available right now. We won’t show demo homes as live listings. Help bring real properties onto GoNest or explore project information.</p>
-              </div>
-              <div className="flex shrink-0 flex-wrap gap-3">
-                <Link href="/dashboard/new" className="inline-flex items-center justify-center rounded-xl bg-blue-700 px-5 py-3 text-sm font-bold text-white transition hover:bg-blue-800">Submit a property</Link>
-                <Link href="/builders" className="inline-flex items-center justify-center rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-800 transition hover:border-blue-400">Developer partnerships</Link>
-              </div>
-            </div>
-          </section>
-        )}
 
         {/* Featured */}
         {featured.length > 0 && (
@@ -227,11 +205,11 @@ export default async function HomePage() {
           <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-500 rounded-full opacity-30 translate-x-1/3 -translate-y-1/3" />
           <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-700 rounded-full opacity-30 -translate-x-1/3 translate-y-1/3" />
           <div className="max-w-3xl mx-auto px-6 relative z-10 text-center">
-            <h2 className="text-4xl font-extrabold text-white mb-4" style={{ ...display, letterSpacing: '-0.025em' }}>Help build GoNest’s Mumbai–Pune property supply.</h2>
-            <p className="text-blue-100 text-base leading-relaxed mb-8">Owners and agents can submit genuine property details for review. Developers can share project information. Only approved, genuine listings should appear as live inventory.</p>
+            <h2 className="text-4xl font-extrabold text-white mb-4" style={{ ...display, letterSpacing: '-0.025em' }}>List your property.<br />Reach people looking right now.</h2>
+            <p className="text-blue-100 text-base leading-relaxed mb-8">Create an account as an owner or agent, add photos and details, and submit for review. Approved listings go live on GoNest.</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/dashboard/new" className="bg-white text-blue-700 font-bold px-8 py-4 rounded-2xl hover:bg-blue-50 transition-colors text-sm shadow-lg">Post a property</Link>
-              <Link href="/builders" className="bg-white/10 border border-white/20 text-white font-semibold px-8 py-4 rounded-2xl hover:bg-white/20 transition-colors text-sm">Developer partnerships →</Link>
+              <Link href="/agents" className="bg-white/10 border border-white/20 text-white font-semibold px-8 py-4 rounded-2xl hover:bg-white/20 transition-colors text-sm">Browse agents →</Link>
             </div>
           </div>
         </section>
