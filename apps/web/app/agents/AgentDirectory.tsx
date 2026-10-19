@@ -18,6 +18,8 @@ export function AgentDirectory({ agents }: Props) {
   const [location, setLocation] = useState('');
   const [name, setName] = useState('');
   const [role, setRole] = useState('all');
+  const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const [hasListingsOnly, setHasListingsOnly] = useState(false);
 
   const filtered = useMemo(() => {
     const locationTerm = location.trim().toLowerCase();
@@ -27,39 +29,39 @@ export function AgentDirectory({ agents }: Props) {
       const matchesLocation = !locationTerm || profileText.includes(locationTerm);
       const matchesName = !nameTerm || [agent.full_name, agent.agency_name].filter(Boolean).join(' ').toLowerCase().includes(nameTerm);
       const matchesRole = role === 'all' || agent.role === role;
-      return matchesLocation && matchesName && matchesRole;
+      const matchesVerified = !verifiedOnly || agent.agent_verified;
+      const matchesListings = !hasListingsOnly || (agent.total_listings ?? 0) > 0;
+      return matchesLocation && matchesName && matchesRole && matchesVerified && matchesListings;
     });
-  }, [agents, location, name, role]);
+  }, [agents, location, name, role, verifiedOnly, hasListingsOnly]);
 
   return (
     <>
-      <section className="relative overflow-hidden bg-slate-950">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-800/50 via-slate-950 to-slate-950" />
-        <div className="relative mx-auto max-w-7xl px-5 py-16 md:px-8 md:py-20">
-          <p className="mb-4 text-sm font-bold uppercase tracking-[0.18em] text-blue-300">GoNest · Find local expertise</p>
-          <h1 className="max-w-3xl text-4xl font-extrabold tracking-tight text-white md:text-6xl">A great agent makes all the difference.</h1>
-          <p className="mt-5 max-w-2xl text-base leading-7 text-slate-300 md:text-lg">Find a real estate agent or connect with a property owner. Explore profiles, available listings and the details you need to make a confident next move.</p>
-          <form className="mt-9 grid gap-3 rounded-2xl bg-white p-3 shadow-2xl md:grid-cols-[1fr_1fr_auto] md:p-4" onSubmit={(event) => event.preventDefault()}>
+      <section className="border-b border-slate-200 bg-white">
+        <div className="mx-auto max-w-7xl px-5 py-10 md:px-8 md:py-12">
+          <p className="mb-2 text-sm font-bold text-blue-700">GoNest · Local real-estate professionals</p>
+          <h1 className="max-w-3xl text-3xl font-extrabold tracking-tight text-slate-950 md:text-4xl">Find real estate agents in your city</h1>
+          <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">Compare professional profiles, explore current listings and contact agents or property owners directly.</p>
+          <form className="mt-7 grid gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm md:grid-cols-[1fr_1fr_auto] md:p-4" onSubmit={(event) => event.preventDefault()}>
             <label className="flex min-w-0 flex-col gap-2 rounded-xl border border-slate-200 px-4 py-3">
-              <span className="text-xs font-bold uppercase tracking-wide text-slate-500">Location or area</span>
+              <span className="text-xs font-semibold text-slate-600">Location or area</span>
               <input value={location} onChange={(event) => setLocation(event.target.value)} placeholder="e.g. Mumbai, Thane, Bandra" className="w-full bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400" />
             </label>
             <label className="flex min-w-0 flex-col gap-2 rounded-xl border border-slate-200 px-4 py-3">
               <span className="text-xs font-bold uppercase tracking-wide text-slate-500">Name or company</span>
               <input value={name} onChange={(event) => setName(event.target.value)} placeholder="Agent name or brokerage" className="w-full bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400" />
             </label>
-            <button type="submit" className="rounded-xl bg-blue-600 px-7 py-4 text-sm font-bold text-white transition hover:bg-blue-700">Search agents</button>
+            <button type="submit" className="rounded-lg bg-blue-600 px-7 py-4 text-sm font-bold text-white transition hover:bg-blue-700">Search agents</button>
           </form>
           <p className="mt-3 text-xs text-slate-400">Search uses information currently published in GoNest profiles. Area matches depend on what each professional has written in their profile.</p>
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-5 py-12 md:px-8 md:py-16">
+      <section className="mx-auto max-w-7xl px-5 py-9 md:px-8 md:py-12">
         <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
-            <p className="text-sm font-semibold text-blue-700">LOCAL PROFESSIONALS</p>
-            <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-950 md:text-4xl">Real estate agents on GoNest</h2>
-            <p className="mt-3 max-w-2xl leading-7 text-slate-600">Compare real profiles, brokerage affiliations, RERA details where provided, ratings where available and active listing counts.</p>
+            <h2 className="text-2xl font-extrabold tracking-tight text-slate-950 md:text-3xl">Real estate professionals</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">Showing published GoNest profiles only. Ratings and registration details appear only when recorded.</p>
           </div>
           <div className="flex flex-wrap gap-2" aria-label="Filter by profile type">
             {[
@@ -73,6 +75,12 @@ export function AgentDirectory({ agents }: Props) {
             ))}
           </div>
         </div>
+        <div className="mb-5 flex flex-wrap items-center gap-2 border-b border-slate-200 pb-5">
+          <span className="mr-1 text-sm font-semibold text-slate-700">Refine:</span>
+          <button type="button" aria-pressed={verifiedOnly} onClick={() => setVerifiedOnly(v => !v)} className={`rounded-lg border px-3 py-2 text-sm font-semibold ${verifiedOnly ? "border-blue-600 bg-blue-50 text-blue-800" : "border-slate-300 bg-white text-slate-700"}`}>✓ GoNest verified</button>
+          <button type="button" aria-pressed={hasListingsOnly} onClick={() => setHasListingsOnly(v => !v)} className={`rounded-lg border px-3 py-2 text-sm font-semibold ${hasListingsOnly ? "border-blue-600 bg-blue-50 text-blue-800" : "border-slate-300 bg-white text-slate-700"}`}>Has active listings</button>
+          {(verifiedOnly || hasListingsOnly) && <button type="button" onClick={() => {setVerifiedOnly(false);setHasListingsOnly(false);}} className="px-2 py-2 text-sm font-semibold text-blue-700 underline">Clear filters</button>}
+        </div>
 
         {filtered.length === 0 ? (
           <div className="rounded-2xl border border-slate-200 bg-slate-50 px-6 py-14 text-center">
@@ -80,33 +88,33 @@ export function AgentDirectory({ agents }: Props) {
             <h3 className="mt-5 text-xl font-bold text-slate-950">{agents.length === 0 ? 'Be one of the first professionals on GoNest' : 'No matching profiles found'}</h3>
             <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-600">{agents.length === 0 ? 'There are no public agent or owner profiles available yet. As professionals publish profiles on GoNest, they will appear here.' : 'Try another name or area, or clear the filters to see more profiles.'}</p>
             <div className="mt-5 flex flex-wrap justify-center gap-3">
-              {agents.length > 0 && <button type="button" onClick={() => { setLocation(''); setName(''); setRole('all'); }} className="rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-800">Clear filters</button>}
+              {agents.length > 0 && <button type="button" onClick={() => { setLocation(''); setName(''); setRole('all'); setVerifiedOnly(false); setHasListingsOnly(false); }} className="rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-800">Clear filters</button>}
               <Link href="/dashboard" className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700">Join GoNest</Link>
             </div>
           </div>
         ) : (
           <>
             <p className="mb-4 text-sm text-slate-500">{filtered.length} profile{filtered.length === 1 ? '' : 's'} found</p>
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 xl:grid-cols-2">
               {filtered.map((agent) => (
-                <Link key={agent.id} href={`/agents/${agent.id}`} className="group flex min-h-64 flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-blue-300 hover:shadow-lg">
+                <Link key={agent.id} href={`/agents/${agent.id}`} className="group flex min-h-56 flex-col rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-blue-300 hover:shadow-md md:p-6">
                   <div className="flex items-start gap-4">
-                    <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-slate-100 text-2xl font-extrabold text-slate-500">
+                    <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-100 bg-slate-100 text-3xl font-extrabold text-slate-500">
                       {agent.avatar_url ? <img src={agent.avatar_url} alt="" className="h-full w-full object-cover" /> : (agent.full_name ?? 'G').charAt(0).toUpperCase()}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-xs font-bold uppercase tracking-wider text-blue-700">{agent.role === 'agent' ? 'Real estate agent' : 'Property owner'}</p>
-                      <h3 className="mt-1 truncate text-lg font-extrabold text-slate-950 group-hover:text-blue-700">{agent.full_name ?? 'GoNest member'}</h3>
+                      <p className="text-xs font-bold uppercase tracking-wider text-slate-600">{agent.role === 'agent' ? 'Real estate agent' : 'Property owner'}</p>
+                      <h3 className="mt-1 truncate text-lg font-extrabold text-slate-950 group-hover:text-blue-700 md:text-xl">{agent.full_name ?? 'GoNest member'}</h3>
                       <p className="mt-1 line-clamp-2 text-sm text-slate-500">{agent.agency_name ?? 'Independent professional'}</p>
                     </div>
                   </div>
-                  <div className="mt-5 flex flex-wrap gap-2">
+                  <div className="mt-4 flex flex-wrap gap-2">
                     {agent.agent_verified && <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800">✓ GoNest verified</span>}
                     {agent.rera_number && <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">RERA: {agent.rera_number}</span>}
                     {!agent.agent_verified && !agent.rera_number && <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800">Details to confirm</span>}
                   </div>
                   {agent.bio && <p className="mt-4 line-clamp-3 text-sm leading-6 text-slate-600">{agent.bio}</p>}
-                  <div className="mt-auto flex items-end justify-between gap-3 border-t border-slate-100 pt-5 mt-5">
+                  <div className="mt-auto flex items-end justify-between gap-3 border-t border-slate-100 pt-4 mt-5">
                     <div>
                       {agent.rating != null && <p className="font-bold text-slate-900">★ {agent.rating.toFixed(1)} <span className="text-xs font-normal text-slate-500">({agent.review_count} reviews)</span></p>}
                       <p className="mt-1 text-sm text-slate-600"><span className="font-bold text-slate-900">{agent.total_listings ?? 0}</span> active listing{(agent.total_listings ?? 0) === 1 ? '' : 's'}</p>
