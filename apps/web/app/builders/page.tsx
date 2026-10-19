@@ -38,14 +38,16 @@ const additionalProjects = [
 ];
 
 const developers = [
-  { name: 'Kolte-Patil Developers', city: 'Pune & Mumbai', url: 'https://www.koltepatil.com/' },
-  { name: 'Godrej Properties', city: 'Mumbai / MMR', url: 'https://www.godrejproperties.com/' },
-  { name: 'Keystone Realtors (Rustomjee)', city: 'Mumbai / MMR', url: 'https://www.rustomjee.com/' },
-  { name: 'Kalpataru', city: 'Mumbai / MMR', url: 'https://www.kalpataru.com/' },
-  { name: 'Runwal Group', city: 'Mumbai / MMR', url: 'https://runwal.com/' },
-  { name: 'DLF', city: 'Mumbai', url: 'https://www.dlf.in/' },
-  { name: 'Nyati Group', city: 'Pune', url: 'https://www.nyatigroup.com/' },
-  { name: 'Paranjape Schemes', city: 'Pune', url: 'https://www.pscl.in/' },
+  { name: 'Lodha Developers', city: 'Mumbai / MMR & Pune', url: 'https://www.lodhagroup.com/', focus: 'Residential launches, premium homes and township inventory' },
+  { name: 'Oberoi Realty', city: 'Mumbai / MMR', url: 'https://www.oberoirealty.com/', focus: 'Premium residential developments' },
+  { name: 'Keystone Realtors (Rustomjee)', city: 'Mumbai / MMR & Pune', url: 'https://www.rustomjee.com/', focus: 'Residential projects and unit configurations' },
+  { name: 'Hiranandani Group', city: 'Mumbai / MMR & Pune', url: 'https://www.hiranandani.com/', focus: 'Townships, apartments and premium developments' },
+  { name: 'Godrej Properties', city: 'Mumbai / MMR & Pune', url: 'https://www.godrejproperties.com/', focus: 'New launches and residential developments' },
+  { name: 'Runwal Group', city: 'Mumbai / MMR', url: 'https://runwal.com/', focus: 'Apartments, residential communities and new projects' },
+  { name: 'Kalpataru', city: 'Mumbai / MMR & Pune', url: 'https://www.kalpataru.com/', focus: 'Premium and mid-market residences' },
+  { name: 'Piramal Realty', city: 'Mumbai / MMR', url: 'https://www.piramalrealty.com/', focus: 'Residential projects and available configurations' },
+  { name: 'Raheja Universal', city: 'Mumbai / MMR', url: 'https://www.rahejauniversal.com/', focus: 'Residential projects and unit availability' },
+  { name: 'Shapoorji Pallonji Real Estate', city: 'Mumbai / MMR & Pune', url: 'https://www.shapoorjirealestate.com/', focus: 'Residential developments and project portfolios' },
 ];
 
 export default function BuildersPage() {
@@ -114,8 +116,15 @@ export default function BuildersPage() {
             <p className="text-sm font-bold uppercase tracking-widest text-blue-700">Developer directory</p>
             <h2 className="mt-2 text-2xl font-extrabold text-slate-950">Official developer websites</h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">These are official developer websites for follow-up checks, not proof of a GoNest partnership or live inventory feed.</p>
-            <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {developers.map((d) => <a key={d.name} href={d.url} target="_blank" rel="noreferrer" className="rounded-xl border border-slate-200 p-4 transition hover:border-blue-300"><span className="block font-bold text-slate-900">{d.name}</span><span className="mt-1 block text-xs text-slate-500">{d.city}</span><span className="mt-3 block text-sm font-semibold text-blue-700">Open official website ↗</span></a>)}
+            <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              {developers.map((d) => <article key={d.name} className="flex flex-col rounded-xl border border-slate-200 bg-white p-5 transition hover:border-blue-300 hover:shadow-sm">
+                <span className="text-xs font-bold uppercase tracking-wide text-blue-700">Developer profile</span>
+                <h3 className="mt-2 text-lg font-extrabold text-slate-950">{d.name}</h3>
+                <p className="mt-1 text-xs font-semibold text-slate-500">{d.city}</p>
+                <p className="mt-3 flex-1 text-sm leading-6 text-slate-600">{d.focus}</p>
+                <p className="mt-3 text-xs leading-5 text-slate-500">Project portfolio and availability must be confirmed with the developer. This directory does not imply a GoNest partnership or live inventory feed.</p>
+                <a href={d.url} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center font-bold text-blue-700 hover:underline">Visit official website ↗</a>
+              </article>)}
             </div>
           </div>
         </section>
