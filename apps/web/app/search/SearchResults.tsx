@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { Map as MapIcon, List, Columns } from 'lucide-react';
 import { track } from '@/lib/track';
 import { PropertyCardSkeleton } from '@/components/ui/Skeleton';
@@ -159,9 +160,19 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
 
       {loading && results.length === 0 && (<div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:'36px 20px'}}>{[1,2,3,4,5,6].map(i=><PropertyCardSkeleton key={i}/>)}</div>)}
       {!loading && results.length === 0 && (
-        <div style={{textAlign:'center',padding:'80px 0'}}>
-          <p style={{fontSize:17,fontWeight:600,marginBottom:6}}>No properties found</p>
-          <p style={{fontSize:14,color:'var(--gray-4)'}}>Try adjusting your filters.</p>
+        <div style={{textAlign:'center',padding:'64px 24px',background:'#fff',border:'1px solid #E5E7EB',borderRadius:24}}>
+          <div style={{width:56,height:56,margin:'0 auto 18px',display:'grid',placeItems:'center',borderRadius:16,background:'#EFF6FF',color:'#1D4ED8',fontSize:26}}>⌂</div>
+          <p style={{fontSize:22,fontWeight:800,marginBottom:8,color:'#111827'}}>
+            {f.purpose==='rent' ? 'We’re onboarding verified rental homes' : f.purpose==='sale' ? 'We’re onboarding verified homes for sale' : 'We’re onboarding the first verified properties'}
+          </p>
+          <p style={{fontSize:14,lineHeight:1.7,color:'#6B7280',maxWidth:560,margin:'0 auto'}}>
+            No live, non-sample property matches are published for these filters yet. We won’t show demo homes as real inventory. Try our source-linked new-project directory or submit a genuine property for review.
+          </p>
+          <div style={{display:'flex',gap:10,justifyContent:'center',flexWrap:'wrap',marginTop:22}}>
+            <Link href="/builders" style={{display:'inline-flex',alignItems:'center',padding:'11px 17px',borderRadius:12,background:'#2563EB',color:'#fff',fontSize:13,fontWeight:700}}>Explore new projects</Link>
+            <Link href="/dashboard" style={{display:'inline-flex',alignItems:'center',padding:'11px 17px',borderRadius:12,border:'1px solid #D1D5DB',background:'#fff',color:'#111827',fontSize:13,fontWeight:700}}>List a property</Link>
+            <Link href="/agents" style={{display:'inline-flex',alignItems:'center',padding:'11px 17px',borderRadius:12,border:'1px solid #D1D5DB',background:'#fff',color:'#111827',fontSize:13,fontWeight:700}}>Find local professionals</Link>
+          </div>
         </div>
       )}
 
