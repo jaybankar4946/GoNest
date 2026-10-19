@@ -7,12 +7,12 @@ import type { Provider } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 
 type Tab = 'signin' | 'signup';
-type Method = 'password' | 'link' | 'phone';
+type Method = 'password' | 'link' | 'phone' | 'google';
 type Msg = { type: 'ok' | 'err'; text: string };
 
 // Social / phone methods are switched on with env vars once configured in Supabase (see .env.local.example)
 const PROVIDERS = (process.env.NEXT_PUBLIC_AUTH_PROVIDERS ?? '').split(',').map(s => s.trim()).filter(Boolean) as Provider[];
-const PHONE_ENABLED = process.env.NEXT_PUBLIC_AUTH_PHONE === 'true';
+// Phone OTP is shown as a first-class option; it requires SMS authentication to be enabled in Supabase.
 const LABEL: Record<string, string> = { google: 'Google', apple: 'Apple', facebook: 'Facebook' };
 
 const field = 'w-full px-4 py-3.5 border border-gray-300 rounded-xl text-sm text-gray-900 placeholder-gray-400 bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100';
@@ -29,7 +29,8 @@ function explain(err: { message?: string; status?: number } | null): string {
   if (err?.status === 429 || /rate limit|too many/i.test(m)) return 'Too many attempts. Please wait a few minutes and try again.';
   if (/expired|invalid.*(token|otp)|token.*invalid/i.test(m)) return 'That code is invalid or has expired. Request a new one.';
   if (/password/i.test(m) && /(short|weak|least|characters)/i.test(m)) return 'Choose a stronger password (at least 8 characters).';
-  if (/sms|phone|provider/i.test(m)) return 'Phone sign-in is not available right now. Please use email instead.';
+  if (/provider.*(disabled|not enabled)|unsupported provider|google/i.test(m)) return 'Google sign-in is not enabled in GoNest yet. Please use email or mobile number, or enable Google in Supabase Auth settings.';
+  if (/sms|phone/i.test(m)) return 'Mobile sign-in is not configured yet. Please use email, or contact support if you need mobile access.';
   return 'Something went wrong. Please try again.';
 }
 
@@ -125,7 +126,7 @@ function AuthInner() {
     setMsg(error ? { type: 'err', text: explain(error) } : { type: 'ok', text: 'If that email has an account, a reset link is on its way.' });
   };
 
-  const methods: { id: Method; label: string }[] = [{ id: 'password', label: 'Password' }, { id: 'link', label: 'Email link' }, ...(PHONE_ENABLED ? [{ id: 'phone' as Method, label: 'Phone' }] : [])];
+  const methods: { id: Method; label: string }[] = [{ id: 'password', label: 'Email + password' }, { id: 'link', label: 'Email link' }, { id: 'phone', label: 'Mobile number' }, { id: 'google', label: 'Google' }];
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
@@ -140,20 +141,9 @@ function AuthInner() {
           ))}
         </div>
 
-        {PROVIDERS.length > 0 && (
-          <>
-            <div className="space-y-2.5 mb-5">
-              {PROVIDERS.map(p => (
-                <button key={p} disabled={busy} onClick={() => oauth(p)} className="w-full py-3.5 rounded-xl border border-gray-300 hover:bg-gray-50 text-sm font-semibold text-gray-900 disabled:opacity-60 transition-colors">Continue with {LABEL[p] ?? p}</button>
-              ))}
-            </div>
-            <div className="flex items-center gap-3 mb-5"><div className="flex-1 h-px bg-gray-200" /><span className="text-xs text-gray-400">or</span><div className="flex-1 h-px bg-gray-200" /></div>
-          </>
-        )}
-
-        <div className="flex gap-2 mb-4">
+        <div className="flex flex-wrap gap-2 mb-4">
           {methods.map(m => (
-            <button key={m.id} onClick={() => { setMethod(m.id); reset(); setOtpSent(false); }} className={`px-4 py-2 rounded-full text-xs font-semibold border transition-all ${method === m.id ? 'bg-blue-50 border-blue-600 text-blue-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`}>{m.label}</button>
+            <button key={m.id} disabled={busy} onClick={() => { if(m.id==='google'){ void oauth('google'); return; } setMethod(m.id); reset(); setOtpSent(false); }} className={`flex-1 min-w-[calc(50%-0.25rem)] sm:min-w-0 px-3 py-2.5 rounded-xl text-xs font-semibold border transition-all disabled:opacity-60 ${method === m.id ? 'bg-blue-50 border-blue-600 text-blue-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`} aria-pressed={method===m.id}>{m.id==='google'?'Continue with Google':m.label}</button>
           ))}
         </div>
 
@@ -175,14 +165,14 @@ function AuthInner() {
             {tab === 'signup' && <input autoComplete="name" aria-label="Full name" placeholder="Full name (optional)" value={name} onChange={e => setName(e.target.value)} className={field} />}
             <input required type="email" autoComplete="email" aria-label="Email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className={field} />
             <button disabled={busy} className={primary}>{busy ? 'Sending…' : 'Email me a sign-in link'}</button>
-            <p className="text-xs text-gray-500">No password needed. We email you a secure one-time link.</p>
+            <p className="text-xs text-gray-500">No password needed. We email you a secure one-time link. You can use it to sign in or create an account.</p>
           </form>
         )}
 
         {method === 'phone' && (
           <form onSubmit={otpSent ? verifyOtp : sendOtp} className="flex flex-col gap-3">
             <div className="flex gap-2">
-              <span className="px-4 py-3.5 border border-gray-300 rounded-xl text-sm text-gray-700 bg-gray-50">+91</span>
+              <span className="px-4 py-3.5 border border-gray-300 rounded-xl text-sm text-gray-700 bg-gray-50">🇮🇳 +91</span>
               <input required inputMode="tel" autoComplete="tel-national" aria-label="Mobile number" placeholder="10-digit mobile number" value={phone} onChange={e => setPhone(e.target.value)} disabled={otpSent} className={field} />
             </div>
             {otpSent && <input required inputMode="numeric" autoComplete="one-time-code" maxLength={6} aria-label="6-digit code" placeholder="6-digit code" value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, ''))} className={field + ' tracking-[0.4em] text-center'} />}
