@@ -221,6 +221,18 @@ export const adminGetLeads   = adminGetAllLeads;
 export const adminGetVisits  = adminGetAllVisits;
 
 // --- Agents directory (used by app/agents and app/agents/[id]) ---
+export async function getPublicBrokerages() {
+  const { data, error } = await supabase.from('brokerages')
+    .select('id,business_name,public_business_phone,public_enquiry_url,public_business_address,source_url,city:cities(name)')
+    .eq('is_sample', false).not('source_id', 'is', null)
+    .in('verification_status', ['pending', 'verified']).order('business_name');
+  if (error) {
+    console.error('Could not load public brokerages', error.message);
+    return [];
+  }
+  return data ?? [];
+}
+
 export async function getAgents(): Promise<Profile[]> {
   const { data } = await supabase.from('profiles').select(PUBLIC_PROFILE)
     .in('role', ['agent','owner']).eq('is_sample', false).order('created_at', { ascending: false });
