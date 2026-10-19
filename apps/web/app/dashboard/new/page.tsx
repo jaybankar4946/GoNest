@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/layout/AuthProvider';
-import { chooseAccountType, createListing, uploadListingImage, getCities, getLocalities } from '@/lib/api';
+import { chooseAccountType, createListing, uploadListingImage, cleanupIncompleteListing, getCities, getLocalities } from '@/lib/api';
 import { formatPrice } from '@/lib/format';
 import { ChevronLeft, ChevronRight, Upload, X, Check } from 'lucide-react';
 const STEPS=['Basics','Location','Price','Photos','Amenities','Review'] as const;
@@ -26,13 +26,25 @@ export default function NewListingPage() {
   const upd=useCallback(<K extends keyof typeof f>(k:K,v:(typeof f)[K])=>setF(p=>({...p,[k]:v})),[]);
   const canNext=()=>{if(step===0)return f.title.trim().length>3;if(step===1)return!!f.city_id&&!!f.locality_id;if(step===2)return!!f.price&&Number(f.price)>0;if(step===3)return images.length>0;return true;};
   const submit=async()=>{
-    if(!user)return;setSaving(true);setErr(null);
+    if(!user)return;
+    if(f.title.trim().length<4){setStep(0);setErr('Add a clear property title with at least 4 characters.');return;}
+    if(!f.city_id||!f.locality_id){setStep(1);setErr('Choose a city and locality so customers can find your property.');return;}
+    if(!Number.isFinite(Number(f.price))||Number(f.price)<=0){setStep(2);setErr('Enter a valid price greater than zero.');return;}
+    if(images.length===0){setStep(3);setErr('Add at least one genuine property photo before submitting.');return;}
+    setSaving(true);setErr(null);
+    let listingId:string|null=null;
+    const uploadedPaths:string[]=[];
     try{
-      const id=await createListing({posted_by:user.id,poster_type:profile?.role==='agent'?'agent':'owner',title:f.title,description:f.description||null,property_type:f.property_type,purpose:f.purpose,city_id:f.city_id,locality_id:f.locality_id,address_line:f.address_line||null,landmark:f.landmark||null,price:Number(f.price),maintenance_monthly:f.maintenance_monthly?Number(f.maintenance_monthly):null,security_deposit:f.security_deposit?Number(f.security_deposit):null,price_negotiable:f.price_negotiable,brokerage:f.brokerage,bedrooms:f.bedrooms,bathrooms:f.bathrooms,balconies:f.balconies,sqft:f.sqft?Number(f.sqft):null,furnishing:f.furnishing||null,facing:f.facing||null,floor_number:f.floor_number?Number(f.floor_number):null,total_floors:f.total_floors?Number(f.total_floors):null,property_age:f.property_age?Number(f.property_age):null,amenities:f.amenities});
-      for(let i=0;i<images.length;i++)await uploadListingImage(user.id,id,images[i],i);
-      router.push('/dashboard');
-    }catch(e){setErr(e instanceof Error?e.message:((e as {message?:string})?.message??'Something went wrong.'));}
-    finally{setSaving(false);}
+      listingId=await createListing({posted_by:user.id,poster_type:profile?.role==='agent'?'agent':'owner',title:f.title.trim(),description:f.description.trim()||null,property_type:f.property_type,purpose:f.purpose,city_id:f.city_id,locality_id:f.locality_id,address_line:f.address_line.trim()||null,landmark:f.landmark.trim()||null,price:Number(f.price),maintenance_monthly:f.maintenance_monthly?Number(f.maintenance_monthly):null,security_deposit:f.security_deposit?Number(f.security_deposit):null,price_negotiable:f.price_negotiable,brokerage:f.brokerage,bedrooms:f.bedrooms,bathrooms:f.bathrooms,balconies:f.balconies,sqft:f.sqft?Number(f.sqft):null,furnishing:f.furnishing||null,facing:f.facing||null,floor_number:f.floor_number?Number(f.floor_number):null,total_floors:f.total_floors?Number(f.total_floors):null,property_age:f.property_age?Number(f.property_age):null,amenities:f.amenities});
+      for(let i=0;i<images.length;i++)uploadedPaths.push(await uploadListingImage(user.id,listingId,images[i],i));
+      router.push('/dashboard?listingSubmitted=1');
+    }catch(e){
+      const detail=e instanceof Error?e.message:((e as {message?:string})?.message??'Unknown error');
+      if(listingId){
+        try{await cleanupIncompleteListing(listingId,uploadedPaths);setErr('Your listing was not submitted because an upload failed. No incomplete listing was kept. Please retry.');}
+        catch{setErr('The submission did not finish completely. Please check My Listings before retrying. Reference: '+listingId+'. Details: '+detail);}
+      }else setErr('We could not create your listing. Please check your details and try again. '+detail);
+    }finally{setSaving(false);}
   };
   const canPost=['owner','agent','admin'].includes(profile?.role??'');
   if(authLoading||!user||!profile)return(<div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',color:'#6B7280'}}>Loading…</div>);
@@ -102,8 +114,8 @@ export default function NewListingPage() {
           <div style={{display:'flex',flexDirection:'column',gap:18}}>
             <h1 style={{fontSize:20,fontWeight:700,color:'#111'}}>Add photos</h1>
             <p style={{fontSize:13,color:'#6B6B6B'}}>Add at least one genuine property photo to submit. Upload up to 8 JPG, PNG or WebP images (10 MB each).</p>
-            <label style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:8,padding:'40px 24px',border:'1.5px dashed #E5E5E5',borderRadius:12,cursor:'pointer'}}><Upload size={20} color="#9B9B9B"/><span style={{fontSize:13,color:'#6B6B6B'}}>Click to upload photos</span><input type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={e=>{const picked=Array.from(e.target.files??[]);const valid=picked.filter(file=>['image/jpeg','image/png','image/webp'].includes(file.type)&&file.size<=10*1024*1024);if(valid.length!==picked.length)setErr('Use JPG, PNG or WebP images up to 10 MB each.');const remaining=Math.max(0,8-images.length);if(picked.length>remaining)setErr('You can add up to 8 photos. Remove a photo to add another.');setImages(p=>[...p,...valid].slice(0,8));e.currentTarget.value='';}} style={{display:'none'}}/></label>
-            {images.length===0&&<p style={{fontSize:12,color:'#B45309'}}>Add at least one real photo to continue. This helps customers assess the property and keeps the listing useful.</p>}{images.length>0&&<div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:8}}>{images.map((file,i)=><div key={i} style={{position:'relative',borderRadius:8,overflow:'hidden',aspectRatio:'1/1',background:'#F0F0F0'}}><img src={URL.createObjectURL(file)} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}}/>{i===0&&<span style={{position:'absolute',bottom:4,left:4,fontSize:10,fontWeight:600,color:'#fff',background:'var(--primary)',padding:'2px 6px',borderRadius:9999}}>Cover</span>}<button onClick={()=>setImages(p=>p.filter((_,j)=>j!==i))} style={{position:'absolute',top:4,right:4,width:20,height:20,borderRadius:'50%',background:'#fff',display:'flex',alignItems:'center',justifyContent:'center',border:'none',cursor:'pointer'}}><X size={11}/></button></div>)}</div>}
+            <label style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:8,padding:'40px 24px',border:'1.5px dashed #E5E5E5',borderRadius:12,cursor:'pointer'}}><Upload size={20} color="#9B9B9B"/><span style={{fontSize:13,color:'#6B6B6B'}}>Click to upload photos</span><input type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={e=>{const picked=Array.from(e.target.files??[]);const valid=picked.filter(file=>['image/jpeg','image/png','image/webp'].includes(file.type)&&file.size<=10*1024*1024);if(valid.length!==picked.length)setErr('Use JPG, PNG or WebP images up to 10 MB each.');const remaining=Math.max(0,8-images.length);if(picked.length>remaining)setErr('You can add up to 8 photos. Remove a photo to add another.');else if(valid.length===picked.length)setErr(null);setImages(p=>[...p,...valid].slice(0,8));e.currentTarget.value='';}} style={{display:'none'}}/></label>
+            {images.length===0&&<p style={{fontSize:12,color:'#B45309'}}>Add at least one real photo to continue. This helps customers assess the property and keeps the listing useful.</p>}{images.length>0&&<div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:8}}>{images.map((file,i)=><div key={i} style={{position:'relative',borderRadius:8,overflow:'hidden',aspectRatio:'1/1',background:'#F0F0F0'}}><img src={URL.createObjectURL(file)} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}}/>{i===0&&<span style={{position:'absolute',bottom:4,left:4,fontSize:10,fontWeight:600,color:'#fff',background:'var(--primary)',padding:'2px 6px',borderRadius:9999}}>Cover</span>}<button onClick={()=>{setImages(p=>p.filter((_,j)=>j!==i));setErr(null);}} style={{position:'absolute',top:4,right:4,width:20,height:20,borderRadius:'50%',background:'#fff',display:'flex',alignItems:'center',justifyContent:'center',border:'none',cursor:'pointer'}}><X size={11}/></button></div>)}</div>}
           </div>
         )}
         {step===4&&(
