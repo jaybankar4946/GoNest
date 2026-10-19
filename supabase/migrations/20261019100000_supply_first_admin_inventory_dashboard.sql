@@ -73,16 +73,18 @@ begin
       'listingSources', (select count(*) from public.gonest_demo_listing_sources)
     ),
     'cities', (
-      select coalesce(jsonb_agg(jsonb_build_object(
-        'name', c.name,
-        'ownerListings', count(l.id) filter (where l.is_sample = false and l.poster_type::text = 'owner'),
-        'activeRealListings', count(l.id) filter (where l.is_sample = false and l.status::text = 'active'),
-        'targetOwnerListings', case when c.name in ('Mumbai', 'Pune') then 25 else null end
-      ) order by case c.name when 'Mumbai' then 1 when 'Pune' then 2 else 3 end, c.name), '[]'::jsonb)
-      from public.cities c
-      left join public.listings l on l.city_id = c.id
-      where c.name in ('Mumbai', 'Pune')
-      group by c.id, c.name
+      select coalesce(jsonb_agg(to_jsonb(city_counts) order by case city_counts.name when 'Mumbai' then 1 when 'Pune' then 2 else 3 end), '[]'::jsonb)
+      from (
+        select
+          c.name,
+          count(l.id) filter (where l.is_sample = false and l.poster_type::text = 'owner') as "ownerListings",
+          count(l.id) filter (where l.is_sample = false and l.status::text = 'active') as "activeRealListings",
+          25 as "targetOwnerListings"
+        from public.cities c
+        left join public.listings l on l.city_id = c.id
+        where c.name in ('Mumbai', 'Pune')
+        group by c.id, c.name
+      ) city_counts
     )
   );
 end;
