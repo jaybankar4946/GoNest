@@ -129,7 +129,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
         </select>
         <select style={sel} value={f.type} onChange={e=>upd('type',e.target.value)}>
           <option value="">Any type</option>
-          {['apartment','villa','house','plot','studio','pg'].map(t=>(
+          {['apartment','villa','house','plot','pg'].map(t=>(
             <option key={t} value={t}>{t.charAt(0).toUpperCase()+t.slice(1)}</option>
           ))}
         </select>
