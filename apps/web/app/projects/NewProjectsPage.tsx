@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import { ArrowRight, Building2, Check, ChevronDown, ChevronRight, ExternalLink, MapPin, Search, ShieldCheck, X } from "lucide-react";
 import { Nav } from "@/components/layout/Nav";
 import { Footer } from "@/components/layout/Footer";
