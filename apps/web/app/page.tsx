@@ -1,337 +1,164 @@
 import Link from 'next/link';
-import { ShieldCheck, Layers, Eye, Search, Heart, MessageCircle, Check, ClipboardCheck, BadgeCheck, Calendar, FileCheck2, Landmark, Flag, Users, Navigation } from 'lucide-react';
+import { ArrowRight, BadgeCheck, Building2, CheckCircle2, Compass, House, KeyRound, ShieldCheck } from 'lucide-react';
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { HomeSearch } from './HomeSearch';
-import { getFeatured, getCities, getHomeStats, getAgents, getPopularLocalities } from '@/lib/api';
+import { getFeatured, getCities, getPopularLocalities } from '@/lib/api';
 import type { Metadata } from 'next';
 
 export const revalidate = 60;
-export const metadata: Metadata = { title: 'GoNest — Find Your Next Home with More Clarity', description: 'Explore homes for sale and rent, new projects, and property professionals across Mumbai, Bengaluru, Delhi NCR, Pune and Hyderabad. Clear listing status, useful search tools, and transparent property information.' };
+export const metadata: Metadata = {
+  title: 'GoNest — Find Your Next Home Across India',
+  description: 'Explore homes to buy or rent, new projects and property professionals across Mumbai, Bengaluru, Delhi NCR, Pune and Hyderabad.',
+};
 
-const HERO = 'https://images.unsplash.com/photo-1762811054947-605b20298615?w=1600&h=900&fit=crop&auto=format';
 const display = { fontFamily: 'var(--font-manrope), var(--font-display)' } as const;
 
-const WHY = [
-  { icon: ClipboardCheck, title: 'Review before publication', desc: 'Submitted properties are intended to go through a review before publication. Listings are being onboarded for our first launch.' },
-  { icon: ShieldCheck, title: 'Clear verification status', desc: 'Verification badges should only appear after the relevant checks are completed. Always independently confirm important details.' },
-  { icon: Layers, title: 'Everything on one page', desc: 'Price, area, BHK, photos, location on a map and contact options together.' },
-  { icon: Search, title: 'Search that matches how you look', desc: 'Filter by locality, budget, BHK and type, then switch between list and map.' },
-  { icon: Heart, title: 'Save and come back', desc: 'Shortlist homes to your account and compare them later.' },
-  { icon: MessageCircle, title: 'Talk to the owner directly', desc: 'Call, WhatsApp, send an enquiry or book a visit slot in one tap.' },
-];
-
-const TRUST = [
-  { icon: ClipboardCheck, title: 'Reviewed listings', items: ['New inventory is being onboarded for launch', 'Submissions should be reviewed before publication', 'Report inaccurate or outdated information'] },
-  { icon: BadgeCheck, title: 'Verified badge', items: ['Check the stated verification status', 'Confirm project registration with MahaRERA', 'A badge is not a guarantee of title or ownership'] },
-  { icon: Users, title: 'Agent profiles', items: ['RERA information may require independent checking', 'Do not assume a public directory profile is verified', 'Confirm identity and registration before transacting'] },
-  { icon: Flag, title: 'Report anything', items: ['Use available reporting options where shown', 'Confirm price and availability directly', 'Report suspected fraud or stale information'] },
-];
 export default async function HomePage() {
-  const [featured, cities, stats, agents, popular] = await Promise.all([getFeatured(6), getCities(), getHomeStats(), getAgents(), getPopularLocalities(8)]);
-  const topAgents = [...agents].sort((a, b) => Number(b.agent_verified) - Number(a.agent_verified)).slice(0, 4);
-  const strip = [
-    { v: stats.listings, l: 'Live listings' },
-    { v: stats.verified, l: 'Verified listings' },
-    { v: stats.people, l: 'Owners & agents' },
-    { v: stats.cities, l: 'Cities' },
-  ];
+  const [featured, cities, popular] = await Promise.all([
+    getFeatured(6),
+    getCities(),
+    getPopularLocalities(8),
+  ]);
+
   return (
     <>
       <Nav />
-      <main>
-        {/* Hero */}
-        <section className="relative" style={{ minHeight: 640, background: '#0b1220' }}>
-          <img src={HERO} alt="" className="absolute inset-0 w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-b from-gray-950/65 via-gray-950/50 to-gray-950/85" />
-          <div className="relative z-10 flex flex-col items-center text-center px-4 pt-20 pb-20">
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-lg border border-white/20 text-white text-xs font-semibold px-4 py-2 rounded-full mb-8">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> India's top 5 cities · Buy · Rent · New projects
-            </div>
-            <h1 className="text-5xl md:text-6xl lg:text-[68px] font-extrabold text-white leading-none max-w-4xl mb-4" style={{ ...display, letterSpacing: '-0.035em' }}>
-              Find your next home.
-            </h1>
-            <p className="text-lg text-white/70 max-w-lg leading-relaxed mb-10">
-              Explore homes, compare the details that matter, and make a more informed property decision across Mumbai, Bengaluru, Delhi NCR, Pune and Hyderabad. Live inventory depends on verified, non-sample listings available on GoNest.
-            </p>
-            <HomeSearch cities={cities} />
-            {cities.length > 0 && (
-              <div className="mt-8 flex flex-wrap justify-center gap-2.5">
-                {cities.slice(0, 6).map(c => (
-                  <Link key={c.id} href={`/search?city=${c.id}`} className="text-sm text-white/80 hover:text-white bg-white/10 hover:bg-white/20 border border-white/15 px-4 py-2 rounded-full transition-all">{c.name}</Link>
-                ))}
+      <main className="bg-white text-gray-950">
+        <section className="border-b border-gray-100">
+          <div className="mx-auto max-w-7xl px-5 pb-12 pt-14 sm:px-8 sm:pb-16 sm:pt-20">
+            <div className="mx-auto max-w-4xl text-center">
+              <p className="mb-4 text-sm font-semibold text-blue-700">Buy · Rent · New projects</p>
+              <h1 className="text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl" style={{ ...display, letterSpacing: '-0.045em' }}>
+                Find a place that feels like home.
+              </h1>
+              <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-gray-600 sm:text-lg">
+                Explore property options across India’s major cities, compare the details that matter, and take your next step with more clarity.
+              </p>
+              <div className="mx-auto mt-8 max-w-4xl text-left">
+                <HomeSearch cities={cities} />
               </div>
-            )}
-          </div>
-        </section>
-
-        {/* Primary marketplace pathways */}
-        <section className="relative z-20 -mt-7 mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="grid grid-cols-2 gap-3 rounded-3xl border border-gray-100 bg-white p-3 shadow-xl sm:grid-cols-4 sm:gap-4 sm:p-4">
-            <Link href="/search?purpose=sale" className="group rounded-2xl border border-gray-100 p-4 transition hover:border-blue-200 hover:bg-blue-50 sm:p-5">
-              <span className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 text-blue-700"><Search className="h-5 w-5" /></span>
-              <span className="block font-bold text-gray-950">Buy a home</span><span className="mt-1 block text-xs text-gray-500">Resale &amp; homes for sale</span>
-            </Link>
-            <Link href="/search?purpose=rent" className="group rounded-2xl border border-gray-100 p-4 transition hover:border-blue-200 hover:bg-blue-50 sm:p-5">
-              <span className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-100 text-indigo-700"><Navigation className="h-5 w-5" /></span>
-              <span className="block font-bold text-gray-950">Find a rental</span><span className="mt-1 block text-xs text-gray-500">Homes to rent</span>
-            </Link>
-            <Link href="/builders" className="group rounded-2xl border border-gray-100 p-4 transition hover:border-blue-200 hover:bg-blue-50 sm:p-5">
-              <span className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 text-amber-700"><Landmark className="h-5 w-5" /></span>
-              <span className="block font-bold text-gray-950">New projects</span><span className="mt-1 block text-xs text-gray-500">Explore sourced project info</span>
-            </Link>
-            <Link href="/dashboard/new" className="group rounded-2xl border border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50 sm:p-5">
-              <span className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700"><Layers className="h-5 w-5" /></span>
-              <span className="block font-bold text-gray-950">Sell or list</span><span className="mt-1 block text-xs text-gray-500">Submit a property for review</span>
-            </Link>
-          </div>
-        </section>
-
-        {/* Live stats (real counts) */}
-        {stats.listings >= 20 && (<section className="border-y border-gray-100 bg-white">
-          <div className="max-w-7xl mx-auto px-6 py-6 grid grid-cols-2 md:grid-cols-4 divide-x divide-gray-100">
-            {strip.map(s => (
-              <div key={s.l} className="text-center py-2 px-4">
-                <p className="text-2xl font-extrabold text-gray-900" style={display}>{s.v.toLocaleString('en-IN')}</p>
-                <p className="text-xs text-gray-500 mt-0.5 font-medium">{s.l}</p>
-              </div>
-            ))}
-          </div>
-        </section>)}
-
-
-        {/* Intent-led search examples */}
-        <section className="bg-white py-20 sm:py-24">
-          <div className="mx-auto max-w-7xl px-6">
-            <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
-              <div>
-                <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-blue-700">Search your way</p>
-                <h2 className="text-3xl font-extrabold tracking-tight text-gray-950 sm:text-4xl" style={{ ...display, letterSpacing: '-0.03em' }}>Tell us what matters in your next home.</h2>
-                <p className="mt-4 max-w-xl text-base leading-7 text-gray-600">Start with a locality, BHK, budget or property type in everyday language. Search results only include active, non-sample listings available in the current inventory.</p>
-                <div className="mt-6 flex flex-wrap gap-2">
-                  {['3 BHK in Bandra', '2 BHK in Pune', 'Near metro', 'Under ₹1 Cr', 'Villa in a gated community'].map((q) => (
-                    <Link key={q} href={`/search?q=${encodeURIComponent(q)}`} className="rounded-full border border-gray-200 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700">{q}</Link>
-                  ))}
-                </div>
-              </div>
-              <div className="rounded-3xl border border-gray-200 bg-gray-50 p-6 sm:p-8">
-                <div className="flex items-center justify-between gap-3">
-                  <div><p className="text-sm font-bold text-gray-950">A more useful property shortlist</p><p className="mt-1 text-sm text-gray-500">The details to compare before a visit</p></div>
-                  <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-gray-600 ring-1 ring-gray-200">GoNest approach</span>
-                </div>
-                <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                  {[
-                    ['Listing status', 'Check whether a home is active and confirm availability with the advertiser.'],
-                    ['Total monthly cost', 'Compare rent or EMI alongside society maintenance and other known charges.'],
-                    ['Connectivity', 'Review the locality and independently check commute routes and transit updates.'],
-                    ['Registration details', 'Look for available RERA information and verify it with the relevant official authority.'],
-                  ].map(([title,desc]) => <div key={title} className="rounded-2xl border border-gray-200 bg-white p-4"><h3 className="font-bold text-gray-950">{title}</h3><p className="mt-2 text-sm leading-6 text-gray-600">{desc}</p></div>)}
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Featured */}
-        {featured.length > 0 && (
-          <section className="bg-gray-50 py-24">
-            <div className="max-w-7xl mx-auto px-6">
-              <div className="flex items-end justify-between mb-12">
-                <div>
-                  <div className="inline-flex items-center gap-2 text-xs font-semibold text-blue-600 bg-blue-100 px-3 py-1.5 rounded-full mb-4"><BadgeCheck className="w-3.5 h-3.5" /> Featured</div>
-                  <h2 className="text-4xl font-extrabold text-gray-900" style={{ ...display, letterSpacing: '-0.025em' }}>Featured properties</h2>
-                </div>
-                <Link href="/search" className="hidden md:block text-sm font-semibold text-blue-600 hover:text-blue-700">View all →</Link>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: '36px 24px' }}>
-                {featured.map(l => <PropertyCard key={l.id} listing={l} />)}
-              </div>
-            </div>
-          </section>
-        )}
-
-        {featured.length === 0 && (
-          <section className="bg-gray-50 py-20 sm:py-24">
-            <div className="mx-auto grid max-w-7xl items-center gap-10 px-6 md:grid-cols-[1.1fr_0.9fr]">
-              <div>
-                <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700"><ShieldCheck className="h-4 w-4" /> India’s top 5 cities</div>
-                <h2 className="max-w-xl text-3xl font-extrabold tracking-tight text-gray-950 sm:text-4xl" style={{ ...display, letterSpacing: '-0.03em' }}>A better way to find your next home starts with real information.</h2>
-                <p className="mt-4 max-w-xl text-base leading-7 text-gray-600">We’re onboarding the first owner-submitted homes. We won’t fill your search with demo properties or pretend a home is available when it hasn’t been confirmed.</p>
-                <div className="mt-7 flex flex-wrap gap-3">
-                  <Link href="/dashboard/new" className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-blue-700">List a property <span className="ml-2">→</span></Link>
-                  <Link href="/builders" className="inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-bold text-gray-800 transition hover:border-blue-300 hover:text-blue-700">Explore projects</Link>
-                </div>
-              </div>
-              <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
-                <p className="text-xs font-bold uppercase tracking-widest text-gray-500">What you can do today</p>
-                <div className="mt-5 space-y-5">
-                  <div className="flex gap-4"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-700"><Search className="h-5 w-5" /></span><div><h3 className="font-bold text-gray-950">Search by city, budget and BHK</h3><p className="mt-1 text-sm leading-6 text-gray-600">Explore searches and check back as reviewed homes are published.</p></div></div>
-                  <div className="flex gap-4"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700"><ClipboardCheck className="h-5 w-5" /></span><div><h3 className="font-bold text-gray-950">Submit genuine inventory</h3><p className="mt-1 text-sm leading-6 text-gray-600">Owners can submit homes for review before they appear as live listings.</p></div></div>
-                  <div className="flex gap-4"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-700"><FileCheck2 className="h-5 w-5" /></span><div><h3 className="font-bold text-gray-950">Check official project sources</h3><p className="mt-1 text-sm leading-6 text-gray-600">Project directory entries are reference information, not a guarantee of available units.</p></div></div>
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Popular locations */}
-        {popular.length > 0 && (
-          <section className="py-16 bg-white">
-            <div className="max-w-7xl mx-auto px-6">
-              <h2 className="text-2xl font-extrabold text-gray-900 mb-6" style={{ ...display, letterSpacing: '-0.02em' }}>Popular locations</h2>
-              <div className="flex flex-wrap gap-3">
-                {popular.map(l => (
-                  <Link key={l.id} href={`/search?q=${encodeURIComponent(l.name)}${l.cityId ? `&city=${l.cityId}` : ''}`} className="px-5 py-3 rounded-full border border-gray-200 hover:border-blue-500 hover:text-blue-600 text-sm font-medium text-gray-800 transition-all">
-                    {l.name}<span className="text-gray-400">, {l.city}</span>
-                  </Link>))}
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Supply and demand directories */}
-        <section className="border-y border-gray-100 bg-gray-50 py-16">
-          <div className="mx-auto max-w-7xl px-6">
-            <div className="mb-8 max-w-2xl">
-              <p className="mb-2 text-xs font-bold uppercase tracking-widest text-blue-600">Explore GoNest</p>
-              <h2 className="text-3xl font-extrabold text-gray-950" style={{ ...display, letterSpacing: '-0.025em' }}>Start with the right people or project.</h2>
-              <p className="mt-3 text-gray-600">We’re opening the directory as partners are verified. Check official project details and live availability directly before making a decision.</p>
-            </div>
-            <div className="grid gap-5 md:grid-cols-2">
-              <Link href="/builders" className="group rounded-2xl border border-gray-200 bg-white p-7 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md">
-                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50"><Landmark className="h-6 w-6 text-blue-700" /></div>
-                <h3 className="text-xl font-bold text-gray-950">Builders &amp; new projects <span className="text-blue-700">→</span></h3>
-                <p className="mt-2 text-sm leading-6 text-gray-600">Builder and project profiles will appear as partners are onboarded. Always confirm registrations and availability with official sources.</p>
-              </Link>
-              <Link href="/agents" className="group rounded-2xl border border-gray-200 bg-white p-7 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md">
-                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50"><Users className="h-6 w-6 text-emerald-700" /></div>
-                <h3 className="text-xl font-bold text-gray-950">Agents &amp; property owners <span className="text-blue-700">→</span></h3>
-                <p className="mt-2 text-sm leading-6 text-gray-600">Join as an owner or agent. Public profiles appear after signup, and verification badges are reserved for completed checks.</p>
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* Trust */}
-        <section className="py-24 bg-white border-y border-gray-100">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="text-center mb-12">
-              <div className="inline-flex items-center gap-2 text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full mb-5"><ShieldCheck className="w-3.5 h-3.5" /> How trust works on GoNest</div>
-              <h2 className="text-3xl font-extrabold text-gray-900 mb-3" style={{ ...display, letterSpacing: '-0.025em' }}>What “Verified” actually means.</h2>
-              <p className="text-gray-500 max-w-lg mx-auto">A badge only appears after a real review step, and we say plainly what it does and does not cover.</p>
-            </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              {TRUST.map(c => { const Icon = c.icon; return (
-                <div key={c.title} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-                  <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center mb-4"><Icon className="w-6 h-6 text-blue-600" /></div>
-                  <h3 className="font-bold text-gray-900 mb-3" style={display}>{c.title}</h3>
-                  <ul className="space-y-2">{c.items.map(it => <li key={it} className="flex items-start gap-2 text-sm text-gray-600"><Check className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-1" /> {it}</li>)}</ul>
-                </div>); })}
-            </div>
-          </div>
-        </section>
-
-        {/* Why GoNest */}
-        <section className="bg-gray-950 py-24">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 text-xs font-semibold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-3 py-1.5 rounded-full mb-5"><Eye className="w-3.5 h-3.5" /> Why GoNest</div>
-              <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4" style={{ ...display, letterSpacing: '-0.03em' }}>
-                Property portals show listings.<br /><span className="text-blue-400">GoNest helps you decide.</span>
-              </h2>
-            </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {WHY.map(w => { const Icon = w.icon; return (
-                <div key={w.title} className="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-blue-500/30 rounded-2xl p-6 transition-all">
-                  <div className="w-10 h-10 bg-blue-600/20 rounded-xl flex items-center justify-center mb-4"><Icon className="w-5 h-5 text-blue-400" /></div>
-                  <h3 className="font-bold text-white text-base mb-2" style={display}>{w.title}</h3>
-                  <p className="text-gray-400 text-sm leading-relaxed">{w.desc}</p>
-                </div>); })}
-            </div>
-          </div>
-        </section>
-
-        {/* Agents (real profiles) */}
-        {topAgents.length > 0 && (
-          <section className="py-24 bg-white">
-            <div className="max-w-7xl mx-auto px-6">
-              <div className="text-center mb-14">
-                <h2 className="text-4xl font-extrabold text-gray-900 mb-3" style={{ ...display, letterSpacing: '-0.025em' }}>Agents and owners on GoNest</h2>
-                <p className="text-gray-500 text-base">Browse profiles and their active listings.</p>
-              </div>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                {topAgents.map(a => (
-                  <Link key={a.id} href={`/agents/${a.id}`} className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all text-center block">
-                    <div className="w-20 h-20 rounded-2xl bg-blue-50 text-blue-600 text-2xl font-bold flex items-center justify-center mx-auto mb-4 overflow-hidden">
-                      {a.avatar_url ? <img src={a.avatar_url} alt="" className="w-full h-full object-cover" /> : (a.full_name ?? '?').charAt(0).toUpperCase()}
-                    </div>
-                    <h3 className="font-extrabold text-gray-900 text-base" style={display}>{a.full_name ?? 'GoNest member'}</h3>
-                    <p className="text-xs text-gray-500 mt-0.5 mb-3">{a.role === 'agent' ? 'Agent' : 'Owner'}{a.agency_name ? ` · ${a.agency_name}` : ''}</p>
-                    <div className="flex justify-center gap-1.5 flex-wrap">
-                      {a.agent_verified && <span className="text-xs bg-emerald-50 text-emerald-700 font-bold px-2.5 py-0.5 rounded-full inline-flex items-center gap-1"><Check className="w-3 h-3" />Verified</span>}
-                      {a.rera_number && <span className="text-xs bg-gray-100 text-gray-600 px-2.5 py-0.5 rounded-full">RERA {a.rera_number}</span>}
-                    </div>
+              <div className="mt-5 flex flex-wrap justify-center gap-2">
+                {cities.slice(0, 5).map((city) => (
+                  <Link key={city.id} href={`/search?city=${city.id}`} className="rounded-full border border-gray-200 px-4 py-2 text-sm text-gray-700 transition hover:border-blue-300 hover:bg-blue-50">
+                    {city.name}
                   </Link>
                 ))}
               </div>
             </div>
+          </div>
+        </section>
+
+        <section aria-label="Explore GoNest" className="mx-auto max-w-7xl px-5 py-9 sm:px-8 sm:py-12">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              { href: '/buy', title: 'Buy a home', desc: 'Find homes for sale', icon: House },
+              { href: '/rent', title: 'Rent a home', desc: 'Find a place to rent', icon: KeyRound },
+              { href: '/projects', title: 'New projects', desc: 'Explore project information', icon: Building2 },
+              { href: '/dashboard/new', title: 'Post property free', desc: 'Submit a property for review', icon: Compass },
+            ].map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link key={item.title} href={item.href} className="group flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-5 transition hover:border-blue-300 hover:shadow-sm">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gray-50 text-blue-700 group-hover:bg-blue-50"><Icon size={21} /></span>
+                  <span className="min-w-0"><span className="block font-semibold">{item.title}</span><span className="mt-1 block text-sm text-gray-500">{item.desc}</span></span>
+                  <ArrowRight size={16} className="ml-auto shrink-0 text-gray-400 transition group-hover:translate-x-0.5 group-hover:text-blue-700" />
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+
+        {featured.length > 0 ? (
+          <section className="bg-gray-50">
+            <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 sm:py-16">
+              <div className="mb-8 flex items-end justify-between gap-4">
+                <div>
+                  <p className="mb-2 text-sm font-semibold text-blue-700">Explore available homes</p>
+                  <h2 className="text-2xl font-bold tracking-tight sm:text-3xl" style={{ ...display, letterSpacing: '-0.03em' }}>Homes to consider</h2>
+                  <p className="mt-2 text-sm text-gray-600">Only active, non-sample listings are shown here.</p>
+                </div>
+                <Link href="/search" className="hidden items-center gap-1 text-sm font-semibold text-blue-700 hover:text-blue-800 sm:inline-flex">View all <ArrowRight size={16} /></Link>
+              </div>
+              <div className="grid gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+                {featured.map((listing) => <PropertyCard key={listing.id} listing={listing} />)}
+              </div>
+              <div className="mt-7 sm:hidden"><Link href="/search" className="inline-flex items-center gap-2 text-sm font-semibold text-blue-700">View all homes <ArrowRight size={16} /></Link></div>
+            </div>
+          </section>
+        ) : (
+          <section className="border-y border-gray-100 bg-gray-50">
+            <div className="mx-auto grid max-w-7xl gap-8 px-5 py-14 sm:px-8 sm:py-16 md:grid-cols-[1.2fr_0.8fr] md:items-center">
+              <div>
+                <p className="mb-2 text-sm font-semibold text-blue-700">Inventory is being onboarded</p>
+                <h2 className="max-w-xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl" style={{ ...display, letterSpacing: '-0.035em' }}>Good property decisions start with honest information.</h2>
+                <p className="mt-4 max-w-xl text-base leading-7 text-gray-600">We don’t fill search results with demo homes. Browse project information, explore local areas, or submit a genuine property for review as inventory becomes available.</p>
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <Link href="/dashboard/new" className="inline-flex items-center justify-center rounded-xl bg-blue-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-800">Post property free</Link>
+                  <Link href="/projects" className="inline-flex items-center justify-center rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-800 transition hover:bg-gray-50">Explore new projects</Link>
+                </div>
+              </div>
+              <div className="rounded-2xl border border-gray-200 bg-white p-6">
+                <h3 className="font-semibold">Before you decide</h3>
+                <ul className="mt-4 space-y-3 text-sm leading-6 text-gray-600">
+                  <li className="flex gap-3"><CheckCircle2 size={18} className="mt-0.5 shrink-0 text-emerald-600" /><span>Confirm price and availability directly with the advertiser.</span></li>
+                  <li className="flex gap-3"><CheckCircle2 size={18} className="mt-0.5 shrink-0 text-emerald-600" /><span>Check RERA and project details through official sources where applicable.</span></li>
+                  <li className="flex gap-3"><CheckCircle2 size={18} className="mt-0.5 shrink-0 text-emerald-600" /><span>Review ownership documents and property conditions before committing.</span></li>
+                </ul>
+              </div>
+            </div>
           </section>
         )}
 
+        {popular.length > 0 && (
+          <section className="mx-auto max-w-7xl px-5 py-12 sm:px-8 sm:py-14">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl" style={{ ...display, letterSpacing: '-0.03em' }}>Explore neighbourhoods</h2>
+              <p className="mt-2 text-sm text-gray-600">Browse locations with information available on GoNest.</p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {popular.map((locality) => (
+                <Link key={locality.id} href={`/search?q=${encodeURIComponent(locality.name)}${locality.cityId ? `&city=${locality.cityId}` : ''}`} className="rounded-xl border border-gray-200 px-4 py-4 transition hover:border-blue-300 hover:bg-blue-50/40">
+                  <span className="block font-semibold">{locality.name}</span>
+                  <span className="mt-1 block text-sm text-gray-500">{locality.city}</span>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
-        {/* Transparency and decision support */}
-        <section className="border-y border-gray-100 bg-slate-950 py-20 text-white sm:py-24">
-          <div className="mx-auto max-w-7xl px-6">
-            <div className="max-w-3xl">
-              <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-sky-300">Transparency first</p>
-              <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl" style={{ ...display, letterSpacing: '-0.03em' }}>The details behind the listing matter.</h2>
-              <p className="mt-4 text-base leading-7 text-slate-300">A property card is only the start. Use GoNest to organise the questions you need answered before committing time, money or paperwork. We distinguish published information from checks that still need to be confirmed.</p>
+        <section className="border-y border-gray-100 bg-white">
+          <div className="mx-auto max-w-7xl px-5 py-12 sm:px-8 sm:py-14">
+            <div className="grid gap-8 md:grid-cols-[0.8fr_1.2fr] md:items-center">
+              <div>
+                <p className="mb-2 text-sm font-semibold text-blue-700">Built around clarity</p>
+                <h2 className="text-2xl font-bold tracking-tight sm:text-3xl" style={{ ...display, letterSpacing: '-0.03em' }}>More context. Fewer surprises.</h2>
+                <p className="mt-3 max-w-lg text-sm leading-6 text-gray-600">A property listing is a starting point. Confirm the facts that matter before you visit, negotiate or sign.</p>
+              </div>
+              <div className="grid gap-5 sm:grid-cols-3">
+                {[
+                  ['Listing status', 'Check whether the listing is active and reconfirm availability.'],
+                  ['Property details', 'Review area, charges, photos and documents with the advertiser.'],
+                  ['RERA information', 'Check applicable registration details with the official authority.'],
+                ].map(([title, desc]) => (
+                  <div key={title} className="border-l-2 border-blue-100 pl-4">
+                    <h3 className="font-semibold">{title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-gray-600">{desc}</p>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {[
-                ['RERA and project details', 'Check the registration number and project status with the official RERA authority.'],
-                ['Society and monthly charges', 'Ask for current maintenance, deposits, taxes and other recurring costs.'],
-                ['Commute and neighbourhood', 'Review transit, schools, hospitals and everyday amenities; verify distances for your route.'],
-                ['Photos and floor plans', 'Compare available media with the actual property during a visit.'],
-                ['Ownership and authority', 'Confirm the advertiser’s authority to sell or rent and have documents reviewed independently.'],
-                ['Price and availability', 'Ask the owner or authorised agent to reconfirm the latest price and availability.'],
-              ].map(([title,desc]) => <div key={title} className="rounded-2xl border border-white/10 bg-white/5 p-5"><h3 className="font-bold">{title}</h3><p className="mt-2 text-sm leading-6 text-slate-300">{desc}</p></div>)}
-            </div>
-            <p className="mt-6 text-xs leading-5 text-slate-400">GoNest does not represent third-party directory information as independently verified unless a specific check has actually been completed.</p>
           </div>
         </section>
-        <section className="bg-white py-20 sm:py-24">
-          <div className="mx-auto max-w-7xl px-6">
-            <div className="max-w-2xl">
-              <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-blue-700">From search to site visit</p>
-              <h2 className="text-3xl font-extrabold tracking-tight text-gray-950 sm:text-4xl" style={{ ...display, letterSpacing: '-0.03em' }}>A clearer process for a big decision.</h2>
-              <p className="mt-4 text-base leading-7 text-gray-600">Keep the key steps organised. For legal, financing and registration decisions, confirm details with qualified professionals and official sources.</p>
-            </div>
-            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {[
-                ['01', 'Discover', 'Search by location, budget, BHK and property type.'],
-                ['02', 'Compare', 'Review available listing details, charges and locality questions.'],
-                ['03', 'Verify', 'Confirm ownership, RERA status, documents and current availability.'],
-                ['04', 'Visit', 'Contact the advertiser and arrange a site visit before deciding.'],
-                ['05', 'Plan finance', 'Estimate EMI and transaction costs, then confirm current terms with a lender.'],
-                ['06', 'Complete safely', 'Use independent legal advice and official registration processes.'],
-              ].map(([n,title,desc]) => <div key={n} className="rounded-2xl border border-gray-200 p-5 sm:p-6"><p className="text-sm font-extrabold text-blue-700">{n}</p><h3 className="mt-3 text-lg font-bold text-gray-950">{title}</h3><p className="mt-2 text-sm leading-6 text-gray-600">{desc}</p></div>)}
-            </div>
-          </div>
-        </section>
 
-        {/* Post property CTA */}
-        <section className="bg-blue-600 py-24 overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-500 rounded-full opacity-30 translate-x-1/3 -translate-y-1/3" />
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-700 rounded-full opacity-30 -translate-x-1/3 translate-y-1/3" />
-          <div className="max-w-3xl mx-auto px-6 relative z-10 text-center">
-            <h2 className="text-4xl font-extrabold text-white mb-4" style={{ ...display, letterSpacing: '-0.025em' }}>Help launch GoNest.<br />Bring genuine property supply online.</h2>
-            <p className="text-blue-100 text-base leading-relaxed mb-8">Join the first wave of GoNest users in Mumbai and Pune. Owners and agents can submit genuine properties for review. Live property inventory is still being onboarded; do not assume a property is available until confirmed.</p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/dashboard/new" className="bg-white text-blue-700 font-bold px-8 py-4 rounded-2xl hover:bg-blue-50 transition-colors text-sm shadow-lg">Post a property</Link>
-              <Link href="/agents" className="bg-white/10 border border-white/20 text-white font-semibold px-8 py-4 rounded-2xl hover:bg-white/20 transition-colors text-sm">Browse agents →</Link>
+        <section className="mx-auto max-w-7xl px-5 py-12 sm:px-8 sm:py-14">
+          <div className="flex flex-col gap-5 rounded-2xl bg-blue-50 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+            <div>
+              <h2 className="text-xl font-bold tracking-tight sm:text-2xl" style={{ ...display, letterSpacing: '-0.025em' }}>Have a property to list?</h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-600">Owners and agents can submit genuine properties for review. Verification status is shown transparently.</p>
             </div>
+            <Link href="/dashboard/new" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-blue-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-800">Post property free <ArrowRight size={16} /></Link>
           </div>
         </section>
       </main>
