@@ -159,10 +159,15 @@ export async function createListing(input: Record<string, unknown>): Promise<str
   return data.id as string;
 }
 export async function uploadListingImage(userId: string, listingId: string, file: File, order: number) {
-  const path = `${userId}/${listingId}/${crypto.randomUUID()}.${file.name.split('.').pop()}`;
-  const { error } = await supabase.storage.from('listing-images').upload(path, file);
-  if (error) throw error;
-  await supabase.from('listing_images').insert({ listing_id: listingId, storage_path: path, sort_order: order, is_cover: order === 0 });
+  const extension = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+  const path = `${userId}/${listingId}/${crypto.randomUUID()}.${extension}`;
+  const { error: uploadError } = await supabase.storage.from('listing-images').upload(path, file, { contentType: file.type, upsert: false });
+  if (uploadError) throw uploadError;
+  const { error: recordError } = await supabase.from('listing_images').insert({ listing_id: listingId, storage_path: path, sort_order: order, is_cover: order === 0 });
+  if (recordError) {
+    await supabase.storage.from('listing-images').remove([path]);
+    throw recordError;
+  }
 }
 
 export async function adminGetPendingListings(): Promise<ListingFull[]> {
