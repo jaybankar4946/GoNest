@@ -66,6 +66,28 @@ export default async function HomePage() {
           </div>
         </section>
 
+        {/* Primary marketplace pathways */}
+        <section className="relative z-20 -mt-7 mx-auto max-w-6xl px-4 sm:px-6">
+          <div className="grid grid-cols-2 gap-3 rounded-3xl border border-gray-100 bg-white p-3 shadow-xl sm:grid-cols-4 sm:gap-4 sm:p-4">
+            <Link href="/search?purpose=sale" className="group rounded-2xl border border-gray-100 p-4 transition hover:border-blue-200 hover:bg-blue-50 sm:p-5">
+              <span className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-blue-100 text-blue-700"><Search className="h-5 w-5" /></span>
+              <span className="block font-bold text-gray-950">Buy a home</span><span className="mt-1 block text-xs text-gray-500">Resale &amp; homes for sale</span>
+            </Link>
+            <Link href="/search?purpose=rent" className="group rounded-2xl border border-gray-100 p-4 transition hover:border-blue-200 hover:bg-blue-50 sm:p-5">
+              <span className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-100 text-indigo-700"><Navigation className="h-5 w-5" /></span>
+              <span className="block font-bold text-gray-950">Find a rental</span><span className="mt-1 block text-xs text-gray-500">Homes to rent</span>
+            </Link>
+            <Link href="/builders" className="group rounded-2xl border border-gray-100 p-4 transition hover:border-blue-200 hover:bg-blue-50 sm:p-5">
+              <span className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 text-amber-700"><Landmark className="h-5 w-5" /></span>
+              <span className="block font-bold text-gray-950">New projects</span><span className="mt-1 block text-xs text-gray-500">Explore sourced project info</span>
+            </Link>
+            <Link href="/dashboard/new" className="group rounded-2xl border border-gray-100 p-4 transition hover:border-emerald-200 hover:bg-emerald-50 sm:p-5">
+              <span className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700"><Layers className="h-5 w-5" /></span>
+              <span className="block font-bold text-gray-950">Sell or list</span><span className="mt-1 block text-xs text-gray-500">Submit a property for review</span>
+            </Link>
+          </div>
+        </section>
+
         {/* Live stats (real counts) */}
         {stats.listings >= 20 && (<section className="border-y border-gray-100 bg-white">
           <div className="max-w-7xl mx-auto px-6 py-6 grid grid-cols-2 md:grid-cols-4 divide-x divide-gray-100">
@@ -91,6 +113,30 @@ export default async function HomePage() {
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: '36px 24px' }}>
                 {featured.map(l => <PropertyCard key={l.id} listing={l} />)}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {featured.length === 0 && (
+          <section className="bg-gray-50 py-20 sm:py-24">
+            <div className="mx-auto grid max-w-7xl items-center gap-10 px-6 md:grid-cols-[1.1fr_0.9fr]">
+              <div>
+                <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700"><ShieldCheck className="h-4 w-4" /> Mumbai &amp; Pune launch</div>
+                <h2 className="max-w-xl text-3xl font-extrabold tracking-tight text-gray-950 sm:text-4xl" style={{ ...display, letterSpacing: '-0.03em' }}>A better way to find your next home starts with real information.</h2>
+                <p className="mt-4 max-w-xl text-base leading-7 text-gray-600">We’re onboarding the first owner-submitted homes. We won’t fill your search with demo properties or pretend a home is available when it hasn’t been confirmed.</p>
+                <div className="mt-7 flex flex-wrap gap-3">
+                  <Link href="/dashboard/new" className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-blue-700">List a property <span className="ml-2">→</span></Link>
+                  <Link href="/builders" className="inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-bold text-gray-800 transition hover:border-blue-300 hover:text-blue-700">Explore projects</Link>
+                </div>
+              </div>
+              <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+                <p className="text-xs font-bold uppercase tracking-widest text-gray-500">What you can do today</p>
+                <div className="mt-5 space-y-5">
+                  <div className="flex gap-4"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-700"><Search className="h-5 w-5" /></span><div><h3 className="font-bold text-gray-950">Search by city, budget and BHK</h3><p className="mt-1 text-sm leading-6 text-gray-600">Explore searches and check back as reviewed homes are published.</p></div></div>
+                  <div className="flex gap-4"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700"><ClipboardCheck className="h-5 w-5" /></span><div><h3 className="font-bold text-gray-950">Submit genuine inventory</h3><p className="mt-1 text-sm leading-6 text-gray-600">Owners can submit homes for review before they appear as live listings.</p></div></div>
+                  <div className="flex gap-4"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-700"><FileCheck2 className="h-5 w-5" /></span><div><h3 className="font-bold text-gray-950">Check official project sources</h3><p className="mt-1 text-sm leading-6 text-gray-600">Project directory entries are reference information, not a guarantee of available units.</p></div></div>
+                </div>
               </div>
             </div>
           </section>
