@@ -339,9 +339,10 @@ export async function getPopularLocalities(limit = 8): Promise<{ id: string; nam
   const counts = new Map<string, number>();
   (rows ?? []).forEach((r: any) => counts.set(r.locality_id, (counts.get(r.locality_id) ?? 0) + 1));
   const ids = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, limit).map(e => e[0]);
-  let q = supabase.from('localities').select('id,name,city:cities(id,name)');
-  q = ids.length ? q.in('id', ids) : q.limit(limit);
-  const { data } = await q;
+  // Never label arbitrary localities as "popular" when there are no genuine active listings.
+  if (ids.length === 0) return [];
+  const { data } = await supabase.from('localities')
+    .select('id,name,city:cities(id,name)').in('id', ids);
   return (data ?? []).map((l: any) => ({ id: l.id, name: l.name, cityId: l.city?.id ?? '', city: l.city?.name ?? '', count: counts.get(l.id) ?? 0 }))
     .sort((a, b) => b.count - a.count);
 }
