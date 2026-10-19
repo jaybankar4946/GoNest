@@ -223,11 +223,11 @@ export const adminGetVisits  = adminGetAllVisits;
 // --- Agents directory (used by app/agents and app/agents/[id]) ---
 export async function getAgents(): Promise<Profile[]> {
   const { data } = await supabase.from('profiles').select(PUBLIC_PROFILE)
-    .in('role', ['agent','owner']).order('created_at', { ascending: false });
+    .in('role', ['agent','owner']).eq('is_sample', false).order('created_at', { ascending: false });
   return (data ?? []) as Profile[];
 }
 export async function getAgentById(id: string): Promise<Profile | null> {
-  const { data } = await supabase.from('profiles').select(PUBLIC_PROFILE).eq('id', id).maybeSingle();
+  const { data } = await supabase.from('profiles').select(PUBLIC_PROFILE).eq('id', id).eq('is_sample', false).maybeSingle();
   return data as Profile | null;
 }
 export async function getAgentListings(agentId: string, limit = 24): Promise<ListingFull[]> {
