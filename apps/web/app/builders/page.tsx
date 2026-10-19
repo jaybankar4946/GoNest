@@ -20,7 +20,7 @@ export default function BuildersPage() {
           <div className="mx-auto max-w-7xl px-5 py-14 md:px-8 md:py-20">
             <p className="mb-4 text-sm font-bold uppercase tracking-[0.18em] text-blue-300">GoNest · Builder & project directory</p>
             <h1 className="max-w-4xl text-4xl font-extrabold tracking-tight md:text-6xl">Compare builders. Explore projects. Verify every detail.</h1>
-            <p className="mt-5 max-w-3xl text-base leading-7 text-slate-300 md:text-lg">A curated starting point for Mumbai and MMR homebuyers, with project locations, known configurations, published RERA references and direct routes to request current prices and availability.</p>
+            <p className="mt-5 max-w-3xl text-base leading-7 text-slate-300 md:text-lg">A growing directory for Mumbai and Pune homebuyers. Project details and availability are shown only after source review and direct confirmation.</p>
             <div className="mt-7 flex flex-wrap gap-3">
               <a href={MAHARERA} target="_blank" rel="noreferrer" className="rounded-xl bg-blue-500 px-5 py-3 text-sm font-bold text-white hover:bg-blue-400">Verify on official MahaRERA ↗</a>
               <Link href="/search?purpose=sale" className="rounded-xl border border-white/20 px-5 py-3 text-sm font-bold text-white hover:bg-white/10">Browse GoNest sale listings →</Link>
