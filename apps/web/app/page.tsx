@@ -8,7 +8,7 @@ import { getFeatured, getCities, getHomeStats, getAgents, getPopularLocalities }
 import type { Metadata } from 'next';
 
 export const revalidate = 60;
-export const metadata: Metadata = { title: 'GoNest — Find Your Next Home with More Clarity', description: 'Explore homes for sale and rent, new projects, and property professionals in Mumbai and Pune. Clear listing status, useful search tools, and transparent property information.' };
+export const metadata: Metadata = { title: 'GoNest — Find Your Next Home with More Clarity', description: 'Explore homes for sale and rent, new projects, and property professionals across Mumbai, Bengaluru, Delhi NCR, Pune and Hyderabad. Clear listing status, useful search tools, and transparent property information.' };
 
 const HERO = 'https://images.unsplash.com/photo-1762811054947-605b20298615?w=1600&h=900&fit=crop&auto=format';
 const display = { fontFamily: 'var(--font-manrope), var(--font-display)' } as const;
@@ -47,13 +47,13 @@ export default async function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-b from-gray-950/65 via-gray-950/50 to-gray-950/85" />
           <div className="relative z-10 flex flex-col items-center text-center px-4 pt-20 pb-20">
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-lg border border-white/20 text-white text-xs font-semibold px-4 py-2 rounded-full mb-8">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Property search, with more context · Mumbai & Pune
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> India's top 5 cities · Buy · Rent · New projects
             </div>
             <h1 className="text-5xl md:text-6xl lg:text-[68px] font-extrabold text-white leading-none max-w-4xl mb-4" style={{ ...display, letterSpacing: '-0.035em' }}>
               Find your next home.
             </h1>
             <p className="text-lg text-white/70 max-w-lg leading-relaxed mb-10">
-              Explore homes, compare the details that matter, and make a more informed property decision. GoNest is currently focused on onboarding genuine inventory in Mumbai and Pune.
+              Explore homes, compare the details that matter, and make a more informed property decision across Mumbai, Bengaluru, Delhi NCR, Pune and Hyderabad. Live inventory depends on verified, non-sample listings available on GoNest.
             </p>
             <HomeSearch cities={cities} />
             {cities.length > 0 && (
@@ -155,7 +155,7 @@ export default async function HomePage() {
           <section className="bg-gray-50 py-20 sm:py-24">
             <div className="mx-auto grid max-w-7xl items-center gap-10 px-6 md:grid-cols-[1.1fr_0.9fr]">
               <div>
-                <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700"><ShieldCheck className="h-4 w-4" /> Mumbai &amp; Pune launch</div>
+                <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-xs font-bold text-blue-700"><ShieldCheck className="h-4 w-4" /> India’s top 5 cities</div>
                 <h2 className="max-w-xl text-3xl font-extrabold tracking-tight text-gray-950 sm:text-4xl" style={{ ...display, letterSpacing: '-0.03em' }}>A better way to find your next home starts with real information.</h2>
                 <p className="mt-4 max-w-xl text-base leading-7 text-gray-600">We’re onboarding the first owner-submitted homes. We won’t fill your search with demo properties or pretend a home is available when it hasn’t been confirmed.</p>
                 <div className="mt-7 flex flex-wrap gap-3">
