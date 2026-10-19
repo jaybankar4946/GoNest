@@ -409,3 +409,27 @@ export async function saveSearch(userId: string, f: { name: string; cityId?: str
 }
 export async function setSearchAlerts(id: string, enabled: boolean) { await supabase.from('saved_searches').update({ notify_enabled: enabled }).eq('id', id); }
 export async function deleteSavedSearch(id: string) { await supabase.from('saved_searches').delete().eq('id', id); }
+
+
+export type LaunchInventoryDashboard = {
+  targets: { ownerListings: number; mumbaiOwnerListings: number; puneOwnerListings: number; projects: number; agents: number };
+  listings: { total: number; sample: number; real: number; activeReal: number; pendingReal: number; ownerReal: number; rentReal: number; saleReal: number };
+  projects: { total: number; sample: number; real: number; verifiedReal: number; pendingReal: number };
+  developers: { total: number; sample: number; real: number; verifiedReal: number };
+  agents: { total: number; sample: number; real: number; verifiedReal: number };
+  brokerages: { total: number; sample: number; real: number; verifiedReal: number; pendingReal: number };
+  demoWorkspace: { agents: number; builders: number; projects: number; listingSources: number };
+  listingRecords: { id: string; title: string; purpose: string; price: number; status: string; poster_type: string; verification_level: string; is_sample: boolean; created_at: string; city: string | null; locality: string | null }[];
+  projectRecords: { id: string; official_name: string; developer: string; city: string; rera_number: string | null; construction_status: string; inventory_status: string; verification_status: string; official_project_url: string | null; is_sample: boolean; updated_at: string }[];
+  demoProjectRecords: { id: string; project_name: string; builder: string | null; locality_name: string; stage: string; rera_number: string | null; rera_status: string; is_sample: boolean; created_at: string }[];
+  cities: { name: string; ownerListings: number; activeRealListings: number; targetOwnerListings: number }[];
+};
+
+export async function adminGetLaunchInventoryDashboard(): Promise<LaunchInventoryDashboard | null> {
+  const { data, error } = await supabase.rpc('admin_launch_inventory_dashboard');
+  if (error) {
+    console.error('Could not load launch inventory dashboard', error.message);
+    return null;
+  }
+  return data as LaunchInventoryDashboard;
+}

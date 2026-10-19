@@ -4,10 +4,10 @@ import { useRouter } from 'next/navigation';
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
 import { useAuth } from '@/components/layout/AuthProvider';
-import { adminGetPendingListings, adminGetAllListings, adminGetBrokers, adminGetAllLeads, adminGetAllVisits, adminGetStats, adminModerate, adminToggleFeatured, adminVerifyAgent, adminSetRole, adminGetReports, adminResolveReport, adminGetAuditLog, adminGetFunnel } from '@/lib/api';
+import { adminGetPendingListings, adminGetAllListings, adminGetBrokers, adminGetAllLeads, adminGetAllVisits, adminGetStats, adminModerate, adminToggleFeatured, adminVerifyAgent, adminSetRole, adminGetReports, adminResolveReport, adminGetAuditLog, adminGetFunnel, adminGetLaunchInventoryDashboard } from '@/lib/api';
 import { imgUrl } from '@/lib/api';
 import { formatPrice, timeAgo } from '@/lib/format';
-const TABS=['queue','listings','brokers','leads','visits','reports','audit','funnel'] as const;
+const TABS=['queue','listings','supply','brokers','leads','visits','reports','audit','funnel'] as const;
 type Tab=typeof TABS[number];
 const SC: Record<string,string>={active:'#16A34A',pending_review:'#D97706',rejected:'#DC2626',draft:'#6B6B6B',archived:'#6B6B6B',new:'#2563EB',contacted:'#D97706',closed:'#16A34A',confirmed:'#16A34A',requested:'#D97706',completed:'#6B6B6B'};
 const SB=(c:string): React.CSSProperties=>({fontSize:11,fontWeight:500,padding:'3px 10px',borderRadius:9999,background:c+'18',color:c});
@@ -28,6 +28,7 @@ export default function AdminPage() {
   const[fdays,setFdays]=useState(7);
   const[rnote,setRnote]=useState<Record<string,string>>({});
   const[stats,setStats]=useState<any>(null);
+  const[launchInventory,setLaunchInventory]=useState<any>(null);
   const[reason,setReason]=useState<Record<string,string>>({});
   const[busy,setBusy]=useState(false);
   useEffect(()=>{if(!loading&&profile?.role!=='admin')router.push('/');},[loading,profile,router]);
@@ -40,6 +41,7 @@ export default function AdminPage() {
     adminGetReports().then(setReports);
     adminGetAuditLog().then(setAudit);
     adminGetStats().then(setStats);
+    adminGetLaunchInventoryDashboard().then(setLaunchInventory);
   },[]);
   useEffect(()=>{adminGetFunnel(fdays).then(setFunnel);},[fdays]);
   const moderate=async(id:string,status:string,vl:string,rej?:string)=>{setBusy(true);await adminModerate(id,status,vl,rej);setQueue(p=>p.filter(l=>l.id!==id));setListings(p=>p.map(l=>l.id===id?{...l,status,verification_level:vl}:l));setBusy(false);};
@@ -55,8 +57,100 @@ export default function AdminPage() {
           ))}
         </div>}
         <div style={{display:'flex',gap:4,marginBottom:28,flexWrap:'wrap'}}>
-          {TABS.map(t=><button key={t} onClick={()=>setTab(t)} style={TS(t)}>{t==='queue'?`Review queue (${queue.length})`:t==='reports'?`Reports (${reports.filter(r=>r.status==='open').length})`:t==='audit'?'Audit log':t.charAt(0).toUpperCase()+t.slice(1)}</button>)}
+          {TABS.map(t=><button key={t} onClick={()=>setTab(t)} style={TS(t)}>{t==='queue'?`Review queue (${queue.length})`:t==='reports'?`Reports (${reports.filter(r=>r.status==='open').length})`:t==='audit'?'Audit log':t==='supply'?'Launch inventory':t.charAt(0).toUpperCase()+t.slice(1)}</button>)}
         </div>
+        {tab==='supply'&&(
+          <section style={{display:'flex',flexDirection:'column',gap:18}}>
+            <div style={{padding:18,border:'1px solid #E5E5E5',borderRadius:14,background:'#FAFAFA'}}>
+              <h2 style={{fontSize:18,fontWeight:700,marginBottom:6}}>Supply-first launch targets</h2>
+              <p style={{fontSize:13,color:'#666',lineHeight:1.6}}>Internal view for sample QA records and real supplier inventory. Sample data is never counted as live supply and must never be approved as a real listing.</p>
+            </div>
+            {!launchInventory ? <div style={{padding:16,border:'1px solid #E5E5E5',borderRadius:12,fontSize:13,color:'#666'}}>Dashboard data is unavailable. Confirm the admin inventory migration is applied and this account has admin access.</div> : <>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))',gap:10}}>
+                {[
+                  {label:'Owner listing target',value:launchInventory.targets.ownerListings,detail:'25 Mumbai + 25 Pune'},
+                  {label:'Real owner listings',value:launchInventory.listings.ownerReal,detail:'Sample records excluded'},
+                  {label:'Active real listings',value:launchInventory.listings.activeReal,detail:'Eligible for public search'},
+                  {label:'Pending real listings',value:launchInventory.listings.pendingReal,detail:'Needs admin review'},
+                  {label:'New-project target',value:launchInventory.targets.projects,detail:`${launchInventory.projects.real} real records · ${launchInventory.projects.sample} sample`},
+                  {label:'Agent target',value:launchInventory.targets.agents,detail:`${launchInventory.agents.real} real profiles · ${launchInventory.agents.sample} sample`},
+                ].map((item:any)=><div key={item.label} style={{padding:16,border:'1px solid #E5E5E5',borderRadius:12}}>
+                  <p style={{fontSize:12,color:'#666'}}>{item.label}</p><p style={{fontSize:27,fontWeight:750,margin:'6px 0'}}>{item.value}</p><p style={{fontSize:11,color:'#777'}}>{item.detail}</p>
+                </div>)}
+              </div>
+              <div style={{border:'1px solid #E5E5E5',borderRadius:12,overflow:'hidden'}}>
+                <div style={{padding:14,borderBottom:'1px solid #E5E5E5',fontWeight:700}}>Mumbai & Pune coverage</div>
+                <div style={{overflowX:'auto'}}><table style={{width:'100%',borderCollapse:'collapse',minWidth:520}}>
+                  <thead><tr style={{background:'#FAFAFA'}}>{['City','Owner listings / target','Active real listings','Progress'].map(x=><th key={x} style={{padding:12,textAlign:'left',fontSize:12}}>{x}</th>)}</tr></thead>
+                  <tbody>{launchInventory.cities.map((city:any)=><tr key={city.name} style={{borderTop:'1px solid #EEE'}}>
+                    <td style={{padding:12,fontSize:13,fontWeight:600}}>{city.name}</td>
+                    <td style={{padding:12,fontSize:13}}>{city.ownerListings} / {city.targetOwnerListings}</td>
+                    <td style={{padding:12,fontSize:13}}>{city.activeRealListings}</td>
+                    <td style={{padding:12,minWidth:140}}><div style={{height:7,background:'#EEE',borderRadius:8,overflow:'hidden'}}><div style={{height:'100%',width:`${Math.min(100,Math.round(city.ownerListings/Math.max(1,city.targetOwnerListings)*100))}%`,background:'#2563EB'}}/></div></td>
+                  </tr>)}</tbody>
+                </table></div>
+              </div>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))',gap:10}}>
+                {[
+                  {title:'Listings',real:launchInventory.listings.real,sample:launchInventory.listings.sample,verified:launchInventory.listings.activeReal,note:'Buy / Rent / resale'},
+                  {title:'Projects',real:launchInventory.projects.real,sample:launchInventory.projects.sample,verified:launchInventory.projects.verifiedReal,note:`${launchInventory.projects.pendingReal} pending verification`},
+                  {title:'Developers',real:launchInventory.developers.real,sample:launchInventory.developers.sample,verified:launchInventory.developers.verifiedReal,note:'Directory records'},
+                  {title:'Agents',real:launchInventory.agents.real,sample:launchInventory.agents.sample,verified:launchInventory.agents.verifiedReal,note:'Profiles with admin verification'},
+                  {title:'Brokerages',real:launchInventory.brokerages.real,sample:launchInventory.brokerages.sample,verified:launchInventory.brokerages.verifiedReal,note:`${launchInventory.brokerages.pendingReal} pending verification`},
+                ].map((item:any)=><div key={item.title} style={{padding:16,border:'1px solid #E5E5E5',borderRadius:12}}>
+                  <h3 style={{fontWeight:700,fontSize:14,marginBottom:12}}>{item.title}</h3>
+                  <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8}}>
+                    <div><p style={{fontSize:11,color:'#777'}}>Real</p><p style={{fontSize:20,fontWeight:700}}>{item.real}</p></div>
+                    <div><p style={{fontSize:11,color:'#777'}}>Sample</p><p style={{fontSize:20,fontWeight:700,color:'#B45309'}}>{item.sample}</p></div>
+                    <div><p style={{fontSize:11,color:'#777'}}>Verified / active</p><p style={{fontSize:20,fontWeight:700}}>{item.verified}</p></div>
+                  </div>
+                  <p style={{fontSize:11,color:'#777',marginTop:10}}>{item.note}</p>
+                </div>)}
+              </div>
+              <div style={{border:'1px solid #E5E5E5',borderRadius:12,overflow:'hidden'}}>
+                <div style={{padding:14,borderBottom:'1px solid #E5E5E5',fontWeight:700}}>Listing records · latest 100</div>
+                <div style={{overflowX:'auto'}}><table style={{width:'100%',borderCollapse:'collapse',minWidth:820}}>
+                  <thead><tr style={{background:'#FAFAFA'}}>{['Listing / location','Type','Price','Status','Data class','Verification'].map(x=><th key={x} style={{padding:11,textAlign:'left',fontSize:12}}>{x}</th>)}</tr></thead>
+                  <tbody>{launchInventory.listingRecords.map((l:any)=><tr key={l.id} style={{borderTop:'1px solid #EEE'}}>
+                    <td style={{padding:11,fontSize:12}}><div style={{fontWeight:650}}>{l.title}</div><div style={{color:'#777',marginTop:3}}>{l.city??'City missing'}{l.locality ? ' · '+l.locality : ''}</div></td>
+                    <td style={{padding:11,fontSize:12}}>{l.purpose} · {l.poster_type}</td>
+                    <td style={{padding:11,fontSize:12}}>{l.price==null?'—':new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:0}).format(l.price)}</td>
+                    <td style={{padding:11,fontSize:12}}>{l.status}</td>
+                    <td style={{padding:11}}><span style={SB(l.is_sample?'#B45309':'#2563EB')}>{l.is_sample?'SAMPLE':'REAL RECORD'}</span></td>
+                    <td style={{padding:11,fontSize:12}}>{l.verification_level}</td>
+                  </tr>)}</tbody>
+                </table></div>
+              </div>
+              <div style={{border:'1px solid #E5E5E5',borderRadius:12,overflow:'hidden'}}>
+                <div style={{padding:14,borderBottom:'1px solid #E5E5E5',fontWeight:700}}>Project directory records · sample and non-sample</div>
+                <div style={{overflowX:'auto'}}><table style={{width:'100%',borderCollapse:'collapse',minWidth:900}}>
+                  <thead><tr style={{background:'#FAFAFA'}}>{['Project','Developer','City','RERA reference','Construction','Inventory','Verification','Data class'].map(x=><th key={x} style={{padding:11,textAlign:'left',fontSize:12}}>{x}</th>)}</tr></thead>
+                  <tbody>{launchInventory.projectRecords.map((p:any)=><tr key={p.id} style={{borderTop:'1px solid #EEE'}}>
+                    <td style={{padding:11,fontSize:12}}>{p.official_project_url?<a href={p.official_project_url} target="_blank" rel="noreferrer" style={{textDecoration:'underline'}}>{p.official_name}</a>:p.official_name}</td>
+                    <td style={{padding:11,fontSize:12}}>{p.developer}</td><td style={{padding:11,fontSize:12}}>{p.city}</td>
+                    <td style={{padding:11,fontSize:12}}>{p.rera_number??'Not recorded'}</td><td style={{padding:11,fontSize:12}}>{p.construction_status}</td>
+                    <td style={{padding:11,fontSize:12}}>{p.inventory_status}</td><td style={{padding:11,fontSize:12}}>{p.verification_status}</td>
+                    <td style={{padding:11}}><span style={SB(p.is_sample?'#B45309':'#2563EB')}>{p.is_sample?'SAMPLE':'REAL RECORD'}</span></td>
+                  </tr>)}</tbody>
+                </table></div>
+              </div>
+              <div style={{border:'1px solid #E5E5E5',borderRadius:12,overflow:'hidden'}}>
+                <div style={{padding:14,borderBottom:'1px solid #E5E5E5',fontWeight:700}}>QA project samples · not live offers</div>
+                <div style={{overflowX:'auto'}}><table style={{width:'100%',borderCollapse:'collapse',minWidth:760}}>
+                  <thead><tr style={{background:'#FAFAFA'}}>{['Sample project','Builder example','Locality','Stage','RERA status','Data class'].map(x=><th key={x} style={{padding:11,textAlign:'left',fontSize:12}}>{x}</th>)}</tr></thead>
+                  <tbody>{launchInventory.demoProjectRecords.map((p:any)=><tr key={p.id} style={{borderTop:'1px solid #EEE'}}>
+                    <td style={{padding:11,fontSize:12}}>{p.project_name}</td><td style={{padding:11,fontSize:12}}>{p.builder??'—'}</td>
+                    <td style={{padding:11,fontSize:12}}>{p.locality_name}</td><td style={{padding:11,fontSize:12}}>{p.stage}</td>
+                    <td style={{padding:11,fontSize:12}}>{p.rera_status}</td><td style={{padding:11}}><span style={SB('#B45309')}>{p.is_sample?'SAMPLE':'CHECK FLAG'}</span></td>
+                  </tr>)}</tbody>
+                </table></div>
+              </div>
+              <div style={{padding:14,border:'1px solid #FDE68A',background:'#FFFBEB',borderRadius:12,fontSize:12,color:'#92400E',lineHeight:1.7}}>
+                <strong>Important:</strong> “Real” means not marked as sample; it does not prove ownership, availability, or source validation. Only admin-reviewed records with evidence should be approved. Demo workspace totals: {launchInventory.demoWorkspace.agents} demo agents, {launchInventory.demoWorkspace.builders} demo builders, {launchInventory.demoWorkspace.projects} demo projects and {launchInventory.demoWorkspace.listingSources} demo source rows.
+              </div>
+            </>}
+          </section>
+        )}
         {tab==='queue'&&(
           <div style={{display:'flex',flexDirection:'column',gap:12}}>
             {queue.length===0&&<p style={{fontSize:14,color:'#16A34A'}}>All caught up. No listings pending review.</p>}
