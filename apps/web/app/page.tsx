@@ -9,8 +9,8 @@ import type { Metadata } from 'next';
 
 export const revalidate = 60;
 export const metadata: Metadata = {
-  title: 'GoNest — Find Your Next Home Across India',
-  description: 'Explore homes to buy or rent, new projects and property professionals across Mumbai, Bengaluru, Delhi NCR, Pune and Hyderabad.',
+  title: 'GoNest — Find Homes in Mumbai & Pune',
+  description: 'Explore property options in Mumbai and Pune, or submit genuine homes and projects to help build a more transparent local property marketplace.',
 };
 
 const display = { fontFamily: 'var(--font-manrope), var(--font-display)' } as const;
@@ -29,22 +29,28 @@ export default async function HomePage() {
         <section className="border-b border-gray-100">
           <div className="mx-auto max-w-7xl px-5 pb-12 pt-14 sm:px-8 sm:pb-16 sm:pt-20">
             <div className="mx-auto max-w-4xl text-center">
-              <p className="mb-4 text-sm font-semibold text-blue-700">Buy · Rent · New projects</p>
+              <p className="mb-4 text-sm font-semibold text-blue-700">Mumbai · Pune · Buy · Rent · New projects</p>
               <h1 className="text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl" style={{ ...display, letterSpacing: '-0.045em' }}>
-                Find a place that feels like home.
+                Find your next home in Mumbai & Pune.
               </h1>
               <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-gray-600 sm:text-lg">
-                Explore property options across India’s major cities, compare the details that matter, and take your next step with more clarity.
+                Discover local property options as genuine inventory comes online. Compare the details that matter, and help us build a more transparent marketplace.
               </p>
               <div className="mx-auto mt-8 max-w-4xl text-left">
                 <HomeSearch cities={cities} />
               </div>
-              <div className="mt-5 flex flex-wrap justify-center gap-2">
-                {cities.slice(0, 5).map((city) => (
+              <div className="mt-5 flex flex-col items-center justify-center gap-3 sm:flex-row">
+                <Link href="/buy" className="inline-flex min-h-12 items-center justify-center rounded-xl bg-blue-700 px-6 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-blue-800">Explore homes to buy</Link>
+                <Link href="/rent" className="inline-flex min-h-12 items-center justify-center rounded-xl border border-gray-300 bg-white px-6 py-3 text-sm font-semibold text-gray-800 transition hover:border-blue-300 hover:bg-blue-50">Find a rental</Link>
+                <Link href="/dashboard/new" className="inline-flex min-h-12 items-center justify-center rounded-xl border border-gray-300 bg-white px-6 py-3 text-sm font-semibold text-gray-800 transition hover:border-blue-300 hover:bg-blue-50">Owners &amp; agents: submit a property</Link>
+              </div>
+              <div className="mt-4 flex flex-wrap justify-center gap-2">
+                {cities.filter((city) => /mumbai|pune/i.test(city.name)).map((city) => (
                   <Link key={city.id} href={`/search?city=${city.id}`} className="rounded-full border border-gray-200 px-4 py-2 text-sm text-gray-700 transition hover:border-blue-300 hover:bg-blue-50">
-                    {city.name}
+                    Explore {city.name}
                   </Link>
                 ))}
+                <Link href="/builders" className="rounded-full border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-800 transition hover:bg-blue-100">Developers: submit a project</Link>
               </div>
             </div>
           </div>
@@ -93,10 +99,10 @@ export default async function HomePage() {
               <div>
                 <p className="mb-2 text-sm font-semibold text-blue-700">Inventory is being onboarded</p>
                 <h2 className="max-w-xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl" style={{ ...display, letterSpacing: '-0.035em' }}>Good property decisions start with honest information.</h2>
-                <p className="mt-4 max-w-xl text-base leading-7 text-gray-600">We don’t fill search results with demo homes. Browse project information, explore local areas, or submit a genuine property for review as inventory becomes available.</p>
+                <p className="mt-4 max-w-xl text-base leading-7 text-gray-600">We don’t fill search results with demo homes. Our launch focus is genuine supply across Mumbai and Pune. Explore project information, or submit a real property for review.</p>
                 <div className="mt-6 flex flex-wrap gap-3">
                   <Link href="/dashboard/new" className="inline-flex items-center justify-center rounded-xl bg-blue-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-800">Post property free</Link>
-                  <Link href="/projects" className="inline-flex items-center justify-center rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-800 transition hover:bg-gray-50">Explore new projects</Link>
+                  <Link href="/builders" className="inline-flex items-center justify-center rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-800 transition hover:bg-gray-50">Developer partnerships</Link>
                 </div>
               </div>
               <div className="rounded-2xl border border-gray-200 bg-white p-6">
@@ -156,7 +162,7 @@ export default async function HomePage() {
           <div className="flex flex-col gap-5 rounded-2xl bg-blue-50 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
             <div>
               <h2 className="text-xl font-bold tracking-tight sm:text-2xl" style={{ ...display, letterSpacing: '-0.025em' }}>Have a property to list?</h2>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-600">Owners and agents can submit genuine properties for review. Verification status is shown transparently.</p>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-600">Owners and agents can submit genuine properties for review. Developers can share project information. GoNest does not present demo homes as live inventory.</p>
             </div>
             <Link href="/dashboard/new" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-blue-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-800">Post property free <ArrowRight size={16} /></Link>
           </div>
