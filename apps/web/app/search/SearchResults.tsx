@@ -37,7 +37,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
     type:    init.type    ?? '',
     max:     init.max     ?? '',
     min:     init.min     ?? '',
-    sort:    (init.sort   ?? 'newest') as 'newest'|'price_asc'|'price_desc'|'popular',
+    sort:    (init.sort   ?? 'newest') as 'newest'|'price_asc'|'price_desc'|'popular'|'trust_first',
   });
 
   const load = useCallback(async () => {
@@ -129,7 +129,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
         </select>
         <select style={sel} value={f.type} onChange={e=>upd('type',e.target.value)}>
           <option value="">Any type</option>
-          {['apartment','villa','house','plot','studio','office','shop','warehouse','commercial'].map(t=>(
+          {['apartment','villa','house','plot','studio','pg'].map(t=>(
             <option key={t} value={t}>{t.charAt(0).toUpperCase()+t.slice(1)}</option>
           ))}
         </select>
@@ -144,6 +144,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
           <option value="price_asc">Price ↑</option>
           <option value="price_desc">Price ↓</option>
           <option value="popular">Most popular</option>
+          <option value="trust_first">Trusted &amp; fresh</option>
         </select>
 
         <div style={{display:'flex',gap:6,marginLeft:'auto'}}>
