@@ -122,7 +122,7 @@ export default function AdminPage() {
                 </table></div>
               </div>
               <div style={{border:'1px solid #E5E5E5',borderRadius:12,overflow:'hidden'}}>
-                <div style={{padding:14,borderBottom:'1px solid #E5E5E5',fontWeight:700}}>Project directory · real records</div>
+                <div style={{padding:14,borderBottom:'1px solid #E5E5E5',fontWeight:700}}>Project directory records · sample and non-sample</div>
                 <div style={{overflowX:'auto'}}><table style={{width:'100%',borderCollapse:'collapse',minWidth:900}}>
                   <thead><tr style={{background:'#FAFAFA'}}>{['Project','Developer','City','RERA reference','Construction','Inventory','Verification','Data class'].map(x=><th key={x} style={{padding:11,textAlign:'left',fontSize:12}}>{x}</th>)}</tr></thead>
                   <tbody>{launchInventory.projectRecords.map((p:any)=><tr key={p.id} style={{borderTop:'1px solid #EEE'}}>
