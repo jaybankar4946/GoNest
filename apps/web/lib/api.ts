@@ -409,3 +409,24 @@ export async function saveSearch(userId: string, f: { name: string; cityId?: str
 }
 export async function setSearchAlerts(id: string, enabled: boolean) { await supabase.from('saved_searches').update({ notify_enabled: enabled }).eq('id', id); }
 export async function deleteSavedSearch(id: string) { await supabase.from('saved_searches').delete().eq('id', id); }
+
+
+export type LaunchInventoryDashboard = {
+  targets: { ownerListings: number; mumbaiOwnerListings: number; puneOwnerListings: number; projects: number; agents: number };
+  listings: { total: number; sample: number; real: number; activeReal: number; pendingReal: number; ownerReal: number; rentReal: number; saleReal: number };
+  projects: { total: number; sample: number; real: number; verifiedReal: number; pendingReal: number };
+  developers: { total: number; sample: number; real: number; verifiedReal: number };
+  agents: { total: number; sample: number; real: number; verifiedReal: number };
+  brokerages: { total: number; sample: number; real: number; verifiedReal: number; pendingReal: number };
+  demoWorkspace: { agents: number; builders: number; projects: number; listingSources: number };
+  cities: { name: string; ownerListings: number; activeRealListings: number; targetOwnerListings: number }[];
+};
+
+export async function adminGetLaunchInventoryDashboard(): Promise<LaunchInventoryDashboard | null> {
+  const { data, error } = await supabase.rpc('admin_launch_inventory_dashboard');
+  if (error) {
+    console.error('Could not load launch inventory dashboard', error.message);
+    return null;
+  }
+  return data as LaunchInventoryDashboard;
+}
