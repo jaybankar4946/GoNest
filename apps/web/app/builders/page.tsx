@@ -23,7 +23,6 @@ export default function BuildersPage() {
             <p className="mt-5 max-w-3xl text-base leading-7 text-slate-300 md:text-lg">A curated starting point for Mumbai and MMR homebuyers, with project locations, known configurations, published RERA references and direct routes to request current prices and availability.</p>
             <div className="mt-7 flex flex-wrap gap-3">
               <a href={MAHARERA} target="_blank" rel="noreferrer" className="rounded-xl bg-blue-500 px-5 py-3 text-sm font-bold text-white hover:bg-blue-400">Verify on official MahaRERA ↗</a>
-              <a href={HSBC_SOURCE} target="_blank" rel="noreferrer" className="rounded-xl border border-white/20 px-5 py-3 text-sm font-bold text-white hover:bg-white/10">View source project directory ↗</a>
               <Link href="/search?purpose=sale" className="rounded-xl border border-white/20 px-5 py-3 text-sm font-bold text-white hover:bg-white/10">Browse GoNest sale listings →</Link>
             </div>
           </div>
