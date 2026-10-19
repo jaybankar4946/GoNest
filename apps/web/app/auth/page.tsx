@@ -7,12 +7,11 @@ import type { Provider } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 
 type Tab = 'signin' | 'signup';
-type Method = 'password' | 'link' | 'phone' | 'google';
+type Method = 'password' | 'link' | 'google';
 type Msg = { type: 'ok' | 'err'; text: string };
 
 // Social / phone methods are switched on with env vars once configured in Supabase (see .env.local.example)
 const PROVIDERS = (process.env.NEXT_PUBLIC_AUTH_PROVIDERS ?? '').split(',').map(s => s.trim()).filter(Boolean) as Provider[];
-// Phone OTP is shown as a first-class option; it requires SMS authentication to be enabled in Supabase.
 const LABEL: Record<string, string> = { google: 'Google', apple: 'Apple', facebook: 'Facebook' };
 
 const field = 'w-full px-4 py-3.5 border border-gray-300 rounded-xl text-sm text-gray-900 placeholder-gray-400 bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100';
@@ -29,8 +28,8 @@ function explain(err: { message?: string; status?: number } | null): string {
   if (err?.status === 429 || /rate limit|too many/i.test(m)) return 'Too many attempts. Please wait a few minutes and try again.';
   if (/expired|invalid.*(token|otp)|token.*invalid/i.test(m)) return 'That code is invalid or has expired. Request a new one.';
   if (/password/i.test(m) && /(short|weak|least|characters)/i.test(m)) return 'Choose a stronger password (at least 8 characters).';
-  if (/provider.*(disabled|not enabled)|unsupported provider|google/i.test(m)) return 'Google sign-in is not enabled in GoNest yet. Please use email or mobile number, or enable Google in Supabase Auth settings.';
-  if (/sms|phone/i.test(m)) return 'Mobile sign-in is not configured yet. Please use email, or contact support if you need mobile access.';
+  if (/provider.*(disabled|not enabled)|unsupported provider|google/i.test(m)) return 'Google sign-in is not enabled yet. Please use email for now, or enable Google in Supabase Auth settings.';
+  
   return 'Something went wrong. Please try again.';
 }
 
@@ -44,22 +43,15 @@ function AuthInner() {
   const [email, setEmail] = useState('');
   const [pass, setPass] = useState('');
   const [show, setShow] = useState(false);
-  const [phone, setPhone] = useState('');
-  const [otp, setOtp] = useState('');
-  const [otpSent, setOtpSent] = useState(false);
-  const [cooldown, setCooldown] = useState(0);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<Msg | null>(null);
   const [needsConfirm, setNeedsConfirm] = useState(false);
 
   useEffect(() => { supabase.auth.getSession().then(({ data }) => { if (data.session) router.replace(next); }); }, [router, next]);
-  useEffect(() => { if (cooldown <= 0) return; const t = setTimeout(() => setCooldown(c => c - 1), 1000); return () => clearTimeout(t); }, [cooldown]);
 
   const origin = () => window.location.origin;
   const reset = () => { setMsg(null); setNeedsConfirm(false); };
   const fail = (err: { message?: string; status?: number } | null) => setMsg({ type: 'err', text: explain(err) });
-  const digits = phone.replace(/\D/g, '').slice(-10);
-  const fullPhone = `+91${digits}`;
 
   const submitPassword = async (e: React.FormEvent) => {
     e.preventDefault(); reset();
@@ -96,23 +88,6 @@ function AuthInner() {
     if (error) fail(error); else setMsg({ type: 'ok', text: `We emailed a sign-in link to ${email.trim()}. It works on this device or any other.` });
   };
 
-  const sendOtp = async (e?: React.FormEvent) => {
-    e?.preventDefault(); reset();
-    if (!/^[6-9]\d{9}$/.test(digits)) return setMsg({ type: 'err', text: 'Enter a valid 10-digit mobile number.' });
-    setBusy(true);
-    const { error } = await supabase.auth.signInWithOtp({ phone: fullPhone, options: { shouldCreateUser: true } });
-    setBusy(false);
-    if (error) return fail(error);
-    setOtpSent(true); setCooldown(30); setMsg({ type: 'ok', text: `We sent a 6-digit code to +91 ${digits}.` });
-  };
-
-  const verifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault(); reset(); setBusy(true);
-    const { error } = await supabase.auth.verifyOtp({ phone: fullPhone, token: otp.trim(), type: 'sms' });
-    setBusy(false);
-    if (error) fail(error); else router.replace(next);
-  };
-
   const oauth = async (provider: Provider) => {
     reset(); setBusy(true);
     const { error } = await supabase.auth.signInWithOAuth({ provider, options: { redirectTo: origin() + next } });
@@ -126,7 +101,7 @@ function AuthInner() {
     setMsg(error ? { type: 'err', text: explain(error) } : { type: 'ok', text: 'If that email has an account, a reset link is on its way.' });
   };
 
-  const methods: { id: Method; label: string }[] = [{ id: 'password', label: 'Email + password' }, { id: 'link', label: 'Email link' }, { id: 'phone', label: 'Mobile number' }, { id: 'google', label: 'Google' }];
+  const methods: { id: Method; label: string }[] = [{ id: 'password', label: 'Email + password' }, { id: 'link', label: 'Email link' }, { id: 'google', label: 'Google' }];
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
@@ -143,7 +118,7 @@ function AuthInner() {
 
         <div className="flex flex-wrap gap-2 mb-4">
           {methods.map(m => (
-            <button key={m.id} disabled={busy} onClick={() => { if(m.id==='google'){ void oauth('google'); return; } setMethod(m.id); reset(); setOtpSent(false); }} className={`flex-1 min-w-[calc(50%-0.25rem)] sm:min-w-0 px-3 py-2.5 rounded-xl text-xs font-semibold border transition-all disabled:opacity-60 ${method === m.id ? 'bg-blue-50 border-blue-600 text-blue-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`} aria-pressed={method===m.id}>{m.id==='google'?'Continue with Google':m.label}</button>
+            <button key={m.id} disabled={busy} onClick={() => { if(m.id==='google'){ void oauth('google'); return; } setMethod(m.id); reset(); }} className={`flex-1 min-w-[calc(50%-0.25rem)] sm:min-w-0 px-3 py-2.5 rounded-xl text-xs font-semibold border transition-all disabled:opacity-60 ${method === m.id ? 'bg-blue-50 border-blue-600 text-blue-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`} aria-pressed={method===m.id}>{m.id==='google'?'Continue with Google':m.label}</button>
           ))}
         </div>
 
@@ -169,17 +144,6 @@ function AuthInner() {
           </form>
         )}
 
-        {method === 'phone' && (
-          <form onSubmit={otpSent ? verifyOtp : sendOtp} className="flex flex-col gap-3">
-            <div className="flex gap-2">
-              <span className="px-4 py-3.5 border border-gray-300 rounded-xl text-sm text-gray-700 bg-gray-50">🇮🇳 +91</span>
-              <input required inputMode="tel" autoComplete="tel-national" aria-label="Mobile number" placeholder="10-digit mobile number" value={phone} onChange={e => setPhone(e.target.value)} disabled={otpSent} className={field} />
-            </div>
-            {otpSent && <input required inputMode="numeric" autoComplete="one-time-code" maxLength={6} aria-label="6-digit code" placeholder="6-digit code" value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, ''))} className={field + ' tracking-[0.4em] text-center'} />}
-            <button disabled={busy} className={primary}>{busy ? 'Please wait…' : otpSent ? 'Verify and continue' : 'Send code'}</button>
-            {otpSent && <button type="button" disabled={cooldown > 0 || busy} onClick={() => sendOtp()} className="text-xs font-semibold text-blue-600 disabled:text-gray-400">{cooldown > 0 ? `Resend code in ${cooldown}s` : 'Resend code'}</button>}
-          </form>
-        )}
 
         <div aria-live="polite">
           {msg && <div className={`mt-4 text-sm px-4 py-3 rounded-xl ${msg.type === 'ok' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>{msg.text}</div>}
