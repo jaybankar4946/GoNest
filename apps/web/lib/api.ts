@@ -84,7 +84,7 @@ export async function getSimilarListings(l: ListingFull, limit = 3): Promise<Lis
 
 export async function getCities(): Promise<City[]> {
   const { data } = await supabase.from('cities').select('id,name,state,slug,listing_count')
-    .eq('is_active', true).order('name');
+    .eq('is_active', true).in('name', ['Mumbai', 'Pune']).order('name');
   return (data ?? []) as City[];
 }
 
@@ -308,7 +308,7 @@ export async function getHomeStats() {
   const [listings, verified, people, cities] = await Promise.all([
     n(supabase.from('listings').select('id', { count: 'exact', head: true }).eq('status', 'active').eq('is_sample', false)),
     n(supabase.from('listings').select('id', { count: 'exact', head: true }).eq('status', 'active').eq('is_sample', false).neq('verification_level', 'unverified')),
-    n(supabase.from('profiles').select('id', { count: 'exact', head: true }).in('role', ['agent', 'owner'])),
+    n(supabase.from('profiles').select('id', { count: 'exact', head: true }).in('role', ['agent', 'owner']).eq('is_sample', false)),
     n(supabase.from('cities').select('id', { count: 'exact', head: true }).eq('is_active', true)),
   ]);
   return { listings, verified, people, cities };
