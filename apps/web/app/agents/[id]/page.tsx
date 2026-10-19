@@ -22,11 +22,11 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ i
   return (
     <>
       <Nav />
-      <main className="mx-auto max-w-7xl px-5 py-10 md:px-8 md:py-16">
+      <main className="mx-auto max-w-7xl px-5 py-8 md:px-8 md:py-12">
         <Link href="/agents" className="text-sm font-semibold text-blue-700 hover:underline">← All agents & owners</Link>
-        <section className="mt-5 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm md:p-9">
-          <div className="flex flex-col gap-6 md:flex-row md:items-start">
-            <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-slate-100 text-3xl font-extrabold text-slate-500">
+        <section className="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="flex flex-col gap-6 p-6 md:flex-row md:items-start md:p-8">
+            <div className="flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-100 bg-slate-100 text-4xl font-extrabold text-slate-500">
               {agent.avatar_url ? <img src={agent.avatar_url} alt="" className="h-full w-full object-cover" /> : (agent.full_name ?? 'G').charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0 flex-1">
@@ -50,9 +50,9 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ i
           </div>
         </section>
 
-        <section className="mt-12">
-          <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-            <div><p className="text-sm font-bold uppercase tracking-widest text-blue-700">Available properties</p><h2 className="mt-2 text-2xl font-extrabold text-slate-950 md:text-3xl">Listings from {agent.full_name ?? 'this professional'}</h2></div>
+        <section className="mt-10">
+          <div className="mb-5 flex flex-col gap-2 border-b border-slate-200 pb-5 sm:flex-row sm:items-end sm:justify-between">
+            <div><p className="text-sm font-bold uppercase tracking-widest text-blue-700">Current inventory</p><h2 className="mt-2 text-2xl font-extrabold text-slate-950 md:text-3xl">Properties listed by {agent.full_name ?? 'this professional'}</h2></div>
             <p className="text-sm text-slate-500">{listings.length} active listing{listings.length === 1 ? '' : 's'}</p>
           </div>
           {listings.length === 0 ? (
