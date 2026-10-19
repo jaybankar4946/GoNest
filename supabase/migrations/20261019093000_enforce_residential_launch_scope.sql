@@ -26,9 +26,15 @@ begin
 end;
 $$;
 
-drop trigger if exists listings_enforce_residential_launch_scope on public.listings;
-create trigger listings_enforce_residential_launch_scope
-before insert or update of city_id, property_type
-on public.listings
+drop trigger if exists listings_enforce_residential_launch_scope_insert on public.listings;
+drop trigger if exists listings_enforce_residential_launch_scope_update on public.listings;
+
+create trigger listings_enforce_residential_launch_scope_insert
+before insert on public.listings
+for each row
+execute function public.enforce_residential_launch_scope();
+
+create trigger listings_enforce_residential_launch_scope_update
+before update of city_id, property_type on public.listings
 for each row
 execute function public.enforce_residential_launch_scope();
