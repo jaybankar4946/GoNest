@@ -25,6 +25,18 @@ const projects = [
   { city: 'Pune', name: 'Mahindra IvyLush — Towers C & D', area: 'Wagholi', builder: 'Mahindra Lifespaces', configurations: 'Confirm exact tower directly', source: 'https://www.hsbc.bank.in/home-loans/list-of-projects/pune/', sourceLabel: 'HSBC published Pune project list', developer: 'https://www.mahindralifespaces.com/', note: 'Listed in HSBC’s published project directory updated 11 February 2026. Verify exact tower, registration and availability.' },
 ];
 
+const additionalProjects = [
+  { city: 'Pune', name: 'Godrej Woodsville', area: 'Hinjewadi Phase 1', builder: 'Godrej Properties', rera: 'P52100046729', source: 'https://www.godrejproperties.com/domestic/landingpage', developer: 'https://www.godrejproperties.com/', note: 'Official developer portfolio lists this Pune project and MahaRERA registration. Verify current phase, price and available units directly.' },
+  { city: 'Pune', name: 'Godrej Parkridge', area: 'Kharadi–Manjari Road', builder: 'Godrej Properties', rera: 'P52100028310', source: 'https://www.godrejproperties.com/domestic/landingpage', developer: 'https://www.godrejproperties.com/', note: 'Official developer portfolio lists this Pune project and MahaRERA registration. Verify current phase, price and available units directly.' },
+  { city: 'Pune', name: 'Godrej Rejuve', area: 'Keshav Nagar', builder: 'Godrej Properties / Oxford Realty LLP', rera: 'P52100018720', source: 'https://lp.godrejproperties.com/pune/residential/godrej-rejuve/landingpage', developer: 'https://www.godrejproperties.com/', note: 'Developer page identifies the project registration. Confirm current construction status and inventory with the developer.' },
+  { city: 'Mumbai / MMR', name: 'The Highlands at Godrej City — Tower 5', area: 'Panvel', builder: 'Caroa Properties LLP / Godrej Properties', rera: 'P52000049669', source: 'https://www.godrejproperties.com/mumbai/residential/the-highlands-at-godrej-city-intl/landingpage', developer: 'https://www.godrejproperties.com/', note: 'Official page identifies Tower 5 and its MahaRERA number. Confirm live availability and pricing directly.' },
+  { city: 'Mumbai / MMR', name: 'Godrej Bayview', area: 'Vashi, Navi Mumbai', builder: 'Godrej Properties', rera: 'P51700031726', source: 'https://www.godrejproperties.com/domestic/landingpage', developer: 'https://www.godrejproperties.com/', note: 'Official developer portfolio lists the project registration. Confirm current phase and unit availability directly.' },
+  { city: 'Pune', name: 'Lodha One', area: 'Bund Garden Road', builder: 'Lodha Group', rera: 'P52100050987', source: 'https://www.lodhagroup.com/projects/residential-property-in-pune/lodha-one', developer: 'https://www.lodhagroup.com/', note: 'Official Lodha project page provides the MahaRERA registration. Confirm current inventory and commercial terms with the developer.' },
+  { city: 'Pune', name: 'Lodha Belmondo', area: 'Gahunje, Mumbai–Pune Expressway', builder: 'Lodha Group', rera: 'P52100020190 / P52100020172', source: 'https://www.lodhagroup.com/projects/residential-property-in-pune/lodha-belmondo', developer: 'https://www.lodhagroup.com/', note: 'Official Lodha project page lists these registrations. Confirm exact tower, unit and availability directly.' },
+  { city: 'Mumbai', name: 'Lodha Adrina', area: 'Worli', builder: 'Lodha Group', rera: 'P51900001339 / P51900014937', source: 'https://www.lodhagroup.com/projects/residential-property-in-worli/lodha-adrina', developer: 'https://www.lodhagroup.com/', note: 'Official Lodha page lists registration numbers for the project. Confirm current unit availability and pricing directly.' },
+  { city: 'Mumbai', name: 'Lodha Aureus Sewri', area: 'Sewri / Eastern Waterfront', builder: 'Lodha Group', rera: 'PR1170002502863', source: 'https://www.lodhagroup.com/projects/residential-property-in-mumbai/lodha-aureus-sewri', developer: 'https://www.lodhagroup/', note: 'Official Lodha project page displays a registration reference. Verify the exact registration and current status on MahaRERA before relying on it.' },
+];
+
 const developers = [
   { name: 'Kolte-Patil Developers', city: 'Pune & Mumbai', url: 'https://www.koltepatil.com/' },
   { name: 'Godrej Properties', city: 'Mumbai / MMR', url: 'https://www.godrejproperties.com/' },
@@ -77,6 +89,27 @@ export default function BuildersPage() {
         </section>
 
         <section className="mx-auto max-w-7xl px-5 pb-14 md:px-8">
+          <div className="mb-6">
+            <p className="text-sm font-bold uppercase tracking-widest text-blue-700">Official developer inventory references</p>
+            <h2 className="mt-2 text-3xl font-extrabold text-slate-950">More projects from top developer websites</h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">Project names and registration references below are drawn from official developer pages. This is not a live availability feed. Verify each registration on MahaRERA and confirm price, possession and available units directly.</p>
+          </div>
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {additionalProjects.map((p) => (
+              <article key={p.name} className="flex flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <div className="flex items-center justify-between gap-2"><span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-800">{p.city}</span><span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-800">Review required</span></div>
+                <h3 className="mt-4 text-xl font-extrabold text-slate-950">{p.name}</h3>
+                <p className="mt-1 text-sm text-slate-600">{p.builder} · {p.area}</p>
+                <div className="mt-4 rounded-xl bg-slate-50 p-4"><p className="text-xs font-bold uppercase tracking-wide text-slate-500">Registration reference</p><p className="mt-1 text-sm font-semibold text-slate-800">{p.rera}</p></div>
+                <p className="mt-4 flex-1 text-sm leading-6 text-slate-600">{p.note}</p>
+                <div className="mt-5 flex flex-col items-start gap-2 border-t border-slate-100 pt-4">
+                  <a className="text-sm font-bold text-blue-700 hover:underline" href={p.source} target="_blank" rel="noreferrer">Official project source ↗</a>
+                  <a className="text-xs font-semibold text-slate-600 hover:underline" href={p.developer} target="_blank" rel="noreferrer">Developer website ↗</a>
+                  <a className="text-xs font-semibold text-slate-600 hover:underline" href={MAHARERA} target="_blank" rel="noreferrer">Verify on MahaRERA ↗</a>
+                </div>
+              </article>
+            ))}
+          </div>
           <div className="rounded-2xl border border-slate-200 bg-white p-6 md:p-8">
             <p className="text-sm font-bold uppercase tracking-widest text-blue-700">Developer directory</p>
             <h2 className="mt-2 text-2xl font-extrabold text-slate-950">Official developer websites</h2>
