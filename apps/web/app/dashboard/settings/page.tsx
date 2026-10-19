@@ -74,7 +74,7 @@ export default function SettingsPage() {
         <form onSubmit={saveProfile} style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 40, paddingBottom: 32, borderBottom: '1px solid #E5E5E5' }}>
           <h2 style={{ fontSize: 15, fontWeight: 600, color: '#111', marginBottom: 4 }}>Profile</h2>
           <div><label style={lbl}>Full name</label><input value={name} onChange={e=>setName(e.target.value)} style={inp}/></div>
-          <div><label style={lbl}>Phone</label><input value={phone} onChange={e=>setPhone(e.target.value)} style={inp}/></div>
+          <div><label style={lbl}>Contact phone (optional)</label><input type="tel" inputMode="tel" autoComplete="tel" aria-label="Contact phone number" placeholder="e.g. +91 98765 43210" value={phone} onChange={e=>setPhone(e.target.value)} style={inp}/><p style={{fontSize:12,color:'#6B6B6B',marginTop:6,lineHeight:1.5}}>For account and property enquiries only. This number is saved to your profile; GoNest will not send SMS login codes or OTPs.</p></div>
           {canAgencyFields && <>
             <div><label style={lbl}>Agency name</label><input value={agency} onChange={e=>setAgency(e.target.value)} style={inp}/></div>
             <div><label style={lbl}>RERA number</label><input value={rera} onChange={e=>setRera(e.target.value)} style={inp}/></div>
