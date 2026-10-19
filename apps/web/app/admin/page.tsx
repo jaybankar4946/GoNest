@@ -105,6 +105,44 @@ export default function AdminPage() {
                   <p style={{fontSize:11,color:'#777',marginTop:10}}>{item.note}</p>
                 </div>)}
               </div>
+              <div style={{border:'1px solid #E5E5E5',borderRadius:12,overflow:'hidden'}}>
+                <div style={{padding:14,borderBottom:'1px solid #E5E5E5',fontWeight:700}}>Listing records · latest 100</div>
+                <div style={{overflowX:'auto'}}><table style={{width:'100%',borderCollapse:'collapse',minWidth:820}}>
+                  <thead><tr style={{background:'#FAFAFA'}}>{['Listing / location','Type','Price','Status','Data class','Verification'].map(x=><th key={x} style={{padding:11,textAlign:'left',fontSize:12}}>{x}</th>)}</tr></thead>
+                  <tbody>{launchInventory.listingRecords.map((l:any)=><tr key={l.id} style={{borderTop:'1px solid #EEE'}}>
+                    <td style={{padding:11,fontSize:12}}><div style={{fontWeight:650}}>{l.title}</div><div style={{color:'#777',marginTop:3}}>{l.city??'City missing'}{l.locality ? ' · '+l.locality : ''}</div></td>
+                    <td style={{padding:11,fontSize:12}}>{l.purpose} · {l.poster_type}</td>
+                    <td style={{padding:11,fontSize:12}}>{l.price==null?'—':new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:0}).format(l.price)}</td>
+                    <td style={{padding:11,fontSize:12}}>{l.status}</td>
+                    <td style={{padding:11}}><span style={SB(l.is_sample?'#B45309':'#2563EB')}>{l.is_sample?'SAMPLE':'REAL RECORD'}</span></td>
+                    <td style={{padding:11,fontSize:12}}>{l.verification_level}</td>
+                  </tr>)}</tbody>
+                </table></div>
+              </div>
+              <div style={{border:'1px solid #E5E5E5',borderRadius:12,overflow:'hidden'}}>
+                <div style={{padding:14,borderBottom:'1px solid #E5E5E5',fontWeight:700}}>Project directory · real records</div>
+                <div style={{overflowX:'auto'}}><table style={{width:'100%',borderCollapse:'collapse',minWidth:900}}>
+                  <thead><tr style={{background:'#FAFAFA'}}>{['Project','Developer','City','RERA reference','Construction','Inventory','Verification','Data class'].map(x=><th key={x} style={{padding:11,textAlign:'left',fontSize:12}}>{x}</th>)}</tr></thead>
+                  <tbody>{launchInventory.projectRecords.map((p:any)=><tr key={p.id} style={{borderTop:'1px solid #EEE'}}>
+                    <td style={{padding:11,fontSize:12}}>{p.official_project_url?<a href={p.official_project_url} target="_blank" rel="noreferrer" style={{textDecoration:'underline'}}>{p.official_name}</a>:p.official_name}</td>
+                    <td style={{padding:11,fontSize:12}}>{p.developer}</td><td style={{padding:11,fontSize:12}}>{p.city}</td>
+                    <td style={{padding:11,fontSize:12}}>{p.rera_number??'Not recorded'}</td><td style={{padding:11,fontSize:12}}>{p.construction_status}</td>
+                    <td style={{padding:11,fontSize:12}}>{p.inventory_status}</td><td style={{padding:11,fontSize:12}}>{p.verification_status}</td>
+                    <td style={{padding:11}}><span style={SB(p.is_sample?'#B45309':'#2563EB')}>{p.is_sample?'SAMPLE':'REAL RECORD'}</span></td>
+                  </tr>)}</tbody>
+                </table></div>
+              </div>
+              <div style={{border:'1px solid #E5E5E5',borderRadius:12,overflow:'hidden'}}>
+                <div style={{padding:14,borderBottom:'1px solid #E5E5E5',fontWeight:700}}>QA project samples · not live offers</div>
+                <div style={{overflowX:'auto'}}><table style={{width:'100%',borderCollapse:'collapse',minWidth:760}}>
+                  <thead><tr style={{background:'#FAFAFA'}}>{['Sample project','Builder example','Locality','Stage','RERA status','Data class'].map(x=><th key={x} style={{padding:11,textAlign:'left',fontSize:12}}>{x}</th>)}</tr></thead>
+                  <tbody>{launchInventory.demoProjectRecords.map((p:any)=><tr key={p.id} style={{borderTop:'1px solid #EEE'}}>
+                    <td style={{padding:11,fontSize:12}}>{p.project_name}</td><td style={{padding:11,fontSize:12}}>{p.builder??'—'}</td>
+                    <td style={{padding:11,fontSize:12}}>{p.locality_name}</td><td style={{padding:11,fontSize:12}}>{p.stage}</td>
+                    <td style={{padding:11,fontSize:12}}>{p.rera_status}</td><td style={{padding:11}}><span style={SB('#B45309')}>{p.is_sample?'SAMPLE':'CHECK FLAG'}</span></td>
+                  </tr>)}</tbody>
+                </table></div>
+              </div>
               <div style={{padding:14,border:'1px solid #FDE68A',background:'#FFFBEB',borderRadius:12,fontSize:12,color:'#92400E',lineHeight:1.7}}>
                 <strong>Important:</strong> “Real” means not marked as sample; it does not prove ownership, availability, or source validation. Only admin-reviewed records with evidence should be approved. Demo workspace totals: {launchInventory.demoWorkspace.agents} demo agents, {launchInventory.demoWorkspace.builders} demo builders, {launchInventory.demoWorkspace.projects} demo projects and {launchInventory.demoWorkspace.listingSources} demo source rows.
               </div>
