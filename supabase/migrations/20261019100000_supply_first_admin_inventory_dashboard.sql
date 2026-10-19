@@ -66,6 +66,40 @@ begin
         'pendingReal', count(*) filter (where is_sample = false and verification_status = 'pending')
       ) from public.brokerages
     ),
+    'listingRecords', (
+      select coalesce(jsonb_agg(to_jsonb(x) order by x.created_at desc), '[]'::jsonb)
+      from (
+        select l.id, l.title, l.purpose::text as purpose, l.price, l.status::text as status,
+          l.poster_type::text as poster_type, l.verification_level::text as verification_level,
+          l.is_sample, l.created_at, c.name as city, loc.name as locality
+        from public.listings l
+        left join public.cities c on c.id = l.city_id
+        left join public.localities loc on loc.id = l.locality_id
+        order by l.created_at desc limit 100
+      ) x
+    ),
+    'projectRecords', (
+      select coalesce(jsonb_agg(to_jsonb(x) order by x.official_name), '[]'::jsonb)
+      from (
+        select p.id, p.official_name, d.registered_name as developer, c.name as city,
+          p.rera_number, p.construction_status, p.inventory_status, p.verification_status,
+          p.official_project_url, p.is_sample, p.updated_at
+        from public.real_estate_projects p
+        join public.developers d on d.id = p.developer_id
+        join public.cities c on c.id = p.city_id
+        order by p.official_name limit 100
+      ) x
+    ),
+    'demoProjectRecords', (
+      select coalesce(jsonb_agg(to_jsonb(x) order by x.project_name), '[]'::jsonb)
+      from (
+        select p.id, p.project_name, b.developer_name as builder, p.locality_name,
+          p.stage, p.rera_number, p.rera_status, p.is_sample, p.created_at
+        from public.gonest_demo_projects p
+        left join public.gonest_demo_builders b on b.id = p.builder_id
+        order by p.project_name limit 100
+      ) x
+    ),
     'demoWorkspace', jsonb_build_object(
       'agents', (select count(*) from public.gonest_demo_agents),
       'builders', (select count(*) from public.gonest_demo_builders),
