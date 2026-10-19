@@ -27,7 +27,8 @@ export default function AdminPage() {
   const[funnel,setFunnel]=useState<{name:string;events:number;sessions:number}[]>([]);
   const[fdays,setFdays]=useState(7);
   const[rnote,setRnote]=useState<Record<string,string>>({});
-  const[stats,setStats]=useState<any>(null);\n  const[launchInventory,setLaunchInventory]=useState<any>(null);
+  const[stats,setStats]=useState<any>(null);
+  const[launchInventory,setLaunchInventory]=useState<any>(null);
   const[reason,setReason]=useState<Record<string,string>>({});
   const[busy,setBusy]=useState(false);
   useEffect(()=>{if(!loading&&profile?.role!=='admin')router.push('/');},[loading,profile,router]);
@@ -39,7 +40,8 @@ export default function AdminPage() {
     adminGetAllVisits().then(setVisits);
     adminGetReports().then(setReports);
     adminGetAuditLog().then(setAudit);
-    adminGetStats().then(setStats);\n    adminGetLaunchInventoryDashboard().then(setLaunchInventory);
+    adminGetStats().then(setStats);
+    adminGetLaunchInventoryDashboard().then(setLaunchInventory);
   },[]);
   useEffect(()=>{adminGetFunnel(fdays).then(setFunnel);},[fdays]);
   const moderate=async(id:string,status:string,vl:string,rej?:string)=>{setBusy(true);await adminModerate(id,status,vl,rej);setQueue(p=>p.filter(l=>l.id!==id));setListings(p=>p.map(l=>l.id===id?{...l,status,verification_level:vl}:l));setBusy(false);};
