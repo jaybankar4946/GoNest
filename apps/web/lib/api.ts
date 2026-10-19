@@ -158,7 +158,7 @@ export async function createListing(input: Record<string, unknown>): Promise<str
   if (error) throw error;
   return data.id as string;
 }
-export async function uploadListingImage(userId: string, listingId: string, file: File, order: number) {
+export async function uploadListingImage(userId: string, listingId: string, file: File, order: number): Promise<string> {
   const extension = file.name.split('.').pop()?.toLowerCase() || 'jpg';
   const path = `${userId}/${listingId}/${crypto.randomUUID()}.${extension}`;
   const { error: uploadError } = await supabase.storage.from('listing-images').upload(path, file, { contentType: file.type, upsert: false });
@@ -168,6 +168,16 @@ export async function uploadListingImage(userId: string, listingId: string, file
     await supabase.storage.from('listing-images').remove([path]);
     throw recordError;
   }
+  return path;
+}
+
+export async function cleanupIncompleteListing(listingId: string, uploadedPaths: string[]) {
+  if (uploadedPaths.length) {
+    const { error } = await supabase.storage.from('listing-images').remove(uploadedPaths);
+    if (error) throw error;
+  }
+  const { error } = await supabase.from('listings').delete().eq('id', listingId);
+  if (error) throw error;
 }
 
 export async function adminGetPendingListings(): Promise<ListingFull[]> {
