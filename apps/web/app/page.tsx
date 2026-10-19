@@ -47,13 +47,13 @@ export default async function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-b from-gray-950/65 via-gray-950/50 to-gray-950/85" />
           <div className="relative z-10 flex flex-col items-center text-center px-4 pt-20 pb-20">
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-lg border border-white/20 text-white text-xs font-semibold px-4 py-2 rounded-full mb-8">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Reviewed listings from verified owners and agents
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> First-wave launch · Mumbai & Pune
             </div>
             <h1 className="text-5xl md:text-6xl lg:text-[68px] font-extrabold text-white leading-none max-w-4xl mb-4" style={{ ...display, letterSpacing: '-0.035em' }}>
               Find your next home.
             </h1>
             <p className="text-lg text-white/70 max-w-lg leading-relaxed mb-10">
-              Search apartments, villas and plots to buy or rent, with clear prices, real photos and direct contact.
+              We’re onboarding owners, agents and developers across Mumbai and Pune. Join early and help build a more transparent property marketplace.
             </p>
             <HomeSearch cities={cities} />
             {cities.length > 0 && (
@@ -117,18 +117,18 @@ export default async function HomePage() {
             <div className="mb-8 max-w-2xl">
               <p className="mb-2 text-xs font-bold uppercase tracking-widest text-blue-600">Explore GoNest</p>
               <h2 className="text-3xl font-extrabold text-gray-950" style={{ ...display, letterSpacing: '-0.025em' }}>Start with the right people or project.</h2>
-              <p className="mt-3 text-gray-600">Browse developers and local property professionals, then verify project details and live availability before making a decision.</p>
+              <p className="mt-3 text-gray-600">We’re opening the directory as partners are verified. Check official project details and live availability directly before making a decision.</p>
             </div>
             <div className="grid gap-5 md:grid-cols-2">
               <Link href="/builders" className="group rounded-2xl border border-gray-200 bg-white p-7 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md">
                 <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50"><Landmark className="h-6 w-6 text-blue-700" /></div>
                 <h3 className="text-xl font-bold text-gray-950">Builders &amp; new projects <span className="text-blue-700">→</span></h3>
-                <p className="mt-2 text-sm leading-6 text-gray-600">Explore established Mumbai and MMR developers, visit their official project pages and check the exact MahaRERA registration.</p>
+                <p className="mt-2 text-sm leading-6 text-gray-600">Builder and project profiles will appear as partners are onboarded. Always confirm registrations and availability with official sources.</p>
               </Link>
               <Link href="/agents" className="group rounded-2xl border border-gray-200 bg-white p-7 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md">
                 <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50"><Users className="h-6 w-6 text-emerald-700" /></div>
                 <h3 className="text-xl font-bold text-gray-950">Agents &amp; property owners <span className="text-blue-700">→</span></h3>
-                <p className="mt-2 text-sm leading-6 text-gray-600">Browse actual GoNest profiles, available RERA details and each professional’s active listings.</p>
+                <p className="mt-2 text-sm leading-6 text-gray-600">Join as an owner or agent. Public profiles appear after signup, and verification badges are reserved for completed checks.</p>
               </Link>
             </div>
           </div>
@@ -205,8 +205,8 @@ export default async function HomePage() {
           <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-500 rounded-full opacity-30 translate-x-1/3 -translate-y-1/3" />
           <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-700 rounded-full opacity-30 -translate-x-1/3 translate-y-1/3" />
           <div className="max-w-3xl mx-auto px-6 relative z-10 text-center">
-            <h2 className="text-4xl font-extrabold text-white mb-4" style={{ ...display, letterSpacing: '-0.025em' }}>List your property.<br />Reach people looking right now.</h2>
-            <p className="text-blue-100 text-base leading-relaxed mb-8">Create an account as an owner or agent, add photos and details, and submit for review. Approved listings go live on GoNest.</p>
+            <h2 className="text-4xl font-extrabold text-white mb-4" style={{ ...display, letterSpacing: '-0.025em' }}>Help launch GoNest.<br />Bring genuine property supply online.</h2>
+            <p className="text-blue-100 text-base leading-relaxed mb-8">Join the first wave of GoNest users in Mumbai and Pune. Owners and agents can submit real properties for review; home seekers can join and follow new verified inventory.</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/dashboard/new" className="bg-white text-blue-700 font-bold px-8 py-4 rounded-2xl hover:bg-blue-50 transition-colors text-sm shadow-lg">Post a property</Link>
               <Link href="/agents" className="bg-white/10 border border-white/20 text-white font-semibold px-8 py-4 rounded-2xl hover:bg-white/20 transition-colors text-sm">Browse agents →</Link>
