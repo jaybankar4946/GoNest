@@ -14,8 +14,8 @@ const HERO = 'https://images.unsplash.com/photo-1762811054947-605b20298615?w=160
 const display = { fontFamily: 'var(--font-manrope), var(--font-display)' } as const;
 
 const WHY = [
-  { icon: ClipboardCheck, title: 'Reviewed before it goes live', desc: 'Every listing is checked by the GoNest team before it appears in search.' },
-  { icon: ShieldCheck, title: 'Verified owners & agents', desc: 'Look for the verification badge and the RERA number on agent profiles.' },
+  { icon: ClipboardCheck, title: 'Review before publication', desc: 'Submitted properties are intended to go through a review before publication. Listings are being onboarded for our first launch.' },
+  { icon: ShieldCheck, title: 'Clear verification status', desc: 'Verification badges should only appear after the relevant checks are completed. Always independently confirm important details.' },
   { icon: Layers, title: 'Everything on one page', desc: 'Price, area, BHK, photos, location on a map and contact options together.' },
   { icon: Search, title: 'Search that matches how you look', desc: 'Filter by locality, budget, BHK and type, then switch between list and map.' },
   { icon: Heart, title: 'Save and come back', desc: 'Shortlist homes to your account and compare them later.' },
@@ -23,10 +23,10 @@ const WHY = [
 ];
 
 const TRUST = [
-  { icon: ClipboardCheck, title: 'Reviewed listings', items: ['Checked by the GoNest team before going live', 'Duplicate and unusual-price warnings for reviewers', 'Rejected listings never appear in search'] },
-  { icon: BadgeCheck, title: 'Verified badge', items: ['Shown only after GoNest review', 'Platform-verified marks a deeper check', 'Not a guarantee of title or ownership'] },
-  { icon: Users, title: 'Agent profiles', items: ['RERA number shown when the agent provides it', 'Verified agents carry a badge', 'See every active listing by an agent'] },
-  { icon: Flag, title: 'Report anything', items: ['Report button on every listing', 'Reasons include fake, wrong price, already sold', 'Owners can mark listings sold or rented'] },
+  { icon: ClipboardCheck, title: 'Reviewed listings', items: ['New inventory is being onboarded for launch', 'Submissions should be reviewed before publication', 'Report inaccurate or outdated information'] },
+  { icon: BadgeCheck, title: 'Verified badge', items: ['Check the stated verification status', 'Confirm project registration with MahaRERA', 'A badge is not a guarantee of title or ownership'] },
+  { icon: Users, title: 'Agent profiles', items: ['RERA information may require independent checking', 'Do not assume a public directory profile is verified', 'Confirm identity and registration before transacting'] },
+  { icon: Flag, title: 'Report anything', items: ['Use available reporting options where shown', 'Confirm price and availability directly', 'Report suspected fraud or stale information'] },
 ];
 export default async function HomePage() {
   const [featured, cities, stats, agents, popular] = await Promise.all([getFeatured(6), getCities(), getHomeStats(), getAgents(), getPopularLocalities(8)]);
@@ -206,7 +206,7 @@ export default async function HomePage() {
           <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-700 rounded-full opacity-30 -translate-x-1/3 translate-y-1/3" />
           <div className="max-w-3xl mx-auto px-6 relative z-10 text-center">
             <h2 className="text-4xl font-extrabold text-white mb-4" style={{ ...display, letterSpacing: '-0.025em' }}>Help launch GoNest.<br />Bring genuine property supply online.</h2>
-            <p className="text-blue-100 text-base leading-relaxed mb-8">Join the first wave of GoNest users in Mumbai and Pune. Owners and agents can submit real properties for review; home seekers can join and follow new verified inventory.</p>
+            <p className="text-blue-100 text-base leading-relaxed mb-8">Join the first wave of GoNest users in Mumbai and Pune. Owners and agents can submit genuine properties for review. Live property inventory is still being onboarded; do not assume a property is available until confirmed.</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/dashboard/new" className="bg-white text-blue-700 font-bold px-8 py-4 rounded-2xl hover:bg-blue-50 transition-colors text-sm shadow-lg">Post a property</Link>
               <Link href="/agents" className="bg-white/10 border border-white/20 text-white font-semibold px-8 py-4 rounded-2xl hover:bg-white/20 transition-colors text-sm">Browse agents →</Link>
