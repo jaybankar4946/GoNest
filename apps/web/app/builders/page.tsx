@@ -10,21 +10,6 @@ export const metadata: Metadata = {
 };
 
 const MAHARERA = 'https://www.maharera.maharashtra.gov.in/';
-const HSBC_MUMBAI_SOURCE = 'https://www.hsbc.bank.in/home-loans/list-of-projects/mumbai/';
-const projects = [
-  { city: 'Mumbai / Thane', name: 'Godrej Ascend — Phases 2, 3 & 4', area: 'Kolshet Road, Thane', builder: 'Godrej Properties', configurations: 'Confirm directly with developer', source: 'https://www.hsbc.bank.in/home-loans/list-of-projects/mumbai/', sourceLabel: 'HSBC published Mumbai project list', developer: 'https://www.godrejproperties.com/', note: 'Listed in HSBC’s approved-project directory updated 11 February 2026. This does not confirm current unit availability or substitute for a MahaRERA check.' },
-  { city: 'Mumbai', name: 'Balmoral', area: 'Chembur', builder: 'Rustomjee / Keystone Realtors', configurations: 'Confirm directly with developer', source: 'https://www.hsbc.bank.in/home-loans/list-of-projects/mumbai/', sourceLabel: 'HSBC published Mumbai project list', developer: 'https://www.rustomjee.com/', note: 'Listed in HSBC’s published project directory updated 11 February 2026. Confirm exact phase, registration and availability directly.' },
-  { city: 'Mumbai', name: 'Kalpataru One', area: 'Worli', builder: 'Kalpataru', configurations: 'Confirm directly with developer', source: 'https://www.hsbc.bank.in/home-loans/list-of-projects/mumbai/', sourceLabel: 'HSBC published Mumbai project list', developer: 'https://www.kalpataru.com/', note: 'Listed in HSBC’s published project directory updated 11 February 2026. Current price and available units are not confirmed.' },
-  { city: 'Mumbai', name: 'Runwal Avenue — Towers J–N', area: 'Kanjurmarg East', builder: 'Runwal Group', configurations: 'Confirm exact tower directly', source: 'https://www.hsbc.bank.in/home-loans/list-of-projects/mumbai/', sourceLabel: 'HSBC published Mumbai project list', developer: 'https://runwal.com/', note: 'Listed in HSBC’s published project directory updated 11 February 2026. Verify the exact tower/phase and current inventory.' },
-  { city: 'Mumbai', name: 'DLF The Westpark — Phase 1', area: 'Oshiwara, Andheri', builder: 'DLF', configurations: 'Confirm directly with developer', source: 'https://www.hsbc.bank.in/home-loans/list-of-projects/mumbai/', sourceLabel: 'HSBC published Mumbai project list', developer: 'https://www.dlf.in/', note: 'Listed in HSBC’s published project directory updated 11 February 2026. Current price, phase registration and availability need direct confirmation.' },
-  { city: 'Pune', name: 'Lodha Belmondo — Tower 30', area: 'Gahunje, Mawal', builder: 'Lodha Group', configurations: 'Confirm exact unit and configuration', source: 'https://www.hsbc.bank.in/home-loans/list-of-projects/pune/', sourceLabel: 'HSBC published Pune project list', developer: 'https://www.lodhagroup.com/', note: 'Listed in HSBC’s published project directory updated 11 February 2026. Confirm exact unit, tower and current availability.' },
-  { city: 'Pune', name: 'Gera Island of Joy — Projects B & C', area: 'Wagholi', builder: 'Gera Developments', configurations: 'Confirm exact phase directly', source: 'https://www.hsbc.bank.in/home-loans/list-of-projects/pune/', sourceLabel: 'HSBC published Pune project list', developer: 'https://www.gera.in/', note: 'Listed in HSBC’s published project directory updated 11 February 2026. Confirm exact phase registration, price and inventory.' },
-  { city: 'Pune', name: '24K Altura — Tower C', area: 'Baner', builder: 'Kolte-Patil Developers', configurations: 'Confirm exact unit directly', source: 'https://www.hsbc.bank.in/home-loans/list-of-projects/pune/', sourceLabel: 'HSBC published Pune project list', developer: 'https://www.koltepatil.com/', note: 'Listed in HSBC’s published project directory updated 11 February 2026. Current price and availability are not confirmed.' },
-  { city: 'Pune', name: 'Lodha Estillo', area: 'Kharadi', builder: 'Lodha Group', configurations: 'Confirm exact unit directly', source: 'https://www.hsbc.bank.in/home-loans/list-of-projects/pune/', sourceLabel: 'HSBC published Pune project list', developer: 'https://www.lodhagroup.com/', note: 'Listed in HSBC’s published project directory updated 11 February 2026. Confirm current inventory and exact registration.' },
-  { city: 'Pune', name: 'Birla Punya', area: 'Sangamwadi', builder: 'Birla Estates', configurations: 'Confirm directly with developer', source: 'https://www.hsbc.bank.in/home-loans/list-of-projects/pune/', sourceLabel: 'HSBC published Pune project list', developer: 'https://www.birlaestates.com/', note: 'Listed in HSBC’s published project directory updated 11 February 2026. Confirm current pricing, registration and unit availability.' },
-  { city: 'Pune', name: 'Mahindra IvyLush — Towers C & D', area: 'Wagholi', builder: 'Mahindra Lifespaces', configurations: 'Confirm exact tower directly', source: 'https://www.hsbc.bank.in/home-loans/list-of-projects/pune/', sourceLabel: 'HSBC published Pune project list', developer: 'https://www.mahindralifespaces.com/', note: 'Listed in HSBC’s published project directory updated 11 February 2026. Verify exact tower, registration and availability.' },
-];
-
 const additionalProjects = [
   { city: 'Pune', name: 'Godrej Woodsville', area: 'Hinjewadi Phase 1', builder: 'Godrej Properties', rera: 'P52100046729', source: 'https://www.godrejproperties.com/domestic/landingpage', developer: 'https://www.godrejproperties.com/', note: 'Official developer portfolio lists this Pune project and MahaRERA registration. Verify current phase, price and available units directly.' },
   { city: 'Pune', name: 'Godrej Parkridge', area: 'Kharadi–Manjari Road', builder: 'Godrej Properties', rera: 'P52100028310', source: 'https://www.godrejproperties.com/domestic/landingpage', developer: 'https://www.godrejproperties.com/', note: 'Official developer portfolio lists this Pune project and MahaRERA registration. Verify current phase, price and available units directly.' },
@@ -38,14 +23,16 @@ const additionalProjects = [
 ];
 
 const developers = [
-  { name: 'Kolte-Patil Developers', city: 'Pune & Mumbai', url: 'https://www.koltepatil.com/' },
-  { name: 'Godrej Properties', city: 'Mumbai / MMR', url: 'https://www.godrejproperties.com/' },
-  { name: 'Keystone Realtors (Rustomjee)', city: 'Mumbai / MMR', url: 'https://www.rustomjee.com/' },
-  { name: 'Kalpataru', city: 'Mumbai / MMR', url: 'https://www.kalpataru.com/' },
-  { name: 'Runwal Group', city: 'Mumbai / MMR', url: 'https://runwal.com/' },
-  { name: 'DLF', city: 'Mumbai', url: 'https://www.dlf.in/' },
-  { name: 'Nyati Group', city: 'Pune', url: 'https://www.nyatigroup.com/' },
-  { name: 'Paranjape Schemes', city: 'Pune', url: 'https://www.pscl.in/' },
+  { name: 'Lodha Developers', city: 'Mumbai / MMR & Pune', url: 'https://www.lodhagroup.com/', focus: 'Residential launches, premium homes and township inventory' },
+  { name: 'Oberoi Realty', city: 'Mumbai / MMR', url: 'https://www.oberoirealty.com/', focus: 'Premium residential developments' },
+  { name: 'Keystone Realtors (Rustomjee)', city: 'Mumbai / MMR & Pune', url: 'https://www.rustomjee.com/', focus: 'Residential projects and unit configurations' },
+  { name: 'Hiranandani Group', city: 'Mumbai / MMR & Pune', url: 'https://www.hiranandani.com/', focus: 'Townships, apartments and premium developments' },
+  { name: 'Godrej Properties', city: 'Mumbai / MMR & Pune', url: 'https://www.godrejproperties.com/', focus: 'New launches and residential developments' },
+  { name: 'Runwal Group', city: 'Mumbai / MMR', url: 'https://runwal.com/', focus: 'Apartments, residential communities and new projects' },
+  { name: 'Kalpataru', city: 'Mumbai / MMR & Pune', url: 'https://www.kalpataru.com/', focus: 'Premium and mid-market residences' },
+  { name: 'Piramal Realty', city: 'Mumbai / MMR', url: 'https://www.piramalrealty.com/', focus: 'Residential projects and available configurations' },
+  { name: 'Raheja Universal', city: 'Mumbai / MMR', url: 'https://www.rahejauniversal.com/', focus: 'Residential projects and unit availability' },
+  { name: 'Shapoorji Pallonji Real Estate', city: 'Mumbai / MMR & Pune', url: 'https://www.shapoorjirealestate.com/', focus: 'Residential developments and project portfolios' },
 ];
 
 export default function BuildersPage() {
@@ -57,34 +44,11 @@ export default function BuildersPage() {
           <div className="mx-auto max-w-7xl px-5 py-14 md:px-8 md:py-20">
             <p className="mb-4 text-sm font-bold uppercase tracking-[0.18em] text-blue-300">GoNest · Mumbai & Pune launch</p>
             <h1 className="max-w-4xl text-4xl font-extrabold tracking-tight md:text-6xl">Explore projects. Check the source. Decide with confidence.</h1>
-            <p className="mt-5 max-w-3xl text-base leading-7 text-slate-300 md:text-lg">A starter directory built from developer websites and a published bank project list. These are source-linked project references—not GoNest-certified inventory. Registration, prices, possession dates and available units must be confirmed for the exact phase.</p>
+            <p className="mt-5 max-w-3xl text-base leading-7 text-slate-300 md:text-lg">Explore developer profiles and source-linked project references. Registration, prices, possession dates and available units must be confirmed for the exact phase.</p>
             <div className="mt-7 flex flex-wrap gap-3">
               <a href={MAHARERA} target="_blank" rel="noreferrer" className="rounded-xl bg-blue-500 px-5 py-3 text-sm font-bold text-white hover:bg-blue-400">Check official MahaRERA ↗</a>
               <Link href="/search?purpose=sale" className="rounded-xl border border-white/20 px-5 py-3 text-sm font-bold text-white hover:bg-white/10">Browse verified GoNest sale listings →</Link>
             </div>
-          </div>
-        </section>
-
-        <section className="mx-auto max-w-7xl px-5 py-10 md:px-8">
-          <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-            <div><p className="text-sm font-bold uppercase tracking-widest text-blue-700">Initial project directory</p><h2 className="mt-2 text-3xl font-extrabold text-slate-950">Projects across Mumbai & Pune</h2></div>
-            <p className="text-sm text-slate-500">{projects.length} source-linked references · no live unit claims</p>
-          </div>
-          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {projects.map((p) => (
-              <article key={p.city + p.name} className="flex flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                <div className="flex items-center justify-between gap-2"><span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-800">{p.city}</span><span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-800">Source-linked · confirm details</span></div>
-                <h3 className="mt-4 text-xl font-extrabold text-slate-950">{p.name}</h3>
-                <p className="mt-1 text-sm text-slate-600">{p.builder} · {p.area}</p>
-                <div className="mt-4 rounded-xl bg-slate-50 p-4"><p className="text-xs font-bold uppercase tracking-wide text-slate-500">Configurations</p><p className="mt-1 text-sm font-semibold text-slate-800">{p.configurations}</p></div>
-                <p className="mt-4 flex-1 text-sm leading-6 text-slate-600">{p.note}</p>
-                <div className="mt-5 flex flex-col items-start gap-2 border-t border-slate-100 pt-4">
-                  <a className="text-sm font-bold text-blue-700 hover:underline" href={p.source} target="_blank" rel="noreferrer">{p.sourceLabel} ↗</a>
-                  <a className="text-xs font-semibold text-slate-600 hover:underline" href={p.developer} target="_blank" rel="noreferrer">Open official developer website ↗</a>
-                  <a className="text-xs font-semibold text-slate-600 hover:underline" href={MAHARERA} target="_blank" rel="noreferrer">Search registration on official MahaRERA ↗</a>
-                </div>
-              </article>
-            ))}
           </div>
         </section>
 
@@ -97,7 +61,7 @@ export default function BuildersPage() {
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {additionalProjects.map((p) => (
               <article key={p.name} className="flex flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                <div className="flex items-center justify-between gap-2"><span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-800">{p.city}</span><span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-800">Review required</span></div>
+                <div className="flex items-center justify-between gap-2"><span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-800">{p.city}</span></div>
                 <h3 className="mt-4 text-xl font-extrabold text-slate-950">{p.name}</h3>
                 <p className="mt-1 text-sm text-slate-600">{p.builder} · {p.area}</p>
                 <div className="mt-4 rounded-xl bg-slate-50 p-4"><p className="text-xs font-bold uppercase tracking-wide text-slate-500">Registration reference</p><p className="mt-1 text-sm font-semibold text-slate-800">{p.rera}</p></div>
@@ -114,14 +78,19 @@ export default function BuildersPage() {
             <p className="text-sm font-bold uppercase tracking-widest text-blue-700">Developer directory</p>
             <h2 className="mt-2 text-2xl font-extrabold text-slate-950">Official developer websites</h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">These are official developer websites for follow-up checks, not proof of a GoNest partnership or live inventory feed.</p>
-            <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {developers.map((d) => <a key={d.name} href={d.url} target="_blank" rel="noreferrer" className="rounded-xl border border-slate-200 p-4 transition hover:border-blue-300"><span className="block font-bold text-slate-900">{d.name}</span><span className="mt-1 block text-xs text-slate-500">{d.city}</span><span className="mt-3 block text-sm font-semibold text-blue-700">Open official website ↗</span></a>)}
+            <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              {developers.map((d) => <article key={d.name} className="flex flex-col rounded-xl border border-slate-200 bg-white p-5 transition hover:border-blue-300 hover:shadow-sm">
+                <span className="text-xs font-bold uppercase tracking-wide text-blue-700">Developer profile</span>
+                <h3 className="mt-2 text-lg font-extrabold text-slate-950">{d.name}</h3>
+                <p className="mt-1 text-xs font-semibold text-slate-500">{d.city}</p>
+                <p className="mt-3 flex-1 text-sm leading-6 text-slate-600">{d.focus}</p>
+                <p className="mt-3 text-xs leading-5 text-slate-500">Project portfolio and availability must be confirmed with the developer. This directory does not imply a GoNest partnership or live inventory feed.</p>
+                <a href={d.url} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center font-bold text-blue-700 hover:underline">Visit official website ↗</a>
+              </article>)}
             </div>
           </div>
         </section>
-        <section className="mx-auto max-w-7xl px-5 pb-14 md:px-8">
-          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm leading-6 text-amber-950"><strong>Important:</strong> The project references above come from HSBC’s published approved-project lists, last updated 11 February 2026. HSBC notes that certain towers, wings, floors or units may be excluded and details may have changed. This is not a GoNest partnership, government certification or proof that a unit is available. Confirm exact MahaRERA registration, phase, current price, taxes, possession date and written availability directly before paying or making a decision.</div>
-        </section>
+
       </main>
       <Footer />
     </>
