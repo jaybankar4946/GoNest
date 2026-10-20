@@ -375,7 +375,7 @@ export async function adminGetAuditLog() {
   return (data ?? []) as any[];
 }
 
-export async function chooseAccountType(role: 'owner' | 'agent') {
+export async function chooseAccountType(role: 'owner' | 'agent' | 'builder') {
   const { error } = await supabase.rpc('choose_account_type', { p_role: role });
   if (error) throw error;
 }
