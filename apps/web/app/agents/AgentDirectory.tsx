@@ -36,14 +36,25 @@ export function AgentDirectory({ agents }: Props) {
     });
   }, [agents, location, name, role, verifiedOnly, hasListingsOnly]);
 
+  const verifiedCount = agents.filter((agent) => agent.agent_verified).length;
+  const totalListings = agents.reduce((sum, agent) => sum + (agent.total_listings ?? 0), 0);
+  const ratedAgents = agents.filter((agent) => agent.rating != null);
+  const averageRating = ratedAgents.length ? ratedAgents.reduce((sum, agent) => sum + (agent.rating ?? 0), 0) / ratedAgents.length : null;
   return (
     <>
-      <section className="border-b border-slate-200 bg-white">
-        <div className="mx-auto max-w-7xl px-5 py-10 md:px-8 md:py-12">
-          <p className="mb-2 text-sm font-bold text-blue-700">GoNest · Local real-estate professionals</p>
-          <h1 className="max-w-3xl text-3xl font-extrabold tracking-tight text-slate-950 md:text-4xl">Find real estate agents in your city</h1>
-          <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">Compare professional profiles, explore current listings and contact agents or property owners directly.</p>
-          <form className="mt-7 grid gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm md:grid-cols-[1fr_1fr_auto] md:p-4" onSubmit={(event) => event.preventDefault()}>
+      <section className="bg-gray-950 py-10 text-white md:py-14">
+        <div className="mx-auto max-w-7xl px-5 md:px-8">
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/20 px-3 py-1.5 text-xs font-semibold text-blue-200">GoNest · Real estate professionals</div>
+          <div className="grid items-end gap-8 lg:grid-cols-[1.2fr_1fr]">
+            <div>
+              <h1 className="max-w-3xl text-4xl font-extrabold tracking-tight text-white md:text-5xl">Find a Trusted Agent.<br />Move with Confidence.</h1>
+              <p className="mt-4 max-w-2xl text-base leading-7 text-gray-300">Explore published agent and owner profiles, compare available listings and contact professionals directly. Verification and registration details appear only when recorded.</p>
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-2">
+              {[{value: agents.length.toLocaleString("en-IN"), label: "Public profiles"}, {value: verifiedCount.toLocaleString("en-IN"), label: "GoNest verified"}, {value: totalListings.toLocaleString("en-IN"), label: "Listed properties"}, {value: averageRating == null ? "—" : averageRating.toFixed(1), label: "Avg. recorded rating"}].map((stat) => <div key={stat.label} className="rounded-2xl border border-white/10 bg-white/5 p-3.5"><p className="text-xl font-extrabold md:text-2xl">{stat.value}</p><p className="mt-1 text-xs text-gray-400">{stat.label}</p></div>)}
+            </div>
+          </div>
+          <form className="mt-8 grid gap-3 rounded-2xl border border-gray-200 bg-white p-3 shadow-lg md:grid-cols-[1fr_1fr_auto] md:p-4" onSubmit={(event) => event.preventDefault()}>
             <label className="flex min-w-0 flex-col gap-2 rounded-xl border border-slate-200 px-4 py-3">
               <span className="text-xs font-semibold text-slate-600">Location or area</span>
               <input value={location} onChange={(event) => setLocation(event.target.value)} placeholder="e.g. Mumbai, Thane, Bandra" className="w-full bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400" />
@@ -52,9 +63,9 @@ export function AgentDirectory({ agents }: Props) {
               <span className="text-xs font-bold uppercase tracking-wide text-slate-500">Name or company</span>
               <input value={name} onChange={(event) => setName(event.target.value)} placeholder="Agent name or brokerage" className="w-full bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400" />
             </label>
-            <button type="submit" className="rounded-lg bg-blue-600 px-7 py-4 text-sm font-bold text-white transition hover:bg-blue-700">Search agents</button>
+            <button type="submit" className="rounded-xl bg-blue-600 px-7 py-4 text-sm font-bold text-white transition hover:bg-blue-700">Search agents</button>
           </form>
-          <p className="mt-3 text-xs text-slate-400">Search uses information currently published in GoNest profiles. Area matches depend on what each professional has written in their profile.</p>
+          <p className="mt-3 text-xs text-gray-400">Search uses information currently published in GoNest profiles. Area matches depend on what each professional has written in their profile.</p>
         </div>
       </section>
 
@@ -96,7 +107,7 @@ export function AgentDirectory({ agents }: Props) {
         ) : (
           <>
             <p className="mb-4 text-sm text-slate-500">{filtered.length} profile{filtered.length === 1 ? '' : 's'} found</p>
-            <div className="grid gap-4 xl:grid-cols-2">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
               {filtered.map((agent) => (
                 <article key={agent.id} className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-lg">
                   <div className="p-5 md:p-6">
