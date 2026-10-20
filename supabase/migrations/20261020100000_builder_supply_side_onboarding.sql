@@ -1,9 +1,11 @@
 -- Supply-side launch: builder accounts and owned project submissions.
+alter type public.user_role add value if not exists 'builder';
 -- Existing sourced records remain unchanged; new user submissions are always pending/unverified.
 
 alter table public.profiles add column if not exists builder_verified boolean not null default false;
 alter table public.developers add column if not exists created_by_user_id uuid references auth.users(id) on delete set null;
 alter table public.real_estate_projects add column if not exists created_by_user_id uuid references auth.users(id) on delete set null;
+alter table public.project_inventory_observations add column if not exists created_by_user_id uuid references auth.users(id) on delete set null;
 
 create or replace function public.handle_new_user()
 returns trigger language plpgsql security definer
