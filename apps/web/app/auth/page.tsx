@@ -40,6 +40,7 @@ function AuthInner() {
   const [tab, setTab] = useState<Tab>(params.get('mode') === 'signup' ? 'signup' : 'signin');
   const [method, setMethod] = useState<Method>('password');
   const [name, setName] = useState('');
+  const [signupRole, setSignupRole] = useState<'buyer' | 'owner' | 'agent' | 'builder'>('buyer');
   const [email, setEmail] = useState('');
   const [pass, setPass] = useState('');
   const [show, setShow] = useState(false);
@@ -65,7 +66,7 @@ function AuthInner() {
         const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password: pass });
         if (error) { if (/not confirmed/i.test(error.message)) setNeedsConfirm(true); fail(error); } else router.replace(next);
       } else {
-        const { data, error } = await supabase.auth.signUp({ email: email.trim(), password: pass, options: { data: { full_name: name.trim() }, emailRedirectTo: origin() + next } });
+        const { data, error } = await supabase.auth.signUp({ email: email.trim(), password: pass, options: { data: { full_name: name.trim(), role: signupRole }, emailRedirectTo: origin() + next } });
         if (error) fail(error);
         else if (data.session) router.replace(next);
         else if (data.user && (data.user.identities?.length ?? 0) === 0) setMsg({ type: 'err', text: 'An account with this email already exists. Try signing in, or reset your password.' });
@@ -83,7 +84,7 @@ function AuthInner() {
 
   const sendLink = async (e: React.FormEvent) => {
     e.preventDefault(); reset(); setBusy(true);
-    const { error } = await supabase.auth.signInWithOtp({ email: email.trim(), options: { emailRedirectTo: origin() + next, shouldCreateUser: true, data: name.trim() ? { full_name: name.trim() } : undefined } });
+    const { error } = await supabase.auth.signInWithOtp({ email: email.trim(), options: { emailRedirectTo: origin() + next, shouldCreateUser: true, data: { ...(name.trim() ? { full_name: name.trim() } : {}), role: signupRole } } });
     setBusy(false);
     if (error) fail(error); else setMsg({ type: 'ok', text: `We emailed a sign-in link to ${email.trim()}. It works on this device or any other.` });
   };
@@ -124,7 +125,14 @@ function AuthInner() {
 
         {method === 'password' && (
           <form onSubmit={submitPassword} className="flex flex-col gap-3">
-            {tab === 'signup' && <input required autoComplete="name" aria-label="Full name" placeholder="Full name" value={name} onChange={e => setName(e.target.value)} className={field} />}
+            {tab === 'signup' && <>
+              <input required autoComplete="name" aria-label="Full name" placeholder="Full name" value={name} onChange={e => setName(e.target.value)} className={field} />
+              <label className="block text-xs font-semibold text-gray-600">Account type
+                <select aria-label="Account type" value={signupRole} onChange={e => setSignupRole(e.target.value as typeof signupRole)} className={field + ' mt-1'}>
+                  <option value="buyer">Buyer / renter</option><option value="owner">Property owner</option><option value="agent">Real estate agent</option><option value="builder">Builder / developer</option>
+                </select>
+              </label>
+            </>}
             <input required type="email" autoComplete="email" aria-label="Email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className={field} />
             <div className="relative">
               <input required type={show ? 'text' : 'password'} autoComplete={tab === 'signin' ? 'current-password' : 'new-password'} aria-label="Password" placeholder={tab === 'signup' ? 'Password (8+ characters)' : 'Password'} value={pass} onChange={e => setPass(e.target.value)} className={field + ' pr-12'} />
@@ -137,7 +145,14 @@ function AuthInner() {
 
         {method === 'link' && (
           <form onSubmit={sendLink} className="flex flex-col gap-3">
-            {tab === 'signup' && <input autoComplete="name" aria-label="Full name" placeholder="Full name (optional)" value={name} onChange={e => setName(e.target.value)} className={field} />}
+            {tab === 'signup' && <>
+              <input autoComplete="name" aria-label="Full name" placeholder="Full name (optional)" value={name} onChange={e => setName(e.target.value)} className={field} />
+              <label className="block text-xs font-semibold text-gray-600">Account type
+                <select aria-label="Account type" value={signupRole} onChange={e => setSignupRole(e.target.value as typeof signupRole)} className={field + ' mt-1'}>
+                  <option value="buyer">Buyer / renter</option><option value="owner">Property owner</option><option value="agent">Real estate agent</option><option value="builder">Builder / developer</option>
+                </select>
+              </label>
+            </>}
             <input required type="email" autoComplete="email" aria-label="Email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className={field} />
             <button disabled={busy} className={primary}>{busy ? 'Sending…' : 'Email me a sign-in link'}</button>
             <p className="text-xs text-gray-500">No password needed. We email you a secure one-time link. You can use it to sign in or create an account.</p>
