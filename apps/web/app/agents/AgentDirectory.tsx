@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import type { Profile } from '@/lib/types';
+import { telHref, waHref } from '@/lib/contact';
 
 type Props = { agents: Profile[] };
 
@@ -97,31 +98,40 @@ export function AgentDirectory({ agents }: Props) {
             <p className="mb-4 text-sm text-slate-500">{filtered.length} profile{filtered.length === 1 ? '' : 's'} found</p>
             <div className="grid gap-4 xl:grid-cols-2">
               {filtered.map((agent) => (
-                <Link key={agent.id} href={`/agents/${agent.id}`} className="group flex min-h-56 flex-col rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-blue-300 hover:shadow-md md:p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-100 bg-slate-100 text-3xl font-extrabold text-slate-500">
-                      {agent.avatar_url ? <img src={agent.avatar_url} alt="" className="h-full w-full object-cover" /> : (agent.full_name ?? 'G').charAt(0).toUpperCase()}
+                <article key={agent.id} className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-lg">
+                  <div className="p-5 md:p-6">
+                    <div className="flex items-start gap-4">
+                      <Link href={`/agents/${agent.id}`} aria-label={`View ${agent.full_name ?? 'professional'} profile`} className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-100 bg-slate-100 text-2xl font-extrabold text-slate-500">
+                        {agent.avatar_url ? <img src={agent.avatar_url} alt="" className="h-full w-full object-cover" /> : (agent.full_name ?? 'G').charAt(0).toUpperCase()}
+                      </Link>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-bold uppercase tracking-wider text-blue-700">{agent.role === 'agent' ? 'Real estate agent' : 'Property owner'}</p>
+                        <Link href={`/agents/${agent.id}`} className="mt-1 block text-lg font-extrabold leading-tight text-slate-950 hover:text-blue-700">{agent.full_name ?? 'GoNest member'}</Link>
+                        <p className="mt-1 line-clamp-2 text-sm text-slate-500">{agent.agency_name ?? 'Independent professional'}</p>
+                        {agent.rating != null && <p className="mt-2 text-sm font-bold text-amber-700">★ {agent.rating.toFixed(1)} <span className="font-normal text-slate-500">({agent.review_count} reviews)</span></p>}
+                      </div>
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs font-bold uppercase tracking-wider text-slate-600">{agent.role === 'agent' ? 'Real estate agent' : 'Property owner'}</p>
-                      <h3 className="mt-1 truncate text-lg font-extrabold text-slate-950 group-hover:text-blue-700 md:text-xl">{agent.full_name ?? 'GoNest member'}</h3>
-                      <p className="mt-1 line-clamp-2 text-sm text-slate-500">{agent.agency_name ?? 'Independent professional'}</p>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {agent.agent_verified && <span className="rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800">✓ GoNest verified</span>}
+                      {agent.phone_verified && <span className="rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800">Phone verified</span>}
+                      {agent.rera_number && <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">RERA listed · {agent.rera_number}</span>}
+                      {!agent.agent_verified && !agent.rera_number && <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800">Verification details not listed</span>}
                     </div>
+                    {agent.bio && <p className="mt-4 line-clamp-2 text-sm leading-6 text-slate-600">{agent.bio}</p>}
                   </div>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {agent.agent_verified && <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-800">✓ GoNest verified</span>}
-                    {agent.rera_number && <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">RERA: {agent.rera_number}</span>}
-                    {!agent.agent_verified && !agent.rera_number && <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-800">Details to confirm</span>}
+                  <div className="grid grid-cols-3 divide-x divide-slate-100 border-y border-slate-100 bg-slate-50/70">
+                    <div className="px-2 py-3 text-center"><p className="text-lg font-extrabold text-slate-950">{agent.total_listings ?? 0}</p><p className="text-[11px] text-slate-500">Active listings</p></div>
+                    <div className="px-2 py-3 text-center"><p className="text-lg font-extrabold text-slate-950">{agent.review_count ?? 0}</p><p className="text-[11px] text-slate-500">Reviews</p></div>
+                    <div className="px-2 py-3 text-center"><p className="text-lg font-extrabold text-slate-950">{agent.rating != null ? agent.rating.toFixed(1) : '—'}</p><p className="text-[11px] text-slate-500">Rating</p></div>
                   </div>
-                  {agent.bio && <p className="mt-4 line-clamp-3 text-sm leading-6 text-slate-600">{agent.bio}</p>}
-                  <div className="mt-auto flex items-end justify-between gap-3 border-t border-slate-100 pt-4 mt-5">
-                    <div>
-                      {agent.rating != null && <p className="font-bold text-slate-900">★ {agent.rating.toFixed(1)} <span className="text-xs font-normal text-slate-500">({agent.review_count} reviews)</span></p>}
-                      <p className="mt-1 text-sm text-slate-600"><span className="font-bold text-slate-900">{agent.total_listings ?? 0}</span> active listing{(agent.total_listings ?? 0) === 1 ? '' : 's'}</p>
+                  <div className="mt-auto p-4">
+                    <div className="grid grid-cols-2 gap-2">
+                      {agent.phone ? <a href={telHref(agent.phone)} className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-3 py-2.5 text-sm font-bold text-white transition hover:bg-blue-700">Call</a> : <span className="inline-flex items-center justify-center rounded-xl bg-slate-100 px-3 py-2.5 text-sm font-semibold text-slate-400">Call unavailable</span>}
+                      {agent.phone ? <a href={waHref(agent.phone, `Hi ${agent.full_name ?? ''}, I found your profile on GoNest and would like to enquire.`)} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-bold text-slate-700 transition hover:border-emerald-300 hover:bg-emerald-50">Message</a> : <Link href={`/agents/${agent.id}`} className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-bold text-slate-700 hover:border-blue-300">Message</Link>}
                     </div>
-                    <span className="text-sm font-bold text-blue-700">View profile →</span>
+                    <Link href={`/agents/${agent.id}`} className="mt-2 flex items-center justify-center gap-2 rounded-xl border border-blue-100 bg-blue-50 px-3 py-2.5 text-sm font-bold text-blue-800 transition hover:bg-blue-100">View profile & arrange a visit <span aria-hidden="true">→</span></Link>
                   </div>
-                </Link>
+                </article>
               ))}
             </div>
           </>
