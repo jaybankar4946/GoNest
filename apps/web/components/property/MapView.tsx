@@ -27,9 +27,16 @@ type Props = { listings: ListingFull[]; onSelect?: (l: ListingFull) => void };
 export function MapView({ listings, onSelect }: Props) {
   const pts = listings
     .map(l => {
-      const lat = l.latitude ?? (l.locality as any)?.latitude;
-      const lng = l.longitude ?? (l.locality as any)?.longitude;
-      return lat && lng ? { l, pos: [lat, lng] as [number, number] } : null;
+      // Listing coordinates are preferred. Locality coordinates are area-centre fallbacks,
+      // so those markers must never be represented as the exact building address.
+      const rawLat = l.latitude ?? (l.locality as any)?.latitude;
+      const rawLng = l.longitude ?? (l.locality as any)?.longitude;
+      const lat = rawLat == null ? NaN : Number(rawLat);
+      const lng = rawLng == null ? NaN : Number(rawLng);
+      const valid = Number.isFinite(lat) && Number.isFinite(lng)
+        && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180
+        && !(lat === 0 && lng === 0);
+      return valid ? { l, pos: [lat, lng] as [number, number] } : null;
     })
     .filter(Boolean) as { l: ListingFull; pos: [number, number] }[];
 
@@ -46,6 +53,10 @@ export function MapView({ listings, onSelect }: Props) {
 
   return (
     <div style={{ borderRadius: 'var(--radius-lg)', overflow: 'hidden', height: '100%', minHeight: 480, border: '1px solid var(--border)' }}>
+      <div role="note" style={{ padding: '9px 12px', fontSize: 12, lineHeight: 1.45, color: '#475569', background: '#F8FAFC', borderBottom: '1px solid var(--border)' }}>
+        Map pins use exact listing coordinates when available; otherwise they show the approximate locality area, not the exact building.
+      </div>
+      <div style={{ height: 'calc(100% - 40px)', minHeight: 440 }}>
       <MapContainer center={center} zoom={11} style={{ height: '100%', width: '100%' }} scrollWheelZoom>
         <TileLayer attribution='&copy; OpenStreetMap contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         {pts.length > 1 && <FitBounds points={pts.map(p => p.pos)} />}
@@ -60,6 +71,7 @@ export function MapView({ listings, onSelect }: Props) {
           </Marker>
         ))}
       </MapContainer>
+      </div>
     </div>
   );
 }
