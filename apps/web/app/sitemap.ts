@@ -5,10 +5,13 @@ import { localityGuides } from '@/lib/locality-guides';
 const base = 'https://gonest.in';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [{ data: listings }, { data: projects }] = await Promise.all([
-    supabase.from('listings').select('id,updated_at').eq('status', 'active').eq('is_sample', false).order('updated_at', { ascending: false }).limit(1000),
-    supabase.from('projects').select('id,updated_at').eq('is_sample', false).order('updated_at', { ascending: false }).limit(1000),
-  ]);
+  const { data: listings } = await supabase
+    .from('listings')
+    .select('id,updated_at')
+    .eq('status', 'active')
+    .eq('is_sample', false)
+    .order('updated_at', { ascending: false })
+    .limit(1000);
 
   const fixedPages: MetadataRoute.Sitemap = [
     { url: base, changeFrequency: 'daily', priority: 1 },
@@ -30,12 +33,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...(listings ?? []).map((listing) => ({
       url: `${base}/property/${listing.id}`,
       lastModified: listing.updated_at ? new Date(listing.updated_at) : undefined,
-      changeFrequency: 'weekly' as const,
-      priority: 0.7,
-    })),
-    ...(projects ?? []).map((project) => ({
-      url: `${base}/projects/${project.id}`,
-      lastModified: project.updated_at ? new Date(project.updated_at) : undefined,
       changeFrequency: 'weekly' as const,
       priority: 0.7,
     })),
