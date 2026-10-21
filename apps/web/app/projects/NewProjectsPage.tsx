@@ -132,26 +132,34 @@ export default function NewProjectsPage() {
             const developer = p.developer?.operating_brand || "Developer details pending";
             const location = [p.locality?.name,p.city?.name].filter(Boolean).join(", ") || p.public_address || "Location details pending";
             const configurations = Array.isArray(p.configurations) ? p.configurations.map((x:any)=>typeof x==="string"?x:x?.label||x?.configuration).filter(Boolean).join(" · ") : "";
-            return <article key={p.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
-              <div className="relative flex h-40 items-center justify-center bg-gradient-to-br from-slate-100 via-blue-50 to-slate-200">
-                <Building2 className="h-12 w-12 text-slate-300"/>
-                <span className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-[11px] font-bold text-slate-700">PROJECT REFERENCE</span>
+            return <article key={p.id} className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-xl">
+              <div className="relative flex h-52 items-center justify-center overflow-hidden bg-gradient-to-br from-slate-100 via-blue-50 to-slate-200">
+                <Building2 className="h-14 w-14 text-slate-300"/>
+                <span className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-slate-700 shadow-sm">New project</span>
+                <span className={`absolute right-4 top-4 rounded-full px-3 py-1.5 text-[11px] font-bold shadow-sm ${verified ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"}`}>{verified ? "Availability verified" : "Details to confirm"}</span>
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/75 to-transparent px-5 pb-4 pt-12">
+                  <p className="text-xs font-semibold text-white/80">{developer}</p>
+                  <h2 className="mt-1 text-xl font-extrabold leading-tight text-white">{p.official_name}</h2>
+                </div>
               </div>
               <div className="p-5">
-                <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">{developer}</p>
-                <h2 className="mt-1 text-lg font-extrabold leading-snug">{p.official_name}</h2>
-                <p className="mt-2 flex items-start gap-2 text-sm text-slate-500"><MapPin className="mt-0.5 h-4 w-4 shrink-0"/>{location}</p>
-                <div className="mt-4 grid grid-cols-2 gap-3">
-                  <div className="rounded-xl bg-slate-50 p-3"><p className="text-xs text-slate-500">Price range</p><p className="mt-1 text-sm font-bold">{p.published_price_min_inr == null && p.published_price_max_inr == null ? "Request current quote" : `${money(p.published_price_min_inr)} – ${money(p.published_price_max_inr)}`}</p></div>
-                  <div className="rounded-xl bg-slate-50 p-3"><p className="text-xs text-slate-500">Possession</p><p className="mt-1 text-sm font-bold">{dateLabel(p.expected_possession_date)}</p></div>
-                  <div className="rounded-xl bg-slate-50 p-3"><p className="text-xs text-slate-500">Configurations</p><p className="mt-1 text-sm font-bold">{configurations || "Confirm with developer"}</p></div>
-                  <div className="rounded-xl bg-slate-50 p-3"><p className="text-xs text-slate-500">MahaRERA reference</p><p className="mt-1 break-words text-sm font-bold">{p.rera_number || "Not recorded"}</p></div>
+                <p className="flex items-start gap-2 text-sm text-slate-500"><MapPin className="mt-0.5 h-4 w-4 shrink-0"/>{location}</p>
+                <div className="mt-4 flex items-baseline justify-between gap-3">
+                  <div><p className="text-xs text-slate-500">Advertised price range</p><p className="mt-1 text-xl font-extrabold text-slate-950">{p.published_price_min_inr == null && p.published_price_max_inr == null ? "Price on request" : `${money(p.published_price_min_inr)} – ${money(p.published_price_max_inr)}`}</p></div>
+                  <span className="shrink-0 rounded-lg bg-slate-50 px-2.5 py-2 text-xs font-semibold text-slate-700">{dateLabel(p.expected_possession_date)}</span>
                 </div>
-                <div className="mt-4 flex items-center gap-2 text-xs text-slate-500"><ShieldCheck className="h-4 w-4"/>{p.verification_status==="verified"?"GoNest project record verified":"Source-linked record · details need confirmation"}</div>
-                <div className="mt-5 flex gap-2">
-                  <button onClick={()=>{setSelected(p);setRequestType("enquiry");setFeedback("");}} className="flex-1 rounded-xl bg-blue-700 px-3 py-3 text-sm font-bold text-white hover:bg-blue-800">View details & enquire <ArrowRight className="ml-1 inline h-4 w-4"/></button>
-                  {p.official_project_url && <a href={p.official_project_url} target="_blank" rel="noreferrer" aria-label="Open official developer project page" className="flex items-center justify-center rounded-xl border border-slate-200 px-3 text-slate-700 hover:bg-slate-50"><ExternalLink className="h-4 w-4"/></a>}
+                <div className="mt-4 grid grid-cols-2 gap-3 border-y border-slate-100 py-4">
+                  <div><p className="text-xs text-slate-500">Configurations</p><p className="mt-1 text-sm font-bold text-slate-900">{configurations || "Ask developer"}</p></div>
+                  <div><p className="text-xs text-slate-500">MahaRERA reference</p><p className="mt-1 break-words text-sm font-bold text-slate-900">{p.rera_number || "Not recorded"}</p></div>
+                  <div><p className="text-xs text-slate-500">Construction</p><p className="mt-1 text-sm font-bold text-slate-900">{p.construction_status.replaceAll("_"," ")}</p></div>
+                  <div><p className="text-xs text-slate-500">Inventory</p><p className="mt-1 text-sm font-bold text-slate-900">{verified ? "Recently verified" : "Confirm current units"}</p></div>
                 </div>
+                <div className="flex items-center gap-2 text-xs leading-5 text-slate-500"><ShieldCheck className="h-4 w-4 shrink-0"/>{p.verification_status==="verified" ? "Project record reviewed by GoNest" : "Source-linked project · details require confirmation"}</div>
+                <div className="mt-5 grid grid-cols-2 gap-2">
+                  <button onClick={()=>{setSelected(p);setRequestType("enquiry");setFeedback("");}} className="rounded-xl border border-slate-200 px-3 py-3 text-sm font-bold text-slate-800 hover:border-blue-300 hover:bg-slate-50">View details</button>
+                  <button onClick={()=>{setSelected(p);setRequestType("site_visit");setFeedback("");}} className="rounded-xl bg-blue-700 px-3 py-3 text-sm font-bold text-white hover:bg-blue-800"><CalendarDays className="mr-1 inline h-4 w-4"/> Schedule visit</button>
+                </div>
+                <p className="mt-3 text-[11px] leading-4 text-slate-500">Visit requests are not confirmed bookings until the project team confirms the date and time. Prices and availability can change.</p>
               </div>
             </article>;
           })}</div></>}
