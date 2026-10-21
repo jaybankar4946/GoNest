@@ -100,7 +100,7 @@ export default function NewProjectsPage() {
       <section className="bg-white border-b border-slate-200">
         <div className="mx-auto max-w-7xl px-4 py-10 md:px-6 md:py-14">
           <div className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-[.18em] text-blue-700"><Building2 className="h-4 w-4"/> New homes · Mumbai & Pune</div>
-          <h1 className="max-w-3xl text-3xl font-extrabold tracking-tight md:text-5xl">Explore projects. Check real availability.</h1>
+          <h1 className="max-w-3xl text-3xl font-extrabold tracking-tight md:text-5xl">Explore Hiranandani Estate homes.</h1>
           <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600">Explore detailed Hiranandani Estate project listings with photos, layouts, location, configurations and a simple enquiry or site-visit request. Published project details are distinguished from individual flat availability.</p>
           <div className="mt-7 grid gap-3 md:grid-cols-[1fr_190px_210px]">
             <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3"><Search className="h-5 w-5 text-slate-400"/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search project, developer, RERA or locality…" className="w-full bg-transparent text-sm outline-none"/></label>
@@ -158,7 +158,7 @@ export default function NewProjectsPage() {
           })}</div></>}
       </section>
       <section className="border-t border-slate-200 bg-white py-10"><div className="mx-auto grid max-w-7xl gap-4 px-4 sm:grid-cols-3 md:px-6">
-        {[["Official source links","Open developer pages to review their current project information."],["MahaRERA check","Verify the exact project and phase on the official state portal."],["Availability transparency","Only recent, sourced, verified unit records qualify as available on GoNest."]].map(([title,desc])=><div key={title} className="rounded-xl border border-slate-200 p-4"><CheckCircle2 className="mb-2 h-5 w-5 text-emerald-600"/><h3 className="font-bold">{title}</h3><p className="mt-1 text-sm leading-6 text-slate-500">{desc}</p></div>)}
+        {[["Official source links","Open developer pages to review their current project information."],["MahaRERA check","Verify the exact project and phase on the official state portal."],["Project details","Review photos, configurations and published project information before enquiring."]].map(([title,desc])=><div key={title} className="rounded-xl border border-slate-200 p-4"><CheckCircle2 className="mb-2 h-5 w-5 text-emerald-600"/><h3 className="font-bold">{title}</h3><p className="mt-1 text-sm leading-6 text-slate-500">{desc}</p></div>)}
         <a href={MAHARERA} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-bold text-blue-700 sm:col-span-3">Verify on MahaRERA <ExternalLink className="h-4 w-4"/></a>
       </div></section>
     </main>
