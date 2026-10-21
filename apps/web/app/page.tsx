@@ -5,7 +5,6 @@ import { Footer } from '@/components/layout/Footer';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { ProjectReferenceImage } from '@/components/property/ProjectReferenceImage';
 import { HomeSearch } from './HomeSearch';
-import { HomeValueEstimator } from './home-value/HomeValueEstimator';
 import { getFeatured, getCities, getHomeStats, getAgents, getPopularLocalities, searchListings } from '@/lib/api';
 import type { Metadata } from 'next';
 
@@ -197,20 +196,6 @@ export default async function HomePage() {
                   <ul className="space-y-2">{c.items.map(it => <li key={it} className="flex items-start gap-2 text-sm text-gray-600"><Check className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-1" /> {it}</li>)}</ul>
                 </div>); })}
             </div>
-          </div>
-        </section>
-
-        {/* Home Value — intentionally placed after the trust explanation */}
-        <section id="home-value" className="border-b border-slate-100 bg-slate-50 py-20">
-          <div className="mx-auto max-w-7xl px-6">
-            <div className="mb-8 max-w-3xl">
-              <p className="mb-2 text-xs font-bold uppercase tracking-widest text-blue-700">GoNest Home Value</p>
-              <h2 className="text-3xl font-extrabold tracking-tight text-slate-950 md:text-4xl" style={{ ...display, letterSpacing: '-0.025em' }}>What could your property be worth?</h2>
-              <p className="mt-3 text-sm leading-6 text-slate-600 md:text-base">Estimate an indicative range by comparing available GoNest sale listings in the same locality. We show when comparable data is limited rather than inventing a valuation.</p>
-            </div>
-            <HomeValueEstimator cities={cities} />
-            <p className="mt-5 max-w-4xl text-xs leading-5 text-slate-500">This is an indicative comparison based on asking prices, not confirmed transaction prices, a formal appraisal, or a guaranteed sale price. Verify property details and recent registered transactions before making a decision.</p>
-            <div className="mt-5"><Link href="/home-value" className="text-sm font-semibold text-blue-700 hover:text-blue-900">Open the full Home Value tool →</Link></div>
           </div>
         </section>
 
