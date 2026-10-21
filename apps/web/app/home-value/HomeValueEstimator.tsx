@@ -6,7 +6,7 @@ import type { City, Locality, PropertyType } from '@/lib/types';
 import { formatPrice } from '@/lib/format';
 import { AlertCircle, Calculator, CheckCircle2, Info, LoaderCircle, MapPin } from 'lucide-react';
 
-type Comparable = { id: string; title: string; price: number; sqft: number; property_type: string; bedrooms: number; city_id: string; locality_id: string };
+type Comparable = { id: string; title: string; price: number; sqft: number; property_type: string; bedrooms: number | null; city_id: string; locality_id: string | null };
 const TYPES: { value: PropertyType; label: string }[] = [
   { value: 'apartment', label: 'Apartment / Flat' }, { value: 'villa', label: 'Villa' },
   { value: 'house', label: 'Independent house' }, { value: 'plot', label: 'Plot / Land' },
@@ -27,6 +27,7 @@ export function HomeValueEstimator({ cities }: { cities: City[] }) {
   const [area, setArea] = useState('');
   const [bedrooms, setBedrooms] = useState('2');
   const [comparables, setComparables] = useState<Comparable[]>([]);
+  const [matchScope, setMatchScope] = useState<'locality_bedrooms' | 'locality_type' | 'city_type'>('locality_bedrooms');
   const [searched, setSearched] = useState(false);
   const [loadingLocalities, setLoadingLocalities] = useState(false);
   const [calculating, setCalculating] = useState(false);
@@ -53,35 +54,65 @@ export function HomeValueEstimator({ cities }: { cities: City[] }) {
   const selectedCity = cities.find(c => c.id === cityId);
   const selectedLocality = localities.find(l => l.id === localityId);
   const result = useMemo(() => {
-    if (comparables.length < 5 || !area || Number(area) <= 0) return null;
-    const perSqft = comparables.map(l => l.price / l.sqft).filter(n => Number.isFinite(n) && n > 0);
-    if (perSqft.length < 5) return null;
-    const central = median(perSqft);
-    return { low: Math.round(central * Number(area) * 0.92), mid: Math.round(central * Number(area)), high: Math.round(central * Number(area) * 1.08), medianPerSqft: Math.round(central) };
-  }, [comparables, area]);
+    if (comparables.length < 3 || !area || Number(area) <= 0) return null;
+    const rates = comparables.map(l => ({ rate: Number(l.price) / Number(l.sqft) }))
+      .filter(x => Number.isFinite(x.rate) && x.rate > 0);
+    if (rates.length < 3) return null;
+    const sorted = rates.map(x => x.rate).sort((a, b) => a - b);
+    const q1 = sorted[Math.floor((sorted.length - 1) * 0.25)];
+    const q3 = sorted[Math.floor((sorted.length - 1) * 0.75)];
+    const iqr = q3 - q1;
+    const filtered = iqr > 0 ? rates.filter(x => x.rate >= Math.max(0, q1 - 1.5 * iqr) && x.rate <= q3 + 1.5 * iqr) : rates;
+    const usable = filtered.length >= 3 ? filtered : rates;
+    const central = median(usable.map(x => x.rate));
+    const band = matchScope === 'locality_bedrooms' ? 0.08 : matchScope === 'locality_type' ? 0.12 : 0.18;
+    return { low: Math.round(central * Number(area) * (1 - band)), mid: Math.round(central * Number(area)), high: Math.round(central * Number(area) * (1 + band)), medianPerSqft: Math.round(central), usedCount: usable.length, excludedCount: comparables.length - usable.length, band };
+  }, [comparables, area, matchScope]);
 
   async function calculate() {
     setError('');
     setSearched(false);
-    if (!cityId || !localityId || !area || !Number.isFinite(Number(area)) || Number(area) < 100) {
-      setError('Choose a city and locality, then enter a valid area in square feet (minimum 100).');
+    if (!cityId || !localityId || !area || !Number.isFinite(Number(area)) || Number(area) < 100 || Number(area) > 100000) {
+      setError('Choose a city and locality, then enter an area between 100 and 100,000 square feet.');
       return;
     }
     setCalculating(true);
-    let query = supabase.from('listings')
-      .select('id,title,price,sqft,property_type,bedrooms,city_id,locality_id')
-      .eq('status', 'active').eq('is_sample', false).eq('purpose', 'sale')
-      .eq('city_id', cityId).eq('locality_id', localityId).eq('property_type', propertyType)
-      .not('sqft', 'is', null).gt('sqft', 0).gt('price', 0).limit(100);
-    if (propertyType !== 'plot') query = query.gte('bedrooms', Math.max(0, Number(bedrooms) - 1)).lte('bedrooms', Number(bedrooms) + 1);
-    const { data, error: queryError } = await query;
-    setCalculating(false);
-    if (queryError) {
+    try {
+      const base = () => supabase.from('listings')
+        .select('id,title,price,sqft,property_type,bedrooms,city_id,locality_id')
+        .eq('status', 'active').eq('is_sample', false).eq('purpose', 'sale')
+        .eq('city_id', cityId).eq('property_type', propertyType)
+        .not('sqft', 'is', null).gt('sqft', 0).gt('price', 0)
+        .order('created_at', { ascending: false }).limit(500);
+      let scope: 'locality_bedrooms' | 'locality_type' | 'city_type' = 'locality_bedrooms';
+      let { data, error: queryError } = await base().eq('locality_id', localityId)
+        .gte('bedrooms', propertyType === 'plot' ? 0 : Math.max(0, Number(bedrooms) - 1))
+        .lte('bedrooms', propertyType === 'plot' ? 99 : Number(bedrooms) + 1);
+      if (queryError) throw queryError;
+      if ((data ?? []).length < 3) {
+        scope = 'locality_type';
+        const fallback = await base().eq('locality_id', localityId);
+        if (fallback.error) throw fallback.error;
+        data = fallback.data;
+      }
+      if ((data ?? []).length < 3) {
+        scope = 'city_type';
+        const fallback = await base();
+        if (fallback.error) throw fallback.error;
+        data = fallback.data;
+      }
+      const valid = ((data ?? []) as Comparable[]).filter(row =>
+        Number(row.price) > 0 && Number(row.sqft) >= 100 && Number(row.sqft) <= 100000 &&
+        Number.isFinite(Number(row.price) / Number(row.sqft))
+      );
+      setComparables(valid);
+      setMatchScope(scope);
+      setSearched(true);
+    } catch {
       setError('We could not retrieve comparable listings. Please try again later.');
-      return;
+    } finally {
+      setCalculating(false);
     }
-    setComparables((data ?? []) as Comparable[]);
-    setSearched(true);
   }
 
   return (
@@ -102,9 +133,9 @@ export function HomeValueEstimator({ cities }: { cities: City[] }) {
 
       <div className="rounded-3xl bg-slate-950 p-6 text-white sm:p-7">
         <div className="flex items-center gap-2 text-blue-200"><MapPin size={17} /><span className="text-sm font-semibold">Your estimate</span></div>
-        {!searched && <div className="mt-7"><h2 className="text-2xl font-bold">Start with your property details</h2><p className="mt-3 text-sm leading-6 text-slate-300">We’ll compare active, non-sample GoNest sale listings in the selected locality and property category. If the data is too limited, we’ll say so.</p><div className="mt-6 rounded-2xl border border-slate-700 p-4"><div className="flex items-start gap-3"><Info size={19} className="mt-0.5 shrink-0 text-blue-200" /><p className="text-sm leading-6 text-slate-300">This first version uses asking prices per square foot. It does not yet use registered sale deeds, government guidance values or a trained valuation model.</p></div></div></div>}
-        {searched && comparables.length < 5 && <div className="mt-7"><div className="flex items-center gap-2 text-amber-200"><AlertCircle size={22} /><h2 className="text-xl font-bold">Not enough comparable data yet</h2></div><p className="mt-3 text-sm leading-6 text-slate-300">We found {comparables.length} matching active listings. GoNest needs at least 5 comparable listings for this preliminary estimate, so we won’t generate a potentially misleading price.</p><p className="mt-4 text-sm text-slate-300">Try another locality or property type, or browse <a className="font-semibold text-blue-200 underline" href="/buy">current properties for sale</a>.</p></div>}
-        {searched && result && <div className="mt-7"><div className="text-sm text-slate-300">Indicative listing-based range</div><div className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">{formatPrice(result.low, 'sale')} – {formatPrice(result.high, 'sale')}</div><div className="mt-3 text-sm text-slate-300">Midpoint estimate: <strong className="text-white">{formatPrice(result.mid, 'sale')}</strong></div><div className="mt-6 grid grid-cols-2 gap-3"><div className="rounded-xl bg-slate-800 p-3"><p className="text-xs text-slate-300">Comparable listings</p><p className="mt-1 text-xl font-bold">{comparables.length}</p></div><div className="rounded-xl bg-slate-800 p-3"><p className="text-xs text-slate-300">Median asking price / sq ft</p><p className="mt-1 text-xl font-bold">{formatPrice(result.medianPerSqft, 'sale')}</p></div></div><div className="mt-5 flex items-start gap-2 rounded-xl border border-slate-700 p-3 text-sm leading-6 text-slate-300"><CheckCircle2 size={18} className="mt-0.5 shrink-0 text-emerald-300" />Based on {comparables.length} active asking listings in {selectedLocality?.name}, {selectedCity?.name}. The range is a simple ±8% band around the median price-per-square-foot calculation, not a statistical confidence interval or appraisal.</div></div>}
+        {!searched && <div className="mt-7"><h2 className="text-2xl font-bold">Start with your property details</h2><p className="mt-3 text-sm leading-6 text-slate-300">We’ll compare active, non-sample GoNest sale listings in the selected locality and property category. If the data is too limited, we’ll say so.</p><div className="mt-6 rounded-2xl border border-slate-700 p-4"><div className="flex items-start gap-3"><Info size={19} className="mt-0.5 shrink-0 text-blue-200" /><p className="text-sm leading-6 text-slate-300">The estimate uses asking prices, not registered transaction prices or government guidance values. The range widens when comparable data is less specific.</p></div></div></div>}
+        {searched && comparables.length < 3 && <div className="mt-7"><div className="flex items-center gap-2 text-amber-200"><AlertCircle size={22} /><h2 className="text-xl font-bold">Not enough comparable data yet</h2></div><p className="mt-3 text-sm leading-6 text-slate-300">We found {comparables.length} matching active listings. GoNest needs at least 3 comparable listings for this preliminary estimate, so we won’t generate a potentially misleading price.</p><p className="mt-4 text-sm text-slate-300">Try another locality or property type, or browse <a className="font-semibold text-blue-200 underline" href="/buy">current properties for sale</a>.</p></div>}
+        {searched && result && <div className="mt-7"><div className="text-sm text-slate-300">Indicative listing-based range</div><div className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">{formatPrice(result.low, 'sale')} – {formatPrice(result.high, 'sale')}</div><div className="mt-3 text-sm text-slate-300">Midpoint estimate: <strong className="text-white">{formatPrice(result.mid, 'sale')}</strong></div><div className="mt-6 grid grid-cols-2 gap-3"><div className="rounded-xl bg-slate-800 p-3"><p className="text-xs text-slate-300">Comparable listings used</p><p className="mt-1 text-xl font-bold">{result.usedCount}</p></div><div className="rounded-xl bg-slate-800 p-3"><p className="text-xs text-slate-300">Median asking price / sq ft</p><p className="mt-1 text-xl font-bold">{formatPrice(result.medianPerSqft, 'sale')}</p></div></div><div className="mt-5 flex items-start gap-2 rounded-xl border border-slate-700 p-3 text-sm leading-6 text-slate-300"><CheckCircle2 size={18} className="mt-0.5 shrink-0 text-emerald-300" />Based on {matchScope === 'locality_bedrooms' ? `similar homes in ${selectedLocality?.name}` : matchScope === 'locality_type' ? `matching property types in ${selectedLocality?.name}` : `matching property types across ${selectedCity?.name}`}. {result.excludedCount > 0 ? `Excluded ${result.excludedCount} extreme price-per-sq-ft outlier(s). ` : ''}This is an indicative asking-price comparison, not a formal valuation.</div></div>}
       </div>
     </section>
   );
