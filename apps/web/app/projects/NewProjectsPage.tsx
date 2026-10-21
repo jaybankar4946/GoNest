@@ -74,7 +74,29 @@ export default function NewProjectsPage() {
           })),
         })));
         if (!live) return;
-        setProjects(withPhotos);
+        // Public New Projects should show only projects with real uploaded photos,
+        // meaningful published project data, and a verified available inventory status.
+        const launchReadyProjects = withPhotos.filter(project => {
+          const hasPhoto = (project.project_media ?? []).some(media => Boolean(media.signed_url));
+          const configs = Array.isArray(project.configurations)
+            ? project.configurations.some((item: any) =>
+                typeof item === "string" ? item.trim().length > 0 : Boolean(item?.label || item?.configuration))
+            : typeof project.configurations === "string" && project.configurations.trim().length > 0;
+          const hasDetailedData = Boolean(
+            project.public_address &&
+            configs &&
+            project.construction_status &&
+            (project.total_units != null ||
+              project.published_price_min_inr != null ||
+              project.published_price_max_inr != null ||
+              project.expected_possession_date ||
+              project.launch_date)
+          );
+          return hasPhoto && hasDetailedData &&
+            project.verification_status === "verified" &&
+            project.inventory_status === "verified_available";
+        });
+        setProjects(launchReadyProjects);
       }
       setLoading(false);
     })();
