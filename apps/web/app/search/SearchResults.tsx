@@ -109,7 +109,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
     <div style={{background:'#F9FAFB',minHeight:'70vh'}}>
     <main style={{maxWidth:1200,margin:'0 auto',padding:'36px 24px'}}>
       <h1 style={{fontFamily:'var(--font-manrope), var(--font-display)',fontSize:30,fontWeight:800,letterSpacing:'-0.025em',color:'#111827',marginBottom:20}}>
-        {f.purpose==='rent'?'Properties for rent':f.purpose==='sale'?'Properties for sale':'Search properties'}
+        {f.purpose==='rent'?'Homes for rent':f.purpose==='sale'?'Homes for sale':'Find your home'}
       </h1>
       <div style={{display:'flex',gap:10,flexWrap:'wrap',marginBottom:28,alignItems:'center',background:'#fff',border:'1px solid #E5E7EB',borderRadius:20,padding:14,boxShadow:'var(--shadow-sm)'}}>
         <input value={text} onChange={e=>setText(e.target.value)} onKeyDown={e=>e.key==='Enter'&&runText()} onBlur={runText}
@@ -155,7 +155,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
 
       {savedMsg&&<p role="status" style={{fontSize:13,color:'#065F46',background:'#ECFDF5',padding:'8px 12px',borderRadius:10,marginBottom:12}}>{savedMsg} <a href="/saved-searches" style={{textDecoration:'underline'}}>View saved searches</a></p>}
       <p style={{fontSize:13,color:'var(--gray-4)',marginBottom:20}}>
-        {loading ? 'Searching…' : `${total} ${total===1?'property':'properties'} found`}
+        {loading ? 'Searching…' : `${total} ${total===1?'home':'homes'} found`}
       </p>
 
       {loading && results.length === 0 && (<div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:'36px 20px'}}>{[1,2,3,4,5,6].map(i=><PropertyCardSkeleton key={i}/>)}</div>)}
@@ -163,10 +163,10 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
         <div style={{textAlign:'center',padding:'64px 24px',background:'#fff',border:'1px solid #E5E7EB',borderRadius:24}}>
           <div style={{width:56,height:56,margin:'0 auto 18px',display:'grid',placeItems:'center',borderRadius:16,background:'#EFF6FF',color:'#1D4ED8',fontSize:26}}>⌂</div>
           <p style={{fontSize:22,fontWeight:800,marginBottom:8,color:'#111827'}}>
-            {f.purpose==='rent' ? 'We’re onboarding verified rental homes' : f.purpose==='sale' ? 'We’re onboarding verified homes for sale' : 'We’re onboarding the first verified properties'}
+            {f.purpose==='rent' ? 'More rental homes coming soon' : f.purpose==='sale' ? 'More homes for sale coming soon' : 'More homes coming soon'}
           </p>
           <p style={{fontSize:14,lineHeight:1.7,color:'#6B7280',maxWidth:560,margin:'0 auto'}}>
-            No live, non-sample property matches are published for these filters yet. We won’t show demo homes as real inventory. Try our source-linked new-project directory or submit a genuine property for review.
+            No homes match these filters yet. Explore new projects or list a property.
           </p>
           <div style={{display:'flex',gap:10,justifyContent:'center',flexWrap:'wrap',marginTop:22}}>
             <Link href="/builders" style={{display:'inline-flex',alignItems:'center',padding:'11px 17px',borderRadius:12,background:'#2563EB',color:'#fff',fontSize:13,fontWeight:700}}>Explore new projects</Link>
