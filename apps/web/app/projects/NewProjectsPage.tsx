@@ -47,7 +47,14 @@ export default function NewProjectsPage() {
         .order("official_name");
       if (!live) return;
       if (error) setLoadError("Project data could not be loaded right now. Please try again shortly.");
-      else setProjects((data ?? []) as unknown as Project[]);
+      else {
+        // Keep this launch directory focused on Hiranandani only. Match the developer brand
+        // or the official project name so records with a missing joined brand are not leaked.
+        const hiranandaniProjects = ((data ?? []) as unknown as Project[]).filter((project) =>
+          /hiranandani/i.test(`${project.developer?.operating_brand ?? ""} ${project.official_name ?? ""}`)
+        );
+        setProjects(hiranandaniProjects);
+      }
       setLoading(false);
     })();
     return () => { live = false; };
@@ -106,9 +113,9 @@ export default function NewProjectsPage() {
     <main className="min-h-screen bg-slate-50 text-slate-900">
       <section className="bg-white border-b border-slate-200">
         <div className="mx-auto max-w-7xl px-4 py-10 md:px-6 md:py-14">
-          <div className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-[.18em] text-blue-700"><Building2 className="h-4 w-4"/> New homes · Mumbai & Pune</div>
-          <h1 className="max-w-3xl text-3xl font-extrabold tracking-tight md:text-5xl">Explore projects. Check real availability.</h1>
-          <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600">Browse source-linked residential projects, inspect the project facts we have, and ask for a current unit list or site visit. GoNest only labels units available when a recent, source-linked inventory record is present.</p>
+          <div className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-[.18em] text-blue-700"><Building2 className="h-4 w-4"/> Hiranandani · Mumbai & Thane</div>
+          <h1 className="max-w-3xl text-3xl font-extrabold tracking-tight md:text-5xl">Explore New Projects</h1>
+          <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600">Explore Hiranandani residential projects. Review available project details and request current inventory or a site visit. Availability is confirmed only when recent, source-linked inventory evidence is present.</p>
           <div className="mt-7 grid gap-3 md:grid-cols-[1fr_190px_210px]">
             <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3"><Search className="h-5 w-5 text-slate-400"/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search project, developer, RERA or locality…" className="w-full bg-transparent text-sm outline-none"/></label>
             <select value={city} onChange={e=>setCity(e.target.value)} className="rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm">{cities.map(c=><option key={c}>{c}</option>)}</select>
