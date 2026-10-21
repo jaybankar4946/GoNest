@@ -50,9 +50,18 @@ export default function NewProjectsPage() {
       else {
         // Keep this launch directory focused on Hiranandani only. Match the developer brand
         // or the official project name so records with a missing joined brand are not leaked.
-        const hiranandaniProjects = ((data ?? []) as unknown as Project[]).filter((project) =>
-          /hiranandani/i.test(`${project.developer?.operating_brand ?? ""} ${project.official_name ?? ""}`)
-        );
+        const hiranandaniProjects = ((data ?? []) as unknown as Project[]).filter((project) => {
+          // Supabase joins may return an object or an array depending on relationship metadata.
+          const joined = project.developer as unknown as
+            | { operating_brand?: string | null }[]
+            | { operating_brand?: string | null }
+            | null
+            | undefined;
+          const brands = Array.isArray(joined)
+            ? joined.map((developer) => developer?.operating_brand ?? "").join(" ")
+            : joined?.operating_brand ?? "";
+          return /hiranandani/i.test(`${brands} ${project.official_name ?? ""}`);
+        });
         setProjects(hiranandaniProjects);
       }
       setLoading(false);
