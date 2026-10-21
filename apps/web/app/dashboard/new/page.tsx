@@ -49,7 +49,7 @@ export default function NewListingPage() {
   const canPost=['owner','agent','admin'].includes(profile?.role??'');
   if(authLoading||!user||!profile)return(<div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',color:'#6B7280'}}>Loading…</div>);
   if(!canPost){
-    const pick=async(r:'owner'|'agent')=>{setChoosing(true);try{await chooseAccountType(r);await refresh();}finally{setChoosing(false);}};
+    const pick=async(r:'owner'|'agent'|'builder')=>{setChoosing(true);try{await chooseAccountType(r);await refresh();if(r==='builder')router.push('/dashboard/projects/new');}catch(e){setErr(e instanceof Error?e.message:'Could not change account type.');}finally{setChoosing(false);}};
     const card:React.CSSProperties={display:'block',width:'100%',textAlign:'left',padding:'18px 20px',border:'1px solid #E5E7EB',borderRadius:16,background:'#fff',cursor:'pointer'};
     return(
       <div style={{minHeight:'100vh',background:'#F9FAFB',display:'flex',alignItems:'center',justifyContent:'center',padding:24}}>
@@ -59,6 +59,7 @@ export default function NewListingPage() {
           <div style={{display:'flex',flexDirection:'column',gap:12}}>
             <button disabled={choosing} onClick={()=>pick('owner')} style={card}><div style={{fontWeight:700,fontSize:15}}>I am the property owner</div><div style={{fontSize:13,color:'#6B7280',marginTop:2}}>Sell or rent out my own property</div></button>
             <button disabled={choosing} onClick={()=>pick('agent')} style={card}><div style={{fontWeight:700,fontSize:15}}>I am an agent or broker</div><div style={{fontSize:13,color:'#6B7280',marginTop:2}}>List properties for clients</div></button>
+            <button disabled={choosing} onClick={()=>pick('builder')} style={card}><div style={{fontWeight:700,fontSize:15}}>I am a builder or developer</div><div style={{fontSize:13,color:'#6B7280',marginTop:2}}>Submit new projects and inventory for review</div></button>
           </div>
           <button onClick={()=>router.push('/')} style={{marginTop:18,fontSize:13,color:'#6B7280'}}>Not now</button>
         </div>
