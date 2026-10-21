@@ -62,12 +62,12 @@ export function AgentDirectory({ agents }: Props) {
       <section className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-7xl px-5 py-8 md:px-8 md:py-10">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800">
-            <span aria-hidden="true">✓</span> MahaRERA Licensed Agents Only
+            <span aria-hidden="true">✓</span> MahaRERA registration details
           </div>
           <div className="grid items-end gap-7 lg:grid-cols-[1.15fr_1fr]">
             <div>
-              <h1 className="text-4xl font-extrabold tracking-tight text-slate-950 md:text-5xl">Find a Verified Agent.</h1>
-              <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">Explore agent profiles with GoNest verification and MahaRERA registration details on file. Confirm the licence is current on the official register before engaging an agent.</p>
+              <h1 className="text-4xl font-extrabold tracking-tight text-slate-950 md:text-5xl">Find the right agent.</h1>
+              <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">Search registered agents across Mumbai and Pune.</p>
             </div>
             <div className="grid grid-cols-3 gap-3">
               {[{ value: licensedAgents.length.toLocaleString('en-IN'), label: 'Verified Agents' }, { value: totalListings.toLocaleString('en-IN'), label: 'Active Listings' }, { value: averageRating == null ? '—' : averageRating.toFixed(2), label: 'Avg. Rating' }].map((stat) => (
@@ -116,7 +116,7 @@ export function AgentDirectory({ agents }: Props) {
                       <Link href={`/agents/${agent.id}`} className="block text-lg font-extrabold leading-tight text-slate-950 hover:text-blue-700">{agent.full_name ?? 'GoNest agent'}</Link>
                       <p className="mt-1 text-sm text-slate-500">{agent.agency_name ?? 'Independent agent'}</p>
                       <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                        <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-800">MahaRERA details on file</span>
+                        <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-800">Registration details on file</span>
                         {agent.rating != null && <span className="text-sm font-extrabold text-amber-700">★ {agent.rating.toFixed(2)} <span className="font-normal text-slate-500">({agent.review_count} reviews)</span></span>}
                       </div>
                     </div>
@@ -156,19 +156,6 @@ export function AgentDirectory({ agents }: Props) {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-5 py-10 md:px-8">
-        <div className="grid gap-8 md:grid-cols-[0.8fr_1.2fr]">
-          <div>
-            <h2 className="text-2xl font-extrabold text-slate-950">GoNest verified agent network</h2>
-            <p className="mt-3 text-sm leading-7 text-slate-600">Agent registration details and profile information should be verified before making a property decision. Use the official portal for current registration status.</p>
-            <a href="https://maharera.maharashtra.gov.in/" target="_blank" rel="noreferrer" className="mt-4 inline-flex rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50">MahaRERA Info ↗</a>
-          </div>
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 md:p-7">
-            <h2 className="text-xl font-extrabold text-slate-950">Frequently asked questions</h2>
-            <div className="mt-4 divide-y divide-slate-100">{FAQ.map((item) => <details key={item.q} className="group py-4"><summary className="cursor-pointer list-none pr-6 font-semibold text-slate-800">{item.q}<span className="float-right text-blue-700 group-open:rotate-45">＋</span></summary><p className="mt-3 text-sm leading-6 text-slate-600">{item.a}</p></details>)}</div>
-          </div>
-        </div>
-      </section>
     </>
   );
 }
