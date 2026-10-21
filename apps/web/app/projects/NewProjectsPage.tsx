@@ -47,7 +47,14 @@ export default function NewProjectsPage() {
         .order("official_name");
       if (!live) return;
       if (error) setLoadError("Project data could not be loaded right now. Please try again shortly.");
-      else setProjects((data ?? []) as unknown as Project[]);
+      else {
+        // Public New Projects directory is intentionally restricted to Hiranandani projects.
+        // Match the developer brand, not the locality, to avoid including unrelated builders.
+        const hiranandaniProjects = ((data ?? []) as unknown as Project[]).filter(
+          (project) => /hiranandani/i.test(project.developer?.operating_brand ?? "")
+        );
+        setProjects(hiranandaniProjects);
+      }
       setLoading(false);
     })();
     return () => { live = false; };
