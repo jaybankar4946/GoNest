@@ -11,6 +11,24 @@ const cities = ['All Cities', 'Mumbai', 'Pune', 'Thane', 'Navi Mumbai'];
 const specializations = ['All Specializations', 'Residential', 'Commercial', 'Luxury', 'Rentals', 'Investment', 'New Projects'];
 const languages = ['Any Language', 'English', 'Hindi', 'Marathi', 'Gujarati', 'Malayalam'];
 
+type ThaneAgency = {
+  name: string; rating: string; reviews: string; locality: string;
+  phone: string; specialty: string; initials: string;
+};
+
+const thaneAgencies: ThaneAgency[] = [
+  { name: 'R.B Estate Agency', rating: '4.9', reviews: '1,635', locality: 'Kasarvadavali, Ghodbunder Road, Thane West', phone: '+91 98209 75747', specialty: 'Residential sales and rentals', initials: 'RB' },
+  { name: 'Shivam Properties', rating: '4.9', reviews: '219', locality: 'Runwal Estate, Dhokali, Thane West', phone: '+91 80808 07060', specialty: 'Resale homes and rentals', initials: 'SP' },
+  { name: 'Kanhaiya Properties', rating: '5.0', reviews: '270', locality: 'Arcadia Building, Hiranandani Estate', phone: '+91 98206 00127', specialty: 'Buying, selling and renting', initials: 'KP' },
+  { name: 'Avenue Properties', rating: '5.0', reviews: '110', locality: 'Uthalsar, Thane West', phone: '+91 75063 71026', specialty: 'Residential and commercial property', initials: 'AP' },
+  { name: 'Krishna Housing', rating: '4.9', reviews: '244', locality: 'Panch Pakhdi, Thane West', phone: '+91 97695 60646', specialty: 'Rentals, resale and leasing', initials: 'KH' },
+  { name: 'Om Sai Properties', rating: '4.8', reviews: '317', locality: 'Naupada, Thane West', phone: '+91 70457 59996', specialty: 'Residential and commercial property', initials: 'OS' },
+  { name: 'Royalti', rating: '4.8', reviews: '191', locality: 'Lodha Supremus, Kolshet Road', phone: '+91 80070 00000', specialty: 'Property advisory and commercial real estate', initials: 'R' },
+  { name: 'Swagat Properties', rating: '5.0', reviews: '7', locality: 'Hiranandani Estate, Thane West', phone: '+91 98198 10041', specialty: 'Buying, selling and rentals', initials: 'SW' },
+  { name: 'John Real Estate', rating: '4.7', reviews: '128', locality: 'Lodha Splendora, Ghodbunder Road', phone: '+91 98198 81455', specialty: 'Sales, leasing and property management', initials: 'JR' },
+  { name: 'Monish Estate Consultants LLP', rating: '4.5', reviews: '138', locality: 'Hiranandani Estate, Patlipada', phone: '+91 98201 06337', specialty: 'Residential brokerage and rentals', initials: 'ME' },
+];
+
 export function AgentDirectory({ agents }: Props) {
   const [search, setSearch] = useState('');
   const [city, setCity] = useState('All Cities');
@@ -59,8 +77,8 @@ export function AgentDirectory({ agents }: Props) {
           </div>
           <div className="grid items-end gap-7 lg:grid-cols-[1.15fr_1fr]">
             <div>
-              <h1 className="text-4xl font-extrabold tracking-tight text-slate-950 md:text-5xl">Find the right agent.</h1>
-              <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">Search registered agents across Mumbai and Pune.</p>
+              <h1 className="text-4xl font-extrabold tracking-tight text-slate-950 md:text-5xl">Find your real estate agent.</h1>
+              <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">Discover local agencies and registered agents in Thane, Mumbai and Pune.</p>
             </div>
             <div className="grid grid-cols-3 gap-3">
               {[{ value: licensedAgents.length.toLocaleString('en-IN'), label: 'Verified Agents' }, { value: totalListings.toLocaleString('en-IN'), label: 'Active Listings' }, { value: averageRating == null ? '—' : averageRating.toFixed(2), label: 'Avg. Rating' }].map((stat) => (
@@ -84,9 +102,46 @@ export function AgentDirectory({ agents }: Props) {
         </div>
       </section>
 
+      <section className="bg-slate-50">
+        <div className="mx-auto max-w-7xl px-5 py-9 md:px-8 md:py-11">
+          <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-blue-700">Thane · Local agencies</p>
+              <h2 className="mt-1 text-2xl font-bold tracking-tight text-slate-950 md:text-3xl">Top 10 real estate agencies in Thane</h2>
+              <p className="mt-2 text-sm text-slate-600">Explore local agencies by area, reviews and services.</p>
+            </div>
+            <a href="https://www.google.com/maps/search/real+estate+agents+Thane/" target="_blank" rel="noreferrer" className="text-sm font-semibold text-blue-700 hover:text-blue-900">View on map ↗</a>
+          </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {thaneAgencies.map((agency, index) => (
+              <article key={agency.name} className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-slate-300 hover:shadow-md">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-sm font-bold text-slate-700">{agency.initials}</div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-medium text-slate-500">Agency {String(index + 1).padStart(2, '0')}</p>
+                    <h3 className="mt-0.5 font-bold text-slate-950">{agency.name}</h3>
+                    <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+                      <span className="font-semibold text-slate-900">★ {agency.rating}</span>
+                      <span className="text-slate-600">{agency.reviews} public reviews*</span>
+                    </div>
+                  </div>
+                </div>
+                <p className="mt-4 text-sm text-slate-600">{agency.locality}</p>
+                <p className="mt-1 text-sm text-slate-800">{agency.specialty}</p>
+                <div className="mt-5 flex gap-2">
+                  <a href={'tel:' + agency.phone.replace(/[^\d+]/g, '')} className="inline-flex flex-1 items-center justify-center rounded-xl bg-blue-700 px-3 py-2.5 text-sm font-semibold text-white hover:bg-blue-800">Call agency</a>
+                  <a href={'https://www.google.com/search?q=' + encodeURIComponent(agency.name + ' ' + agency.locality + ' reviews')} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">Reviews ↗</a>
+                </div>
+              </article>
+            ))}
+          </div>
+          <p className="mt-5 text-xs leading-5 text-slate-500">*Ratings and review counts are public-listing figures supplied for this shortlist; they are not GoNest reviews and have not been independently verified here. Agencies are not ranked by GoNest. Confirm current contact details and MahaRERA registration before engaging.</p>
+        </div>
+      </section>
+
       <section className="mx-auto max-w-7xl px-5 py-8 md:px-8 md:py-10">
         <div className="mb-5 flex items-center justify-between gap-3">
-          <h2 className="text-lg font-extrabold text-slate-950">MahaRERA registration details on file</h2>
+          <h2 className="text-lg font-extrabold text-slate-950">Registered agent profiles</h2>
           <span className="rounded-full bg-blue-50 px-3 py-1.5 text-sm font-bold text-blue-800">{filtered.length} agents</span>
         </div>
         {filtered.length === 0 ? (
