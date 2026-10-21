@@ -35,10 +35,7 @@ const estatePhoto = (p:Project) => {
  const x=ESTATE_PROJECTS.find(e=>e.aliases.some(a=>p.official_name.toLowerCase().includes(a)));
  return x ?? null;
 };
-const estatePhoto = (p:Project) => {
- const x=ESTATE_PROJECTS.find(e=>e.aliases.some(a=>p.official_name.toLowerCase().includes(a)));
- return x ?? null;
-};
+
 const MAHARERA = "https://maharera.maharashtra.gov.in/";
 const money = (n: number | null | undefined) => n == null ? "Ask for current pricing" : n >= 10000000 ? `₹${(n / 10000000).toFixed(2).replace(/0+$/,"").replace(/\.$/,"")} Cr` : n >= 100000 ? `₹${(n / 100000).toFixed(1).replace(/\.0$/,"")} L` : `₹${n.toLocaleString("en-IN")}`;
 const dateLabel = (s: string | null | undefined) => s ? new Date(s).toLocaleDateString("en-IN",{month:"short",year:"numeric"}) : "Not provided";
