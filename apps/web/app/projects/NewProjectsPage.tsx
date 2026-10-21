@@ -117,7 +117,7 @@ export default function NewProjectsPage() {
         <div className="mx-auto max-w-7xl px-4 py-10 md:px-6 md:py-14">
           <div className="mb-3 text-sm font-semibold text-blue-700">Explore New Projects</div>
           <h1 className="max-w-3xl text-3xl font-extrabold tracking-tight md:text-5xl">Explore Hiranandani Estate homes.</h1>
-          <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600">Explore detailed New Project listings with photos, layouts, location, configurations and a simple enquiry or site-visit request. Published project details are distinguished from individual flat availability.</p>
+          <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600">Explore detailed New project listings with photos, layouts, location, configurations and a simple enquiry or site-visit request. Published project details are distinguished from individual flat availability.</p>
           <div className="mt-7 grid gap-3 md:grid-cols-[1fr_190px_210px]">
             <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3"><Search className="h-5 w-5 text-slate-400"/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search projects or localities…" className="w-full bg-transparent text-sm outline-none"/></label>
             <select value={city} onChange={e=>setCity(e.target.value)} className="rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm">{cities.map(c=><option key={c}>{c}</option>)}</select>
