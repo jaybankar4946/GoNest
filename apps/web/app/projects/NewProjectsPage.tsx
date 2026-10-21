@@ -103,19 +103,15 @@ export default function NewProjectsPage() {
     <main className="min-h-screen bg-slate-50 text-slate-900">
       <section className="bg-white border-b border-slate-200">
         <div className="mx-auto max-w-7xl px-4 py-10 md:px-6 md:py-14">
-          <div className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-[.18em] text-blue-700"><Building2 className="h-4 w-4"/> New homes · Mumbai & Pune</div>
-          <h1 className="max-w-3xl text-3xl font-extrabold tracking-tight md:text-5xl">Explore Hiranandani Estate homes.</h1>
-          <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600">Explore detailed Hiranandani Estate project listings with photos, layouts, location, configurations and a simple enquiry or site-visit request. Published project details are distinguished from individual flat availability.</p>
+          <div className="mb-3 text-sm font-semibold text-blue-700">GoNest · New projects</div>
+          <h1 className="max-w-3xl text-3xl font-extrabold tracking-tight md:text-5xl">Find new projects in Mumbai & Pune.</h1>
+          <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600">Compare projects, floor plans and developer details.</p>
           <div className="mt-7 grid gap-3 md:grid-cols-[1fr_190px_210px]">
-            <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3"><Search className="h-5 w-5 text-slate-400"/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search project, developer, RERA or locality…" className="w-full bg-transparent text-sm outline-none"/></label>
+            <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3"><Search className="h-5 w-5 text-slate-400"/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search projects or localities…" className="w-full bg-transparent text-sm outline-none"/></label>
             <select value={city} onChange={e=>setCity(e.target.value)} className="rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm">{cities.map(c=><option key={c}>{c}</option>)}</select>
             <select value={registration} onChange={e=>setRegistration(e.target.value)} className="rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm"><option>All projects</option><option>Registration listed</option><option>Registration not listed</option></select>
           </div>
-          <div className="mt-5 flex flex-wrap gap-3 text-sm text-slate-500">
-            <span className="rounded-full bg-slate-100 px-3 py-1.5">{projects.length} source-linked project records</span>
-            <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-emerald-800">{projects.filter(p=>p.verification_status==="verified").length} project records verified</span>
-            <span className="rounded-full bg-blue-50 px-3 py-1.5 text-blue-800">Photos, project facts and visit requests</span>
-          </div>
+
         </div>
       </section>
 
@@ -123,7 +119,7 @@ export default function NewProjectsPage() {
         {loading ? <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center text-slate-500">Loading live project data…</div>
         : loadError ? <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-amber-900">{loadError}</div>
         : filtered.length === 0 ? <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center"><Building2 className="mx-auto mb-3 h-10 w-10 text-slate-300"/><h2 className="font-bold">No projects match these filters</h2><p className="mt-1 text-sm text-slate-500">Try a broader search or choose all cities.</p><button onClick={()=>{setCity("All Cities");setRegistration("All projects");setQuery("");}} className="mt-4 font-semibold text-blue-700">Clear filters</button></div>
-        : <><div className="mb-4 flex items-center justify-between"><p className="text-sm text-slate-600"><strong>{filtered.length}</strong> projects found</p><p className="text-xs text-slate-500">Project records are not a guarantee of current inventory</p></div>
+        : <><div className="mb-4 flex items-center justify-between"><p className="text-sm text-slate-600"><strong>{filtered.length}</strong> projects found</p></div>
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{filtered.map(p=>{
             const estate = estatePhoto(p);
             const developer = p.developer?.operating_brand || "Developer details pending";
@@ -151,20 +147,16 @@ export default function NewProjectsPage() {
                   <div><p className="text-xs text-slate-500">Construction</p><p className="mt-1 text-sm font-bold text-slate-900">{p.construction_status.replaceAll("_"," ")}</p></div>
                   <div><p className="text-xs text-slate-500">Published specifications</p><p className="mt-1 text-sm font-bold text-slate-900">{estate ? estate.area : "Review project details"}</p></div>
                 </div>
-                <div className="flex items-center gap-2 text-xs leading-5 text-slate-500"><ShieldCheck className="h-4 w-4 shrink-0"/>{p.verification_status==="verified" ? "Project record reviewed by GoNest" : "Source-linked project · details require confirmation"}</div>
+
                 <div className="mt-5 grid grid-cols-2 gap-2">
                   <button onClick={()=>{setSelected(p);setRequestType("enquiry");setFeedback("");}} className="rounded-xl border border-slate-200 px-3 py-3 text-sm font-bold text-slate-800 hover:border-blue-300 hover:bg-slate-50">View details</button>
                   <button onClick={()=>{setSelected(p);setRequestType("site_visit");setFeedback("");}} className="rounded-xl bg-blue-700 px-3 py-3 text-sm font-bold text-white hover:bg-blue-800"><CalendarDays className="mr-1 inline h-4 w-4"/> Schedule visit</button>
                 </div>
-                <p className="mt-3 text-[11px] leading-4 text-slate-500">Visit requests are not confirmed bookings until the project team confirms the date and time. Prices and availability can change.</p>
+
               </div>
             </article>;
           })}</div></>}
       </section>
-      <section className="border-t border-slate-200 bg-white py-10"><div className="mx-auto grid max-w-7xl gap-4 px-4 sm:grid-cols-3 md:px-6">
-        {[["Official source links","Open developer pages to review their current project information."],["MahaRERA check","Verify the exact project and phase on the official state portal."],["Project details","Review photos, configurations and published project information before enquiring."]].map(([title,desc])=><div key={title} className="rounded-xl border border-slate-200 p-4"><CheckCircle2 className="mb-2 h-5 w-5 text-emerald-600"/><h3 className="font-bold">{title}</h3><p className="mt-1 text-sm leading-6 text-slate-500">{desc}</p></div>)}
-        <a href={MAHARERA} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm font-bold text-blue-700 sm:col-span-3">Verify on MahaRERA <ExternalLink className="h-4 w-4"/></a>
-      </div></section>
     </main>
     <Footer />
     {selected && <div className="fixed inset-0 z-50 flex justify-end">
