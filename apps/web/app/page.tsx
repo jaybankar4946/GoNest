@@ -112,21 +112,21 @@ export default async function HomePage() {
           </section>
         )}
 
-        {/* Homes for you — live GoNest inventory, not project-only adverts */}
-        {hiranandaniListings.length > 0 && (
-          <section className="border-y border-gray-100 bg-white py-16">
-            <div className="mx-auto max-w-7xl px-6">
-              <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <p className="mb-2 text-xs font-bold uppercase tracking-widest text-blue-600">Homes for you</p>
-                  <h2 className="text-3xl font-extrabold text-gray-950" style={{ ...display, letterSpacing: '-0.025em' }}>Ready-to-Move Homes for You</h2>
-                  <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-600">Hiranandani homes and related listings published on GoNest. Check the listing details and contact the advertiser to confirm possession, exact unit availability, price and documents before visiting.</p>
-                </div>
-                <Link href="/search?q=Hiranandani" className="shrink-0 text-sm font-semibold text-blue-700 hover:text-blue-900">View all Hiranandani homes →</Link>
+        {/* Homes for you — always visible, with clearly labelled project references when GoNest has no matching live units */}
+        <section className="border-y border-gray-100 bg-white py-16">
+          <div className="mx-auto max-w-7xl px-6">
+            <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="mb-2 text-xs font-bold uppercase tracking-widest text-blue-600">Homes for you</p>
+                <h2 className="text-3xl font-extrabold text-gray-950" style={{ ...display, letterSpacing: '-0.025em' }}>Ready-to-Move Homes for You</h2>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-600">Explore completed Hiranandani Estate communities and ready-to-move project references. Exact flat availability, price and possession documents must be confirmed for each unit.</p>
               </div>
-              <div className="-mx-6 overflow-x-auto px-6 pb-4" aria-label="Hiranandani home listings">
+              <Link href="/search?q=Hiranandani" className="shrink-0 text-sm font-semibold text-blue-700 hover:text-blue-900">Explore Hiranandani homes →</Link>
+            </div>
+            {hiranandaniListings.length > 0 ? (
+              <div className="-mx-6 overflow-x-auto px-6 pb-4" aria-label="GoNest Hiranandani property listings">
                 <div className="flex snap-x snap-mandatory gap-5">
-                  {hiranandaniListings.map(l => (
+                  {hiranandaniListings.slice(0, 10).map(l => (
                     <div key={l.id} className="w-[300px] shrink-0 snap-start sm:w-[340px]">
                       <PropertyCard listing={l} />
                       <p className="mt-2 px-1 text-xs text-gray-500">Confirm ready-to-move status and current availability directly with the advertiser.</p>
@@ -134,9 +134,50 @@ export default async function HomePage() {
                   ))}
                 </div>
               </div>
-            </div>
-          </section>
-        )}
+            ) : (
+              <>
+                <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                  These are project discovery cards sourced from public developer/property-portal information, not confirmed live GoNest flat listings. We’ll show individual GoNest homes here once matching verified inventory is available.
+                </div>
+                <div className="-mx-6 overflow-x-auto px-6 pb-4" aria-label="Ready-to-move Hiranandani project references">
+                  <div className="flex snap-x snap-mandatory gap-5">
+                    {[
+                      { name: 'Villa Carino', config: '1 BHK', area: '438–453 sq ft carpet', locality: 'Beside The Walk, Hiranandani Estate', source: 'https://www.houseofhiranandani.com/residential-projects/thane/estate/villa-carino', status: 'Ready to move · OC received', image: 'https://www.houseofhiranandani.com/villa-carino-desk.jpg' },
+                      { name: 'Solitaire', config: '1 BHK', area: '366–409 sq ft carpet', locality: 'Hiranandani Estate, Thane West', source: 'https://www.houseofhiranandani.com/residential-projects/thane/estate/solitaire', status: 'Ready to move · OC received', image: 'https://www.houseofhiranandani.com/solitiar_desk_bnr.jpg' },
+                      { name: 'Delanna', config: '2 BHK', area: '628–703 sq ft carpet*', locality: 'Hiranandani Estate, Thane West', source: 'https://www.houseofhiranandani.com/residential-projects/thane/estate/delanna', status: 'Ready to move · OC received', image: 'https://www.houseofhiranandani.com/residential-projects/thane/estate/delanna' },
+                      { name: 'Aralia', config: '3 BHK', area: '1,084–1,204 sq ft carpet*', locality: 'Hiranandani Estate, Thane West', source: 'https://www.houseofhiranandani.com/residential-projects/thane/estate/aralia', status: 'Ready to move · OC received', image: 'https://www.houseofhiranandani.com/banner-desk-aralia.jpg' },
+                      { name: 'Eagleridge Wing B', config: '2, 2.5 & 3 BHK', area: '641–999 sq ft', locality: 'Hiranandani Estate, Thane West', source: 'https://housing.com/in/buy/projects/page/116537-hiranandani-eagleridge-wing-b-by-hiranandani-developers-pvt-ltd-in-hiranandani-estate', status: 'Ready to move · portal-reported', image: '' },
+                      { name: 'Villa Rica', config: '2 BHK', area: 'Check exact unit area', locality: 'Hiranandani Estate, Thane', source: 'https://housing.com/in/buy/thane/hiranandani-rodas-enclave-hiranandani-estate-gid/projects/', status: 'Ready-to-move project reference', image: '' },
+                      { name: 'Hill Cranje', config: 'Multiple configurations', area: 'Check exact unit area', locality: 'Hiranandani Estate, Thane', source: 'https://www.magicbricks.com/residential-projects-hiranandani-estate-in-thane-nprid', status: 'Ready-to-move project reference', image: '' },
+                      { name: 'Skylark Enclave', config: '2 & 3 BHK', area: 'Check exact unit area', locality: 'Hiranandani Estate, Thane', source: 'https://www.magicbricks.com/residential-projects-hiranandani-estate-in-thane-nprid', status: 'Ready-to-move project reference', image: '' },
+                      { name: 'Rodas Enclave – Annora', config: 'Multiple configurations', area: 'Check exact unit area', locality: 'Hiranandani Estate, Thane', source: 'https://housing.com/in/buy/thane/hiranandani-rodas-enclave-hiranandani-estate-gid/projects/', status: 'Ready-to-move project reference', image: '' },
+                      { name: 'Villa Nebula', config: 'Multiple configurations', area: 'Check exact unit area', locality: 'Hiranandani Estate, Thane', source: 'https://www.magicbricks.com/residential-projects-hiranandani-estate-in-thane-nprid', status: 'Ready-to-move project reference', image: '' },
+                    ].map((home) => (
+                      <article key={home.name} className="w-[285px] shrink-0 snap-start overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg sm:w-[320px]">
+                        <a href={home.source} target="_blank" rel="noreferrer" className="relative block h-48 overflow-hidden bg-gradient-to-br from-slate-100 via-blue-50 to-slate-200" aria-label={`Open source information for ${home.name}`}>
+                          {home.image && !home.image.includes('/residential-projects/thane/estate/delanna') ? <img src={home.image} alt={`${home.name} at Hiranandani Estate`} loading="lazy" className="h-full w-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; }} /> : null}
+                          <span className="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1 text-xs font-semibold text-emerald-800 shadow-sm">{home.status}</span>
+                          {!home.image && <div className="flex h-full items-center justify-center text-sm font-semibold text-slate-500"><Landmark className="mr-2 h-5 w-5" /> Hiranandani Estate</div>}
+                        </a>
+                        <div className="p-4">
+                          <h3 className="text-base font-bold text-gray-950">{home.name}</h3>
+                          <p className="mt-1 flex items-center gap-1.5 text-xs text-gray-500"><Navigation className="h-3.5 w-3.5" />{home.locality}</p>
+                          <div className="mt-3 border-t border-gray-100 pt-3">
+                            <p className="text-sm font-semibold text-gray-900">{home.config}</p>
+                            <p className="mt-0.5 text-xs text-gray-500">{home.area}</p>
+                          </div>
+                          <a href={home.source} target="_blank" rel="noreferrer" className="mt-4 block rounded-xl bg-blue-700 px-3 py-2.5 text-center text-xs font-bold text-white transition hover:bg-blue-800">View project & check flats ↗</a>
+                          <p className="mt-3 text-[11px] leading-4 text-gray-500">Project details are indicative; confirm the specific resale unit, asking price and documents with the seller.</p>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </div>
+                <p className="mt-2 text-xs text-gray-500">*Carpet areas can vary by floor plan and source. References: House of Hiranandani, Housing.com and Magicbricks.</p>
+              </>
+            )}
+          </div>
+        </section>
 
         {/* Trust */}
         <section className="py-24 bg-white border-y border-gray-100">
