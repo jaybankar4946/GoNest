@@ -22,6 +22,7 @@ export default function BuilderNewProjectPage() {
   const [cities, setCities] = useState<City[]>([]);
   const [localities, setLocalities] = useState<Locality[]>([]);
   const [projects, setProjects] = useState<ProjectRow[]>([]);
+  const [photos, setPhotos] = useState<File[]>([]);
   const [busy, setBusy] = useState(false);
   const [loadingProjects, setLoadingProjects] = useState(true);
   const [error, setError] = useState('');
@@ -106,7 +107,29 @@ export default function BuilderNewProjectPage() {
       });
       if (rpcError) throw rpcError;
       const result = data as { project_id?: string; verification_status?: string };
-      setSuccess(`Project submitted for review. Reference: ${result.project_id ?? 'received'}`);
+      let photoNote = '';
+      if (result.project_id && photos.length) {
+        const uploadedPaths: string[] = [];
+        try {
+          for (let i = 0; i < photos.length; i++) {
+            const file = photos[i];
+            const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+            const path = user.id + '/projects/' + result.project_id + '/' + crypto.randomUUID() + '.' + ext;
+            const { error: uploadError } = await supabase.storage.from('listing-images').upload(path, file, { contentType: file.type, upsert: false });
+            if (uploadError) throw uploadError;
+            uploadedPaths.push(path);
+          }
+          const { error: mediaError } = await supabase.from('project_media').insert(uploadedPaths.map((storage_path, sort_order) => ({
+            project_id: result.project_id, storage_path, alt_text: form.projectName.trim() + ' project photo', sort_order, created_by_user_id: user.id, is_sample: false,
+          })));
+          if (mediaError) throw mediaError;
+        } catch {
+          if (uploadedPaths.length) await supabase.storage.from('listing-images').remove(uploadedPaths);
+          photoNote = ' Project details were submitted, but the photo upload did not finish. Please retry photos before publishing.';
+        }
+      }
+      setSuccess('Project submitted for review. Reference: ' + (result.project_id ?? 'received') + '.' + photoNote);
+      setPhotos([]);
       setForm(prev => ({ ...prev, projectName: '', projectAddress: '', officialUrl: '', brochureUrl: '', totalUnits: '', possession: '', minPrice: '', maxPrice: '', unitConfiguration: '', unitReference: '', unitArea: '', unitPrice: '', unitSourceUrl: '' }));
       await loadProjects();
     } catch (e) {
@@ -153,6 +176,7 @@ export default function BuilderNewProjectPage() {
                 <label className={labelClass}>Official project page<input required type="url" className={inputClass} value={form.officialUrl} onChange={e=>update('officialUrl',e.target.value)} placeholder="https://developer.com/project"/></label>
                 <label className={labelClass}>Brochure URL<input type="url" className={inputClass} value={form.brochureUrl} onChange={e=>update('brochureUrl',e.target.value)} placeholder="Optional PDF or brochure link"/></label>
               </div></div>
+              <div><h2 className="font-bold text-slate-900">Project photos</h2><p className="mt-1 text-sm text-slate-600">Upload genuine project, amenity or brochure images you are authorized to use. Photos remain private to this submission until project review.</p><label className={labelClass+" mt-3 block"}>Photos (up to 8, 5 MB each)<input type="file" accept="image/jpeg,image/png,image/webp" multiple className={inputClass} onChange={e=>{const files=Array.from(e.target.files ?? []);if(files.length>8){setError("Choose no more than 8 project photos.");setPhotos(files.slice(0,8));return;}if(files.some(file=>file.size>5*1024*1024)){setError("Each photo must be 5 MB or smaller.");return;}setError("");setPhotos(files);}}/></label>{photos.length>0&&<p className="mt-2 text-xs text-slate-500">{photos.length} photo{photos.length===1?"":"s"} selected: {photos.map(file=>file.name).join(", ")}</p>}</div>
               <div><h2 className="font-bold text-slate-900">Optional unit reference</h2><p className="mt-1 text-sm text-slate-600">This is stored as unverified inventory. It will not be shown as live availability until independently verified.</p><div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <label className={labelClass}>Configuration<input className={inputClass} value={form.unitConfiguration} onChange={e=>update('unitConfiguration',e.target.value)} placeholder="e.g. 2 BHK"/></label>
                 <label className={labelClass}>Unit reference<input className={inputClass} value={form.unitReference} onChange={e=>update('unitReference',e.target.value)} placeholder="Tower / unit code if publishable"/></label>
