@@ -14,6 +14,7 @@ type Project = {
   inventory_status: string; inventory_verified_at: string | null; verification_status: string; is_sample: boolean;
   developer?: { operating_brand?: string | null; website_url?: string | null } | null;
   city?: { name?: string } | null; locality?: { name?: string } | null;
+  project_media?: { id: string; storage_path: string; alt_text: string | null; sort_order: number }[];
 };
 
 const ESTATE_PROJECTS = [
@@ -35,6 +36,8 @@ const estatePhoto = (p:Project) => {
  const x=ESTATE_PROJECTS.find(e=>e.aliases.some(a=>p.official_name.toLowerCase().includes(a)));
  return x ?? null;
 };
+
+const projectMediaUrl = (path: string) => `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/listing-images/${path}`;
 
 const MAHARERA = "https://maharera.maharashtra.gov.in/";
 const money = (n: number | null | undefined) => n == null ? "Ask for current pricing" : n >= 10000000 ? `₹${(n / 10000000).toFixed(2).replace(/0+$/,"").replace(/\.$/,"")} Cr` : n >= 100000 ? `₹${(n / 100000).toFixed(1).replace(/\.0$/,"")} L` : `₹${n.toLocaleString("en-IN")}`;
@@ -58,7 +61,7 @@ export default function NewProjectsPage() {
     (async () => {
       setLoading(true); setLoadError("");
       const { data, error } = await supabase.from("real_estate_projects")
-        .select("id,official_name,public_address,rera_number,project_category,construction_status,launch_date,expected_possession_date,total_units,configurations,published_price_min_inr,published_price_max_inr,price_observed_at,official_project_url,brochure_url,inventory_status,inventory_verified_at,verification_status,is_sample,developer:developers(operating_brand,website_url),city:cities(name),locality:localities(name)")
+        .select("id,official_name,public_address,rera_number,project_category,construction_status,launch_date,expected_possession_date,total_units,configurations,published_price_min_inr,published_price_max_inr,price_observed_at,official_project_url,brochure_url,inventory_status,inventory_verified_at,verification_status,is_sample,developer:developers(operating_brand,website_url),city:cities(name),locality:localities(name),project_media(id,storage_path,alt_text,sort_order)")
         .eq("is_sample", false).in("verification_status", ["pending","verified"]).not("official_project_url","is",null)
         .order("official_name");
       if (!live) return;
@@ -122,12 +125,14 @@ export default function NewProjectsPage() {
         : <><div className="mb-4 flex items-center justify-between"><p className="text-sm text-slate-600"><strong>{filtered.length}</strong> projects found</p></div>
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{filtered.map(p=>{
             const estate = estatePhoto(p);
+            const uploadedPhoto = [...(p.project_media ?? [])].sort((a,b)=>a.sort_order-b.sort_order)[0];
+            const cardImage = uploadedPhoto ? projectMediaUrl(uploadedPhoto.storage_path) : estate?.image;
             const developer = p.developer?.operating_brand || "Developer details pending";
             const location = [p.locality?.name,p.city?.name].filter(Boolean).join(", ") || p.public_address || "Location details pending";
             const configurations = Array.isArray(p.configurations) ? p.configurations.map((x:any)=>typeof x==="string"?x:x?.label||x?.configuration).filter(Boolean).join(" · ") : "";
             return <article key={p.id} className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-xl">
               <div className="relative flex h-52 items-center justify-center overflow-hidden bg-gradient-to-br from-slate-100 via-blue-50 to-slate-200">
-                {estate?.image ? <img src={estate.image} alt={`${p.official_name} project reference`} className="absolute inset-0 h-full w-full object-cover" loading="lazy"/> : <Building2 className="h-14 w-14 text-slate-300"/>}
+                {cardImage ? <img src={cardImage} alt={uploadedPhoto?.alt_text || `${p.official_name} project reference`} className="absolute inset-0 h-full w-full object-cover" loading="lazy"/> : <Building2 className="h-14 w-14 text-slate-300"/>}
                 <span className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-slate-700 shadow-sm">New project</span>
                 <span className={`absolute right-4 top-4 rounded-full px-3 py-1.5 text-[11px] font-bold shadow-sm ${p.verification_status === "verified" ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"}`}>{p.verification_status === "verified" ? "Project verified" : "Project details"}</span>
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/75 to-transparent px-5 pb-4 pt-12">
@@ -164,7 +169,7 @@ export default function NewProjectsPage() {
       <section role="dialog" aria-modal="true" aria-labelledby="project-detail-title" className="relative h-full w-full max-w-2xl overflow-y-auto bg-white shadow-2xl">
         <header className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white p-5"><div><p className="text-xs font-bold uppercase tracking-wide text-blue-700">{selected.developer?.operating_brand || "Project details"}</p><h2 id="project-detail-title" className="mt-1 text-xl font-extrabold">{selected.official_name}</h2></div><button onClick={()=>setSelected(null)} className="rounded-full bg-slate-100 p-2" aria-label="Close"><X className="h-5 w-5"/></button></header>
         <div className="space-y-5 p-5 md:p-6">
-          <div className="rounded-2xl bg-slate-50 p-4">{estatePhoto(selected) && <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3">{estatePhoto(selected)!.gallery.filter(src=>!src.toLowerCase().endsWith(".pdf")).map((src,i)=><a key={src} href={src} target="_blank" rel="noreferrer" className="overflow-hidden rounded-xl bg-slate-200"><img src={src} alt={`${selected.official_name} / Hiranandani Estate reference image ${i+1}`} className="h-32 w-full object-cover" loading="lazy"/></a>)}</div>}<p className="flex items-center gap-2 font-bold"><MapPin className="h-4 w-4"/>{[selected.locality?.name,selected.city?.name].filter(Boolean).join(", ") || selected.public_address || "Location to be confirmed"}</p><p className="mt-2 text-sm text-slate-600">{estatePhoto(selected)?.facts || "Project data shown here is limited to recorded source information. Some gallery photos show shared Hiranandani Estate amenities or township views, not the exact legacy building or individual flat."} Review published configurations and photos on the official source. Individual unit terms must be confirmed during enquiry.</p>
+          <div className="rounded-2xl bg-slate-50 p-4">{((selected.project_media?.length ?? 0)>0 || estatePhoto(selected)) && <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3">{[...(selected.project_media ?? []).slice().sort((a,b)=>a.sort_order-b.sort_order).map(media=>({src:projectMediaUrl(media.storage_path),alt:media.alt_text || selected.official_name + " project photo"})), ...(estatePhoto(selected)?.gallery.filter(src=>!src.toLowerCase().endsWith(".pdf")).map((src,i)=>({src,alt:selected.official_name + " / Hiranandani Estate reference image " + (i+1)})) ?? [])].map(media=><a key={media.src} href={media.src} target="_blank" rel="noreferrer" className="overflow-hidden rounded-xl bg-slate-200"><img src={media.src} alt={media.alt} className="h-32 w-full object-cover" loading="lazy"/></a>)}</div>}<p className="flex items-center gap-2 font-bold"><MapPin className="h-4 w-4"/>{[selected.locality?.name,selected.city?.name].filter(Boolean).join(", ") || selected.public_address || "Location to be confirmed"}</p><p className="mt-2 text-sm text-slate-600">{estatePhoto(selected)?.facts || "Project data shown here is limited to recorded source information. Some gallery photos show shared Hiranandani Estate amenities or township views, not the exact legacy building or individual flat."} Review published configurations and photos on the official source. Individual unit terms must be confirmed during enquiry.</p>
             <div className="mt-3 flex flex-wrap gap-2">{selected.official_project_url&&<a className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold" href={selected.official_project_url} target="_blank" rel="noreferrer">Official project page <ExternalLink className="ml-1 inline h-3.5 w-3.5"/></a>}<a className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold" href={MAHARERA} target="_blank" rel="noreferrer">MahaRERA search <ExternalLink className="ml-1 inline h-3.5 w-3.5"/></a>{selected.brochure_url&&<a className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold" href={selected.brochure_url} target="_blank" rel="noreferrer">Brochure <ExternalLink className="ml-1 inline h-3.5 w-3.5"/></a>}</div>
           </div>
           
