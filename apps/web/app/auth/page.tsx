@@ -7,6 +7,7 @@ import type { Provider } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 
 type Tab = 'signin' | 'signup';
+type SignupRole = 'buyer' | 'owner' | 'agent' | 'builder';
 type Method = 'password' | 'link' | 'google';
 type Msg = { type: 'ok' | 'err'; text: string };
 
@@ -40,6 +41,7 @@ function AuthInner() {
   const [tab, setTab] = useState<Tab>(params.get('mode') === 'signup' ? 'signup' : 'signin');
   const [method, setMethod] = useState<Method>('password');
   const [name, setName] = useState('');
+  const [signupRole, setSignupRole] = useState<SignupRole>('buyer');
   const [email, setEmail] = useState('');
   const [pass, setPass] = useState('');
   const [show, setShow] = useState(false);
@@ -65,7 +67,7 @@ function AuthInner() {
         const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password: pass });
         if (error) { if (/not confirmed/i.test(error.message)) setNeedsConfirm(true); fail(error); } else router.replace(next);
       } else {
-        const { data, error } = await supabase.auth.signUp({ email: email.trim(), password: pass, options: { data: { full_name: name.trim() }, emailRedirectTo: origin() + next } });
+        const { data, error } = await supabase.auth.signUp({ email: email.trim(), password: pass, options: { data: { full_name: name.trim(), role: signupRole }, emailRedirectTo: origin() + next } });
         if (error) fail(error);
         else if (data.session) router.replace(next);
         else if (data.user && (data.user.identities?.length ?? 0) === 0) setMsg({ type: 'err', text: 'An account with this email already exists. Try signing in, or reset your password.' });
@@ -83,7 +85,7 @@ function AuthInner() {
 
   const sendLink = async (e: React.FormEvent) => {
     e.preventDefault(); reset(); setBusy(true);
-    const { error } = await supabase.auth.signInWithOtp({ email: email.trim(), options: { emailRedirectTo: origin() + next, shouldCreateUser: true, data: name.trim() ? { full_name: name.trim() } : undefined } });
+    const { error } = await supabase.auth.signInWithOtp({ email: email.trim(), options: { emailRedirectTo: origin() + next, shouldCreateUser: true, data: name.trim() ? { full_name: name.trim(), role: signupRole } : { role: signupRole } } });
     setBusy(false);
     if (error) fail(error); else setMsg({ type: 'ok', text: `We emailed a sign-in link to ${email.trim()}. It works on this device or any other.` });
   };
@@ -121,6 +123,27 @@ function AuthInner() {
             <button key={m.id} disabled={busy} onClick={() => { if(m.id==='google'){ void oauth('google'); return; } setMethod(m.id); reset(); }} className={`flex-1 min-w-[calc(50%-0.25rem)] sm:min-w-0 px-3 py-2.5 rounded-xl text-xs font-semibold border transition-all disabled:opacity-60 ${method === m.id ? 'bg-blue-50 border-blue-600 text-blue-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`} aria-pressed={method===m.id}>{m.id==='google'?'Continue with Google':m.label}</button>
           ))}
         </div>
+
+        {tab === 'signup' && (
+          <fieldset className="mb-4">
+            <legend className="mb-2 text-xs font-bold uppercase tracking-wide text-gray-500">I want to join GoNest as</legend>
+            <div className="grid grid-cols-2 gap-2">
+              {([
+                ['buyer','Buyer','Discover and save homes'],
+                ['owner','Property owner','List my own property'],
+                ['agent','Agent / broker','Manage client listings'],
+                ['builder','Builder / developer','Submit projects and inventory'],
+              ] as const).map(([role,title,desc]) => (
+                <button key={role} type="button" onClick={() => setSignupRole(role)} aria-pressed={signupRole===role}
+                  className={'rounded-xl border p-3 text-left transition ' + (signupRole===role ? 'border-blue-600 bg-blue-50 ring-1 ring-blue-100' : 'border-gray-200 hover:border-gray-300')}>
+                  <span className="block text-sm font-bold text-gray-900">{title}</span>
+                  <span className="mt-1 block text-xs leading-4 text-gray-500">{desc}</span>
+                </button>
+              ))}
+            </div>
+            <p className="mt-2 text-xs text-gray-500">Agent and builder credentials are reviewed separately. Choosing a role does not mean GoNest has verified it.</p>
+          </fieldset>
+        )}
 
         {method === 'password' && (
           <form onSubmit={submitPassword} className="flex flex-col gap-3">
