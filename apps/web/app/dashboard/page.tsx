@@ -28,7 +28,7 @@ export default function DashboardPage() {
     getMyLeads(user.id).then(setLeads);
     getMyVisits(user.id).then(setVisits);
   },[user]);
-  const canPost=['owner','agent','admin'].includes(profile?.role??'');
+  const canPost=['owner','agent','builder','admin'].includes(profile?.role??'');
   const removeListing=async(id:string)=>{
     if(!confirm('Delete this listing? This cannot be undone.'))return;
     setDeletingId(id);
@@ -45,7 +45,8 @@ export default function DashboardPage() {
         <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:32}}>
           <div><h1 style={{fontSize:22,fontWeight:700,color:'#111',letterSpacing:'-0.02em',marginBottom:4}}>Account</h1><p style={{fontSize:13,color:'#6B6B6B'}}>{user?.email} · {profile?.role??'buyer'}</p></div>
           <div style={{display:'flex',gap:8}}>
-            {canPost&&<Link href="/dashboard/new" style={{padding:'8px 18px',borderRadius:9999,fontSize:13,fontWeight:600,color:'#fff',background:'var(--primary)',display:'inline-flex',alignItems:'center',gap:6}}>+ New listing</Link>}
+            {canPost&&profile?.role!=='builder'&&<Link href="/dashboard/new" style={{padding:'8px 18px',borderRadius:9999,fontSize:13,fontWeight:600,color:'#fff',background:'var(--primary)',display:'inline-flex',alignItems:'center',gap:6}}>+ New listing</Link>}
+            {profile?.role==='builder'&&<Link href="/dashboard/projects/new" style={{padding:'8px 18px',borderRadius:9999,fontSize:13,fontWeight:600,color:'#fff',background:'var(--primary)',display:'inline-flex',alignItems:'center'}}>+ Add project</Link>}
             {profile?.role==='builder'&&<Link href="/dashboard/project-enquiries" style={{padding:'8px 18px',borderRadius:9999,fontSize:13,fontWeight:600,color:'#1D4ED8',border:'1px solid #BFDBFE',background:'#EFF6FF',display:'inline-flex',alignItems:'center'}}>Project enquiries</Link>}
             <Link href="/dashboard/settings" style={{padding:'8px 18px',borderRadius:9999,fontSize:13,color:'#111',border:'1px solid #E5E5E5',background:'#fff',display:'inline-flex',alignItems:'center'}}>Settings</Link>
             <button onClick={async()=>{await signOut();router.push('/');}} style={{padding:'8px 18px',borderRadius:9999,fontSize:13,color:'#111',border:'1px solid var(--primary)',background:'#fff',cursor:'pointer'}}>Sign out</button>
