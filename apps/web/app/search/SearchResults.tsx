@@ -166,10 +166,9 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
             {f.purpose==='rent' ? 'More rental homes coming soon' : f.purpose==='sale' ? 'More homes for sale coming soon' : 'More homes coming soon'}
           </p>
           <p style={{fontSize:14,lineHeight:1.7,color:'#6B7280',maxWidth:560,margin:'0 auto'}}>
-            No homes match these filters yet. Explore new projects or list a property.
+            No homes match these filters yet. Try adjusting your filters or list a property.
           </p>
           <div style={{display:'flex',gap:10,justifyContent:'center',flexWrap:'wrap',marginTop:22}}>
-            <Link href="/builders" style={{display:'inline-flex',alignItems:'center',padding:'11px 17px',borderRadius:12,background:'#2563EB',color:'#fff',fontSize:13,fontWeight:700}}>Explore new projects</Link>
             <Link href="/dashboard" style={{display:'inline-flex',alignItems:'center',padding:'11px 17px',borderRadius:12,border:'1px solid #D1D5DB',background:'#fff',color:'#111827',fontSize:13,fontWeight:700}}>List a property</Link>
             <Link href="/agents" style={{display:'inline-flex',alignItems:'center',padding:'11px 17px',borderRadius:12,border:'1px solid #D1D5DB',background:'#fff',color:'#111827',fontSize:13,fontWeight:700}}>Find local professionals</Link>
           </div>
