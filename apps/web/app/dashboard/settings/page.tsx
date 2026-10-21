@@ -18,6 +18,8 @@ export default function SettingsPage() {
   const [phone, setPhone] = useState('');
   const [agency, setAgency] = useState('');
   const [rera, setRera] = useState('');
+  const [bio, setBio] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileMsg, setProfileMsg] = useState<{ type: 'ok'|'err'; text: string } | null>(null);
 
@@ -33,6 +35,8 @@ export default function SettingsPage() {
       setPhone(profile.phone ?? '');
       setAgency(profile.agency_name ?? '');
       setRera(profile.rera_number ?? '');
+      setBio((profile as typeof profile & { bio?: string | null }).bio ?? '');
+      setAvatarUrl((profile as typeof profile & { avatar_url?: string | null }).avatar_url ?? '');
     }
   }, [profile]);
 
@@ -41,7 +45,7 @@ export default function SettingsPage() {
     if (!user) return;
     setSavingProfile(true); setProfileMsg(null);
     try {
-      await updateProfile(user.id, { full_name: name || null, phone: phone || null, agency_name: agency || null, rera_number: rera || null });
+      await updateProfile(user.id, { full_name: name || null, phone: phone || null, agency_name: agency || null, rera_number: rera || null, bio: bio || null, avatar_url: avatarUrl || null });
       await refresh();
       setProfileMsg({ type: 'ok', text: 'Profile updated.' });
     } catch (e) {
@@ -64,6 +68,7 @@ export default function SettingsPage() {
   };
 
   const canAgencyFields = ['agent', 'owner', 'builder'].includes(profile?.role ?? '');
+  const canPublicProfile = ['agent', 'owner', 'builder'].includes(profile?.role ?? '');
 
   return (
     <>
@@ -75,6 +80,10 @@ export default function SettingsPage() {
           <h2 style={{ fontSize: 15, fontWeight: 600, color: '#111', marginBottom: 4 }}>Profile</h2>
           <div><label style={lbl}>Full name</label><input value={name} onChange={e=>setName(e.target.value)} style={inp}/></div>
           <div><label style={lbl}>Contact phone (optional)</label><input type="tel" inputMode="tel" autoComplete="tel" aria-label="Contact phone number" placeholder="e.g. +91 98765 43210" value={phone} onChange={e=>setPhone(e.target.value)} style={inp}/><p style={{fontSize:12,color:'#6B6B6B',marginTop:6,lineHeight:1.5}}>For account and property enquiries only. This number is saved to your profile; GoNest will not send SMS login codes or OTPs.</p></div>
+          {canPublicProfile && <>
+            <div><label style={lbl}>Public profile photo URL</label><input type="url" value={avatarUrl} onChange={e=>setAvatarUrl(e.target.value)} placeholder="https://…" style={inp}/><p style={{fontSize:12,color:'#6B6B6B',marginTop:5}}>Use an image you own or have permission to publish.</p></div>
+            <div><label style={lbl}>Profile introduction</label><textarea value={bio} onChange={e=>setBio(e.target.value)} maxLength={1000} rows={4} placeholder="Briefly describe your property experience and service areas." style={{...inp,resize:'vertical'}}/><p style={{fontSize:12,color:'#6B6B6B',marginTop:5}}>{bio.length}/1000 characters</p></div>
+          </>}
           {canAgencyFields && <>
             <div><label style={lbl}>Agency name</label><input value={agency} onChange={e=>setAgency(e.target.value)} style={inp}/></div>
             <div><label style={lbl}>RERA number</label><input value={rera} onChange={e=>setRera(e.target.value)} style={inp}/></div>
