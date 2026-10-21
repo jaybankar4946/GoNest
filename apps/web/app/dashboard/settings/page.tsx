@@ -63,7 +63,7 @@ export default function SettingsPage() {
     } finally { setSavingPass(false); }
   };
 
-  const canAgencyFields = ['agent', 'owner'].includes(profile?.role ?? '');
+  const canAgencyFields = ['agent', 'owner', 'builder'].includes(profile?.role ?? '');
 
   return (
     <>
