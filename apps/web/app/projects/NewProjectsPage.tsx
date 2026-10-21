@@ -15,7 +15,6 @@ type Project = {
   developer?: { operating_brand?: string | null; website_url?: string | null } | null;
   city?: { name?: string } | null; locality?: { name?: string } | null;
 };
-type Unit = { id: string; unit_reference: string | null; tower_name: string | null; floor_number: number | null; configuration: string | null; carpet_area_sqft: number | null; asking_price_inr: number | null; additional_charges_inr: number | null; availability_status: string; observed_at: string; source_url: string | null; verified_by: string | null };
 
 const ESTATE_PROJECTS = [
  { name:"Villa Carino", aliases:["villa carino"], image:"https://www.houseofhiranandani.com/villa-carino-desk.jpg", gallery:["https://www.houseofhiranandani.com/villa-carino-desk.jpg","https://www.houseofhiranandani.com/villa-carnio-1-big.jpg"], url:"https://www.houseofhiranandani.com/residential-projects/thane/estate/villa-carino", configurations:"1 BHK", area:"438–453 sq ft carpet (published reference)" },
@@ -36,7 +35,6 @@ const estatePhoto = (p:Project) => {
 const MAHARERA = "https://maharera.maharashtra.gov.in/";
 const money = (n: number | null | undefined) => n == null ? "Ask for current pricing" : n >= 10000000 ? `₹${(n / 10000000).toFixed(2).replace(/0+$/,"").replace(/\.$/,"")} Cr` : n >= 100000 ? `₹${(n / 100000).toFixed(1).replace(/\.0$/,"")} L` : `₹${n.toLocaleString("en-IN")}`;
 const dateLabel = (s: string | null | undefined) => s ? new Date(s).toLocaleDateString("en-IN",{month:"short",year:"numeric"}) : "Not provided";
-const isFresh = (s: string | null | undefined) => !!s && Date.now() - new Date(s).getTime() <= 14 * 86400000;
 
 export default function NewProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -46,8 +44,6 @@ export default function NewProjectsPage() {
   const [city, setCity] = useState("All Cities");
   const [registration, setRegistration] = useState("All projects");
   const [selected, setSelected] = useState<Project | null>(null);
-  const [units, setUnits] = useState<Unit[]>([]);
-  const [unitsLoading, setUnitsLoading] = useState(false);
   const [requestType, setRequestType] = useState<"enquiry" | "site_visit">("enquiry");
   const [form, setForm] = useState({ name:"", phone:"", email:"", date:"", time:"", message:"", consent:false });
   const [sending, setSending] = useState(false);
@@ -68,23 +64,6 @@ export default function NewProjectsPage() {
     })();
     return () => { live = false; };
   }, []);
-
-  useEffect(() => {
-    let live = true;
-    if (!selected) { setUnits([]); return; }
-    setUnitsLoading(true); setFeedback("");
-    (async () => {
-      const { data, error } = await supabase.from("project_inventory_observations")
-        .select("id,unit_reference,tower_name,floor_number,configuration,carpet_area_sqft,asking_price_inr,additional_charges_inr,availability_status,observed_at,source_url,verified_by")
-        .eq("project_id", selected.id).eq("is_sample", false).eq("availability_status","available")
-        .not("source_url","is",null).gte("observed_at",new Date(Date.now()-14*86400000).toISOString()).order("asking_price_inr");
-      if (!live) return;
-      if (!error) setUnits((data ?? []) as Unit[]);
-      else setUnits([]);
-      setUnitsLoading(false);
-    })();
-    return () => { live = false; };
-  }, [selected]);
 
   const cities = useMemo(() => ["All Cities", ...Array.from(new Set(projects.map(p => p.city?.name).filter(Boolean) as string[])).sort()], [projects]);
   const filtered = useMemo(() => projects.filter(p => {
@@ -114,8 +93,6 @@ export default function NewProjectsPage() {
     } finally { setSending(false); }
   }
 
-  const availableUnits = units.filter(u => u.availability_status === "available" && isFresh(u.observed_at) && !!u.source_url && !!u.verified_by);
-  const verifiedInventory = !!selected && selected.verification_status === "verified" && selected.inventory_status === "verified_available" && isFresh(selected.inventory_verified_at);
 
   return <>
     <Nav />
@@ -144,7 +121,6 @@ export default function NewProjectsPage() {
         : filtered.length === 0 ? <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center"><Building2 className="mx-auto mb-3 h-10 w-10 text-slate-300"/><h2 className="font-bold">No projects match these filters</h2><p className="mt-1 text-sm text-slate-500">Try a broader search or choose all cities.</p><button onClick={()=>{setCity("All Cities");setRegistration("All projects");setQuery("");}} className="mt-4 font-semibold text-blue-700">Clear filters</button></div>
         : <><div className="mb-4 flex items-center justify-between"><p className="text-sm text-slate-600"><strong>{filtered.length}</strong> projects found</p><p className="text-xs text-slate-500">Project records are not a guarantee of current inventory</p></div>
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{filtered.map(p=>{
-            const verified = p.verification_status==="verified" && p.inventory_status==="verified_available" && isFresh(p.inventory_verified_at);
             const estate = estatePhoto(p);
             const developer = p.developer?.operating_brand || "Developer details pending";
             const location = [p.locality?.name,p.city?.name].filter(Boolean).join(", ") || p.public_address || "Location details pending";
@@ -153,7 +129,7 @@ export default function NewProjectsPage() {
               <div className="relative flex h-52 items-center justify-center overflow-hidden bg-gradient-to-br from-slate-100 via-blue-50 to-slate-200">
                 {estate?.image ? <img src={estate.image} alt={`${p.official_name} project reference`} className="absolute inset-0 h-full w-full object-cover" loading="lazy"/> : <Building2 className="h-14 w-14 text-slate-300"/>}
                 <span className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-slate-700 shadow-sm">New project</span>
-                <span className={`absolute right-4 top-4 rounded-full px-3 py-1.5 text-[11px] font-bold shadow-sm ${verified ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"}`}>{verified ? "Availability verified" : "Details to confirm"}</span>
+                <span className={`absolute right-4 top-4 rounded-full px-3 py-1.5 text-[11px] font-bold shadow-sm ${p.verification_status === "verified" ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"}`}>{p.verification_status === "verified" ? "Project verified" : "Project details"}</span>
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/75 to-transparent px-5 pb-4 pt-12">
                   <p className="text-xs font-semibold text-white/80">{developer}</p>
                   <h2 className="mt-1 text-xl font-extrabold leading-tight text-white">{p.official_name}</h2>
