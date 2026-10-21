@@ -14,7 +14,7 @@ type Project = {
   inventory_status: string; inventory_verified_at: string | null; verification_status: string; is_sample: boolean;
   developer?: { operating_brand?: string | null; website_url?: string | null } | null;
   city?: { name?: string } | null; locality?: { name?: string } | null;
-  project_media?: { id: string; storage_path: string; alt_text: string | null; sort_order: number }[];
+  project_media?: { id: string; storage_path: string; alt_text: string | null; sort_order: number; signed_url?: string | null }[];
 };
 
 const ESTATE_PROJECTS = [
@@ -36,8 +36,6 @@ const estatePhoto = (p:Project) => {
  const x=ESTATE_PROJECTS.find(e=>e.aliases.some(a=>p.official_name.toLowerCase().includes(a)));
  return x ?? null;
 };
-
-const projectMediaUrl = (path: string) => `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/listing-images/${path}`;
 
 const MAHARERA = "https://maharera.maharashtra.gov.in/";
 const money = (n: number | null | undefined) => n == null ? "Ask for current pricing" : n >= 10000000 ? `₹${(n / 10000000).toFixed(2).replace(/0+$/,"").replace(/\.$/,"")} Cr` : n >= 100000 ? `₹${(n / 100000).toFixed(1).replace(/\.0$/,"")} L` : `₹${n.toLocaleString("en-IN")}`;
@@ -66,7 +64,18 @@ export default function NewProjectsPage() {
         .order("official_name");
       if (!live) return;
       if (error) setLoadError("Project data could not be loaded right now. Please try again shortly.");
-      else setProjects((data ?? []) as unknown as Project[]);
+      else {
+        const rows = (data ?? []) as unknown as Project[];
+        const withPhotos = await Promise.all(rows.map(async project => ({
+          ...project,
+          project_media: await Promise.all((project.project_media ?? []).map(async media => {
+            const { data: signed } = await supabase.storage.from("project-images").createSignedUrl(media.storage_path, 3600);
+            return { ...media, signed_url: signed?.signedUrl ?? null };
+          })),
+        })));
+        if (!live) return;
+        setProjects(withPhotos);
+      }
       setLoading(false);
     })();
     return () => { live = false; };
@@ -126,7 +135,7 @@ export default function NewProjectsPage() {
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{filtered.map(p=>{
             const estate = estatePhoto(p);
             const uploadedPhoto = [...(p.project_media ?? [])].sort((a,b)=>a.sort_order-b.sort_order)[0];
-            const cardImage = uploadedPhoto ? projectMediaUrl(uploadedPhoto.storage_path) : estate?.image;
+            const cardImage = uploadedPhoto?.signed_url || estate?.image;
             const developer = p.developer?.operating_brand || "Developer details pending";
             const location = [p.locality?.name,p.city?.name].filter(Boolean).join(", ") || p.public_address || "Location details pending";
             const configurations = Array.isArray(p.configurations) ? p.configurations.map((x:any)=>typeof x==="string"?x:x?.label||x?.configuration).filter(Boolean).join(" · ") : "";
@@ -169,7 +178,7 @@ export default function NewProjectsPage() {
       <section role="dialog" aria-modal="true" aria-labelledby="project-detail-title" className="relative h-full w-full max-w-2xl overflow-y-auto bg-white shadow-2xl">
         <header className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white p-5"><div><p className="text-xs font-bold uppercase tracking-wide text-blue-700">{selected.developer?.operating_brand || "Project details"}</p><h2 id="project-detail-title" className="mt-1 text-xl font-extrabold">{selected.official_name}</h2></div><button onClick={()=>setSelected(null)} className="rounded-full bg-slate-100 p-2" aria-label="Close"><X className="h-5 w-5"/></button></header>
         <div className="space-y-5 p-5 md:p-6">
-          <div className="rounded-2xl bg-slate-50 p-4">{((selected.project_media?.length ?? 0)>0 || estatePhoto(selected)) && <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3">{[...(selected.project_media ?? []).slice().sort((a,b)=>a.sort_order-b.sort_order).map(media=>({src:projectMediaUrl(media.storage_path),alt:media.alt_text || selected.official_name + " project photo"})), ...(estatePhoto(selected)?.gallery.filter(src=>!src.toLowerCase().endsWith(".pdf")).map((src,i)=>({src,alt:selected.official_name + " / Hiranandani Estate reference image " + (i+1)})) ?? [])].map(media=><a key={media.src} href={media.src} target="_blank" rel="noreferrer" className="overflow-hidden rounded-xl bg-slate-200"><img src={media.src} alt={media.alt} className="h-32 w-full object-cover" loading="lazy"/></a>)}</div>}<p className="flex items-center gap-2 font-bold"><MapPin className="h-4 w-4"/>{[selected.locality?.name,selected.city?.name].filter(Boolean).join(", ") || selected.public_address || "Location to be confirmed"}</p><p className="mt-2 text-sm text-slate-600">{estatePhoto(selected)?.facts || "Project data shown here is limited to recorded source information. Some gallery photos show shared Hiranandani Estate amenities or township views, not the exact legacy building or individual flat."} Review published configurations and photos on the official source. Individual unit terms must be confirmed during enquiry.</p>
+          <div className="rounded-2xl bg-slate-50 p-4">{((selected.project_media?.length ?? 0)>0 || estatePhoto(selected)) && <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3">{[...(selected.project_media ?? []).filter(media=>media.signed_url).slice().sort((a,b)=>a.sort_order-b.sort_order).map(media=>({src:media.signed_url as string,alt:media.alt_text || selected.official_name + " project photo"})), ...(estatePhoto(selected)?.gallery.filter(src=>!src.toLowerCase().endsWith(".pdf")).map((src,i)=>({src,alt:selected.official_name + " / Hiranandani Estate reference image " + (i+1)})) ?? [])].map(media=><a key={media.src} href={media.src} target="_blank" rel="noreferrer" className="overflow-hidden rounded-xl bg-slate-200"><img src={media.src} alt={media.alt} className="h-32 w-full object-cover" loading="lazy"/></a>)}</div>}<p className="flex items-center gap-2 font-bold"><MapPin className="h-4 w-4"/>{[selected.locality?.name,selected.city?.name].filter(Boolean).join(", ") || selected.public_address || "Location to be confirmed"}</p><p className="mt-2 text-sm text-slate-600">{estatePhoto(selected)?.facts || "Project data shown here is limited to recorded source information. Some gallery photos show shared Hiranandani Estate amenities or township views, not the exact legacy building or individual flat."} Review published configurations and photos on the official source. Individual unit terms must be confirmed during enquiry.</p>
             <div className="mt-3 flex flex-wrap gap-2">{selected.official_project_url&&<a className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold" href={selected.official_project_url} target="_blank" rel="noreferrer">Official project page <ExternalLink className="ml-1 inline h-3.5 w-3.5"/></a>}<a className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold" href={MAHARERA} target="_blank" rel="noreferrer">MahaRERA search <ExternalLink className="ml-1 inline h-3.5 w-3.5"/></a>{selected.brochure_url&&<a className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold" href={selected.brochure_url} target="_blank" rel="noreferrer">Brochure <ExternalLink className="ml-1 inline h-3.5 w-3.5"/></a>}</div>
           </div>
           
