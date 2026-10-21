@@ -3,6 +3,7 @@ import { ShieldCheck, Layers, Eye, Search, Heart, MessageCircle, Check, Clipboar
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
 import { PropertyCard } from '@/components/property/PropertyCard';
+import { ProjectReferenceImage } from '@/components/property/ProjectReferenceImage';
 import { HomeSearch } from './HomeSearch';
 import { getFeatured, getCities, getHomeStats, getAgents, getPopularLocalities, searchListings } from '@/lib/api';
 import type { Metadata } from 'next';
@@ -155,7 +156,7 @@ export default async function HomePage() {
                     ].map((home) => (
                       <article key={home.name} className="w-[285px] shrink-0 snap-start overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg sm:w-[320px]">
                         <a href={home.source} target="_blank" rel="noreferrer" className="relative block h-48 overflow-hidden bg-gradient-to-br from-slate-100 via-blue-50 to-slate-200" aria-label={`Open source information for ${home.name}`}>
-                          {home.image && !home.image.includes('/residential-projects/thane/estate/delanna') ? <img src={home.image} alt={`${home.name} at Hiranandani Estate`} loading="lazy" className="h-full w-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; }} /> : null}
+                          {home.image && !home.image.includes('/residential-projects/thane/estate/delanna') ? <ProjectReferenceImage src={home.image} alt={`${home.name} at Hiranandani Estate`} /> : null}
                           <span className="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1 text-xs font-semibold text-emerald-800 shadow-sm">{home.status}</span>
                           {!home.image && <div className="flex h-full items-center justify-center text-sm font-semibold text-slate-500"><Landmark className="mr-2 h-5 w-5" /> Hiranandani Estate</div>}
                         </a>
