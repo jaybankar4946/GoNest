@@ -21,6 +21,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/builders`, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${base}/agents`, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${base}/localities`, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${base}/home-value`, changeFrequency: 'weekly', priority: 0.8 },
     ...localityGuides.map((guide) => ({
       url: `${base}/localities/${guide.slug}`,
       changeFrequency: 'monthly' as const,
