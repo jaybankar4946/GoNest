@@ -13,7 +13,7 @@ const CARD = `id,title,price,purpose,property_type,bedrooms,bathrooms,sqft,
 
 const FULL = `*,city:cities(id,name,slug,state),locality:localities(id,name,slug,latitude,longitude),
   listing_images(id,storage_path,sort_order,is_cover),
-  poster:profiles!posted_by(full_name,role,agency_name,agent_verified,avatar_url,rera_number)`;
+  poster:public_profiles!posted_by(full_name,role,agency_name,agent_verified,avatar_url,rera_number)`;
 
 const PUBLIC_PROFILE = 'id,full_name,role,agency_name,rera_number,agent_verified,avatar_url,bio,total_listings,rating,review_count,created_at';
 
@@ -184,18 +184,18 @@ export async function cleanupIncompleteListing(listingId: string, uploadedPaths:
 
 export async function adminGetPendingListings(): Promise<ListingFull[]> {
   const { data } = await supabase.from('listings')
-    .select(CARD + ',status,rejection_reason,poster_type,risk_flags,poster:profiles!posted_by(full_name,role,agent_verified,rera_number)')
+    .select(CARD + ',status,rejection_reason,poster_type,risk_flags,poster:public_profiles!posted_by(full_name,role,agent_verified,rera_number)')
     .eq('status', 'pending_review').order('created_at', { ascending: true });
   return (data ?? []) as unknown as ListingFull[];
 }
 export async function adminGetAllListings(): Promise<ListingFull[]> {
   const { data } = await supabase.from('listings')
-    .select(CARD + ',status,rejection_reason,poster:profiles!posted_by(full_name,role)')
+    .select(CARD + ',status,rejection_reason,poster:public_profiles!posted_by(full_name,role)')
     .order('created_at', { ascending: false });
   return (data ?? []) as unknown as ListingFull[];
 }
 export async function adminGetBrokers(): Promise<Profile[]> {
-  const { data } = await supabase.from('profiles').select(PUBLIC_PROFILE).in('role', ['agent','owner']).order('agent_verified', { ascending: false }).order('total_listings', { ascending: false }).order('created_at', { ascending: false });
+  const { data } = await supabase.from('public_profiles').select(PUBLIC_PROFILE).in('role', ['agent','owner']).order('agent_verified', { ascending: false }).order('total_listings', { ascending: false }).order('created_at', { ascending: false });
   return (data ?? []) as Profile[];
 }
 export async function adminGetAllLeads() {
@@ -252,12 +252,12 @@ export async function getPublicBrokerages() {
 }
 
 export async function getAgents(): Promise<Profile[]> {
-  const { data } = await supabase.from('profiles').select(PUBLIC_PROFILE)
-    .in('role', ['agent','owner']).eq('is_sample', false).order('created_at', { ascending: false });
+  const { data } = await supabase.from('public_profiles').select(PUBLIC_PROFILE)
+    .in('role', ['agent','owner']).order('created_at', { ascending: false });
   return (data ?? []) as Profile[];
 }
 export async function getAgentById(id: string): Promise<Profile | null> {
-  const { data } = await supabase.from('profiles').select(PUBLIC_PROFILE).eq('id', id).eq('is_sample', false).maybeSingle();
+  const { data } = await supabase.from('public_profiles').select(PUBLIC_PROFILE).eq('id', id).maybeSingle();
   return data as Profile | null;
 }
 export async function getAgentListings(agentId: string, limit = 24): Promise<ListingFull[]> {
