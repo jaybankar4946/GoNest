@@ -3,11 +3,9 @@ import { Footer } from '@/components/layout/Footer';
 import { notFound } from 'next/navigation';
 import { getListingById, getSimilarListings, getPriceHistory, imgUrl } from '@/lib/api';
 import { ListingFacts, PriceHistory, DecisionSummary } from '@/components/property/ListingFacts';
-import { TrackedLink } from '@/components/property/TrackedLink';
 import { TrackView } from '@/components/property/TrackView';
 import { formatPrice, bhkLabel, capitalize, calcEMI, timeAgo } from '@/lib/format';
 import { PropertyCard } from '@/components/property/PropertyCard';
-import { telHref, waHref } from '@/lib/contact';
 import { ShareButton } from '@/components/property/ShareButton';
 import { SaveButton } from '@/components/property/SaveButton';
 import { DetailMap } from '@/components/property/DetailMap';
@@ -88,14 +86,10 @@ export default async function PropertyPage({ params }: { params: Promise<{id:str
             {l.description&&<p style={{fontSize:14,color:'#3D3D3D',lineHeight:1.75,marginBottom:24}}>{l.description}</p>}
             {l.landmark&&<p style={{fontSize:13,color:'#6B6B6B',marginBottom:20}}><strong>Landmark:</strong> {l.landmark}</p>}
 
-            {poster?.phone&&(
-              <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:20}}>
-                <TrackedLink event="call_click" listingId={l.id} href={telHref(poster.phone)} style={{padding:'10px 20px',borderRadius:9999,fontSize:13,fontWeight:600,color:'#fff',background:'#111'}}>Call</TrackedLink>
-                <TrackedLink event="whatsapp_click" external listingId={l.id} href={waHref(poster.phone,`Hi, I'm interested in: ${l.title}`)} style={{padding:'10px 20px',borderRadius:9999,fontSize:13,fontWeight:600,color:'#fff',background:'#25D366'}}>WhatsApp</TrackedLink>
-                <SaveButton listingId={l.id}/>
-                <ShareButton title={l.title}/>
-              </div>
-            )}
+            <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:20}}>
+              <SaveButton listingId={l.id}/>
+              <ShareButton title={l.title}/>
+            </div>
             <DetailMap listing={l}/>
             {(l as any).video_url&&<video src={(l as any).video_url} controls style={{width:'100%',borderRadius:12,marginBottom:24}}/>}
 

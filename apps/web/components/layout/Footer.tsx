@@ -15,7 +15,7 @@ export function Footer() {
               <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center"><Home className="text-white" style={{ width: 18, height: 18 }} /></div>
               <span className="text-xl font-extrabold text-white" style={{ fontFamily: 'var(--font-manrope), var(--font-display)' }}>GoNest</span>
             </div>
-            <p className="text-sm leading-relaxed max-w-xs">Explore homes to buy or rent across Mumbai, Bengaluru, Delhi NCR, Pune and Hyderabad. Listing availability and verification status are shown transparently.</p>
+            <p className="text-sm leading-relaxed max-w-xs">Explore homes to buy or rent across Mumbai and Pune. Listing availability and verification status are shown transparently.</p>
           </div>
           {COLS.map(c => (
             <div key={c.t}>

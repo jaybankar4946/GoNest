@@ -37,15 +37,16 @@ export default function DashboardPage() {
   };
   const TB=(t:string): React.CSSProperties=>({padding:'8px 18px',borderRadius:9999,fontSize:13,fontWeight:tab===t?600:400,color:tab===t?'#111':'#6B6B6B',background:tab===t?'#F7F7F7':'transparent',border:'none',cursor:'pointer'});
   const ROW: React.CSSProperties={display:'flex',alignItems:'flex-start',justifyContent:'space-between',padding:'14px 16px',border:'1px solid #E5E5E5',borderRadius:12,flexDirection:'column',gap:10};
-  if (!canPost) return <CustomerDashboard />;
+  if (!canPost && profile?.role !== 'builder') return <CustomerDashboard />;
   return(
     <>
       <Nav/>
       <main style={{maxWidth:1000,margin:'0 auto',padding:'40px 24px 80px'}}>
         <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:32}}>
-          <div><h1 style={{fontSize:22,fontWeight:700,color:'#111',letterSpacing:'-0.02em',marginBottom:4}}>Account</h1><p style={{fontSize:13,color:'#6B6B6B'}}>{user?.email} · {profile?.role??'buyer'}</p></div>
+          <div><h1 style={{fontSize:22,fontWeight:700,color:'#111',letterSpacing:'-0.02em',marginBottom:4}}>{profile?.role==='builder'?'Builder workspace':'Account'}</h1><p style={{fontSize:13,color:'#6B6B6B'}}>{user?.email} · {profile?.role??'buyer'}</p>{profile?.role==='builder'&&<p style={{fontSize:13,color:'#475569',marginTop:8,maxWidth:520}}>Manage your project enquiries and visit requests. Project submissions stay pending until GoNest reviews the details and supporting documents.</p>}</div>
           <div style={{display:'flex',gap:8}}>
             {canPost&&<Link href="/dashboard/new" style={{padding:'8px 18px',borderRadius:9999,fontSize:13,fontWeight:600,color:'#fff',background:'var(--primary)',display:'inline-flex',alignItems:'center',gap:6}}>+ New listing</Link>}
+            {profile?.role==='builder'&&<Link href="/dashboard/projects/new" style={{padding:'8px 18px',borderRadius:9999,fontSize:13,fontWeight:600,color:'#fff',background:'#1D4ED8',display:'inline-flex',alignItems:'center'}}>+ Submit project</Link>}
             {profile?.role==='builder'&&<Link href="/dashboard/project-enquiries" style={{padding:'8px 18px',borderRadius:9999,fontSize:13,fontWeight:600,color:'#1D4ED8',border:'1px solid #BFDBFE',background:'#EFF6FF',display:'inline-flex',alignItems:'center'}}>Project enquiries</Link>}
             <Link href="/dashboard/settings" style={{padding:'8px 18px',borderRadius:9999,fontSize:13,color:'#111',border:'1px solid #E5E5E5',background:'#fff',display:'inline-flex',alignItems:'center'}}>Settings</Link>
             <button onClick={async()=>{await signOut();router.push('/');}} style={{padding:'8px 18px',borderRadius:9999,fontSize:13,color:'#111',border:'1px solid var(--primary)',background:'#fff',cursor:'pointer'}}>Sign out</button>
