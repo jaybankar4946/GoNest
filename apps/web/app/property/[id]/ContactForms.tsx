@@ -52,8 +52,8 @@ export function ContactForms({listingId}:{listingId:string}) {
           </>
         ):(
           <>
-            <label style={{fontSize:12,color:'#4B5563'}}>Preferred visit date<input required type="date" value={date} onChange={e=>setDate(e.target.value)} min={new Date().toISOString().split('T')[0]} max={new Date(Date.now()+90*86400000).toISOString().split('T')[0]} style={inp}/></label>
-            <label style={{fontSize:12,color:'#4B5563'}}>Preferred time<select value={time} onChange={e=>setTime(e.target.value)} style={inp}>{['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00'].map(t=><option key={t} value={t}>{t}</option>)}</select></label>
+            <label style={{fontSize:12,color:'#4B5563'}}>Preferred visit date<input required type="date" value={date} onChange={e=>setDate(e.target.value)} min={new Date().toISOString().split('T')[0]} max={new Date(Date.now()+60*86400000).toISOString().split('T')[0]} style={inp}/></label>
+            <label style={{fontSize:12,color:'#4B5563'}}>Preferred time<select value={time} onChange={e=>setTime(e.target.value)} style={inp}>{['10:00','11:00','12:00','14:00','15:00','16:00','17:00','18:00'].map(t=><option key={t} value={t}>{t}</option>)}</select></label>
             <textarea placeholder="Preferred configuration, budget or questions…" rows={3} value={message} onChange={e=>setMsg(e.target.value)} style={{...inp,resize:'none'}}/>
           </>
         )}
