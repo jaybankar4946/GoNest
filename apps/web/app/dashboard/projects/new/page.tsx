@@ -59,7 +59,10 @@ export default function NewBuilderProjectPage() {
   }
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault(); setBusy(true); setError(''); setSuccess('');
+    e.preventDefault();
+    const userId = user?.id;
+    if (!userId) { setError('Sign in to submit a project.'); return; }
+    setBusy(true); setError(''); setSuccess('');
     if (configuration.trim() && !sourceUrl.trim()) {
       setBusy(false); setError('Add an official source URL for the unit or configuration reference.'); return;
     }
@@ -86,7 +89,7 @@ export default function NewBuilderProjectPage() {
       }] : [];
       for (const photo of photos) {
         const extension = photo.type === 'image/png' ? 'png' : photo.type === 'image/webp' ? 'webp' : 'jpg';
-        const path = `${user.id}/${crypto.randomUUID()}.${extension}`;
+        const path = `${userId}/${crypto.randomUUID()}.${extension}`;
         const { error: uploadError } = await supabase.storage.from('project-images').upload(path, photo, { contentType: photo.type, upsert: false });
         if (uploadError) throw uploadError;
         uploadedPaths.push(path);
