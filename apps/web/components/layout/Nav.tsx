@@ -22,8 +22,8 @@ export function Nav() {
 
   const isAdmin = profile?.role === 'admin';
   const canPost = ['owner', 'agent', 'admin'].includes(profile?.role ?? '');
-  const postHref = profile?.role === 'builder' ? '/dashboard/projects/new' : '/dashboard/new';
-  const postLabel = profile?.role === 'builder' ? 'Add Project' : 'Post Property Free';
+  const postHref = !user ? '/list-with-gonest' : profile?.role === 'builder' ? '/dashboard/projects/new' : '/dashboard/new';
+  const postLabel = !user ? 'List with GoNest' : profile?.role === 'builder' ? 'Add Project' : 'Post Property Free';
   const active = (href: string) => path === href || path.startsWith(href + '/');
 
   const doSignOut = async () => {
