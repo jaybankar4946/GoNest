@@ -34,6 +34,7 @@ export default function NewBuilderProjectPage() {
   const [area, setArea] = useState('');
   const [price, setPrice] = useState('');
   const [sourceUrl, setSourceUrl] = useState('');
+  const [photos, setPhotos] = useState<File[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -62,6 +63,13 @@ export default function NewBuilderProjectPage() {
     if (configuration.trim() && !sourceUrl.trim()) {
       setBusy(false); setError('Add an official source URL for the unit or configuration reference.'); return;
     }
+    if (photos.length < 1 || photos.length > 8) {
+      setBusy(false); setError('Upload between 1 and 8 genuine project photos.'); return;
+    }
+    if (photos.some(file => !['image/jpeg','image/png','image/webp'].includes(file.type) || file.size > 8 * 1024 * 1024)) {
+      setBusy(false); setError('Project photos must be JPG, PNG or WebP and no larger than 8 MB each.'); return;
+    }
+    const uploadedPaths: string[] = [];
     const validUrl = (value: string) => /^https?:\/\//i.test(value.trim());
     if (!validUrl(website) || !validUrl(officialUrl) || (sourceUrl.trim() && !validUrl(sourceUrl))) {
       setBusy(false); setError('Use complete URLs beginning with https:// for the developer website, project source and any unit source.'); return;
@@ -76,7 +84,14 @@ export default function NewBuilderProjectPage() {
         source_url: sourceUrl.trim(),
         evidence_notes: 'Builder-submitted reference; availability is not independently verified.',
       }] : [];
-      const { data, error: rpcError } = await supabase.rpc('submit_builder_project', {
+      for (const photo of photos) {
+        const extension = photo.type === 'image/png' ? 'png' : photo.type === 'image/webp' ? 'webp' : 'jpg';
+        const path = `${user.id}/${crypto.randomUUID()}.${extension}`;
+        const { error: uploadError } = await supabase.storage.from('project-images').upload(path, photo, { contentType: photo.type, upsert: false });
+        if (uploadError) throw uploadError;
+        uploadedPaths.push(path);
+      }
+      const { data, error: rpcError } = await supabase.rpc('submit_builder_project_with_media', {
         p_registered_name: registeredName.trim(),
         p_operating_brand: brand.trim() || null,
         p_website_url: website.trim(),
@@ -90,14 +105,18 @@ export default function NewBuilderProjectPage() {
         p_project_category: category,
         p_official_project_url: officialUrl.trim(),
         p_inventory: inventory,
+        p_media_paths: uploadedPaths,
       });
       if (rpcError) throw rpcError;
       const projectId = typeof data === 'string' ? data : (data as {project_id?: string})?.project_id;
       setSuccess(`Project submitted for review. It will not be shown as verified or available until GoNest checks the details.${projectId ? ` Reference: ${projectId}` : ''}`);
       setRegisteredName(''); setBrand(''); setWebsite(''); setDeveloperRera('');
       setProjectName(''); setAddress(''); setProjectRera(''); setOfficialUrl('');
-      setConfiguration(''); setArea(''); setPrice(''); setSourceUrl('');
+      setConfiguration(''); setArea(''); setPrice(''); setSourceUrl(''); setPhotos([]);
     } catch (e) {
+      if (uploadedPaths.length) {
+        await supabase.storage.from('project-images').remove(uploadedPaths).catch(() => undefined);
+      }
       const message = (e as {message?: string})?.message ?? '';
       setError(message.includes('builder_account_required') || message.includes('Builder account required')
         ? 'Your account needs builder access before you can submit a project.'
@@ -130,6 +149,7 @@ export default function NewBuilderProjectPage() {
         <label className={label+" sm:col-span-2"}>Public address<input maxLength={300} value={address} onChange={e=>setAddress(e.target.value)} className={field} placeholder="Street, locality or project address"/></label>
         <label className={label+" sm:col-span-2"}>Official project source URL *<input required type="url" value={officialUrl} onChange={e=>setOfficialUrl(e.target.value)} className={field} placeholder="https://developer.example/project"/></label>
       </div></section>
+      <section><h2 className="text-lg font-bold text-slate-950">Project photos *</h2><p className="mt-1 text-sm leading-6 text-slate-600">Upload 1–8 genuine project images you have permission to share. Photos remain private until the project passes GoNest review.</p><label className={label+" mt-4"}>Project photos (JPG, PNG or WebP; up to 8 MB each)<input required type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={e=>setPhotos(Array.from(e.target.files ?? []).slice(0,8))} className={field+" file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2"}/></label>{photos.length>0&&<ul className="mt-3 space-y-1 text-xs text-slate-600">{photos.map((photo,i)=><li key={photo.name+i}>{photo.name} · {(photo.size/1024/1024).toFixed(1)} MB</li>)}</ul>}</section>
       <section><h2 className="text-lg font-bold text-slate-950">Optional inventory reference</h2><p className="mt-1 text-sm leading-6 text-slate-600">Add a published configuration or unit reference if available. Availability will remain unconfirmed until independently checked.</p><div className="mt-4 grid gap-4 sm:grid-cols-2">
         <label className={label}>Configuration<input maxLength={80} value={configuration} onChange={e=>setConfiguration(e.target.value)} className={field} placeholder="e.g. 2 BHK"/></label>
         <label className={label}>Carpet area (sq ft)<input type="number" min="1" max="100000" value={area} onChange={e=>setArea(e.target.value)} className={field} placeholder="Published area"/></label>
