@@ -61,9 +61,9 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ i
             <>
               <p className="mb-5 max-w-3xl text-sm leading-6 text-slate-600">Review this professional’s active property inventory, then send an enquiry through GoNest. Visit requests remain pending until confirmed.</p>
               <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{listings.map((listing) => <PropertyCard key={listing.id} listing={listing} />)}</div>
-              <div className="mt-8 max-w-2xl"><AgentEnquiryForm listings={listings.map((listing) => ({ id: listing.id, title: listing.title }))} agentName={agent.full_name ?? 'this professional'} /></div>
             </>
           )}
+          <div id="enquire" className="mt-8 max-w-2xl"><AgentEnquiryForm listings={listings.map((listing) => ({ id: listing.id, title: listing.title }))} agentName={agent.full_name ?? 'this professional'} /></div>
         </section>
       </main>
       <Footer />
