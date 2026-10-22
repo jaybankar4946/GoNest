@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Nav } from "@/components/layout/Nav";
 import { Footer } from "@/components/layout/Footer";
 import { supabase } from "@/lib/supabase";
-import { ArrowRight, Building2, CalendarDays, CheckCircle2, Filter, MapPin, Search, ShieldCheck, X } from "lucide-react";
+import { ArrowRight, Building2, CalendarDays, CheckCircle2, ExternalLink, Filter, MapPin, Search, ShieldCheck, X } from "lucide-react";
 
 type Project = {
   id: string; official_name: string; public_address: string | null; rera_number: string | null;
