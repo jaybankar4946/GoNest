@@ -125,7 +125,8 @@ export async function getMyLeads(userId: string) {
   return data ?? [];
 }
 export async function updateLeadStatus(leadId: string, status: string, notes?: string) {
-  await supabase.from('leads').update({ status, notes: notes ?? null }).eq('id', leadId);
+  const { error } = await supabase.from('leads').update({ status, notes: notes ?? null }).eq('id', leadId);
+  if (error) throw error;
 }
 
 export async function submitVisit(input: { consent_at?: string; consent_version?: string; listing_id: string; requested_by: string | null; requester_name: string; requester_phone: string; slot_date: string; slot_time: string; notes?: string }) {
@@ -139,11 +140,12 @@ export async function getMyVisits(userId: string) {
   return data ?? [];
 }
 export async function updateVisitStatus(visitId: string, status: string, confirmedBy?: string) {
-  await supabase.from('visits').update({
+  const { error } = await supabase.from('visits').update({
     status, confirmed_by: confirmedBy ?? null,
     confirmed_at: status === 'confirmed' ? new Date().toISOString() : null,
     completed_at: status === 'completed' ? new Date().toISOString() : null,
   }).eq('id', visitId);
+  if (error) throw error;
 }
 
 export async function getMyListings(userId: string): Promise<ListingFull[]> {
@@ -218,7 +220,8 @@ export async function adminGetStats() {
   };
 }
 export async function adminModerate(listingId: string, status: string, verification: string, reason?: string) {
-  await supabase.rpc('admin_moderate_listing', { p_listing_id: listingId, p_new_status: status, p_new_verification: verification, p_reason: reason ?? null });
+  const { error } = await supabase.rpc('admin_moderate_listing', { p_listing_id: listingId, p_new_status: status, p_new_verification: verification, p_reason: reason ?? null });
+  if (error) throw error;
 }
 export async function adminToggleFeatured(listingId: string, featured: boolean) {
   await supabase.from('listings').update({ featured }).eq('id', listingId);
