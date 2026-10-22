@@ -22,10 +22,10 @@ const LOCAL_BROKERS: LocalBroker[] = [
   { name: 'Shivam Properties', area: 'Manpada · Dhokali', address: 'Shop No 14, Runwal Estate, behind R Mall, Dhokali, Thane West 400607', rating: 4.9, reviews: 219, services: ['Buy', 'Sell', 'Rent'], note: 'Property brokerage and consultancy' },
   { name: 'Royalti', area: 'Kolshet Road · Lodha Supremus', address: 'Office 1110, 11th Floor, Gate 2, Lodha Supremus, Kolshet Road, Thane West 400607', rating: 4.8, reviews: 191, services: ['Buy', 'Sell', 'Rent'], note: 'Real estate consulting and brokerage' },
   { name: 'Homesfy Realty Ltd', area: 'Cadbury Junction · Eastern Express Highway', address: 'Dev Corpora, Office 1602, Eastern Express Highway, near Cadbury Junction, Thane West 400601', rating: 4.6, reviews: 889, services: ['Buy', 'Sell', 'Rent'], note: 'Real estate brokerage and advisory' },
-  { name: 'Ganesha Properties', area: 'Hiranandani Estate', address: 'Office 14, Silverlink CHS, Hiranandani Estate, Thane West 400607', rating: 5.0, reviews: 47, services: ['Buy', 'Sell', 'Rent'], note: 'Local property agency' },
-  { name: 'Quick Deals Realty', area: 'Majiwada Junction', address: 'Swati Sagar Industrial Estate, near Shreya Chemist, Majiwada Junction, Thane West 400601', rating: 4.9, reviews: 72, services: ['Buy', 'Sell', 'Rent'], note: 'Local property brokerage' },
-  { name: 'John Real Estate', area: 'Lodha Splendora · Ghodbunder Road', address: 'Shop 18, Boulevard Premium Shopping, Lodha Splendora, Bhayandarpada, Ghodbunder Road, Thane West 400615', rating: 4.7, reviews: 122, services: ['Buy', 'Sell', 'Rent'], note: 'Residential and commercial property brokerage' },
-  { name: 'Swagat Properties', area: 'Kolshet Road · Dhokali', address: 'Shop 7, Kavyadhara Complex, Kolshet Road, Dhokali, Thane West 400607', rating: 4.9, reviews: 654, services: ['Buy', 'Sell', 'Rent'], note: 'Property consultant and brokerage' },
+  { name: 'Ganesha Properties', area: 'Hiranandani Estate', address: 'Office 14, Silverlink CHS, Hiranandani Estate, Thane West 400607', rating: 5.0, reviews: 139, services: ['Buy', 'Sell', 'Rent'], note: 'Local property agency' },
+  { name: 'Quick Deals Realty', area: 'Majiwada Junction', address: 'Swati Sagar Industrial Estate, near Shreya Chemist, Majiwada Junction, Thane West 400601', rating: 4.9, reviews: 81, services: ['Buy', 'Sell', 'Rent'], note: 'Local property brokerage' },
+  { name: 'John Real Estate', area: 'Lodha Splendora · Ghodbunder Road', address: 'Shop 18, Boulevard Premium Shopping, Lodha Splendora, Bhayandarpada, Ghodbunder Road, Thane West 400615', rating: 4.7, reviews: 128, services: ['Buy', 'Sell', 'Rent'], note: 'Residential and commercial property brokerage' },
+  { name: 'Swagat Properties', area: 'Kolshet Road · Dhokali', address: 'Shop 7, Kavyadhara Complex, Kolshet Road, Dhokali, Thane West 400607', rating: 4.9, reviews: 6, services: ['Buy', 'Sell', 'Rent'], note: 'Property consultant and brokerage' },
 ];
 
 const AREAS = ['All Thane', 'Hiranandani Estate', 'Ghodbunder Road', 'Kasarvadavali', 'Panch Pakhdi', 'Manpada', 'Majiwada', 'Uthalsar', 'Kolshet Road', 'Cadbury Junction'];
@@ -118,9 +118,9 @@ export function AgentDirectory({ agents }: Props) {
         <div className="mx-auto max-w-6xl px-5 py-7 md:px-8 md:py-9">
           <div className="mb-2 flex flex-wrap items-end justify-between gap-3">
             <div><h2 className="text-xl font-bold text-slate-950">Local broker directory</h2><p className="mt-1 text-sm text-slate-600">{localBrokers.length} {localBrokers.length === 1 ? 'brokerage' : 'brokerages'} found in Thane</p></div>
-            <span className="text-xs text-slate-500">Public directory information · Not GoNest verified</span>
+            <span className="text-xs text-slate-500">Public business listings · Not GoNest verified</span>
           </div>
-          <p className="mb-4 max-w-3xl text-sm leading-6 text-slate-500">Ratings and review counts are from public business listings and can change or differ by platform. They are shown for discovery only and are not GoNest reviews or a guarantee of quality.</p>
+          <p className="mb-4 max-w-3xl text-sm leading-6 text-slate-500">Ratings and review counts come from publicly available business directories; the source and count can differ by business and may change. They are shown for discovery only, are not GoNest reviews, and do not constitute an independent GoNest ranking or endorsement.</p>
 
           {localBrokers.length ? <div className="divide-y divide-slate-200 border-y border-slate-200">
             {localBrokers.map((broker, index) => (
