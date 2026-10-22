@@ -41,7 +41,9 @@ function AuthInner() {
   const [tab, setTab] = useState<Tab>(params.get('mode') === 'signup' ? 'signup' : 'signin');
   const [method, setMethod] = useState<Method>('password');
   const [name, setName] = useState('');
-  const [signupRole, setSignupRole] = useState<SignupRole>('buyer');
+  const requestedRole = params.get('role');
+  const initialRole: SignupRole = requestedRole === 'owner' || requestedRole === 'agent' || requestedRole === 'builder' || requestedRole === 'buyer' ? requestedRole : 'buyer';
+  const [signupRole, setSignupRole] = useState<SignupRole>(initialRole);
   const [email, setEmail] = useState('');
   const [pass, setPass] = useState('');
   const [show, setShow] = useState(false);
