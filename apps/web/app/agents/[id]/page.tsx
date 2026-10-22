@@ -3,7 +3,7 @@ import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { getAgentById, getAgentListings } from '@/lib/api';
-import { telHref, waHref } from '@/lib/contact';
+import { AgentEnquiryForm } from '@/components/agents/AgentEnquiryForm';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 
@@ -40,12 +40,12 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ i
                 {agent.rating != null && <span className="rounded-full bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-900">★ {agent.rating.toFixed(1)} · {agent.review_count} reviews</span>}
               </div>
               {agent.bio && <p className="mt-5 max-w-3xl whitespace-pre-line text-sm leading-7 text-slate-600">{agent.bio}</p>}
-              <div className="mt-6 flex flex-wrap gap-3">
-                {agent.phone && <a href={telHref(agent.phone)} className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700">Call professional</a>}
-                {agent.phone && <a href={waHref(agent.phone, `Hi ${agent.full_name ?? ''}, I found your profile on GoNest and would like to enquire about your properties.`)} target="_blank" rel="noreferrer" className="rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white hover:bg-emerald-700">WhatsApp</a>}
-                {listings.length > 0 && <a href={`/property/${listings[0].id}`} className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-800 hover:border-blue-400">Schedule a property visit ↓</a>}
+              <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3"><p className="text-xl font-extrabold text-slate-950">{listings.length}</p><p className="mt-1 text-xs text-slate-500">Active listings</p></div>
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3"><p className="text-xl font-extrabold text-slate-950">{agent.review_count ?? 0}</p><p className="mt-1 text-xs text-slate-500">Reviews</p></div>
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3"><p className="text-xl font-extrabold text-slate-950">{agent.rating == null ? '—' : agent.rating.toFixed(1)}</p><p className="mt-1 text-xs text-slate-500">Rating</p></div>
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3"><p className="text-xl font-extrabold text-slate-950">{agent.agent_verified ? 'Verified' : 'Pending'}</p><p className="mt-1 text-xs text-slate-500">GoNest status</p></div>
               </div>
-              {!agent.phone && <p className="mt-4 text-xs text-slate-500">Direct contact details have not been published for this profile. Open a listing below to use its available enquiry or visit-request options.</p>}
             </div>
           </div>
         </section>
@@ -59,8 +59,9 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ i
             <div className="rounded-2xl border border-slate-200 bg-slate-50 p-8 text-center"><h3 className="font-bold text-slate-900">No active listings right now</h3><p className="mt-2 text-sm text-slate-600">Check back later or browse other GoNest professionals.</p><Link href="/agents" className="mt-4 inline-flex rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white">Browse other profiles</Link></div>
           ) : (
             <>
-              <p className="mb-5 max-w-3xl text-sm leading-6 text-slate-600">Open a property to review its details, contact the poster and request a visit. Visit requests are subject to confirmation by the owner or agent.</p>
+              <p className="mb-5 max-w-3xl text-sm leading-6 text-slate-600">Review this professional’s active property inventory, then send an enquiry through GoNest. Visit requests remain pending until confirmed.</p>
               <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{listings.map((listing) => <PropertyCard key={listing.id} listing={listing} />)}</div>
+              <div className="mt-8 max-w-2xl"><AgentEnquiryForm listings={listings.map((listing) => ({ id: listing.id, title: listing.title }))} agentName={agent.full_name ?? 'this professional'} /></div>
             </>
           )}
         </section>
