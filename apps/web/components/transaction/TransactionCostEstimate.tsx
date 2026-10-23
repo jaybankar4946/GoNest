@@ -11,9 +11,9 @@ type Props = {
   maintenanceMonthly?: number | null;
 };
 
-const inr = (n: number) => new Intl.NumberFormat('en-IN', {
+const inr = (n: number | null | undefined) => new Intl.NumberFormat('en-IN', {
   style: 'currency', currency: 'INR', maximumFractionDigits: 0,
-}).format(Math.max(0, Math.round(n)));
+}).format(Math.max(0, Math.round(n ?? 0)));
 
 function parseBrokerage(value?: string | null, monthlyRent = 0) {
   if (!value || value.toLowerCase() === 'none') return 0;
@@ -95,7 +95,7 @@ export function TransactionCostEstimate({ purpose, price, cityName, brokerage, s
             <input type="checkbox" checked={underConstruction} onChange={e => setUnderConstruction(e.target.checked)} style={{ marginTop: 3 }}/>
             Under-construction residential property (show indicative GST estimate)
           </label>
-          <div style={line}><span>Stamp duty estimate ({(data.dutyRate * 100).toFixed(0)}%)</span><strong>{inr(data.stampDuty)}</strong></div>
+          <div style={line}><span>Stamp duty estimate ({((data.dutyRate ?? 0) * 100).toFixed(0)}%)</span><strong>{inr(data.stampDuty)}</strong></div>
           <div style={line}><span>Registration fee estimate</span><strong>{inr(data.registration)}</strong></div>
           {underConstruction && <div style={line}><span>Indicative GST (subject to eligibility and project status)</span><strong>{inr(data.gst)}</strong></div>}
           <div style={line}><span>Legal / documentation budget (editable)</span><strong>{inr(legalHelp)}</strong></div>
