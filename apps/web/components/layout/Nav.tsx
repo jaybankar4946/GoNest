@@ -22,8 +22,6 @@ export function Nav() {
 
   const isAdmin = profile?.role === 'admin';
   const canPost = ['owner', 'agent', 'admin'].includes(profile?.role ?? '');
-  const postHref = !user ? '/auth?next=/dashboard/new' : profile?.role === 'builder' ? '/dashboard/projects/new' : '/dashboard/new';
-  const postLabel = profile?.role === 'builder' ? 'Add Project' : 'Post Property Free';
   const active = (href: string) => path === href || path.startsWith(href + '/');
 
   const doSignOut = async () => {
@@ -64,7 +62,7 @@ export function Nav() {
 
         {/* Desktop right side */}
         <div style={{ alignItems: 'center', gap: 6, flex: 1, order: 3, justifyContent: 'flex-end' }} className="hidden md:flex">
-          <Link href={postHref} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 12, fontSize: 13, fontWeight: 600, color: '#fff', background: 'var(--primary)', marginRight: 4, whiteSpace: 'nowrap' }}><Plus size={14} /> {postLabel}</Link>
+          <Link href="/dashboard/new" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 12, fontSize: 13, fontWeight: 600, color: '#fff', background: 'var(--primary)', marginRight: 4, whiteSpace: 'nowrap' }}><Plus size={14} /> Post Property Free</Link>
           <NotificationBell />
           <Link href="/saved" style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: '50%' }}
             onMouseOver={e => (e.currentTarget.style.background = 'var(--gray-1)')}
