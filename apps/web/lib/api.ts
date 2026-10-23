@@ -125,7 +125,8 @@ export async function getMyLeads(userId: string) {
   return data ?? [];
 }
 export async function updateLeadStatus(leadId: string, status: string, notes?: string) {
-  await supabase.from('leads').update({ status, notes: notes ?? null }).eq('id', leadId);
+  const { error } = await supabase.from('leads').update({ status, notes: notes ?? null }).eq('id', leadId);
+  if (error) throw error;
 }
 
 export async function submitVisit(input: { consent_at?: string; consent_version?: string; listing_id: string; requested_by: string | null; requester_name: string; requester_phone: string; slot_date: string; slot_time: string; notes?: string }) {

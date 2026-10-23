@@ -67,7 +67,7 @@ export default function DashboardPage() {
           ))}
         </div>
         {tab==='overview'&&<Overview role={profile?.role??'buyer'} profile={profile as any} listings={listings} leads={leads} visits={visits} busy={busy} onGo={setTab}
-          onLeadStatus={async(id,s)=>{setBusy(true);await updateLeadStatus(id,s);setLeads(p=>p.map(x=>x.id===id?{...x,status:s}:x));setBusy(false);}}
+          onLeadStatus={async(id,s)=>{setBusy(true);try{await updateLeadStatus(id,s);setLeads(p=>p.map(x=>x.id===id?{...x,status:s}:x));}catch(err){console.error('Lead status update failed',err);alert('Could not update lead status. Please try again.');}finally{setBusy(false);}}}
           onVisitStatus={async(id,s)=>{setBusy(true);await updateVisitStatus(id,s,user?.id);setVisits(p=>p.map(x=>x.id===id?{...x,status:s}:x));setBusy(false);}}/>}
         {tab==='listings'&&(
           <div style={{display:'flex',flexDirection:'column',gap:10}}>
@@ -102,7 +102,7 @@ export default function DashboardPage() {
                 </div>
                 <div style={{display:'flex',gap:8}}>
                   {l.buyer_phone&&<a href={`https://wa.me/91${l.buyer_phone.replace(/\D/g,'')}`} target="_blank" rel="noopener noreferrer" style={{padding:'5px 12px',borderRadius:9999,fontSize:12,fontWeight:500,color:'#fff',background:'#25D366'}}>WhatsApp</a>}
-                  <select style={sel} value={l.status} onChange={async e=>{setBusy(true);await updateLeadStatus(l.id,e.target.value);setLeads(p=>p.map(x=>x.id===l.id?{...x,status:e.target.value}:x));setBusy(false);}} disabled={busy}>
+                  <select style={sel} value={l.status} onChange={async e=>{const nextStatus=e.target.value;setBusy(true);try{await updateLeadStatus(l.id,nextStatus);setLeads(p=>p.map(x=>x.id===l.id?{...x,status:nextStatus}:x));}catch(err){console.error('Lead status update failed',err);alert('Could not update lead status. Please try again.');}finally{setBusy(false);}}} disabled={busy}>
                     {['new','contacted','qualified','closed','spam'].map(s=><option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>

@@ -54,13 +54,21 @@ export default async function HomePage() {
             <h1 className="text-5xl md:text-6xl lg:text-[68px] font-extrabold text-white leading-none max-w-4xl mb-4" style={{ ...display, letterSpacing: '-0.035em' }}>
               Find your next home.
             </h1>
-            <p className="text-lg text-white/70 max-w-lg leading-relaxed mb-10">
-              Search apartments, villas and plots to buy or rent, with clear prices, real photos and direct contact.
+            <p className="text-lg text-white/70 max-w-xl leading-relaxed mb-8">
+              Discover homes to buy or rent across Mumbai and Pune. Compare real listing details, then contact the owner or agent directly.
             </p>
             <HomeSearch cities={cities} />
-            {cities.length > 0 && (
-              <div className="mt-8 flex flex-wrap justify-center gap-2.5">
-                {cities.slice(0, 6).map(c => (
+            <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Link href="/buy" className="inline-flex w-full sm:w-auto items-center justify-center rounded-xl bg-white px-6 py-3.5 text-sm font-bold text-gray-950 shadow-lg transition hover:bg-blue-50">
+                For buyers: Explore homes in Mumbai &amp; Pune
+              </Link>
+              <Link href="/list-with-gonest" className="inline-flex w-full sm:w-auto items-center justify-center rounded-xl border border-white/30 bg-white/10 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/20">
+                For developers: Submit your projects
+              </Link>
+            </div>
+            {cities.filter(c => /mumbai|pune/i.test(c.name)).length > 0 && (
+              <div className="mt-6 flex flex-wrap justify-center gap-2.5">
+                {cities.filter(c => /mumbai|pune/i.test(c.name)).map(c => (
                   <Link key={c.id} href={`/search?city=${c.id}`} className="text-sm text-white/80 hover:text-white bg-white/10 hover:bg-white/20 border border-white/15 px-4 py-2 rounded-full transition-all">{c.name}</Link>
                 ))}
               </div>
