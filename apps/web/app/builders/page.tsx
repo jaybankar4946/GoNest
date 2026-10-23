@@ -59,6 +59,7 @@ export default function BuildersPage() {
             <h1 className="max-w-4xl text-4xl font-extrabold tracking-tight md:text-6xl">Explore projects. Check the source. Decide with confidence.</h1>
             <p className="mt-5 max-w-3xl text-base leading-7 text-slate-300 md:text-lg">A starter directory built from developer websites and a published bank project list. These are source-linked project references—not GoNest-certified inventory. Registration, prices, possession dates and available units must be confirmed for the exact phase.</p>
             <div className="mt-7 flex flex-wrap gap-3">
+              <Link href="/homes" className="rounded-xl bg-white px-5 py-3 text-sm font-bold text-slate-950 hover:bg-blue-50">Explore Hiranandani projects →</Link>
               <a href={MAHARERA} target="_blank" rel="noreferrer" className="rounded-xl bg-blue-500 px-5 py-3 text-sm font-bold text-white hover:bg-blue-400">Check official MahaRERA ↗</a>
               <Link href="/search?purpose=sale" className="rounded-xl border border-white/20 px-5 py-3 text-sm font-bold text-white hover:bg-white/10">Browse verified GoNest sale listings →</Link>
             </div>
