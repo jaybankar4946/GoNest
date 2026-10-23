@@ -4,7 +4,7 @@ import { Footer } from '@/components/layout/Footer';
 import { supabase } from '@/lib/supabase';
 
 export const revalidate = 60;
-export const metadata = { title: 'Thane West Demo Inventory | GoNest', robots: { index: false, follow: false } };
+export const metadata = { title: 'Five-City Demo Inventory | GoNest', robots: { index: false, follow: false } };
 
 const inr = (value: number, purpose: string) => {
   const amount = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(value);
@@ -53,8 +53,8 @@ export default async function DemoInventoryPage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'flex-start', flexWrap: 'wrap', marginBottom: 'var(--space-5)' }}>
           <div>
             <p style={{ ...muted, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase' }}>GoNest · QA workspace</p>
-            <h1 style={{ fontSize: 'var(--text-2xl)', fontWeight: 750, letterSpacing: '-.03em', margin: '8px 0' }}>Thane West demo inventory</h1>
-            <p style={{ ...muted, maxWidth: 760 }}>A controlled sample dataset for testing Buy, Rent, New Projects and supplier-directory workflows. Every listing, project and availability value here is synthetic and unverified.</p>
+            <h1 style={{ fontSize: 'var(--text-2xl)', fontWeight: 750, letterSpacing: '-.03em', margin: '8px 0' }}>Five-city demo inventory</h1>
+            <p style={{ ...muted, maxWidth: 760 }}>A controlled sample workspace for Mumbai, Pune, Bengaluru, Delhi NCR and Hyderabad. It tests Buy, Rent, New Projects and supplier-directory workflows. Every listing, project and availability value here is synthetic and unverified.</p>
           </div>
           <Link href="/buy" style={{ padding: '10px 16px', borderRadius: 999, background: 'var(--primary)', color: '#fff', fontWeight: 650, fontSize: 'var(--text-sm)', textDecoration: 'none' }}>View public Buy search →</Link>
         </div>
@@ -96,7 +96,7 @@ export default async function DemoInventoryPage() {
                   return <tr key={l.id}>
                     <td style={cellStyle}><Link href={`/property/${l.id}`} style={{ color: 'var(--primary)', fontWeight: 650, textDecoration: 'none' }}>{l.title}</Link><div style={{ ...muted, fontSize: 'var(--text-xs)', marginTop: 4 }}>{l.slug}</div></td>
                     <td style={cellStyle}><span style={{ padding: '4px 8px', borderRadius: 999, background: 'var(--surface-2)', whiteSpace: 'nowrap' }}>{segment}</span></td>
-                    <td style={cellStyle}>{locality ?? 'Thane West'}</td>
+                    <td style={cellStyle}>{locality ?? (Array.isArray(l.city) ? l.city[0]?.name : l.city?.name ?? 'India')}</td>
                     <td style={{ ...cellStyle, fontWeight: 700, whiteSpace: 'nowrap' }}>{inr(Number(l.price), l.purpose)}</td>
                     <td style={cellStyle}>{l.bedrooms} BHK · {l.sqft ?? '—'} sq ft</td>
                     <td style={cellStyle}><div>{l.availability ?? 'Available (sample)'}</div><div style={{ ...muted, fontSize: 'var(--text-xs)', marginTop: 4 }}>{l.status} · {l.verification_level}</div></td>
