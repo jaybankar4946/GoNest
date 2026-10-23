@@ -43,13 +43,13 @@ export function TransactionCostEstimate({ purpose, price, cityName, brokerage, s
       const dutyRate = isMumbai ? (buyerType === 'women' ? 0.05 : 0.06) : (buyerType === 'women' ? 0.06 : 0.07);
       const stampDuty = price * dutyRate;
       const registration = price > 3000000 ? 30000 : Math.min(30000, Math.max(100, price * 0.01));
-      const gst = underConstruction ? price * (price <= 4500000 ? 0.01 : 0.05) : 0;
+      const gst = underConstruction ? price * 0.05 : 0;
       const subtotal = stampDuty + registration + legalHelp + societyCharges + gst;
       return { dutyRate, stampDuty, registration, gst, subtotal, loan: Math.max(0, loanAmount) };
     }
     const deposit = securityDeposit ?? 0;
     const monthlyBrokerage = parseBrokerage(brokerage, price);
-    const totalRent = price * termMonths;
+    const monthlyContractAmount = price + (maintenanceMonthly ?? 0);\n    const totalRent = monthlyContractAmount * termMonths;
     // Common Maharashtra leave-and-license approximation: 0.25% of total rent plus
     // 10% p.a. notional interest on refundable deposit for the agreement term.
     const rentAgreementDuty = Math.max(100, 0.0025 * (totalRent + deposit * 0.1 * termMonths / 12));
@@ -100,7 +100,7 @@ export function TransactionCostEstimate({ purpose, price, cityName, brokerage, s
           <div style={line}><span>Legal / documentation budget (editable)</span><strong>{inr(legalHelp)}</strong></div>
           <div style={line}><span>Society / possession charges (enter quoted amount)</span><strong>{inr(societyCharges)}</strong></div>
           <div style={{ ...line, borderBottom: 0, fontSize: 15, paddingTop: 14 }}><strong>Estimated total beyond property price</strong><strong style={{ color: '#1D4ED8' }}>{inr(data.subtotal)}</strong></div>
-          <p style={{ fontSize: 12, color: '#6B7280', marginTop: 10 }}>Budget before home-loan costs, interiors, moving, property tax, maintenance/corpus, parking, utility deposits and any project-specific charges. Stamp duty is generally based on the higher of agreement value and applicable Ready Reckoner value. The displayed rate is a broad urban estimate; confirm the exact jurisdiction and eligibility before payment.</p>
+          <p style={{ fontSize: 12, color: '#6B7280', marginTop: 10 }}>Budget before home-loan costs, interiors, moving, property tax, maintenance/corpus, parking, utility deposits and any project-specific charges. Stamp duty is generally based on the higher of agreement value and applicable Ready Reckoner value. The displayed rate is a broad urban estimate; confirm the exact jurisdiction and eligibility before payment. Under-construction GST is shown at a broad 5% estimate only; eligible affordable housing may qualify for a different rate, and eligibility depends on statutory area/value criteria and project facts—not price alone.</p>
         </>
       ) : (
         <>
@@ -117,7 +117,7 @@ export function TransactionCostEstimate({ purpose, price, cityName, brokerage, s
               <input type="number" min="0" value={rentMoveIn} onChange={e => setRentMoveIn(Number(e.target.value) || 0)} style={{ ...field, marginTop: 6 }}/>
             </label>
           </div>
-          <div style={line}><span>First month rent</span><strong>{inr(data.initialRent)}</strong></div>
+          <div style={line}><span>First month rent</span><strong>{inr(data.initialRent)}</strong></div>\n          {(maintenanceMonthly ?? 0) > 0 && <div style={line}><span>Monthly maintenance (recurring; verify if included in rent)</span><strong>{inr(maintenanceMonthly ?? 0)}</strong></div>
           <div style={line}><span>Refundable security deposit (as listed)</span><strong>{inr(data.deposit)}</strong></div>
           <div style={line}><span>Brokerage {data.monthlyBrokerage === null ? '(confirm with agent)' : '(based on listing terms)'}</span><strong>{data.monthlyBrokerage === null ? 'Not calculable' : inr(data.monthlyBrokerage)}</strong></div>
           <div style={line}><span>Indicative agreement stamp duty</span><strong>{inr(data.rentAgreementDuty)}</strong></div>
