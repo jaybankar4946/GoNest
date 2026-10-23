@@ -83,9 +83,10 @@ export async function getSimilarListings(l: ListingFull, limit = 3): Promise<Lis
 }
 
 export async function getCities(): Promise<City[]> {
+  const priority = ['Mumbai', 'Delhi NCR', 'Bengaluru', 'Hyderabad', 'Pune'];
   const { data } = await supabase.from('cities').select('id,name,state,slug,listing_count')
-    .eq('is_active', true).in('name', ['Mumbai', 'Bengaluru', 'Delhi NCR', 'Pune', 'Hyderabad']).order('name');
-  return (data ?? []) as City[];
+    .in('name', priority);
+  return ((data ?? []) as City[]).sort((a, b) => priority.indexOf(a.name) - priority.indexOf(b.name));
 }
 
 export async function getLocalities(cityId: string): Promise<Locality[]> {
