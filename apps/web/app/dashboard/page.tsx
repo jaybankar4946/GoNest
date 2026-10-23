@@ -101,7 +101,7 @@ export default function DashboardPage() {
                 </div>
                 <div style={{display:'flex',gap:8}}>
                   {l.buyer_phone&&<a href={`https://wa.me/91${l.buyer_phone.replace(/\D/g,'')}`} target="_blank" rel="noopener noreferrer" style={{padding:'5px 12px',borderRadius:9999,fontSize:12,fontWeight:500,color:'#fff',background:'#25D366'}}>WhatsApp</a>}
-                  <select style={sel} value={l.status} onChange={async e=>{setBusy(true);await updateLeadStatus(l.id,e.target.value);setLeads(p=>p.map(x=>x.id===l.id?{...x,status:e.target.value}:x));setBusy(false);}} disabled={busy}>
+                  <select style={sel} value={l.status} onChange={async e=>{const nextStatus=e.target.value;setBusy(true);try{await updateLeadStatus(l.id,nextStatus);setLeads(p=>p.map(x=>x.id===l.id?{...x,status:nextStatus}:x));}catch{alert('Could not update lead status. Please try again.');}finally{setBusy(false);}}} disabled={busy}>
                     {['new','contacted','qualified','closed','spam'].map(s=><option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
