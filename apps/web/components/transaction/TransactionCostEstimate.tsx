@@ -49,7 +49,8 @@ export function TransactionCostEstimate({ purpose, price, cityName, brokerage, s
     }
     const deposit = securityDeposit ?? 0;
     const monthlyBrokerage = parseBrokerage(brokerage, price);
-    const monthlyContractAmount = price + (maintenanceMonthly ?? 0);\n    const totalRent = monthlyContractAmount * termMonths;
+    const monthlyContractAmount = price + (maintenanceMonthly ?? 0);
+    const totalRent = monthlyContractAmount * termMonths;
     // Common Maharashtra leave-and-license approximation: 0.25% of total rent plus
     // 10% p.a. notional interest on refundable deposit for the agreement term.
     const rentAgreementDuty = Math.max(100, 0.0025 * (totalRent + deposit * 0.1 * termMonths / 12));
@@ -117,7 +118,8 @@ export function TransactionCostEstimate({ purpose, price, cityName, brokerage, s
               <input type="number" min="0" value={rentMoveIn} onChange={e => setRentMoveIn(Number(e.target.value) || 0)} style={{ ...field, marginTop: 6 }}/>
             </label>
           </div>
-          <div style={line}><span>First month rent</span><strong>{inr(data.initialRent)}</strong></div>\n          {(maintenanceMonthly ?? 0) > 0 && <div style={line}><span>Monthly maintenance (recurring; verify if included in rent)</span><strong>{inr(maintenanceMonthly ?? 0)}</strong></div>
+          <div style={line}><span>First month rent</span><strong>{inr(data.initialRent)}</strong></div>
+          {(maintenanceMonthly ?? 0) > 0 && <div style={line}><span>Monthly maintenance (recurring; verify if included in rent)</span><strong>{inr(maintenanceMonthly ?? 0)}</strong></div>
           <div style={line}><span>Refundable security deposit (as listed)</span><strong>{inr(data.deposit)}</strong></div>
           <div style={line}><span>Brokerage {data.monthlyBrokerage === null ? '(confirm with agent)' : '(based on listing terms)'}</span><strong>{data.monthlyBrokerage === null ? 'Not calculable' : inr(data.monthlyBrokerage)}</strong></div>
           <div style={line}><span>Indicative agreement stamp duty</span><strong>{inr(data.rentAgreementDuty)}</strong></div>
