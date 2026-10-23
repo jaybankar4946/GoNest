@@ -9,7 +9,7 @@ import { getFeatured, getCities, getHomeStats, getAgents, getPopularLocalities, 
 import type { Metadata } from 'next';
 
 export const revalidate = 60;
-export const metadata: Metadata = { title: 'GoNest – Find Your Home in Mumbai' };
+export const metadata: Metadata = { title: 'GoNest – Find Homes Across India’s Top 5 Cities' };
 
 const HERO = 'https://images.unsplash.com/photo-1762811054947-605b20298615?w=1600&h=900&fit=crop&auto=format';
 const display = { fontFamily: 'var(--font-manrope), var(--font-display)' } as const;
@@ -60,7 +60,7 @@ export default async function HomePage() {
             <HomeSearch cities={cities} />
             {cities.length > 0 && (
               <div className="mt-8 flex flex-wrap justify-center gap-2.5">
-                {cities.slice(0, 6).map(c => (
+                {cities.map(c => (
                   <Link key={c.id} href={`/search?city=${c.id}`} className="text-sm text-white/80 hover:text-white bg-white/10 hover:bg-white/20 border border-white/15 px-4 py-2 rounded-full transition-all">{c.name}</Link>
                 ))}
               </div>
