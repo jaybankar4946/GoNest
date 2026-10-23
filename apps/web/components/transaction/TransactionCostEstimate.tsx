@@ -119,7 +119,7 @@ export function TransactionCostEstimate({ purpose, price, cityName, brokerage, s
             </label>
           </div>
           <div style={line}><span>First month rent</span><strong>{inr(data.initialRent)}</strong></div>
-          {(maintenanceMonthly ?? 0) > 0 && <div style={line}><span>Monthly maintenance (recurring; verify if included in rent)</span><strong>{inr(maintenanceMonthly ?? 0)}</strong></div>
+          {(maintenanceMonthly ?? 0) > 0 && <div style={line}><span>Monthly maintenance (recurring; verify if included in rent)</span><strong>{inr(maintenanceMonthly ?? 0)}</strong></div>}
           <div style={line}><span>Refundable security deposit (as listed)</span><strong>{inr(data.deposit)}</strong></div>
           <div style={line}><span>Brokerage {data.monthlyBrokerage === null ? '(confirm with agent)' : '(based on listing terms)'}</span><strong>{data.monthlyBrokerage === null ? 'Not calculable' : inr(data.monthlyBrokerage)}</strong></div>
           <div style={line}><span>Indicative agreement stamp duty</span><strong>{inr(data.rentAgreementDuty)}</strong></div>
