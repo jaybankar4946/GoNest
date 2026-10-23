@@ -8,14 +8,24 @@ import { getFeatured, getCities, getHomeStats, getAgents, getPopularLocalities }
 import type { Metadata } from 'next';
 
 export const revalidate = 60;
-export const metadata: Metadata = { title: 'GoNest – Find Your Home in Mumbai' };
+export const metadata: Metadata = {
+  title: 'GoNest | Buy, Rent & Explore New Homes in Mumbai & Pune',
+  description: 'Explore property listings and new-project information in Mumbai and Pune. Compare details, review listing status and connect with property professionals on GoNest.',
+  alternates: { canonical: '/' },
+  openGraph: {
+    title: 'GoNest | Property Search in Mumbai & Pune',
+    description: 'Explore property listings and new-project information in Mumbai and Pune. Review details and listing status on GoNest.',
+    url: 'https://gonest.in',
+    type: 'website',
+  },
+};
 
 const HERO = 'https://images.unsplash.com/photo-1762811054947-605b20298615?w=1600&h=900&fit=crop&auto=format';
 const display = { fontFamily: 'var(--font-manrope), var(--font-display)' } as const;
 
 const WHY = [
-  { icon: ClipboardCheck, title: 'Reviewed before it goes live', desc: 'Every listing is checked by the GoNest team before it appears in search.' },
-  { icon: ShieldCheck, title: 'Verified owners & agents', desc: 'Look for the verification badge and the RERA number on agent profiles.' },
+  { icon: ClipboardCheck, title: 'Check listing status', desc: 'Review the details shown and confirm current availability with the property source.' },
+  { icon: ShieldCheck, title: 'Verification made clear', desc: 'Treat badges as platform review signals, not a guarantee of legal title or property condition.' },
   { icon: Layers, title: 'Everything on one page', desc: 'Price, area, BHK, photos, location on a map and contact options together.' },
   { icon: Search, title: 'Search that matches how you look', desc: 'Filter by locality, budget, BHK and type, then switch between list and map.' },
   { icon: Heart, title: 'Save and come back', desc: 'Shortlist homes to your account and compare them later.' },
@@ -23,10 +33,10 @@ const WHY = [
 ];
 
 const TRUST = [
-  { icon: ClipboardCheck, title: 'Reviewed listings', items: ['Checked by the GoNest team before going live', 'Duplicate and unusual-price warnings for reviewers', 'Rejected listings never appear in search'] },
-  { icon: BadgeCheck, title: 'Verified badge', items: ['Shown only after GoNest review', 'Platform-verified marks a deeper check', 'Not a guarantee of title or ownership'] },
-  { icon: Users, title: 'Agent profiles', items: ['RERA number shown when the agent provides it', 'Verified agents carry a badge', 'See every active listing by an agent'] },
-  { icon: Flag, title: 'Report anything', items: ['Report button on every listing', 'Reasons include fake, wrong price, already sold', 'Owners can mark listings sold or rented'] },
+  { icon: ClipboardCheck, title: 'Listing information', items: ['Review the details shown on each listing', 'Confirm price and availability with the source', 'Report information that appears incorrect'] },
+  { icon: BadgeCheck, title: 'Verification signals', items: ['Check what each badge represents', 'Review available registration details independently', 'A badge is not a guarantee of title or ownership'] },
+  { icon: Users, title: 'Property professionals', items: ['Review profile details before contacting', 'Independently check applicable RERA details', 'Confirm listing authority and availability'] },
+  { icon: Flag, title: 'Help improve information', items: ['Use available reporting controls where shown', 'Check price and availability before visiting', 'Do not pay before independently verifying the offer'] },
 ];
 export default async function HomePage() {
   const [featured, cities, stats, agents, popular] = await Promise.all([getFeatured(6), getCities(), getHomeStats(), getAgents(), getPopularLocalities(8)]);
@@ -47,13 +57,13 @@ export default async function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-b from-gray-950/65 via-gray-950/50 to-gray-950/85" />
           <div className="relative z-10 flex flex-col items-center text-center px-4 pt-20 pb-20">
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-lg border border-white/20 text-white text-xs font-semibold px-4 py-2 rounded-full mb-8">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Reviewed listings from verified owners and agents
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Property search for Mumbai & Pune
             </div>
             <h1 className="text-5xl md:text-6xl lg:text-[68px] font-extrabold text-white leading-none max-w-4xl mb-4" style={{ ...display, letterSpacing: '-0.035em' }}>
               Find your next home.
             </h1>
             <p className="text-lg text-white/70 max-w-lg leading-relaxed mb-10">
-              Search apartments, villas and plots to buy or rent, with clear prices, real photos and direct contact.
+              Explore property details and new-project information for Mumbai and Pune. Confirm current prices, availability and documents directly with the relevant source.
             </p>
             <HomeSearch cities={cities} />
             {cities.length > 0 && (
