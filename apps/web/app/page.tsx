@@ -8,7 +8,17 @@ import { getFeatured, getCities, getHomeStats, getAgents, getPopularLocalities }
 import type { Metadata } from 'next';
 
 export const revalidate = 60;
-export const metadata: Metadata = { title: 'GoNest – Find Your Home in Mumbai' };
+export const metadata: Metadata = {
+  title: 'GoNest | Buy, Rent & Explore New Homes in Mumbai & Pune',
+  description: 'Explore property listings and new-project information in Mumbai and Pune. Compare details, review listing status and connect with property professionals on GoNest.',
+  alternates: { canonical: '/' },
+  openGraph: {
+    title: 'GoNest | Property Search in Mumbai & Pune',
+    description: 'Explore property listings and new-project information in Mumbai and Pune. Review details and listing status on GoNest.',
+    url: 'https://gonest.in',
+    type: 'website',
+  },
+};
 
 const HERO = 'https://images.unsplash.com/photo-1762811054947-605b20298615?w=1600&h=900&fit=crop&auto=format';
 const display = { fontFamily: 'var(--font-manrope), var(--font-display)' } as const;
