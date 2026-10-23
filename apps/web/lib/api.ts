@@ -249,8 +249,14 @@ export async function getPublicBrokerages() {
 }
 
 export async function getAgents(): Promise<Profile[]> {
-  const { data } = await supabase.from('public_profiles').select(PUBLIC_PROFILE)
-    .in('role', ['agent','owner']).eq('is_sample', false).order('created_at', { ascending: false });
+  // public_profiles has no is_sample column; filtering on it causes PostgREST
+  // to return an error and the directory silently renders empty.
+  const { data, error } = await supabase.from('public_profiles').select(PUBLIC_PROFILE)
+    .in('role', ['agent','owner']).order('created_at', { ascending: false });
+  if (error) {
+    console.error('Unable to load public agent directory:', error.message);
+    return [];
+  }
   return (data ?? []) as Profile[];
 }
 export async function getAgentById(id: string): Promise<Profile | null> {
