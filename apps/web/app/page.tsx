@@ -68,6 +68,41 @@ export default async function HomePage() {
           </div>
         </section>
 
+        {/* Clear entry points for every side of the marketplace */}
+        <section className="bg-white border-b border-gray-100">
+          <div className="max-w-7xl mx-auto px-6 py-16 md:py-20">
+            <div className="max-w-2xl mb-9">
+              <p className="text-xs font-bold tracking-widest uppercase text-blue-600 mb-3">One home journey, from search to move-in</p>
+              <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-3" style={{ ...display, letterSpacing: '-0.025em' }}>What brings you to GoNest?</h2>
+              <p className="text-gray-600 leading-relaxed">Start with what you need. Compare genuine details, understand costs upfront and know what to do next.</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Link href="/rent" className="group rounded-2xl border border-gray-200 p-6 hover:border-blue-300 hover:shadow-lg transition-all focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <div className="w-11 h-11 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center mb-5"><Search className="w-5 h-5" /></div>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">I’m finding a home</h3>
+                <p className="text-sm leading-relaxed text-gray-600 mb-5">Explore homes to rent or buy. Compare location, property details, availability and estimated costs before arranging a visit.</p>
+                <span className="text-sm font-semibold text-blue-700 inline-flex items-center gap-2">Explore homes <span aria-hidden="true">→</span></span>
+              </Link>
+              <Link href="/dashboard/new" className="group rounded-2xl border border-gray-200 p-6 hover:border-blue-300 hover:shadow-lg transition-all focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <div className="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-5"><Home className="w-5 h-5" /></div>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">I have a property</h3>
+                <p className="text-sm leading-relaxed text-gray-600 mb-5">Owners and agents can submit a property, add photos and terms, manage enquiries and keep availability up to date.</p>
+                <span className="text-sm font-semibold text-blue-700 inline-flex items-center gap-2">Post property free <span aria-hidden="true">→</span></span>
+              </Link>
+              <Link href="/dashboard/projects/new" className="group rounded-2xl border border-gray-200 p-6 hover:border-blue-300 hover:shadow-lg transition-all focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <div className="w-11 h-11 rounded-xl bg-violet-50 text-violet-700 flex items-center justify-center mb-5"><Landmark className="w-5 h-5" /></div>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">I represent a developer</h3>
+                <p className="text-sm leading-relaxed text-gray-600 mb-5">Submit a new residential project with authorised details, amenities, possession information and enquiry follow-up.</p>
+                <span className="text-sm font-semibold text-blue-700 inline-flex items-center gap-2">Submit a project <span aria-hidden="true">→</span></span>
+              </Link>
+            </div>
+            <div className="mt-6 rounded-xl bg-gray-50 border border-gray-100 px-5 py-4 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-5">
+              <span className="text-sm font-semibold text-gray-900 shrink-0">A clearer journey</span>
+              <p className="text-sm text-gray-600">Discover → check details and costs → enquire → schedule a visit → confirm terms → move in or complete the purchase.</p>
+            </div>
+          </div>
+        </section>
+
         {/* Live stats (real counts) */}
         {stats.listings >= 20 && (<section className="border-y border-gray-100 bg-white">
           <div className="max-w-7xl mx-auto px-6 py-6 grid grid-cols-2 md:grid-cols-4 divide-x divide-gray-100">
