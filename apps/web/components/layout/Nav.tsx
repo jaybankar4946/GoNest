@@ -22,8 +22,6 @@ export function Nav() {
 
   const isAdmin = profile?.role === 'admin';
   const canPost = ['owner', 'agent', 'admin'].includes(profile?.role ?? '');
-  const postHref = profile?.role === 'builder' ? '/dashboard/projects/new' : '/dashboard/new';
-  const postLabel = profile?.role === 'builder' ? 'Add Project' : 'Post Property Free';
   const active = (href: string) => path === href || path.startsWith(href + '/');
 
   const doSignOut = async () => {
@@ -64,7 +62,7 @@ export function Nav() {
 
         {/* Desktop right side */}
         <div style={{ alignItems: 'center', gap: 6, flex: 1, order: 3, justifyContent: 'flex-end' }} className="hidden md:flex">
-          <Link href={postHref} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 12, fontSize: 13, fontWeight: 600, color: '#fff', background: 'var(--primary)', marginRight: 4, whiteSpace: 'nowrap' }}><Plus size={14} /> {postLabel}</Link>
+          <Link href="/dashboard/new" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 12, fontSize: 13, fontWeight: 600, color: '#fff', background: 'var(--primary)', marginRight: 4, whiteSpace: 'nowrap' }}><Plus size={14} /> Post Property Free</Link>
           <NotificationBell />
           <Link href="/saved" style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: '50%' }}
             onMouseOver={e => (e.currentTarget.style.background = 'var(--gray-1)')}
@@ -130,7 +128,7 @@ export function Nav() {
           {isAdmin && <Link href="/admin" onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>Admin</Link>}
           <div style={{ height: 1, background: 'var(--border)', margin: '10px 0' }} />
           <Link href="/saved" onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>Saved homes</Link>
-          <Link href={postHref} onClick={() => setMobileOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6, padding: '11px 12px', borderRadius: 12, fontSize: 14, fontWeight: 600, color: '#fff', background: 'var(--primary)' }}><Plus size={15} /> {postLabel}</Link>
+          <Link href="/dashboard/new" onClick={() => setMobileOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6, padding: '11px 12px', borderRadius: 12, fontSize: 14, fontWeight: 600, color: '#fff', background: 'var(--primary)' }}><Plus size={15} /> Post Property Free</Link>
           {user ? (
             <>
               <Link href="/dashboard" onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>Dashboard</Link>

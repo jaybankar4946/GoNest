@@ -77,24 +77,28 @@ export default function NewProjectsPage() {
         // Public New Projects should show only projects with real uploaded photos,
         // meaningful published project data, and a verified available inventory status.
         const launchReadyProjects = withPhotos.filter(project => {
-          const hasPhoto = (project.project_media ?? []).some(media => Boolean(media.signed_url));
+          // Some approved developer-source projects have no uploaded project_media yet.
+          // Use only the explicitly curated source-photo fallback for matching projects.
+          const hasPhoto = (project.project_media ?? []).some(media => Boolean(media.signed_url)) ||
+            Boolean(estatePhoto(project)?.image);
           const configs = Array.isArray(project.configurations)
             ? project.configurations.some((item: any) =>
                 typeof item === "string" ? item.trim().length > 0 : Boolean(item?.label || item?.configuration))
             : typeof project.configurations === "string" && project.configurations.trim().length > 0;
           const hasDetailedData = Boolean(
-            project.public_address &&
             configs &&
             project.construction_status &&
-            (project.total_units != null ||
+            (project.public_address ||
+              project.total_units != null ||
               project.published_price_min_inr != null ||
               project.published_price_max_inr != null ||
               project.expected_possession_date ||
               project.launch_date)
           );
-          return hasPhoto && hasDetailedData &&
-            project.verification_status === "verified" &&
-            project.inventory_status === "verified_available";
+          // Do not hide all project records just because unit availability has not
+          // been confirmed. The card labels project verification separately; users
+          // must confirm current pricing and inventory directly with the developer.
+          return hasPhoto && hasDetailedData;
         });
         setProjects(launchReadyProjects);
       }
