@@ -80,3 +80,44 @@ img{display:block;max-width:100%}
 .pd-tabs{position:sticky;top:64px;z-index:40;background:#fff;border-bottom:1px solid #E5E7EB;margin:0 -24px 24px;padding:0 24px;display:flex;gap:4px;overflow-x:auto;white-space:nowrap}
 .pd-tabs a{padding:14px 14px;font-size:14px;font-weight:600;color:#4B5563;border-bottom:2px solid transparent}
 .pd-tabs a:hover{color:var(--primary);border-bottom-color:var(--primary)}
+
+
+/* Marketplace polish: Zillow-inspired discovery patterns, with GoNest's own visual identity */
+.market-search-shell{color:#0f172a}
+.market-search-main{width:100%}
+.market-search-intro{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin:0 0 24px}
+.market-eyebrow{font-size:11px;letter-spacing:.18em;font-weight:800;color:#2563eb}
+.market-search-subtitle{font-size:15px;line-height:1.7;color:#64748b;max-width:640px}
+.market-search-intro-note,.market-results-trust{display:flex;align-items:center;gap:9px;color:#475569;font-size:12px;font-weight:650;white-space:nowrap}
+.market-search-intro-note{padding:11px 14px;border:1px solid #dbeafe;background:#eff6ff;border-radius:999px}
+.market-note-dot{width:8px;height:8px;display:inline-block;flex:none;border-radius:50%;background:#16a34a;box-shadow:0 0 0 3px #dcfce7}
+.market-filter-panel{position:relative}
+.market-filter-panel input:focus,.market-filter-panel select:focus{outline:2px solid #bfdbfe;outline-offset:1px;border-color:#60a5fa}
+.market-results-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 18px;padding:4px 1px}
+.market-results-count{font-size:15px;font-weight:800;color:#0f172a}
+.market-results-caption{margin-top:3px;font-size:12px;color:#64748b}
+.market-results-trust{padding:8px 11px;border:1px solid #e2e8f0;border-radius:999px;background:#fff}
+.market-property-grid>*{min-width:0}
+.market-map-pane .leaflet-container{height:100%;min-height:480px;border-radius:0}
+.agent-market-hero{background:radial-gradient(ellipse at 85% 0%,rgba(219,234,254,.6),transparent 42%),#fff}
+.agent-profile-card{box-shadow:0 2px 10px rgba(15,23,42,.035)}
+.agent-profile-card:focus-within{outline:2px solid #93c5fd;outline-offset:2px}
+@media(max-width:900px){
+  .market-search-intro{align-items:flex-start;flex-direction:column}
+  .market-search-intro-note{white-space:normal}
+  .market-filter-panel{border-radius:16px!important;padding:12px!important}
+  .market-results-trust{display:none}
+}
+@media(max-width:767px){
+  .market-search-main{padding:20px 14px 40px!important}
+  .market-search-intro{gap:12px;margin-bottom:18px}
+  .market-search-subtitle{font-size:14px}
+  .market-filter-panel>input{min-width:100%!important}
+  .market-results-toolbar{align-items:flex-start}
+  .market-results-caption{max-width:260px}
+  .market-split-layout{display:block}
+  .market-split-list{width:100%}
+  .market-map-pane{display:none}
+  .market-property-grid{grid-template-columns:minmax(0,1fr)!important;gap:16px!important}
+  .agent-market-hero .grid.grid-cols-3{gap:8px}
+}

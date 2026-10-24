@@ -106,12 +106,17 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
   ) : null;
 
   return (
-    <div style={{background:'#F9FAFB',minHeight:'70vh'}}>
-    <main style={{maxWidth:1200,margin:'0 auto',padding:'36px 24px'}}>
-      <h1 style={{fontFamily:'var(--font-manrope), var(--font-display)',fontSize:30,fontWeight:800,letterSpacing:'-0.025em',color:'#111827',marginBottom:20}}>
-        {f.purpose==='rent'?'Properties for rent':f.purpose==='sale'?'Properties for sale':'Search properties'}
-      </h1>
-      <div style={{display:'flex',gap:10,flexWrap:'wrap',marginBottom:28,alignItems:'center',background:'#fff',border:'1px solid #E5E7EB',borderRadius:20,padding:14,boxShadow:'var(--shadow-sm)'}}>
+    <div className="market-search-shell" style={{background:'#F5F7FB',minHeight:'75vh'}}>
+    <main className="market-search-main" style={{maxWidth:1440,margin:'0 auto',padding:'28px 24px 64px'}}>
+      <section className="market-search-intro">
+        <div>
+          <p className="market-eyebrow">{f.purpose==='rent'?'RENT A HOME · MUMBAI & PUNE':f.purpose==='sale'?'HOMES FOR SALE · MUMBAI & PUNE':'PROPERTY SEARCH · MUMBAI & PUNE'}</p>
+          <h1 style={{fontFamily:'var(--font-manrope), var(--font-display)',fontSize:'clamp(30px,3vw,42px)',lineHeight:1.12,fontWeight:800,letterSpacing:'-0.04em',color:'#111827',margin:'8px 0 10px'}}>{f.purpose==='rent'?'Find a place that feels like home':f.purpose==='sale'?'Find a home worth coming home to':'Find your place in the city'}</h1>
+          <p className="market-search-subtitle">Explore homes by neighbourhood, compare the details, and request a visit when you’re ready.</p>
+        </div>
+        <div className="market-search-intro-note"><span className="market-note-dot" /> Real listings only · Sample inventory stays out of search</div>
+      </section>
+      <div className="market-filter-panel" style={{display:'flex',gap:10,flexWrap:'wrap',marginBottom:22,alignItems:'center',background:'#fff',border:'1px solid #E5E7EB',borderRadius:20,padding:16,boxShadow:'0 8px 30px rgba(15,23,42,.045)'}}>
         <input value={text} onChange={e=>setText(e.target.value)} onKeyDown={e=>e.key==='Enter'&&runText()} onBlur={runText}
           placeholder="e.g. 2 BHK apartment in Thane under 1 crore" style={{...sel,minWidth:260,flex:'1 1 260px',cursor:'text',background:'#fff'}} />
         <select style={sel} value={f.purpose} onChange={e=>upd('purpose',e.target.value)}>
@@ -154,9 +159,13 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
       </div>
 
       {savedMsg&&<p role="status" style={{fontSize:13,color:'#065F46',background:'#ECFDF5',padding:'8px 12px',borderRadius:10,marginBottom:12}}>{savedMsg} <a href="/saved-searches" style={{textDecoration:'underline'}}>View saved searches</a></p>}
-      <p style={{fontSize:13,color:'var(--gray-4)',marginBottom:20}}>
-        {loading ? 'Searching…' : `${total} ${total===1?'property':'properties'} found`}
-      </p>
+      <div className="market-results-toolbar">
+        <div>
+          <p className="market-results-count">{loading ? 'Finding matching homes…' : <>{total.toLocaleString('en-IN')} {total===1?'property':'properties'} found</>}</p>
+          <p className="market-results-caption">Compare pricing, space and location before you book a visit.</p>
+        </div>
+        <div className="market-results-trust"><span className="market-note-dot" /> Published inventory only</div>
+      </div>
 
       {loading && results.length === 0 && (<div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:'36px 20px'}}>{[1,2,3,4,5,6].map(i=><PropertyCardSkeleton key={i}/>)}</div>)}
       {!loading && results.length === 0 && (
@@ -178,7 +187,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
 
       {view === 'list' && (
         <>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:'36px 20px'}}>
+          <div className="market-property-grid" style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:'24px 20px'}}>
             {results.map(l=><PropertyCard key={l.id} listing={l} onQuickView={setQuickViewId} isSaved={saved.has(l.id)} onToggle={toggle} />)}
           </div>
           <LoadMoreBtn />
@@ -192,14 +201,14 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
       )}
 
       {view === 'split' && results.length > 0 && (
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-5 items-start">
-          <div>
-            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(240px,1fr))',gap:'28px 16px'}}>
+        <div className="market-split-layout grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(360px,42%)] gap-5 items-start">
+          <div className="market-split-list">
+            <div className="market-property-grid" style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(240px,1fr))',gap:'22px 16px'}}>
               {results.map(l=><PropertyCard key={l.id} listing={l} onQuickView={setQuickViewId} isSaved={saved.has(l.id)} onToggle={toggle} />)}
             </div>
             <LoadMoreBtn />
           </div>
-          <div style={{position:'sticky',top:80,height:'calc(100vh - 120px)'}}>
+          <div className="market-map-pane" style={{position:'sticky',top:84,height:'calc(100vh - 112px)',minHeight:480,border:'1px solid #E2E8F0',borderRadius:20,overflow:'hidden',background:'#E8EEF5'}}>
             <MapView listings={results} onSelect={(l)=>setQuickViewId(l.id)} />
           </div>
         </div>

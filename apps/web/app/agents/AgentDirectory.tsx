@@ -59,15 +59,16 @@ export function AgentDirectory({ agents }: Props) {
 
   return (
     <>
-      <section className="border-b border-slate-200 bg-white">
-        <div className="mx-auto max-w-7xl px-5 py-8 md:px-8 md:py-10">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800">
+      <section className="agent-market-hero border-b border-slate-200 bg-white">
+        <div className="mx-auto max-w-7xl px-5 py-10 md:px-8 md:py-14">
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800">
             <span aria-hidden="true">✓</span> MahaRERA Licensed Agents Only
           </div>
           <div className="grid items-end gap-7 lg:grid-cols-[1.15fr_1fr]">
             <div>
-              <h1 className="text-4xl font-extrabold tracking-tight text-slate-950 md:text-5xl">Find a Verified Agent.</h1>
-              <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">Explore agent profiles with GoNest verification and MahaRERA registration details on file. Confirm the licence is current on the official register before engaging an agent.</p>
+              <p className="mb-2 text-xs font-extrabold uppercase tracking-[.18em] text-blue-700">FIND YOUR LOCAL PROPERTY EXPERT</p>
+              <h1 className="text-4xl font-extrabold tracking-tight text-slate-950 md:text-5xl">The right agent makes all the difference.</h1>
+              <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600">Search professionals by name, agency and service area. Review the credentials recorded on GoNest, then confirm current registration on the official MahaRERA register.</p>
             </div>
             <div className="grid grid-cols-3 gap-3">
               {[{ value: licensedAgents.length.toLocaleString('en-IN'), label: 'Verified Agents' }, { value: totalListings.toLocaleString('en-IN'), label: 'Active Listings' }, { value: averageRating == null ? '—' : averageRating.toFixed(2), label: 'Avg. Rating' }].map((stat) => (
@@ -92,9 +93,13 @@ export function AgentDirectory({ agents }: Props) {
       </section>
 
       <section className="mx-auto max-w-7xl px-5 py-8 md:px-8 md:py-10">
-        <div className="mb-5 flex items-center justify-between gap-3">
-          <h2 className="text-lg font-extrabold text-slate-950">MahaRERA registration details on file</h2>
-          <span className="rounded-full bg-blue-50 px-3 py-1.5 text-sm font-bold text-blue-800">{filtered.length} agents</span>
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="text-xs font-extrabold uppercase tracking-[.16em] text-blue-700">DIRECTORY</p>
+            <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-950">Agents matching your search</h2>
+            <p className="mt-1 text-sm text-slate-500">Profiles with registration details recorded by GoNest.</p>
+          </div>
+          <span className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-800">{filtered.length.toLocaleString('en-IN')} {filtered.length===1?'agent':'agents'}</span>
         </div>
         {filtered.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-6 py-16 text-center">
@@ -106,7 +111,7 @@ export function AgentDirectory({ agents }: Props) {
         ) : (
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
             {filtered.map((agent) => (
-              <article key={agent.id} className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-lg">
+              <article key={agent.id} className="agent-profile-card flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl">
                 <div className="p-5">
                   <div className="flex items-start gap-3">
                     <Link href={`/agents/${agent.id}`} aria-label={`View ${agent.full_name ?? 'agent'} profile`} className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-100 bg-slate-100 text-xl font-extrabold text-slate-500">
