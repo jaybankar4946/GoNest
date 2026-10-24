@@ -5,6 +5,7 @@ import { Footer } from '@/components/layout/Footer';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { ProjectReferenceImage } from '@/components/property/ProjectReferenceImage';
 import { HomeSearch } from './HomeSearch';
+import { HomeEMI } from './HomeEMI';
 import { getFeatured, getCities, getHomeStats, getAgents, getPopularLocalities, searchListings } from '@/lib/api';
 import type { Metadata } from 'next';
 
@@ -190,6 +191,9 @@ export default async function HomePage() {
             </div>
           </section>
         )}
+
+        {/* Working home-loan EMI calculator, placed immediately before the Buy / Rent / Sell next-step section */}
+        <HomeEMI />
 
         {/* Compact illustrated action tabs inspired by Zillow */}
         <section className="bg-white py-12 sm:py-16">
