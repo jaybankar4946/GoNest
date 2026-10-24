@@ -61,6 +61,7 @@ export default function BuildersPage() {
             <div className="mt-7 flex flex-wrap gap-3">
               <a href={MAHARERA} target="_blank" rel="noreferrer" className="rounded-xl bg-blue-500 px-5 py-3 text-sm font-bold text-white hover:bg-blue-400">Check official MahaRERA ↗</a>
               <Link href="/search?purpose=sale" className="rounded-xl border border-white/20 px-5 py-3 text-sm font-bold text-white hover:bg-white/10">Browse verified GoNest sale listings →</Link>
+              <Link href="/builders/dashboard" className="rounded-xl border border-emerald-300/50 bg-emerald-400/10 px-5 py-3 text-sm font-bold text-emerald-100 hover:bg-emerald-400/20">For builders: Submit project inventory →</Link>
             </div>
           </div>
         </section>
