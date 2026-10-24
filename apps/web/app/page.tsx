@@ -230,25 +230,88 @@ export default async function HomePage() {
           </section>
         )}
 
-        {/* Compact Zillow-inspired action cards */}
+        {/* Compact illustrated action tabs inspired by Zillow */}
         <section className="bg-white py-12 sm:py-16">
-          <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
-            <div className="mb-7">
-              <h2 className="text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl" style={{ ...display, letterSpacing: '-0.03em' }}>Explore your options</h2>
-              <p className="mt-1 text-sm text-slate-600">Whether you’re buying, renting or selling, GoNest helps you take the next step.</p>
+          <div className="mx-auto max-w-6xl px-5 sm:px-8">
+            <div className="mb-7 text-center">
+              <h2 className="text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl" style={{ ...display, letterSpacing: '-0.03em' }}>Where would you like to start?</h2>
+              <p className="mt-2 text-sm text-slate-600">A simple next step for every move.</p>
+            </div>
+            <div className="mb-6 flex flex-wrap justify-center gap-2" aria-label="Explore GoNest">
+              <a href="#buy-home" className="rounded-full border border-slate-900 bg-slate-900 px-5 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-700">Buy</a>
+              <a href="#rent-home" className="rounded-full border border-slate-200 bg-white px-5 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50">Rent</a>
+              <a href="#sell-home" className="rounded-full border border-slate-200 bg-white px-5 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50">Sell</a>
             </div>
             <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-              <article className="overflow-hidden rounded-xl border border-slate-200 bg-white transition-shadow hover:shadow-md">
-                <div className="aspect-[16/7] overflow-hidden bg-slate-100"><img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=900&h=420&fit=crop&auto=format" alt="Modern residential home exterior" className="h-full w-full object-cover" loading="lazy" /></div>
-                <div className="p-5"><h3 className="text-lg font-bold text-slate-950" style={display}>Buy a home</h3><p className="mt-2 min-h-[48px] text-sm leading-6 text-slate-600">Explore homes, compare key details and connect with owners or agents in Mumbai and Pune.</p><Link href="/buy" className="mt-4 inline-flex items-center justify-center rounded-lg bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-800">Explore homes <span className="ml-2" aria-hidden="true">→</span></Link></div>
+              <article id="buy-home" className="overflow-hidden rounded-2xl border border-slate-200 bg-white text-center transition-all hover:-translate-y-0.5 hover:shadow-lg">
+                <div className="flex h-40 items-center justify-center overflow-hidden bg-gradient-to-br from-sky-50 via-blue-50 to-indigo-100">
+                  <svg viewBox="0 0 300 160" role="img" aria-label="Illustration of a home to buy" className="h-full w-full max-w-xs">
+                    <ellipse cx="150" cy="143" rx="95" ry="8" fill="#dbeafe"/>
+                    <circle cx="224" cy="35" r="17" fill="#fde68a"/>
+                    <path d="M48 86 L150 23 L252 86" fill="#7c8fe8" stroke="#4f46e5" strokeWidth="4" strokeLinejoin="round"/>
+                    <rect x="68" y="82" width="164" height="57" rx="5" fill="#fff" stroke="#4f46e5" strokeWidth="3"/>
+                    <rect x="133" y="96" width="34" height="43" rx="3" fill="#a5b4fc"/>
+                    <rect x="83" y="96" width="31" height="25" rx="3" fill="#bae6fd" stroke="#60a5fa" strokeWidth="2"/>
+                    <rect x="186" y="96" width="31" height="25" rx="3" fill="#bae6fd" stroke="#60a5fa" strokeWidth="2"/>
+                    <path d="M45 139 H255" stroke="#86b6a0" strokeWidth="4" strokeLinecap="round"/>
+                    <path d="M45 128 Q34 112 44 102 Q57 115 52 129 M54 133 Q61 112 74 116 Q71 131 54 133" fill="#65a889"/>
+                    <path d="M239 134 Q226 113 240 105 Q253 119 246 134 M246 136 Q257 116 270 121 Q265 136 246 136" fill="#65a889"/>
+                    <path d="M137 95 L150 84 L163 95" fill="#818cf8"/>
+                  </svg>
+                </div>
+                <div className="px-5 pb-5 pt-4">
+                  <h3 className="text-lg font-bold text-slate-950" style={display}>Buy a home</h3>
+                  <p className="mx-auto mt-2 max-w-xs text-sm leading-5 text-slate-600">Explore homes and compare the details before you decide.</p>
+                  <Link href="/buy" className="mt-4 inline-flex min-h-10 items-center justify-center rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Explore homes <span className="ml-2" aria-hidden="true">→</span></Link>
+                </div>
               </article>
-              <article className="overflow-hidden rounded-xl border border-slate-200 bg-white transition-shadow hover:shadow-md">
-                <div className="aspect-[16/7] overflow-hidden bg-slate-100"><img src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=900&h=420&fit=crop&auto=format" alt="Bright apartment living room" className="h-full w-full object-cover" loading="lazy" /></div>
-                <div className="p-5"><h3 className="text-lg font-bold text-slate-950" style={display}>Rent a home</h3><p className="mt-2 min-h-[48px] text-sm leading-6 text-slate-600">Find rental options, compare rent and property details, and arrange a viewing directly.</p><Link href="/rent" className="mt-4 inline-flex items-center justify-center rounded-lg bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-800">Find rentals <span className="ml-2" aria-hidden="true">→</span></Link></div>
+              <article id="rent-home" className="overflow-hidden rounded-2xl border border-slate-200 bg-white text-center transition-all hover:-translate-y-0.5 hover:shadow-lg">
+                <div className="flex h-40 items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-100">
+                  <svg viewBox="0 0 300 160" role="img" aria-label="Illustration of a welcoming rental apartment" className="h-full w-full max-w-xs">
+                    <ellipse cx="150" cy="143" rx="95" ry="8" fill="#ccfbf1"/>
+                    <circle cx="76" cy="37" r="16" fill="#fde68a"/>
+                    <rect x="75" y="39" width="150" height="100" rx="7" fill="#fff" stroke="#0f766e" strokeWidth="3"/>
+                    <rect x="91" y="55" width="49" height="40" rx="4" fill="#a5f3fc" stroke="#67e8f9" strokeWidth="2"/>
+                    <path d="M115 55 V95 M91 75 H140" stroke="#fff" strokeWidth="3"/>
+                    <rect x="158" y="55" width="48" height="84" rx="3" fill="#99f6e4"/>
+                    <circle cx="194" cy="99" r="3" fill="#0f766e"/>
+                    <path d="M99 119 H145 V139 H99 Z" fill="#fda4af"/>
+                    <path d="M94 118 Q121 100 149 118 L145 127 H99 Z" fill="#fb7185"/>
+                    <path d="M45 139 H255" stroke="#86b6a0" strokeWidth="4" strokeLinecap="round"/>
+                    <path d="M49 134 Q36 116 49 106 Q62 120 55 134 M54 136 Q66 117 77 123 Q72 137 54 136" fill="#34a879"/>
+                    <path d="M235 136 Q223 116 237 108 Q250 122 243 136 M243 137 Q255 119 268 124 Q261 138 243 137" fill="#34a879"/>
+                    <path d="M159 47 L181 29 L205 47" fill="#5eead4" stroke="#0f766e" strokeWidth="3" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                <div className="px-5 pb-5 pt-4">
+                  <h3 className="text-lg font-bold text-slate-950" style={display}>Rent a home</h3>
+                  <p className="mx-auto mt-2 max-w-xs text-sm leading-5 text-slate-600">Find a place that fits your budget and arrange a viewing.</p>
+                  <Link href="/rent" className="mt-4 inline-flex min-h-10 items-center justify-center rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Find rentals <span className="ml-2" aria-hidden="true">→</span></Link>
+                </div>
               </article>
-              <article className="overflow-hidden rounded-xl border border-slate-200 bg-white transition-shadow hover:shadow-md">
-                <div className="aspect-[16/7] overflow-hidden bg-slate-100"><img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=900&h=420&fit=crop&auto=format" alt="Contemporary detached home" className="h-full w-full object-cover" loading="lazy" /></div>
-                <div className="p-5"><h3 className="text-lg font-bold text-slate-950" style={display}>Sell a home</h3><p className="mt-2 min-h-[48px] text-sm leading-6 text-slate-600">Add photos and property details, submit your listing for review, and reach home seekers.</p><Link href="/dashboard/new" className="mt-4 inline-flex items-center justify-center rounded-lg bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-800">List your property <span className="ml-2" aria-hidden="true">→</span></Link></div>
+              <article id="sell-home" className="overflow-hidden rounded-2xl border border-slate-200 bg-white text-center transition-all hover:-translate-y-0.5 hover:shadow-lg">
+                <div className="flex h-40 items-center justify-center overflow-hidden bg-gradient-to-br from-amber-50 via-orange-50 to-rose-100">
+                  <svg viewBox="0 0 300 160" role="img" aria-label="Illustration of listing a home for sale" className="h-full w-full max-w-xs">
+                    <ellipse cx="150" cy="143" rx="95" ry="8" fill="#fed7aa"/>
+                    <circle cx="222" cy="35" r="16" fill="#fde68a"/>
+                    <path d="M54 81 L130 30 L206 81" fill="#fb923c" stroke="#c2410c" strokeWidth="3.5" strokeLinejoin="round"/>
+                    <rect x="72" y="78" width="116" height="61" rx="5" fill="#fff" stroke="#c2410c" strokeWidth="3"/>
+                    <rect x="118" y="101" width="27" height="38" rx="3" fill="#fed7aa"/>
+                    <rect x="84" y="91" width="23" height="21" rx="3" fill="#bae6fd" stroke="#7dd3fc" strokeWidth="2"/>
+                    <rect x="153" y="91" width="23" height="21" rx="3" fill="#bae6fd" stroke="#7dd3fc" strokeWidth="2"/>
+                    <rect x="202" y="75" width="45" height="57" rx="5" fill="#fff" stroke="#f97316" strokeWidth="3"/>
+                    <path d="M212 89 H237 M212 98 H237 M212 107 H230" stroke="#fb923c" strokeWidth="3" strokeLinecap="round"/>
+                    <circle cx="225" cy="63" r="16" fill="#fb7185"/>
+                    <path d="M218 63 L223 68 L233 57" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M45 139 H255" stroke="#86b6a0" strokeWidth="4" strokeLinecap="round"/>
+                    <path d="M45 135 Q34 116 47 107 Q59 121 53 135 M53 136 Q64 117 77 123 Q70 138 53 136" fill="#65a889"/>
+                  </svg>
+                </div>
+                <div className="px-5 pb-5 pt-4">
+                  <h3 className="text-lg font-bold text-slate-950" style={display}>Sell a home</h3>
+                  <p className="mx-auto mt-2 max-w-xs text-sm leading-5 text-slate-600">List your property and reach people looking for their next home.</p>
+                  <Link href="/dashboard/new" className="mt-4 inline-flex min-h-10 items-center justify-center rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">List your property <span className="ml-2" aria-hidden="true">→</span></Link>
+                </div>
               </article>
             </div>
           </div>
