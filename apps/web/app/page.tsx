@@ -230,16 +230,50 @@ export default async function HomePage() {
           </section>
         )}
 
-        {/* Post property CTA */}
-        <section className="bg-blue-600 py-24 overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-500 rounded-full opacity-30 translate-x-1/3 -translate-y-1/3" />
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-700 rounded-full opacity-30 -translate-x-1/3 translate-y-1/3" />
-          <div className="max-w-3xl mx-auto px-6 relative z-10 text-center">
-            <h2 className="text-4xl font-extrabold text-white mb-4" style={{ ...display, letterSpacing: '-0.025em' }}>List your property.<br />Reach people looking right now.</h2>
-            <p className="text-blue-100 text-base leading-relaxed mb-8">Create an account as an owner or agent, add photos and details, and submit for review. Approved listings go live on GoNest.</p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/dashboard/new" className="bg-white text-blue-700 font-bold px-8 py-4 rounded-2xl hover:bg-blue-50 transition-colors text-sm shadow-lg">Post a property</Link>
-              <Link href="/agents" className="bg-white/10 border border-white/20 text-white font-semibold px-8 py-4 rounded-2xl hover:bg-white/20 transition-colors text-sm">Browse agents →</Link>
+        {/* Zillow-inspired home action cards */}
+        <section className="bg-white py-16 sm:py-20">
+          <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
+            <div className="mx-auto mb-10 max-w-2xl text-center">
+              <p className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-blue-700">Your next step starts here</p>
+              <h2 className="text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl" style={{ ...display, letterSpacing: '-0.03em' }}>Make your next move with GoNest.</h2>
+            </div>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+              <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white transition-shadow hover:shadow-lg">
+                <Link href="/buy" className="group block" aria-label="Explore homes to buy">
+                  <div className="aspect-[16/10] overflow-hidden bg-slate-100">
+                    <img src="https://www.zillowstatic.com/bedrock/app/uploads/sites/55/2025/04/homepage-spot-agent-lg.webp" alt="Explore homes to buy" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" loading="lazy" />
+                  </div>
+                  <div className="p-6 sm:p-7">
+                    <h3 className="text-xl font-bold text-slate-950" style={display}>Buy a home</h3>
+                    <p className="mt-3 min-h-[72px] text-sm leading-6 text-slate-600">Explore homes across Mumbai and Pune, compare the details that matter, and connect with an owner or agent to understand your next steps.</p>
+                    <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-blue-700">Explore homes <span aria-hidden="true">→</span></span>
+                  </div>
+                </Link>
+              </article>
+              <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white transition-shadow hover:shadow-lg">
+                <Link href="/rent" className="group block" aria-label="Explore homes to rent">
+                  <div className="aspect-[16/10] overflow-hidden bg-slate-100">
+                    <img src="https://www.zillowstatic.com/bedrock/app/uploads/sites/55/2025/04/homepage-spot-rent-lg.webp" alt="Find a home to rent" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" loading="lazy" />
+                  </div>
+                  <div className="p-6 sm:p-7">
+                    <h3 className="text-xl font-bold text-slate-950" style={display}>Rent a home</h3>
+                    <p className="mt-3 min-h-[72px] text-sm leading-6 text-slate-600">Browse rental homes, compare rent and property details, and contact the owner or agent to arrange your next viewing.</p>
+                    <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-blue-700">Find rentals <span aria-hidden="true">→</span></span>
+                  </div>
+                </Link>
+              </article>
+              <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white transition-shadow hover:shadow-lg">
+                <Link href="/dashboard/new" className="group block" aria-label="List a property with GoNest">
+                  <div className="aspect-[16/10] overflow-hidden bg-slate-100">
+                    <img src="https://www.zillowstatic.com/bedrock/app/uploads/sites/55/2025/04/homepage-spot-sell-lg.webp" alt="List a property for sale or rent" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" loading="lazy" />
+                  </div>
+                  <div className="p-6 sm:p-7">
+                    <h3 className="text-xl font-bold text-slate-950" style={display}>Sell a home</h3>
+                    <p className="mt-3 min-h-[72px] text-sm leading-6 text-slate-600">List your property with GoNest. Add photos and details, submit it for review, and reach people looking for a home.</p>
+                    <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-blue-700">List your property <span aria-hidden="true">→</span></span>
+                  </div>
+                </Link>
+              </article>
             </div>
           </div>
         </section>
