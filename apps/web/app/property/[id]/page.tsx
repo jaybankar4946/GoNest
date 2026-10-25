@@ -17,6 +17,7 @@ import { ImageCarousel } from '@/components/property/ImageCarousel';
 import { ContactForms } from './ContactForms';
 import { EMICalculator } from '@/components/transaction/EMICalculator';
 import { DocumentChecklist } from '@/components/transaction/DocumentChecklist';
+import { TransactionCostEstimator } from '@/components/transaction/TransactionCostEstimator';
 import type { Metadata } from 'next';
 
 export async function generateMetadata({ params }: { params: Promise<{id:string}> }): Promise<Metadata> {
@@ -115,7 +116,8 @@ export default async function PropertyPage({ params }: { params: Promise<{id:str
             {l.purpose==='sale'&&<div id="payment" style={{scrollMarginTop:130}}><EMICalculator price={l.price}/></div>}
 
             {/* LAYER 3: Checklist */}
-            <DocumentChecklist purpose={l.purpose}/>
+            <TransactionCostEstimator purpose={l.purpose} askingPrice={l.price} securityDeposit={l.security_deposit} maintenanceMonthly={l.maintenance_monthly} brokerageDisclosure={l.brokerage}/>
+            <DocumentChecklist purpose={l.purpose} listingId={l.id}/>
           </div>
 
           {/* Right col — contact panel */}
