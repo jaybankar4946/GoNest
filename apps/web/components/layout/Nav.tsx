@@ -21,6 +21,15 @@ export function Nav() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const isAdmin = profile?.role === 'admin';
+  const roleDashboard = profile?.role === 'admin'
+    ? { href: '/admin', label: 'Admin Dashboard' }
+    : profile?.role === 'agent'
+      ? { href: '/dashboard', label: 'Agent Dashboard' }
+      : profile?.role === 'owner'
+        ? { href: '/dashboard', label: 'Owner Dashboard' }
+        : profile?.role === 'builder'
+          ? { href: '/dashboard', label: 'Builder Dashboard' }
+          : null;
   const canPost = ['owner', 'agent', 'admin'].includes(profile?.role ?? '');
   const active = (href: string) => path === href || path.startsWith(href + '/');
 
@@ -53,9 +62,9 @@ export function Nav() {
               {l.label}
             </Link>
           ))}
-          {isAdmin && (
-            <Link href="/admin" style={{ padding: '8px 14px', borderRadius: 9999, fontSize: 14, fontWeight: active('/admin') ? 600 : 400, color: active('/admin') ? 'var(--primary)' : '#3a3a3a', background: active('/admin') ? 'var(--gray-1)' : 'transparent', display: 'flex', alignItems: 'center', gap: 5 }}>
-              <ShieldCheck size={14} /> Admin
+          {roleDashboard && (
+            <Link href={roleDashboard.href} style={{ padding: '8px 14px', borderRadius: 9999, fontSize: 14, fontWeight: active(roleDashboard.href) ? 600 : 400, color: active(roleDashboard.href) ? 'var(--primary)' : '#3a3a3a', background: active(roleDashboard.href) ? 'var(--gray-1)' : 'transparent', display: 'flex', alignItems: 'center', gap: 5 }}>
+              {isAdmin ? <ShieldCheck size={14} /> : <LayoutDashboard size={14} />} {roleDashboard.label}
             </Link>
           )}
         </nav>
@@ -125,7 +134,7 @@ export function Nav() {
               {l.label}
             </Link>
           ))}
-          {isAdmin && <Link href="/admin" onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>Admin</Link>}
+          {roleDashboard && <Link href={roleDashboard.href} onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>{roleDashboard.label}</Link>}
           <div style={{ height: 1, background: 'var(--border)', margin: '10px 0' }} />
           <Link href="/saved" onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>Saved homes</Link>
           <Link href="/dashboard/new" onClick={() => setMobileOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6, padding: '11px 12px', borderRadius: 12, fontSize: 14, fontWeight: 600, color: '#fff', background: 'var(--primary)' }}><Plus size={15} /> List with GoNest</Link>
