@@ -65,6 +65,10 @@ export default async function HomePage() {
                 ))}
               </div>
             )}
+            <Link href="/demo-inventory" className="mt-7 inline-flex items-center gap-2 rounded-full border border-white/35 bg-white/10 px-5 py-3 text-sm font-semibold text-white backdrop-blur transition-colors hover:bg-white/20">
+              Open interactive demo inventory <span aria-hidden="true">→</span>
+            </Link>
+            <p className="mt-2 max-w-md text-xs text-white/70">Sample listings and supplier records for workflow testing — not verified live offers.</p>
           </div>
         </section>
 
