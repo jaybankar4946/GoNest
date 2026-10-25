@@ -31,7 +31,7 @@ export default function AdminPage() {
   const[launchInventory,setLaunchInventory]=useState<any>(null);
   const[reason,setReason]=useState<Record<string,string>>({});
   const[busy,setBusy]=useState(false);
-  useEffect(()=>{if(!loading&&profile?.role!=='admin')router.push('/');},[loading,profile,router]);
+  useEffect(()=>{if(!loading && profile && profile.role!=='admin') router.replace('/dashboard');},[loading,profile,router]);
   useEffect(()=>{
     adminGetPendingListings().then(setQueue);
     adminGetAllListings().then(setListings);
@@ -46,6 +46,8 @@ export default function AdminPage() {
   useEffect(()=>{adminGetFunnel(fdays).then(setFunnel);},[fdays]);
   const moderate=async(id:string,status:string,vl:string,rej?:string)=>{setBusy(true);await adminModerate(id,status,vl,rej);setQueue(p=>p.filter(l=>l.id!==id));setListings(p=>p.map(l=>l.id===id?{...l,status,verification_level:vl}:l));setBusy(false);};
   const TS=(t:string): React.CSSProperties=>({padding:'7px 18px',borderRadius:9999,fontSize:13,fontWeight:tab===t?600:400,color:tab===t?'#111':'#6B6B6B',background:tab===t?'#F7F7F7':'transparent',border:'none',cursor:'pointer'});
+  if (loading) return <><Nav/><main style={{maxWidth:1100,margin:'0 auto',padding:'48px 24px',color:'#6B6B6B'}}>Checking administrator access…</main><Footer/></>;
+  if (!profile || profile.role!=='admin') return <><Nav/><main style={{maxWidth:1100,margin:'0 auto',padding:'48px 24px'}}><h1 style={{fontSize:22,fontWeight:700,marginBottom:8}}>Administrator access required</h1><p style={{fontSize:14,color:'#6B6B6B'}}>This page is available only to accounts with the administrator role.</p></main><Footer/></>;
   return(
     <>
       <Nav/>
