@@ -22,6 +22,7 @@ export default function DashboardPage() {
   const[busy,setBusy]=useState(false);
   const[deletingId,setDeletingId]=useState<string|null>(null);
   useEffect(()=>{if(!loading&&!user)router.push('/auth');},[loading,user,router]);
+  useEffect(()=>{if(!loading && user && profile?.role==='admin') router.replace('/admin');},[loading,user,profile,router]);
   useEffect(()=>{
     if(!user)return;
     getMyListings(user.id).then(setListings);
