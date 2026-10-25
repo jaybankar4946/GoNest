@@ -29,6 +29,7 @@ export default function DashboardPage() {
     getMyVisits(user.id).then(setVisits);
   },[user]);
   const canPost=['owner','agent','admin'].includes(profile?.role??'');
+  const isBuilder=profile?.role==='builder';
   const removeListing=async(id:string)=>{
     if(!confirm('Delete this listing? This cannot be undone.'))return;
     setDeletingId(id);
@@ -37,7 +38,9 @@ export default function DashboardPage() {
   };
   const TB=(t:string): React.CSSProperties=>({padding:'8px 18px',borderRadius:9999,fontSize:13,fontWeight:tab===t?600:400,color:tab===t?'#111':'#6B6B6B',background:tab===t?'#F7F7F7':'transparent',border:'none',cursor:'pointer'});
   const ROW: React.CSSProperties={display:'flex',alignItems:'flex-start',justifyContent:'space-between',padding:'14px 16px',border:'1px solid #E5E5E5',borderRadius:12,flexDirection:'column',gap:10};
-  if (!canPost) return <CustomerDashboard />;
+  if (loading) return <><Nav/><main style={{maxWidth:1000,margin:'0 auto',padding:'48px 24px',color:'#6B6B6B'}}>Loading your GoNest account…</main><Footer/></>;
+  if (user && !profile) return <><Nav/><main style={{maxWidth:1000,margin:'0 auto',padding:'48px 24px'}}><h1 style={{fontSize:22,fontWeight:700,marginBottom:8}}>We couldn’t load your account profile</h1><p style={{fontSize:14,color:'#6B6B6B',marginBottom:16}}>Your session is active, but GoNest could not read your profile. Refresh the profile or contact support; we have not changed your role or permissions.</p><button onClick={()=>window.location.reload()} style={{padding:'9px 16px',borderRadius:9999,border:'1px solid #DDD',background:'#fff',cursor:'pointer'}}>Retry</button></main><Footer/></>;
+  if (!canPost && !isBuilder) return <CustomerDashboard />;
   return(
     <>
       <Nav/>
