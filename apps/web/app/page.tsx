@@ -8,7 +8,7 @@ import { getFeatured, getCities, getHomeStats, getAgents, getPopularLocalities }
 import type { Metadata } from 'next';
 
 export const revalidate = 60;
-export const metadata: Metadata = { title: 'GoNest – Find Your Home in Mumbai' };
+export const metadata: Metadata = { title: 'GoNest – Find Homes to Buy or Rent in India' };
 
 const HERO = 'https://images.unsplash.com/photo-1762811054947-605b20298615?w=1600&h=900&fit=crop&auto=format';
 const display = { fontFamily: 'var(--font-manrope), var(--font-display)' } as const;
