@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, useState, useCallback, useRef } f
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 
-type Profile = { id: string; full_name: string|null; phone: string|null; role: string; agency_name: string|null; agent_verified: boolean; rera_number: string|null; avatar_url: string|null };
+type Profile = { id: string; full_name: string|null; phone?: string|null; role: string; agency_name: string|null; agent_verified: boolean; rera_number: string|null; avatar_url: string|null };
 type Ctx = { user: User|null; profile: Profile|null; loading: boolean; signOut: ()=>Promise<void>; refresh: ()=>Promise<void> };
 const Ctx = createContext<Ctx>({ user:null, profile:null, loading:true, signOut:async()=>{}, refresh:async()=>{} });
 
@@ -17,7 +17,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const loadProfile=useCallback(async(uid:string):Promise<Profile|null>=>{
     const { data, error } = await supabase
       .from('profiles')
-      .select('id,full_name,phone,role,agency_name,agent_verified,rera_number,avatar_url')
+      .select('id,full_name,role,agency_name,agent_verified,rera_number,avatar_url')
       .eq('id',uid)
       .maybeSingle();
     if (error) throw error;
