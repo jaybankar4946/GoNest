@@ -9,7 +9,7 @@ import { getFeatured, getCities, getHomeStats, getAgents, getPopularLocalities, 
 import type { Metadata } from 'next';
 
 export const revalidate = 60;
-export const metadata: Metadata = { title: 'GoNest – Find Your Home in Mumbai' };
+export const metadata: Metadata = { title: 'GoNest – Find Homes to Buy or Rent in India' };
 
 const HERO = 'https://images.unsplash.com/photo-1762811054947-605b20298615?w=1600&h=900&fit=crop&auto=format';
 const display = { fontFamily: 'var(--font-manrope), var(--font-display)' } as const;
@@ -73,6 +73,10 @@ export default async function HomePage() {
                 ))}
               </div>
             )}
+            <Link href="/demo-inventory" className="mt-7 inline-flex items-center gap-2 rounded-full border border-white/35 bg-white/10 px-5 py-3 text-sm font-semibold text-white backdrop-blur transition-colors hover:bg-white/20">
+              Open interactive demo inventory <span aria-hidden="true">→</span>
+            </Link>
+            <p className="mt-2 max-w-md text-xs text-white/70">Sample listings and supplier records for workflow testing — not verified live offers.</p>
           </div>
         </section>
 
