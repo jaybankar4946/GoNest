@@ -249,8 +249,15 @@ export async function getPublicBrokerages() {
 }
 
 export async function getAgents(): Promise<Profile[]> {
-  const { data } = await supabase.from('profiles').select(PUBLIC_PROFILE)
-    .in('role', ['agent','owner']).eq('is_sample', false).order('created_at', { ascending: false });
+  // Keep the public directory query to fields needed for discovery/contact; profile RLS
+  // determines which rows are publicly visible, including exclusion of sample profiles.
+  const { data, error } = await supabase.from('profiles')
+    .select('id,full_name,role,agency_name,rera_number,agent_verified,avatar_url,bio,total_listings,rating,review_count,created_at')
+    .in('role', ['agent','owner']).order('created_at', { ascending: false });
+  if (error) {
+    console.error('[GoNest agents] Could not load public profiles:', error);
+    return [];
+  }
   return (data ?? []) as Profile[];
 }
 export async function getAgentById(id: string): Promise<Profile | null> {
