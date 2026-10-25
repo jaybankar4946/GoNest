@@ -14,13 +14,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setProfile(data as Profile|null);
   },[]);
   useEffect(()=>{
-    supabase.auth.getSession().then(({data})=>{
-      const u=data.session?.user??null; setUser(u); if(u)loadProfile(u.id); setLoading(false);
+    let alive = true;
+    supabase.auth.getSession().then(async ({data})=>{
+      const u=data.session?.user??null;
+      if (!alive) return;
+      setUser(u);
+      if (u) {
+        await loadProfile(u.id);
+      } else {
+        setProfile(null);
+      }
+      if (alive) setLoading(false);
+    }).catch(()=>{
+      if (alive) setLoading(false);
     });
     const{data:sub}=supabase.auth.onAuthStateChange((_,s)=>{
-      const u=s?.user??null; setUser(u); if(u)loadProfile(u.id); else setProfile(null);
+      const u=s?.user??null;
+      setUser(u);
+      if(u) {
+        // Keep protected routes from evaluating a stale/missing role while the profile loads.
+        setLoading(true);
+        void loadProfile(u.id).finally(()=>{ if (alive) setLoading(false); });
+      } else {
+        setProfile(null);
+        setLoading(false);
+      }
     });
-    return()=>sub.subscription.unsubscribe();
+    return()=>{ alive=false; sub.subscription.unsubscribe(); };
   },[loadProfile]);
   const signOut=async()=>{await supabase.auth.signOut();setProfile(null);};
   const refresh=useCallback(async()=>{if(user)await loadProfile(user.id);},[user,loadProfile]);
