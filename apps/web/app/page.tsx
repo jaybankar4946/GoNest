@@ -67,6 +67,30 @@ export default async function HomePage() {
           </div>
         </section>
 
+        {/* Zillow-inspired buy, rent and sell pathways */}
+        <section className="border-b border-gray-100 bg-gray-50 py-14 sm:py-16">
+          <div className="mx-auto max-w-7xl px-5 sm:px-6">
+            <div className="mb-8">
+              <h2 className="text-3xl font-extrabold tracking-tight text-gray-950" style={{ ...display, letterSpacing: '-0.03em' }}>How can GoNest help?</h2>
+              <p className="mt-2 text-gray-600">Choose your next step, whether you’re finding a home or listing one.</p>
+            </div>
+            <div className="grid gap-5 md:grid-cols-3">
+              {[
+                {title:'Buy a home',desc:'Compare homes, understand the costs and contact the owner or agent.',href:'/buy',cta:'Explore homes',icon:Landmark},
+                {title:'Rent a home',desc:'Explore rentals and check rent, deposit and other stated charges.',href:'/rent',cta:'Find rentals',icon:Navigation},
+                {title:'Sell or rent out',desc:'Reach people looking for a home. Submit your property for review.',href:'/dashboard/new',cta:'List with GoNest',icon:Users},
+              ].map(item=>{const Icon=item.icon;return(
+                <article key={item.title} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:p-7">
+                  <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50"><Icon className="h-6 w-6 text-blue-700"/></div>
+                  <h3 className="text-xl font-extrabold text-gray-950">{item.title}</h3>
+                  <p className="mt-2 min-h-12 text-sm leading-6 text-gray-600">{item.desc}</p>
+                  <Link href={item.href} className="mt-5 inline-flex text-sm font-bold text-blue-700 hover:text-blue-900">{item.cta} →</Link>
+                </article>
+              )})}
+            </div>
+          </div>
+        </section>
+
         {/* Live stats (real counts) */}
         {stats.listings >= 20 && (<section className="border-y border-gray-100 bg-white">
           <div className="max-w-7xl mx-auto px-6 py-6 grid grid-cols-2 md:grid-cols-4 divide-x divide-gray-100">
@@ -178,7 +202,8 @@ export default async function HomePage() {
                       {agent.avatar_url ? <img src={agent.avatar_url} alt="" loading="lazy" className="h-full w-full object-cover" /> : (agent.full_name ?? '?').charAt(0).toUpperCase()}
                     </div>
                     <h3 className="text-sm font-bold text-gray-950">{agent.full_name ?? 'Property professional'}</h3>
-                    <p className="mt-1 text-xs text-gray-500">'Location not provided'</p>
+                    <p className="mt-1 text-xs text-gray-500">{agent.agency_name ?? (agent.role === 'owner' ? 'Property owner' : 'Independent agent')}</p>
+                    {agent.rating != null && <p className="mt-1 text-xs font-bold text-amber-700">★ {agent.rating.toFixed(1)} <span className="font-normal text-gray-500">({agent.review_count})</span></p>}
                     <div className="mt-3 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
                       <BadgeCheck className="h-3.5 w-3.5" /> {agent.agent_verified ? 'Verified agent' : 'Agent profile'}
                     </div>
@@ -191,30 +216,6 @@ export default async function HomePage() {
                 Agent profiles will appear here as they become available. <Link href="/agents" className="font-semibold text-blue-700">Browse all agents →</Link>
               </div>
             )}
-          </div>
-        </section>
-
-        {/* Zillow-inspired buy, rent and sell pathways */}
-        <section className="bg-white py-16 sm:py-20">
-          <div className="mx-auto max-w-7xl px-5 sm:px-6">
-            <div className="mb-8">
-              <h2 className="text-3xl font-extrabold tracking-tight text-gray-950" style={{ ...display, letterSpacing: '-0.03em' }}>How can GoNest help?</h2>
-              <p className="mt-2 text-gray-600">Choose your next step, whether you’re finding a home or listing one.</p>
-            </div>
-            <div className="grid gap-5 md:grid-cols-3">
-              {[
-                {title:'Buy a home',desc:'Compare homes, understand the costs and contact the owner or agent.',href:'/buy',cta:'Explore homes',icon:Landmark},
-                {title:'Rent a home',desc:'Explore rentals and check rent, deposit and other stated charges.',href:'/rent',cta:'Find rentals',icon:Navigation},
-                {title:'Sell or rent out',desc:'Reach people looking for a home. Submit your property for review.',href:'/dashboard/new',cta:'List with GoNest',icon:Users},
-              ].map(item=>{const Icon=item.icon;return(
-                <article key={item.title} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:p-7">
-                  <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50"><Icon className="h-6 w-6 text-blue-700"/></div>
-                  <h3 className="text-xl font-extrabold text-gray-950">{item.title}</h3>
-                  <p className="mt-2 min-h-12 text-sm leading-6 text-gray-600">{item.desc}</p>
-                  <Link href={item.href} className="mt-5 inline-flex text-sm font-bold text-blue-700 hover:text-blue-900">{item.cta} →</Link>
-                </article>
-              )})}
-            </div>
           </div>
         </section>
 
