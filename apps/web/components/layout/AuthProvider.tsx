@@ -15,13 +15,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const authEventSeen=useRef(false);
 
   const loadProfile=useCallback(async(uid:string):Promise<Profile|null>=>{
+    // `phone` is not SELECTable by signed-in users (column privilege), so asking for it
+    // makes the whole request 403 and hides the user's role. Read the safe columns first,
+    // then fetch the user's own phone via the get_my_profile_phone() RPC (non-fatal).
     const { data, error } = await supabase
       .from('profiles')
-      .select('id,full_name,phone,role,agency_name,agent_verified,rera_number,avatar_url')
+      .select('id,full_name,role,agency_name,agent_verified,rera_number,avatar_url')
       .eq('id',uid)
       .maybeSingle();
     if (error) throw error;
-    return data as Profile|null;
+    if (!data) return null;
+    let phone: string|null = null;
+    try {
+      const { data: p, error: pErr } = await supabase.rpc('get_my_profile_phone');
+      if (!pErr && typeof p === 'string') phone = p;
+    } catch { /* phone is optional; never block login on it */ }
+    return { ...(data as Omit<Profile,'phone'>), phone } as Profile;
   },[]);
 
   const syncUser=useCallback(async(nextUser:User|null)=>{

@@ -15,7 +15,7 @@ const FULL = `*,city:cities(id,name,slug,state),locality:localities(id,name,slug
   listing_images(id,storage_path,sort_order,is_cover),
   poster:profiles!posted_by(full_name,phone,role,agency_name,agent_verified,avatar_url,rera_number)`;
 
-const PUBLIC_PROFILE = 'id,full_name,phone,role,agency_name,rera_number,agent_verified,avatar_url,bio,total_listings,rating,review_count,created_at';
+const PUBLIC_PROFILE = 'id,full_name,role,agency_name,rera_number,agent_verified,avatar_url,bio,total_listings,rating,review_count,created_at';
 
 export type SearchParams = {
   q?: string; purpose?: string; cityId?: string; localityId?: string;
@@ -250,11 +250,11 @@ export async function getPublicBrokerages() {
 
 export async function getAgents(): Promise<Profile[]> {
   const { data } = await supabase.from('profiles').select(PUBLIC_PROFILE)
-    .in('role', ['agent','owner']).eq('is_sample', false).order('created_at', { ascending: false });
+    .in('role', ['agent','owner']).order('created_at', { ascending: false });
   return (data ?? []) as Profile[];
 }
 export async function getAgentById(id: string): Promise<Profile | null> {
-  const { data } = await supabase.from('profiles').select(PUBLIC_PROFILE).eq('id', id).eq('is_sample', false).maybeSingle();
+  const { data } = await supabase.from('profiles').select(PUBLIC_PROFILE).eq('id', id).maybeSingle();
   return data as Profile | null;
 }
 export async function getAgentListings(agentId: string, limit = 24): Promise<ListingFull[]> {
@@ -335,7 +335,7 @@ export async function getHomeStats() {
   const [listings, verified, people, cities] = await Promise.all([
     n(supabase.from('listings').select('id', { count: 'exact', head: true }).eq('status', 'active').eq('is_sample', false)),
     n(supabase.from('listings').select('id', { count: 'exact', head: true }).eq('status', 'active').eq('is_sample', false).neq('verification_level', 'unverified')),
-    n(supabase.from('profiles').select('id', { count: 'exact', head: true }).in('role', ['agent', 'owner']).eq('is_sample', false)),
+    n(supabase.from('profiles').select('id', { count: 'exact', head: true }).in('role', ['agent', 'owner'])),
     n(supabase.from('cities').select('id', { count: 'exact', head: true }).eq('is_active', true)),
   ]);
   return { listings, verified, people, cities };
