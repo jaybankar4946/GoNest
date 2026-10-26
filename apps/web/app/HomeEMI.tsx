@@ -72,6 +72,7 @@ export function HomeEMI() {
           <p className="text-xs text-gray-500 leading-5 mt-4">Estimate only, not a loan offer. Actual rate, eligibility, taxes, stamp duty, registration, insurance and lender fees vary. Confirm current charges with your lender and relevant authorities.</p>
         </div>
       </div>
+      </div>
     </section>
   );
 }
