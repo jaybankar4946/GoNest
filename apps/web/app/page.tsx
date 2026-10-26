@@ -165,7 +165,7 @@ export default async function HomePage() {
               <p className="mb-2 text-xs font-bold uppercase tracking-widest text-blue-700">Plan your budget</p>
               <h2 className="text-3xl font-extrabold tracking-tight text-gray-950 sm:text-4xl" style={{ ...display, letterSpacing: '-0.03em' }}>Find a home you can afford.</h2>
               <p className="mt-3 max-w-xl leading-7 text-gray-600">Estimate a comfortable home budget and monthly loan payment before you start visiting properties.</p>
-              <Link href="/HomeEMI" className="mt-6 inline-flex rounded-xl bg-blue-700 px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-blue-800">Calculate my home budget →</Link>
+              <Link href="/emi" className="mt-6 inline-flex rounded-xl bg-blue-700 px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-blue-800">Calculate my home budget →</Link>
             </div>
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
               {[{label:'Target home price',value:'Set your budget'},{label:'Maximum budget',value:'Estimate affordability'},{label:'Monthly payment',value:'Estimate your EMI'},{label:'Loan rate',value:'Check with your lender'}].map(item=>(
