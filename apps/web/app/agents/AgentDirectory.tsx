@@ -14,9 +14,49 @@ const FAQ = [
   { q: 'How can I join the GoNest agent network?', a: 'Create a GoNest account and complete the profile and verification steps. Verification badges are shown only when the corresponding information is recorded.' },
 ];
 
+const HERO = 'https://images.unsplash.com/photo-1762811054947-605b20298615?w=1600&h=900&fit=crop&auto=format';
 const cities = ['All Cities', 'Mumbai', 'Pune', 'Thane', 'Navi Mumbai'];
 const specializations = ['All Specializations', 'Residential', 'Commercial', 'Luxury', 'Rentals', 'Investment', 'New Projects'];
 const languages = ['Any Language', 'English', 'Hindi', 'Marathi', 'Gujarati', 'Malayalam'];
+
+function AgentCard({ agent, top = false }: { agent: Profile; top?: boolean }) {
+  return (
+    <article className={`flex h-full flex-col overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg ${top ? 'border-blue-300 ring-2 ring-blue-100' : 'border-slate-200 hover:border-blue-200'}`}>
+                <div className="p-5">
+                  <div className="flex items-start gap-3">
+                    <Link href={`/agents/${agent.id}`} aria-label={`View ${agent.full_name ?? 'agent'} profile`} className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-100 bg-slate-100 text-xl font-extrabold text-slate-500">
+                      {agent.avatar_url ? <img src={agent.avatar_url} alt="" className="h-full w-full object-cover" /> : (agent.full_name ?? 'G').charAt(0).toUpperCase()}
+                    </Link>
+                    <div className="min-w-0 flex-1">
+                      <Link href={`/agents/${agent.id}`} className="block text-lg font-extrabold leading-tight text-slate-950 hover:text-blue-700">{agent.full_name ?? 'GoNest agent'}</Link>
+                      <p className="mt-1 text-sm text-slate-500">{agent.agency_name ?? 'Independent agent'}</p>
+                      <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                        {top && <span className="rounded-full bg-blue-600 px-2.5 py-1 text-xs font-bold text-white">Top Agent</span>}
+                        <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-800">MahaRERA details on file</span>
+                        {agent.rating != null && <span className="text-sm font-extrabold text-amber-700">★ {agent.rating.toFixed(2)} <span className="font-normal text-slate-500">({agent.review_count} reviews)</span></span>}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3">
+                    <p className="text-xs font-semibold text-slate-500">Registration number</p>
+                    <p className="mt-1 break-all text-sm font-extrabold tracking-wide text-slate-900">{agent.rera_number}</p>
+                    <a href="https://maharera.maharashtra.gov.in/" target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-blue-700 hover:underline">Verify on MahaRERA <span aria-hidden="true">↗</span></a>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 divide-x divide-slate-100 border-y border-slate-100 bg-white">
+                  {[{ value: agent.total_listings ?? 0, label: 'Listings' }, { value: agent.review_count ?? 0, label: 'Reviews' }, { value: agent.rating == null ? '—' : agent.rating.toFixed(2), label: 'Rating' }].map((stat) => <div key={stat.label} className="px-2 py-3 text-center"><p className="text-lg font-extrabold text-slate-950">{stat.value}</p><p className="text-xs text-slate-500">{stat.label}</p></div>)}
+                </div>
+                <div className="mt-auto p-4">
+                  {agent.bio && <p className="mb-3 line-clamp-2 text-sm leading-6 text-slate-600">{agent.bio}</p>}
+                  <div className="grid grid-cols-3 gap-2">
+                    {agent.phone ? <a href={telHref(agent.phone)} className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-2 py-2.5 text-sm font-bold text-white hover:bg-blue-700">Call</a> : <span className="inline-flex items-center justify-center rounded-xl bg-slate-100 px-2 py-2.5 text-sm font-semibold text-slate-400">Call</span>}
+                    {agent.phone ? <a href={waHref(agent.phone, `Hi ${agent.full_name ?? ''}, I found your profile on GoNest and would like to enquire.`)} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-2 py-2.5 text-sm font-bold text-slate-700 hover:border-emerald-300 hover:bg-emerald-50">Message</a> : <Link href={`/agents/${agent.id}`} className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-2 py-2.5 text-sm font-bold text-slate-700">Message</Link>}
+                    <Link href={`/agents/${agent.id}`} className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-2 py-2.5 text-sm font-bold text-slate-700 hover:border-blue-300 hover:bg-blue-50">Meet</Link>
+                  </div>
+                </div>
+              </article>
+  );
+}
 
 export function AgentDirectory({ agents }: Props) {
   const [search, setSearch] = useState('');
@@ -51,6 +91,10 @@ export function AgentDirectory({ agents }: Props) {
     });
   }, [licensedAgents, search, city, specialization, language, sort]);
 
+  const isFiltered = search.trim() !== '' || city !== 'All Cities' || specialization !== 'All Specializations' || language !== 'Any Language';
+  const topAgents = isFiltered ? [] : [...filtered].filter((a) => a.rating != null && (a.review_count ?? 0) > 0).sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0) || (b.review_count ?? 0) - (a.review_count ?? 0)).slice(0, 3);
+  const topIds = new Set(topAgents.map((a) => a.id));
+  const rest = filtered.filter((a) => !topIds.has(a.id));
   const rated = licensedAgents.filter((agent) => agent.rating != null);
   const averageRating = rated.length
     ? rated.reduce((sum, agent) => sum + (agent.rating ?? 0), 0) / rated.length
@@ -59,26 +103,28 @@ export function AgentDirectory({ agents }: Props) {
 
   return (
     <>
-      <section className="border-b border-slate-200 bg-white">
-        <div className="mx-auto max-w-7xl px-5 py-8 md:px-8 md:py-10">
+      <section className="relative overflow-hidden bg-slate-950">
+        <img src={HERO} alt="" className="absolute inset-0 h-full w-full object-cover" />
+        <div className="absolute inset-0 bg-slate-950/70" />
+        <div className="relative mx-auto max-w-7xl px-5 py-10 md:px-8 md:py-14">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800">
-            <span aria-hidden="true">✓</span> MahaRERA Licensed Agents Only
+            <span aria-hidden="true">✓</span> RERA number shown on every listed agent
           </div>
           <div className="grid items-end gap-7 lg:grid-cols-[1.15fr_1fr]">
             <div>
-              <h1 className="text-4xl font-extrabold tracking-tight text-slate-950 md:text-5xl">Find a Verified Agent.</h1>
-              <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">Explore agent profiles with GoNest verification and MahaRERA registration details on file. Confirm the licence is current on the official register before engaging an agent.</p>
+              <h1 className="text-4xl font-extrabold tracking-tight text-white md:text-5xl">Find a Verified Agent.</h1>
+              <p className="mt-3 max-w-2xl text-base leading-7 text-white/80">Explore agent profiles with GoNest verification and MahaRERA registration details on file. Confirm the licence is current on the official register before engaging an agent.</p>
             </div>
             <div className="grid grid-cols-3 gap-3">
               {[{ value: licensedAgents.length.toLocaleString('en-IN'), label: 'Verified Agents' }, { value: totalListings.toLocaleString('en-IN'), label: 'Active Listings' }, { value: averageRating == null ? '—' : averageRating.toFixed(2), label: 'Avg. Rating' }].map((stat) => (
-                <div key={stat.label} className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-center sm:p-4">
+                <div key={stat.label} className="rounded-2xl border border-white/20 bg-white/95 p-3 text-center sm:p-4">
                   <p className="text-xl font-extrabold text-slate-950 sm:text-2xl">{stat.value}</p>
                   <p className="mt-1 text-xs leading-4 text-slate-500">{stat.label}</p>
                 </div>
               ))}
             </div>
           </div>
-          <div className="mt-7 grid gap-3 md:grid-cols-[minmax(220px,1.5fr)_repeat(3,minmax(135px,1fr))_auto]">
+          <div className="mt-7 grid gap-3 rounded-2xl bg-white p-3 shadow-lg md:grid-cols-[minmax(220px,1.5fr)_repeat(3,minmax(135px,1fr))_auto]">
             <label className="relative block">
               <span className="sr-only">Agent or agency name</span>
               <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Agent or agency name…" className="h-full min-h-12 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100" />
@@ -90,6 +136,14 @@ export function AgentDirectory({ agents }: Props) {
           </div>
         </div>
       </section>
+
+      {topAgents.length > 0 && (
+        <section className="mx-auto max-w-7xl px-5 pt-10 md:px-8">
+          <h2 className="text-xl font-extrabold text-slate-950">Top agents</h2>
+          <p className="mb-5 mt-1 text-sm text-slate-600">Ranked by customer rating and number of reviews. Placement is never sold.</p>
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">{topAgents.map((agent) => <AgentCard key={agent.id} agent={agent} top />)}</div>
+        </section>
+      )}
 
       <section className="mx-auto max-w-7xl px-5 py-8 md:px-8 md:py-10">
         <div className="mb-5 flex items-center justify-between gap-3">
@@ -105,40 +159,8 @@ export function AgentDirectory({ agents }: Props) {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((agent) => (
-              <article key={agent.id} className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-lg">
-                <div className="p-5">
-                  <div className="flex items-start gap-3">
-                    <Link href={`/agents/${agent.id}`} aria-label={`View ${agent.full_name ?? 'agent'} profile`} className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-100 bg-slate-100 text-xl font-extrabold text-slate-500">
-                      {agent.avatar_url ? <img src={agent.avatar_url} alt="" className="h-full w-full object-cover" /> : (agent.full_name ?? 'G').charAt(0).toUpperCase()}
-                    </Link>
-                    <div className="min-w-0 flex-1">
-                      <Link href={`/agents/${agent.id}`} className="block text-lg font-extrabold leading-tight text-slate-950 hover:text-blue-700">{agent.full_name ?? 'GoNest agent'}</Link>
-                      <p className="mt-1 text-sm text-slate-500">{agent.agency_name ?? 'Independent agent'}</p>
-                      <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                        <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-800">MahaRERA details on file</span>
-                        {agent.rating != null && <span className="text-sm font-extrabold text-amber-700">★ {agent.rating.toFixed(2)} <span className="font-normal text-slate-500">({agent.review_count} reviews)</span></span>}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3">
-                    <p className="text-xs font-semibold text-slate-500">Registration number</p>
-                    <p className="mt-1 break-all text-sm font-extrabold tracking-wide text-slate-900">{agent.rera_number}</p>
-                    <a href="https://maharera.maharashtra.gov.in/" target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-blue-700 hover:underline">Verify on MahaRERA <span aria-hidden="true">↗</span></a>
-                  </div>
-                </div>
-                <div className="grid grid-cols-3 divide-x divide-slate-100 border-y border-slate-100 bg-white">
-                  {[{ value: agent.total_listings ?? 0, label: 'Listings' }, { value: agent.review_count ?? 0, label: 'Reviews' }, { value: agent.rating == null ? '—' : agent.rating.toFixed(2), label: 'Rating' }].map((stat) => <div key={stat.label} className="px-2 py-3 text-center"><p className="text-lg font-extrabold text-slate-950">{stat.value}</p><p className="text-xs text-slate-500">{stat.label}</p></div>)}
-                </div>
-                <div className="mt-auto p-4">
-                  {agent.bio && <p className="mb-3 line-clamp-2 text-sm leading-6 text-slate-600">{agent.bio}</p>}
-                  <div className="grid grid-cols-3 gap-2">
-                    {agent.phone ? <a href={telHref(agent.phone)} className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-2 py-2.5 text-sm font-bold text-white hover:bg-blue-700">Call</a> : <span className="inline-flex items-center justify-center rounded-xl bg-slate-100 px-2 py-2.5 text-sm font-semibold text-slate-400">Call</span>}
-                    {agent.phone ? <a href={waHref(agent.phone, `Hi ${agent.full_name ?? ''}, I found your profile on GoNest and would like to enquire.`)} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-2 py-2.5 text-sm font-bold text-slate-700 hover:border-emerald-300 hover:bg-emerald-50">Message</a> : <Link href={`/agents/${agent.id}`} className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-2 py-2.5 text-sm font-bold text-slate-700">Message</Link>}
-                    <Link href={`/agents/${agent.id}`} className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-2 py-2.5 text-sm font-bold text-slate-700 hover:border-blue-300 hover:bg-blue-50">Meet</Link>
-                  </div>
-                </div>
-              </article>
+            {rest.map((agent) => (
+              <AgentCard key={agent.id} agent={agent} />
             ))}
           </div>
         )}
