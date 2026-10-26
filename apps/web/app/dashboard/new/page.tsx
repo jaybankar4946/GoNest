@@ -13,7 +13,7 @@ export default function NewListingPage() {
   const router=useRouter();
   const{user,profile,loading:authLoading,refresh}=useAuth();
   const[choosing,setChoosing]=useState(false);
-  useEffect(()=>{if(!authLoading&&!user)router.replace('/auth?next=/dashboard/new');},[authLoading,user,router]);
+  const[selectedRole,setSelectedRole]=useState<'owner'|'agent'|'builder'|null>(null);
   const[step,setStep]=useState(0);
   const[cities,setCities]=useState<any[]>([]);
   const[localities,setLocalities]=useState<any[]>([]);
@@ -47,7 +47,41 @@ export default function NewListingPage() {
     }finally{setSaving(false);}
   };
   const canPost=['owner','agent','admin'].includes(profile?.role??'');
-  if(authLoading||!user||!profile)return(<div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',color:'#6B7280'}}>Loading…</div>);
+  if(!user||!profile){
+    const roleCard=(role:'owner'|'agent'|'builder',title:string,description:string,icon:string)=>(
+      <button key={role} type="button" onClick={()=>setSelectedRole(role)} aria-pressed={selectedRole===role}
+        style={{textAlign:'left',padding:'22px 20px',border:'1px solid '+(selectedRole===role?'#2563EB':'#E5E7EB'),borderRadius:18,background:selectedRole===role?'#EFF6FF':'#fff',cursor:'pointer',minHeight:150}}>
+        <div style={{fontSize:25,marginBottom:12}}>{icon}</div>
+        <div style={{fontSize:16,fontWeight:750,color:'#111827'}}>{title}</div>
+        <div style={{fontSize:13,color:'#6B7280',marginTop:6,lineHeight:1.5}}>{description}</div>
+      </button>
+    );
+    return(
+      <main style={{minHeight:'100vh',background:'#F9FAFB',padding:'56px 20px',display:'flex',justifyContent:'center',alignItems:'center'}}>
+        <section style={{width:'100%',maxWidth:920}}>
+          <div style={{textAlign:'center',marginBottom:34}}>
+            <p style={{fontSize:12,fontWeight:700,letterSpacing:1.5,color:'#2563EB',textTransform:'uppercase',marginBottom:12}}>List with GoNest</p>
+            <h1 style={{fontSize:34,lineHeight:1.15,fontWeight:800,color:'#111827',marginBottom:12}}>How would you like to list?</h1>
+            <p style={{fontSize:15,color:'#6B7280'}}>Choose your role to get started. We’ll guide you through the right listing workflow.</p>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:16}}>
+            {roleCard('owner',"I'm an Owner",'Sell or rent out my own property','⌂')}
+            {roleCard('agent',"I'm an Agent",'Manage listings for property owners','♙')}
+            {roleCard('builder',"I'm a Builder",'Showcase projects and available inventory','▦')}
+          </div>
+          <div style={{display:'flex',justifyContent:'center',marginTop:28}}>
+            <button type="button" disabled={!selectedRole||authLoading} onClick={()=>{
+              if(!selectedRole)return;
+              const next='/dashboard/new?role='+selectedRole;
+              router.push('/auth?next='+encodeURIComponent(next));
+            }} style={{padding:'13px 28px',borderRadius:9999,border:0,background:selectedRole?'#2563EB':'#9CA3AF',color:'#fff',fontWeight:700,fontSize:14,cursor:selectedRole?'pointer':'not-allowed'}}>{authLoading?'Checking account…':'Continue'} <span aria-hidden="true">→</span></button>
+          </div>
+          <p style={{textAlign:'center',fontSize:12,color:'#6B7280',marginTop:16}}>Already have an account? Choose your role and continue to sign in.</p>
+        </section>
+      </main>
+    );
+  }
+  if(authLoading)return(<div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',color:'#6B7280'}}>Loading…</div>);
   if(!canPost){
     const pick=async(r:'owner'|'agent')=>{setChoosing(true);try{await chooseAccountType(r);await refresh();}finally{setChoosing(false);}};
     const card:React.CSSProperties={display:'block',width:'100%',textAlign:'left',padding:'18px 20px',border:'1px solid #E5E7EB',borderRadius:16,background:'#fff',cursor:'pointer'};
