@@ -32,12 +32,22 @@ const sections = [
   },
   {
     icon: Users,
-    title: 'Owner, agent and builder details',
+    title: 'Agent profiles',
     intro: 'Customers should be able to understand who published a property and what has been checked.',
     points: [
       'Agent RERA details are shown when provided and should be independently checked where applicable.',
-      'Platform review and official-record checks are described separately.',
-      'Information that has not been confirmed should not be presented as verified.',
+      'See available RERA details and each professional’s active listings where provided.',
+      'Only profiles returned by the live GoNest directory should be presented as active professionals.',
+    ],
+  },
+  {
+    icon: Flag,
+    title: 'Report anything',
+    intro: 'Help us investigate inaccurate, duplicated or suspicious property information.',
+    points: [
+      'Report listings that appear fake, duplicated, unavailable or materially different from the advertised details.',
+      'Reports are reviewed through the platform’s moderation process.',
+      'Submitting a report does not mean an investigation has already been completed.',
     ],
   },
   {
