@@ -448,3 +448,37 @@ export async function adminGetLaunchInventoryDashboard(): Promise<LaunchInventor
   }
   return data as LaunchInventoryDashboard;
 }
+
+
+// Public homepage copy managed through the authenticated admin control center.
+export async function getHomepageContent(): Promise<Record<string,string>> {
+  const defaults: Record<string,string> = {
+    home_hero_badge: 'Reviewed listings from verified owners and agents',
+    home_hero_title: 'Find your next home.',
+    home_hero_subtitle: 'Search apartments, villas and plots to buy or rent, with clear prices, real photos and direct contact.',
+  };
+  const { data, error } = await supabase.from('site_content')
+    .select('content_key,content_value').eq('status','published')
+    .in('content_key',Object.keys(defaults));
+  if (error) {
+    // Keep public pages available during rollout before the migration is applied.
+    console.warn('[GoNest content] Using built-in homepage copy:', error.message);
+    return defaults;
+  }
+  for (const row of data ?? []) if (row.content_key in defaults && row.content_value) defaults[row.content_key] = row.content_value;
+  return defaults;
+}
+
+
+export type HomepageCampaign = { id:string; title:string; body:string|null; image_url:string|null; target_url:string|null };
+export async function getActiveHomepageCampaign(): Promise<HomepageCampaign|null> {
+  const { data, error } = await supabase.from('promotion_campaigns')
+    .select('id,title,body,image_url,target_url')
+    .eq('placement','homepage_banner').eq('status','active')
+    .order('priority',{ascending:true}).limit(1).maybeSingle();
+  if (error) {
+    console.warn('[GoNest campaigns] Homepage campaign unavailable:',error.message);
+    return null;
+  }
+  return data as HomepageCampaign|null;
+}

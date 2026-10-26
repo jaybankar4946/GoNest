@@ -5,7 +5,7 @@ import { Footer } from '@/components/layout/Footer';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { HomeSearch } from './HomeSearch';
 import { HomeEMI } from './HomeEMI';
-import { getFeatured, getCities, getHomeStats, getAgents, getPopularLocalities } from '@/lib/api';
+import { getFeatured, getCities, getHomeStats, getAgents, getPopularLocalities, getHomepageContent, getActiveHomepageCampaign } from '@/lib/api';
 import type { Metadata } from 'next';
 
 export const revalidate = 60;
@@ -30,7 +30,7 @@ const TRUST = [
   { icon: Flag, title: 'Report anything', items: ['Report button on every listing', 'Reasons include fake, wrong price, already sold', 'Owners can mark listings sold or rented'] },
 ];
 export default async function HomePage() {
-  const [featured, cities, stats, agents, popular] = await Promise.all([getFeatured(6), getCities(), getHomeStats(), getAgents(), getPopularLocalities(8)]);
+  const [featured, cities, stats, agents, popular, homeContent] = await Promise.all([getFeatured(6), getCities(), getHomeStats(), getAgents(), getPopularLocalities(8), getHomepageContent(), getActiveHomepageCampaign()]);
   const topAgents = [...agents].sort((a, b) => Number(b.agent_verified) - Number(a.agent_verified)).slice(0, 4);
   const strip = [
     { v: stats.listings, l: 'Live listings' },
@@ -48,13 +48,13 @@ export default async function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-b from-gray-950/65 via-gray-950/50 to-gray-950/85" />
           <div className="relative z-10 flex flex-col items-center text-center px-4 pt-20 pb-20">
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-lg border border-white/20 text-white text-xs font-semibold px-4 py-2 rounded-full mb-8">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Reviewed listings from verified owners and agents
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> {homeContent.home_hero_badge}
             </div>
             <h1 className="text-5xl md:text-6xl lg:text-[68px] font-extrabold text-white leading-none max-w-4xl mb-4" style={{ ...display, letterSpacing: '-0.035em' }}>
-              Find your next home.
+              {homeContent.home_hero_title}
             </h1>
             <p className="text-lg text-white/70 max-w-lg leading-relaxed mb-10">
-              Search apartments, villas and plots to buy or rent, with clear prices, real photos and direct contact.
+              {homeContent.home_hero_subtitle}
             </p>
             <HomeSearch cities={cities} />
             {cities.length > 0 && (
@@ -66,6 +66,20 @@ export default async function HomePage() {
             )}
           </div>
         </section>
+
+        {homepageCampaign && (
+          <section aria-label="Sponsored promotion" className="bg-white px-5 py-5 sm:px-6">
+            <div className="mx-auto flex max-w-7xl flex-col overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 sm:flex-row">
+              {homepageCampaign.image_url && <img src={homepageCampaign.image_url} alt="" className="h-40 w-full object-cover sm:h-32 sm:w-56" />}
+              <div className="flex flex-1 flex-col items-start justify-center gap-2 p-5">
+                <span className="rounded-full bg-blue-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-blue-700">Sponsored</span>
+                <h2 className="text-lg font-bold text-gray-900">{homepageCampaign.title}</h2>
+                {homepageCampaign.body && <p className="text-sm leading-relaxed text-gray-600">{homepageCampaign.body}</p>}
+                {homepageCampaign.target_url && <Link href={homepageCampaign.target_url} className="text-sm font-semibold text-blue-700 hover:text-blue-900">Learn more →</Link>}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Live stats (real counts) */}
         {stats.listings >= 20 && (<section className="border-y border-gray-100 bg-white">
