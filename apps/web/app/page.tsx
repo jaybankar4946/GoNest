@@ -5,7 +5,7 @@ import { Footer } from '@/components/layout/Footer';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { HomeSearch } from './HomeSearch';
 import { HomeEMI } from './HomeEMI';
-import { getFeatured, getCities, getHomeStats, getAgents, getPopularLocalities, getHomepageContent } from '@/lib/api';
+import { getFeatured, getCities, getHomeStats, getAgents, getPopularLocalities, getHomepageContent, getActiveHomepageCampaign } from '@/lib/api';
 import type { Metadata } from 'next';
 
 export const revalidate = 60;
@@ -30,7 +30,7 @@ const TRUST = [
   { icon: Flag, title: 'Report anything', items: ['Report button on every listing', 'Reasons include fake, wrong price, already sold', 'Owners can mark listings sold or rented'] },
 ];
 export default async function HomePage() {
-  const [featured, cities, stats, agents, popular, homeContent] = await Promise.all([getFeatured(6), getCities(), getHomeStats(), getAgents(), getPopularLocalities(8), getHomepageContent()]);
+  const [featured, cities, stats, agents, popular, homeContent] = await Promise.all([getFeatured(6), getCities(), getHomeStats(), getAgents(), getPopularLocalities(8), getHomepageContent(), getActiveHomepageCampaign()]);
   const topAgents = [...agents].sort((a, b) => Number(b.agent_verified) - Number(a.agent_verified)).slice(0, 4);
   const strip = [
     { v: stats.listings, l: 'Live listings' },
@@ -66,6 +66,20 @@ export default async function HomePage() {
             )}
           </div>
         </section>
+
+        {homepageCampaign && (
+          <section aria-label="Sponsored promotion" className="bg-white px-5 py-5 sm:px-6">
+            <div className="mx-auto flex max-w-7xl flex-col overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 sm:flex-row">
+              {homepageCampaign.image_url && <img src={homepageCampaign.image_url} alt="" className="h-40 w-full object-cover sm:h-32 sm:w-56" />}
+              <div className="flex flex-1 flex-col items-start justify-center gap-2 p-5">
+                <span className="rounded-full bg-blue-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-blue-700">Sponsored</span>
+                <h2 className="text-lg font-bold text-gray-900">{homepageCampaign.title}</h2>
+                {homepageCampaign.body && <p className="text-sm leading-relaxed text-gray-600">{homepageCampaign.body}</p>}
+                {homepageCampaign.target_url && <Link href={homepageCampaign.target_url} className="text-sm font-semibold text-blue-700 hover:text-blue-900">Learn more →</Link>}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Live stats (real counts) */}
         {stats.listings >= 20 && (<section className="border-y border-gray-100 bg-white">
