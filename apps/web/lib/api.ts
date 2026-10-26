@@ -468,3 +468,17 @@ export async function getHomepageContent(): Promise<Record<string,string>> {
   for (const row of data ?? []) if (row.content_key in defaults && row.content_value) defaults[row.content_key] = row.content_value;
   return defaults;
 }
+
+
+export type HomepageCampaign = { id:string; title:string; body:string|null; image_url:string|null; target_url:string|null };
+export async function getActiveHomepageCampaign(): Promise<HomepageCampaign|null> {
+  const { data, error } = await supabase.from('promotion_campaigns')
+    .select('id,title,body,image_url,target_url')
+    .eq('placement','homepage_banner').eq('status','active')
+    .order('priority',{ascending:true}).limit(1).maybeSingle();
+  if (error) {
+    console.warn('[GoNest campaigns] Homepage campaign unavailable:',error.message);
+    return null;
+  }
+  return data as HomepageCampaign|null;
+}
