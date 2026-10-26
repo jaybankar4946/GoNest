@@ -178,7 +178,7 @@ export default async function HomePage() {
                       {agent.avatar_url ? <img src={agent.avatar_url} alt="" loading="lazy" className="h-full w-full object-cover" /> : (agent.full_name ?? '?').charAt(0).toUpperCase()}
                     </div>
                     <h3 className="text-sm font-bold text-gray-950">{agent.full_name ?? 'Property professional'}</h3>
-                    <p className="mt-1 text-xs text-gray-500">{agent.city ?? 'Location not provided'}</p>
+                    <p className="mt-1 text-xs text-gray-500">'Location not provided'</p>
                     <div className="mt-3 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">
                       <BadgeCheck className="h-3.5 w-3.5" /> {agent.agent_verified ? 'Verified agent' : 'Agent profile'}
                     </div>
