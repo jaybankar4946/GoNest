@@ -448,3 +448,23 @@ export async function adminGetLaunchInventoryDashboard(): Promise<LaunchInventor
   }
   return data as LaunchInventoryDashboard;
 }
+
+
+// Public homepage copy managed through the authenticated admin control center.
+export async function getHomepageContent(): Promise<Record<string,string>> {
+  const defaults: Record<string,string> = {
+    home_hero_badge: 'Reviewed listings from verified owners and agents',
+    home_hero_title: 'Find your next home.',
+    home_hero_subtitle: 'Search apartments, villas and plots to buy or rent, with clear prices, real photos and direct contact.',
+  };
+  const { data, error } = await supabase.from('site_content')
+    .select('content_key,content_value').eq('status','published')
+    .in('content_key',Object.keys(defaults));
+  if (error) {
+    // Keep public pages available during rollout before the migration is applied.
+    console.warn('[GoNest content] Using built-in homepage copy:', error.message);
+    return defaults;
+  }
+  for (const row of data ?? []) if (row.content_key in defaults && row.content_value) defaults[row.content_key] = row.content_value;
+  return defaults;
+}
