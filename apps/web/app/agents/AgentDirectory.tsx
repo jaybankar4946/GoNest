@@ -8,16 +8,16 @@ import { telHref, waHref } from '@/lib/contact';
 type Props = { agents: Profile[] };
 
 const FAQ = [
-  { q: 'How do I verify an agent’s MahaRERA registration?', a: 'Use the official MahaRERA portal to check the registration number and current status. A number displayed on GoNest should always be checked against the official register.' },
-  { q: 'Are all agents on GoNest verified?', a: 'The directory highlights profiles with GoNest verification and registration details on file. Always confirm the licence is current on the official MahaRERA portal before engaging an agent.' },
+  { q: 'How do I verify an agent’s RERA registration?', a: 'RERA is run by each state, so use the official RERA website of the state where the agent is registered to check the registration number and current status. A number displayed on GoNest should always be checked against the official register.' },
+  { q: 'Are all agents on GoNest verified?', a: 'The directory highlights profiles with GoNest verification and registration details on file. Always confirm the licence is current on the official state RERA portal before engaging an agent.' },
   { q: 'How do I contact an agent?', a: 'Use Call or Message when contact information is available, or open the agent profile to review the details they have published.' },
   { q: 'How can I join the GoNest agent network?', a: 'Create a GoNest account and complete the profile and verification steps. Verification badges are shown only when the corresponding information is recorded.' },
 ];
 
 const HERO = 'https://images.unsplash.com/photo-1762811054947-605b20298615?w=1600&h=900&fit=crop&auto=format';
-const cities = ['All Cities', 'Mumbai', 'Pune', 'Thane', 'Navi Mumbai'];
+const cities = ['All Cities', 'Mumbai', 'Pune', 'Thane', 'Navi Mumbai', 'Bengaluru', 'Delhi NCR', 'Hyderabad'];
 const specializations = ['All Specializations', 'Residential', 'Commercial', 'Luxury', 'Rentals', 'Investment', 'New Projects'];
-const languages = ['Any Language', 'English', 'Hindi', 'Marathi', 'Gujarati', 'Malayalam'];
+const languages = ['Any Language', 'English', 'Hindi', 'Marathi', 'Gujarati', 'Malayalam', 'Kannada', 'Telugu', 'Tamil', 'Bengali'];
 
 function AgentCard({ agent, top = false }: { agent: Profile; top?: boolean }) {
   return (
@@ -32,7 +32,7 @@ function AgentCard({ agent, top = false }: { agent: Profile; top?: boolean }) {
                       <p className="mt-1 text-sm text-slate-500">{agent.agency_name ?? 'Independent agent'}</p>
                       <div className="mt-2 flex flex-wrap items-center gap-1.5">
                         {top && <span className="rounded-full bg-blue-600 px-2.5 py-1 text-xs font-bold text-white">Top Agent</span>}
-                        <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-800">MahaRERA details on file</span>
+                        <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-800">RERA details on file</span>
                         {agent.rating != null && <span className="text-sm font-extrabold text-amber-700">★ {agent.rating.toFixed(2)} <span className="font-normal text-slate-500">({agent.review_count} reviews)</span></span>}
                       </div>
                     </div>
@@ -40,7 +40,7 @@ function AgentCard({ agent, top = false }: { agent: Profile; top?: boolean }) {
                   <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3">
                     <p className="text-xs font-semibold text-slate-500">Registration number</p>
                     <p className="mt-1 break-all text-sm font-extrabold tracking-wide text-slate-900">{agent.rera_number}</p>
-                    <a href="https://maharera.maharashtra.gov.in/" target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-blue-700 hover:underline">Verify on MahaRERA <span aria-hidden="true">↗</span></a>
+                    <p className="mt-2 text-xs font-semibold text-slate-600">Verify this number on your state’s RERA website</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-3 divide-x divide-slate-100 border-y border-slate-100 bg-white">
@@ -113,7 +113,7 @@ export function AgentDirectory({ agents }: Props) {
           <div className="grid items-end gap-7 lg:grid-cols-[1.15fr_1fr]">
             <div>
               <h1 className="text-4xl font-extrabold tracking-tight text-white md:text-5xl">Find a Verified Agent.</h1>
-              <p className="mt-3 max-w-2xl text-base leading-7 text-white/80">Explore agent profiles with GoNest verification and MahaRERA registration details on file. Confirm the licence is current on the official register before engaging an agent.</p>
+              <p className="mt-3 max-w-2xl text-base leading-7 text-white/80">Explore agent profiles with GoNest verification and RERA registration details on file. Confirm the licence is current on the official register before engaging an agent.</p>
             </div>
             <div className="grid grid-cols-3 gap-3">
               {[{ value: licensedAgents.length.toLocaleString('en-IN'), label: 'Verified Agents' }, { value: totalListings.toLocaleString('en-IN'), label: 'Active Listings' }, { value: averageRating == null ? '—' : averageRating.toFixed(2), label: 'Avg. Rating' }].map((stat) => (
@@ -147,14 +147,14 @@ export function AgentDirectory({ agents }: Props) {
 
       <section className="mx-auto max-w-7xl px-5 py-8 md:px-8 md:py-10">
         <div className="mb-5 flex items-center justify-between gap-3">
-          <h2 className="text-lg font-extrabold text-slate-950">MahaRERA registration details on file</h2>
+          <h2 className="text-lg font-extrabold text-slate-950">RERA registration details on file</h2>
           <span className="rounded-full bg-blue-50 px-3 py-1.5 text-sm font-bold text-blue-800">{filtered.length} agents</span>
         </div>
         {filtered.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-6 py-16 text-center">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-100 text-2xl text-blue-700">⌕</div>
             <h3 className="mt-4 text-xl font-extrabold text-slate-950">{licensedAgents.length === 0 ? 'Verified agent profiles are being onboarded' : 'No agents match these filters'}</h3>
-            <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-600">{licensedAgents.length === 0 ? 'Only profiles with GoNest verification and a recorded registration number appear in this directory. Registration must still be checked against the official MahaRERA register.' : 'Try another search or reset the filters to see available agent profiles.'}</p>
+            <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-600">{licensedAgents.length === 0 ? 'Only profiles with GoNest verification and a recorded registration number appear in this directory. Registration must still be checked on the official RERA website of the relevant state.' : 'Try another search or reset the filters to see available agent profiles.'}</p>
             <button type="button" onClick={() => { setSearch(''); setCity('All Cities'); setSpecialization('All Specializations'); setLanguage('Any Language'); setSort('Top Rated'); }} className="mt-5 rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700">Reset filters</button>
           </div>
         ) : (
@@ -171,9 +171,9 @@ export function AgentDirectory({ agents }: Props) {
           <div className="mx-auto max-w-3xl text-center">
             <p className="text-xs font-extrabold uppercase tracking-widest text-blue-700">For registered brokers</p>
             <h2 className="mt-3 text-2xl font-extrabold text-slate-950 md:text-3xl">Are you a registered broker?</h2>
-            <p className="mt-3 text-sm leading-7 text-slate-600">Join GoNest’s agent network and get discovered by buyers and renters across Mumbai and Pune. Complete the required profile and verification steps to be considered for the verified directory.</p>
+            <p className="mt-3 text-sm leading-7 text-slate-600">Join GoNest’s agent network and get discovered by buyers and renters across India. Complete the required profile and verification steps to be considered for the verified directory.</p>
             <Link href="/dashboard" className="mt-5 inline-flex rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700">Register as Agent — Free</Link>
-            <p className="mt-3 text-xs text-slate-500">MahaRERA registration required · Verification required · Listing terms apply</p>
+            <p className="mt-3 text-xs text-slate-500">RERA registration required · Verification required · Listing terms apply</p>
           </div>
         </div>
       </section>
@@ -183,7 +183,6 @@ export function AgentDirectory({ agents }: Props) {
           <div>
             <h2 className="text-2xl font-extrabold text-slate-950">GoNest verified agent network</h2>
             <p className="mt-3 text-sm leading-7 text-slate-600">Agent registration details and profile information should be verified before making a property decision. Use the official portal for current registration status.</p>
-            <a href="https://maharera.maharashtra.gov.in/" target="_blank" rel="noreferrer" className="mt-4 inline-flex rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50">MahaRERA Info ↗</a>
           </div>
           <div className="rounded-2xl border border-slate-200 bg-white p-5 md:p-7">
             <h2 className="text-xl font-extrabold text-slate-950">Frequently asked questions</h2>

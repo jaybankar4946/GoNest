@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 const MAHARERA = 'https://www.maharera.maharashtra.gov.in/';
 const HSBC_MUMBAI_SOURCE = 'https://www.hsbc.bank.in/home-loans/list-of-projects/mumbai/';
 const projects = [
-  { city: 'Mumbai / Thane', name: 'Godrej Ascend — Phases 2, 3 & 4', area: 'Kolshet Road, Thane', builder: 'Godrej Properties', configurations: 'Confirm directly with developer', source: 'https://www.hsbc.bank.in/home-loans/list-of-projects/mumbai/', sourceLabel: 'HSBC published Mumbai project list', developer: 'https://www.godrejproperties.com/', note: 'Listed in HSBC’s approved-project directory updated 11 February 2026. This does not confirm current unit availability or substitute for a MahaRERA check.' },
+  { city: 'Mumbai / Thane', name: 'Godrej Ascend — Phases 2, 3 & 4', area: 'Kolshet Road, Thane', builder: 'Godrej Properties', configurations: 'Confirm directly with developer', source: 'https://www.hsbc.bank.in/home-loans/list-of-projects/mumbai/', sourceLabel: 'HSBC published Mumbai project list', developer: 'https://www.godrejproperties.com/', note: 'Listed in HSBC’s approved-project directory updated 11 February 2026. This does not confirm current unit availability or substitute for a Maharashtra RERA check.' },
   { city: 'Mumbai', name: 'Balmoral', area: 'Chembur', builder: 'Rustomjee / Keystone Realtors', configurations: 'Confirm directly with developer', source: 'https://www.hsbc.bank.in/home-loans/list-of-projects/mumbai/', sourceLabel: 'HSBC published Mumbai project list', developer: 'https://www.rustomjee.com/', note: 'Listed in HSBC’s published project directory updated 11 February 2026. Confirm exact phase, registration and availability directly.' },
   { city: 'Mumbai', name: 'Kalpataru One', area: 'Worli', builder: 'Kalpataru', configurations: 'Confirm directly with developer', source: 'https://www.hsbc.bank.in/home-loans/list-of-projects/mumbai/', sourceLabel: 'HSBC published Mumbai project list', developer: 'https://www.kalpataru.com/', note: 'Listed in HSBC’s published project directory updated 11 February 2026. Current price and available units are not confirmed.' },
   { city: 'Mumbai', name: 'Runwal Avenue — Towers J–N', area: 'Kanjurmarg East', builder: 'Runwal Group', configurations: 'Confirm exact tower directly', source: 'https://www.hsbc.bank.in/home-loans/list-of-projects/mumbai/', sourceLabel: 'HSBC published Mumbai project list', developer: 'https://runwal.com/', note: 'Listed in HSBC’s published project directory updated 11 February 2026. Verify the exact tower/phase and current inventory.' },
@@ -26,15 +26,15 @@ const projects = [
 ];
 
 const additionalProjects = [
-  { city: 'Pune', name: 'Godrej Woodsville', area: 'Hinjewadi Phase 1', builder: 'Godrej Properties', rera: 'P52100046729', source: 'https://www.godrejproperties.com/domestic/landingpage', developer: 'https://www.godrejproperties.com/', note: 'Official developer portfolio lists this Pune project and MahaRERA registration. Verify current phase, price and available units directly.' },
-  { city: 'Pune', name: 'Godrej Parkridge', area: 'Kharadi–Manjari Road', builder: 'Godrej Properties', rera: 'P52100028310', source: 'https://www.godrejproperties.com/domestic/landingpage', developer: 'https://www.godrejproperties.com/', note: 'Official developer portfolio lists this Pune project and MahaRERA registration. Verify current phase, price and available units directly.' },
+  { city: 'Pune', name: 'Godrej Woodsville', area: 'Hinjewadi Phase 1', builder: 'Godrej Properties', rera: 'P52100046729', source: 'https://www.godrejproperties.com/domestic/landingpage', developer: 'https://www.godrejproperties.com/', note: 'Official developer portfolio lists this Pune project and Maharashtra RERA registration. Verify current phase, price and available units directly.' },
+  { city: 'Pune', name: 'Godrej Parkridge', area: 'Kharadi–Manjari Road', builder: 'Godrej Properties', rera: 'P52100028310', source: 'https://www.godrejproperties.com/domestic/landingpage', developer: 'https://www.godrejproperties.com/', note: 'Official developer portfolio lists this Pune project and Maharashtra RERA registration. Verify current phase, price and available units directly.' },
   { city: 'Pune', name: 'Godrej Rejuve', area: 'Keshav Nagar', builder: 'Godrej Properties / Oxford Realty LLP', rera: 'P52100018720', source: 'https://lp.godrejproperties.com/pune/residential/godrej-rejuve/landingpage', developer: 'https://www.godrejproperties.com/', note: 'Developer page identifies the project registration. Confirm current construction status and inventory with the developer.' },
-  { city: 'Mumbai / MMR', name: 'The Highlands at Godrej City — Tower 5', area: 'Panvel', builder: 'Caroa Properties LLP / Godrej Properties', rera: 'P52000049669', source: 'https://www.godrejproperties.com/mumbai/residential/the-highlands-at-godrej-city-intl/landingpage', developer: 'https://www.godrejproperties.com/', note: 'Official page identifies Tower 5 and its MahaRERA number. Confirm live availability and pricing directly.' },
+  { city: 'Mumbai / MMR', name: 'The Highlands at Godrej City — Tower 5', area: 'Panvel', builder: 'Caroa Properties LLP / Godrej Properties', rera: 'P52000049669', source: 'https://www.godrejproperties.com/mumbai/residential/the-highlands-at-godrej-city-intl/landingpage', developer: 'https://www.godrejproperties.com/', note: 'Official page identifies Tower 5 and its Maharashtra RERA number. Confirm live availability and pricing directly.' },
   { city: 'Mumbai / MMR', name: 'Godrej Bayview', area: 'Vashi, Navi Mumbai', builder: 'Godrej Properties', rera: 'P51700031726', source: 'https://www.godrejproperties.com/domestic/landingpage', developer: 'https://www.godrejproperties.com/', note: 'Official developer portfolio lists the project registration. Confirm current phase and unit availability directly.' },
-  { city: 'Pune', name: 'Lodha One', area: 'Bund Garden Road', builder: 'Lodha Group', rera: 'P52100050987', source: 'https://www.lodhagroup.com/projects/residential-property-in-pune/lodha-one', developer: 'https://www.lodhagroup.com/', note: 'Official Lodha project page provides the MahaRERA registration. Confirm current inventory and commercial terms with the developer.' },
+  { city: 'Pune', name: 'Lodha One', area: 'Bund Garden Road', builder: 'Lodha Group', rera: 'P52100050987', source: 'https://www.lodhagroup.com/projects/residential-property-in-pune/lodha-one', developer: 'https://www.lodhagroup.com/', note: 'Official Lodha project page provides the Maharashtra RERA registration. Confirm current inventory and commercial terms with the developer.' },
   { city: 'Pune', name: 'Lodha Belmondo', area: 'Gahunje, Mumbai–Pune Expressway', builder: 'Lodha Group', rera: 'P52100020190 / P52100020172', source: 'https://www.lodhagroup.com/projects/residential-property-in-pune/lodha-belmondo', developer: 'https://www.lodhagroup.com/', note: 'Official Lodha project page lists these registrations. Confirm exact tower, unit and availability directly.' },
   { city: 'Mumbai', name: 'Lodha Adrina', area: 'Worli', builder: 'Lodha Group', rera: 'P51900001339 / P51900014937', source: 'https://www.lodhagroup.com/projects/residential-property-in-worli/lodha-adrina', developer: 'https://www.lodhagroup.com/', note: 'Official Lodha page lists registration numbers for the project. Confirm current unit availability and pricing directly.' },
-  { city: 'Mumbai', name: 'Lodha Aureus Sewri', area: 'Sewri / Eastern Waterfront', builder: 'Lodha Group', rera: 'PR1170002502863', source: 'https://www.lodhagroup.com/projects/residential-property-in-mumbai/lodha-aureus-sewri', developer: 'https://www.lodhagroup.com/', note: 'Official Lodha project page displays a registration reference. Verify the exact registration and current status on MahaRERA before relying on it.' },
+  { city: 'Mumbai', name: 'Lodha Aureus Sewri', area: 'Sewri / Eastern Waterfront', builder: 'Lodha Group', rera: 'PR1170002502863', source: 'https://www.lodhagroup.com/projects/residential-property-in-mumbai/lodha-aureus-sewri', developer: 'https://www.lodhagroup.com/', note: 'Official Lodha project page displays a registration reference. Verify the exact registration and current status on Maharashtra RERA before relying on it.' },
 ];
 
 const developers = [
@@ -59,7 +59,7 @@ export default function BuildersPage() {
             <h1 className="max-w-4xl text-4xl font-extrabold tracking-tight md:text-6xl">Explore projects. Check the source. Decide with confidence.</h1>
             <p className="mt-5 max-w-3xl text-base leading-7 text-slate-300 md:text-lg">A starter directory built from developer websites and a published bank project list. These are source-linked project references—not GoNest-certified inventory. Registration, prices, possession dates and available units must be confirmed for the exact phase.</p>
             <div className="mt-7 flex flex-wrap gap-3">
-              <a href={MAHARERA} target="_blank" rel="noreferrer" className="rounded-xl bg-blue-500 px-5 py-3 text-sm font-bold text-white hover:bg-blue-400">Check official MahaRERA ↗</a>
+              <a href={MAHARERA} target="_blank" rel="noreferrer" className="rounded-xl bg-blue-500 px-5 py-3 text-sm font-bold text-white hover:bg-blue-400">Check official Maharashtra RERA ↗</a>
               <Link href="/search?purpose=sale" className="rounded-xl border border-white/20 px-5 py-3 text-sm font-bold text-white hover:bg-white/10">Browse verified GoNest sale listings →</Link>
             </div>
           </div>
@@ -81,7 +81,7 @@ export default function BuildersPage() {
                 <div className="mt-5 flex flex-col items-start gap-2 border-t border-slate-100 pt-4">
                   <a className="text-sm font-bold text-blue-700 hover:underline" href={p.source} target="_blank" rel="noreferrer">{p.sourceLabel} ↗</a>
                   <a className="text-xs font-semibold text-slate-600 hover:underline" href={p.developer} target="_blank" rel="noreferrer">Open official developer website ↗</a>
-                  <a className="text-xs font-semibold text-slate-600 hover:underline" href={MAHARERA} target="_blank" rel="noreferrer">Search registration on official MahaRERA ↗</a>
+                  <a className="text-xs font-semibold text-slate-600 hover:underline" href={MAHARERA} target="_blank" rel="noreferrer">Search registration on official Maharashtra RERA ↗</a>
                 </div>
               </article>
             ))}
@@ -92,7 +92,7 @@ export default function BuildersPage() {
           <div className="mb-6">
             <p className="text-sm font-bold uppercase tracking-widest text-blue-700">Official developer inventory references</p>
             <h2 className="mt-2 text-3xl font-extrabold text-slate-950">More projects from top developer websites</h2>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">Project names and registration references below are drawn from official developer pages. This is not a live availability feed. Verify each registration on MahaRERA and confirm price, possession and available units directly.</p>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">Project names and registration references below are drawn from official developer pages. This is not a live availability feed. Verify each registration on Maharashtra RERA and confirm price, possession and available units directly.</p>
           </div>
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {additionalProjects.map((p) => (
@@ -105,7 +105,7 @@ export default function BuildersPage() {
                 <div className="mt-5 flex flex-col items-start gap-2 border-t border-slate-100 pt-4">
                   <a className="text-sm font-bold text-blue-700 hover:underline" href={p.source} target="_blank" rel="noreferrer">Official project source ↗</a>
                   <a className="text-xs font-semibold text-slate-600 hover:underline" href={p.developer} target="_blank" rel="noreferrer">Developer website ↗</a>
-                  <a className="text-xs font-semibold text-slate-600 hover:underline" href={MAHARERA} target="_blank" rel="noreferrer">Verify on MahaRERA ↗</a>
+                  <a className="text-xs font-semibold text-slate-600 hover:underline" href={MAHARERA} target="_blank" rel="noreferrer">Verify on Maharashtra RERA ↗</a>
                 </div>
               </article>
             ))}
@@ -120,7 +120,7 @@ export default function BuildersPage() {
           </div>
         </section>
         <section className="mx-auto max-w-7xl px-5 pb-14 md:px-8">
-          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm leading-6 text-amber-950"><strong>Important:</strong> The project references above come from HSBC’s published approved-project lists, last updated 11 February 2026. HSBC notes that certain towers, wings, floors or units may be excluded and details may have changed. This is not a GoNest partnership, government certification or proof that a unit is available. Confirm exact MahaRERA registration, phase, current price, taxes, possession date and written availability directly before paying or making a decision.</div>
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm leading-6 text-amber-950"><strong>Important:</strong> The project references above come from HSBC’s published approved-project lists, last updated 11 February 2026. HSBC notes that certain towers, wings, floors or units may be excluded and details may have changed. This is not a GoNest partnership, government certification or proof that a unit is available. Confirm exact Maharashtra RERA registration, phase, current price, taxes, possession date and written availability directly before paying or making a decision.</div>
         </section>
       </main>
       <Footer />
