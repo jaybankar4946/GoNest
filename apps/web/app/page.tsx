@@ -111,25 +111,93 @@ export default async function HomePage() {
           </section>
         )}
 
-        {/* Supply and demand directories */}
-        <section className="border-y border-gray-100 bg-gray-50 py-16">
-          <div className="mx-auto max-w-7xl px-6">
-            <div className="mb-8 max-w-2xl">
-              <p className="mb-2 text-xs font-bold uppercase tracking-widest text-blue-600">Explore GoNest</p>
-              <h2 className="text-3xl font-extrabold text-gray-950" style={{ ...display, letterSpacing: '-0.025em' }}>Start with the right people or project.</h2>
-              <p className="mt-3 text-gray-600">Browse developers and local property professionals, then verify project details and live availability before making a decision.</p>
+        {/* Hiranandani homes — Zillow-inspired recommendations carousel */}
+        <section className="bg-white py-16 sm:py-20">
+          <div className="mx-auto max-w-7xl px-5 sm:px-6">
+            <div className="mb-7 flex items-end justify-between gap-4">
+              <div>
+                <p className="mb-2 text-xs font-bold uppercase tracking-widest text-blue-700">Featured collection · Thane</p>
+                <h2 className="text-3xl font-extrabold tracking-tight text-gray-950 sm:text-4xl" style={{ ...display, letterSpacing: '-0.03em' }}>Homes For You</h2>
+                <p className="mt-2 text-sm text-gray-600 sm:text-base">Explore Hiranandani Estate homes and project details.</p>
+              </div>
+              <Link href="/search?q=Hiranandani" className="shrink-0 text-sm font-bold text-blue-700 hover:text-blue-900">See all homes →</Link>
             </div>
-            <div className="grid gap-5 md:grid-cols-2">
-              <Link href="/builders" className="group rounded-2xl border border-gray-200 bg-white p-7 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md">
-                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50"><Landmark className="h-6 w-6 text-blue-700" /></div>
-                <h3 className="text-xl font-bold text-gray-950">Builders &amp; new projects <span className="text-blue-700">→</span></h3>
-                <p className="mt-2 text-sm leading-6 text-gray-600">Explore established Mumbai and MMR developers, visit their official project pages and check the exact MahaRERA registration.</p>
-              </Link>
-              <Link href="/agents" className="group rounded-2xl border border-gray-200 bg-white p-7 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md">
-                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50"><Users className="h-6 w-6 text-emerald-700" /></div>
-                <h3 className="text-xl font-bold text-gray-950">Agents &amp; property owners <span className="text-blue-700">→</span></h3>
-                <p className="mt-2 text-sm leading-6 text-gray-600">Browse actual GoNest profiles, available RERA details and each professional’s active listings.</p>
-              </Link>
+            <div className="-mx-5 flex snap-x snap-mandatory gap-5 overflow-x-auto px-5 pb-4 sm:-mx-6 sm:px-6">
+              {[
+                { name: 'Villa Carino', config: '1 BHK', area: '438–453 sq ft carpet', location: 'Beside The Walk, Hiranandani Estate', image: 'https://www.houseofhiranandani.com/villa-carino-desk.jpg', href: '/homes/villa-carino', status: 'Ready to move' },
+                { name: 'Solitaire', config: '1 BHK', area: '366–409 sq ft carpet', location: 'Hiranandani Estate, Thane West', image: 'https://www.houseofhiranandani.com/solitiar_desk_bnr.jpg', href: '/homes/solitaire', status: 'Ready to move' },
+                { name: 'Delanna', config: '2 BHK', area: '698–703 sq ft carpet', location: 'Hiranandani Estate, Thane West', image: 'https://www.houseofhiranandani.com/_next/image?q=75&url=%2Fdelenna-new-desk-bnrx1up.jpg&w=1200', href: '/homes/delanna', status: 'Ready to move' },
+                { name: 'Aralia', config: '3 BHK', area: 'Area varies by published layout', location: 'Hiranandani Estate, Thane West', image: 'https://www.houseofhiranandani.com/banner-desk-aralia.jpg', href: '/homes/aralia', status: 'Project details' },
+                { name: 'Eagleridge Wing B', config: '2, 2.5 & 3 BHK', area: '641–999 sq ft', location: 'Hiranandani Estate, Thane West', image: 'https://www.houseofhiranandani.com/_next/image?q=75&url=%2Fabout-us-bnr-desk.jpg&w=1200', href: '/homes/eagleridge-wing-b', status: 'Project details' },
+                { name: 'Villa Rica', config: '2 BHK', area: 'Area varies by unit', location: 'Hiranandani Estate, Thane', image: 'https://www.houseofhiranandani.com/_next/image?q=75&url=%2Fabout-us-bnr-desk.jpg&w=1200', href: '/homes/villa-rica', status: 'Project details' },
+                { name: 'Hill Grange', config: 'Multiple configurations', area: 'Area varies by unit', location: 'Hiranandani Estate, Thane', image: 'https://www.houseofhiranandani.com/_next/image?q=75&url=%2Fabout-us-bnr-desk.jpg&w=1200', href: '/homes/hill-cranje', status: 'Project details' },
+                { name: 'Skylark Enclave', config: '2 & 3 BHK', area: 'Area varies by unit', location: 'Hiranandani Estate, Thane', image: 'https://www.houseofhiranandani.com/_next/image?q=75&url=%2Fabout-us-bnr-desk.jpg&w=1200', href: '/homes/skylark-enclave', status: 'Project details' },
+                { name: 'Rodas Enclave – Annora', config: 'Multiple configurations', area: 'Area varies by unit', location: 'Hiranandani Estate, Thane', image: 'https://www.houseofhiranandani.com/_next/image?q=75&url=%2Fabout-us-bnr-desk.jpg&w=1200', href: '/homes/annora', status: 'Project details' },
+                { name: 'Villa Nebula', config: 'Multiple configurations', area: 'Area varies by unit', location: 'Hiranandani Estate, Thane', image: 'https://www.houseofhiranandani.com/_next/image?q=75&url=%2Fabout-us-bnr-desk.jpg&w=1200', href: '/homes/villa-nebula', status: 'Project details' },
+              ].map(home => (
+                <article key={home.href} className="w-[278px] shrink-0 snap-start overflow-hidden rounded-2xl border border-gray-200 bg-white transition hover:-translate-y-0.5 hover:shadow-lg sm:w-[310px]">
+                  <Link href={home.href} className="block">
+                    <div className="relative h-48 bg-gray-100">
+                      <img src={home.image} alt={home.name + ', Hiranandani Estate'} loading="lazy" className="h-full w-full object-cover" />
+                      <span className="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-gray-800 shadow-sm">{home.status}</span>
+                    </div>
+                    <div className="p-4">
+                      <h3 className="text-lg font-extrabold text-gray-950">{home.name}</h3>
+                      <p className="mt-1 min-h-10 text-sm text-gray-600">{home.location}</p>
+                      <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold text-gray-800">
+                        <span className="rounded-md bg-gray-100 px-2.5 py-1.5">{home.config}</span>
+                        <span className="rounded-md bg-gray-100 px-2.5 py-1.5">{home.area}</span>
+                      </div>
+                      <span className="mt-4 inline-flex text-sm font-bold text-blue-700">View details →</span>
+                    </div>
+                  </Link>
+                </article>
+              ))}
+            </div>
+            <p className="mt-2 text-xs leading-5 text-gray-500">Project reference information. Prices and individual unit availability are not assumed; confirm the exact unit, documents and current status before making a decision.</p>
+          </div>
+        </section>
+
+        {/* BuyAbility-inspired affordability planner */}
+        <section className="bg-blue-50 py-14 sm:py-16">
+          <div className="mx-auto grid max-w-7xl gap-8 px-5 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+            <div>
+              <p className="mb-2 text-xs font-bold uppercase tracking-widest text-blue-700">Plan your budget</p>
+              <h2 className="text-3xl font-extrabold tracking-tight text-gray-950 sm:text-4xl" style={{ ...display, letterSpacing: '-0.03em' }}>Find a home you can afford.</h2>
+              <p className="mt-3 max-w-xl leading-7 text-gray-600">Estimate a comfortable home budget and monthly loan payment before you start visiting properties.</p>
+              <Link href="/HomeEMI" className="mt-6 inline-flex rounded-xl bg-blue-700 px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-blue-800">Calculate my home budget →</Link>
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+              {[{label:'Target home price',value:'Set your budget'},{label:'Maximum budget',value:'Estimate affordability'},{label:'Monthly payment',value:'Estimate your EMI'},{label:'Loan rate',value:'Check with your lender'}].map(item=>(
+                <div key={item.label} className="rounded-2xl border border-blue-100 bg-white p-4 sm:p-5">
+                  <p className="text-xs font-medium text-gray-500">{item.label}</p>
+                  <p className="mt-2 text-base font-extrabold text-gray-950 sm:text-lg">{item.value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Zillow-inspired buy, rent and sell pathways */}
+        <section className="bg-white py-16 sm:py-20">
+          <div className="mx-auto max-w-7xl px-5 sm:px-6">
+            <div className="mb-8">
+              <h2 className="text-3xl font-extrabold tracking-tight text-gray-950" style={{ ...display, letterSpacing: '-0.03em' }}>How can GoNest help?</h2>
+              <p className="mt-2 text-gray-600">Choose your next step, whether you’re finding a home or listing one.</p>
+            </div>
+            <div className="grid gap-5 md:grid-cols-3">
+              {[
+                {title:'Buy a home',desc:'Compare homes, understand the costs and contact the owner or agent.',href:'/buy',cta:'Explore homes',icon:Landmark},
+                {title:'Rent a home',desc:'Explore rentals and check rent, deposit and other stated charges.',href:'/rent',cta:'Find rentals',icon:Navigation},
+                {title:'Sell or rent out',desc:'Reach people looking for a home. Submit your property for review.',href:'/dashboard/new',cta:'List with GoNest',icon:Users},
+              ].map(item=>{const Icon=item.icon;return(
+                <article key={item.title} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:p-7">
+                  <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50"><Icon className="h-6 w-6 text-blue-700"/></div>
+                  <h3 className="text-xl font-extrabold text-gray-950">{item.title}</h3>
+                  <p className="mt-2 min-h-12 text-sm leading-6 text-gray-600">{item.desc}</p>
+                  <Link href={item.href} className="mt-5 inline-flex text-sm font-bold text-blue-700 hover:text-blue-900">{item.cta} →</Link>
+                </article>
+              )})}
             </div>
           </div>
         </section>
