@@ -12,8 +12,7 @@ const CARD = `id,title,price,purpose,property_type,bedrooms,bathrooms,sqft,
   listing_images(id,storage_path,sort_order,is_cover)`;
 
 const FULL = `*,city:cities(id,name,slug,state),locality:localities(id,name,slug,latitude,longitude),
-  listing_images(id,storage_path,sort_order,is_cover),
-  poster:profiles!posted_by(full_name,role,agency_name,agent_verified,avatar_url,rera_number)`;
+  listing_images(id,storage_path,sort_order,is_cover)`;
 
 const PUBLIC_PROFILE = 'id,full_name,role,agency_name,rera_number,agent_verified,avatar_url,bio,total_listings,rating,review_count,created_at';
 
@@ -64,14 +63,22 @@ export async function getFeatured(limit = 3): Promise<ListingFull[]> {
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export async function getListingById(id: string): Promise<ListingFull | null> {
-  // Reject malformed route IDs before they reach Postgres UUID columns. Treat them
-  // as missing listings so callers can render a normal not-found page (HTTP 404).
+  // Reject malformed route IDs before they reach Postgres UUID columns.
   if (!UUID_RE.test(id)) return null;
 
-  const { data, error } = await supabase.from('listings').select(FULL).eq('id', id).eq('status', 'active').eq('is_sample', false).maybeSingle();
+  const { data, error } = await supabase.from('listings').select(FULL)
+    .eq('id', id).eq('status', 'active').eq('is_sample', false).maybeSingle();
   if (error) throw error;
-  if (data) supabase.rpc('increment_listing_views', { listing_id: id }).then(() => {});
-  return data as unknown as ListingFull | null;
+  if (!data) return null;
+
+  // Never join the private profiles table from a public property-detail query.
+  // Fetch only the deliberately public, RLS-safe profile fields through the view.
+  const { data: poster } = await supabase.from('public_profiles')
+    .select(PUBLIC_PROFILE).eq('id', (data as any).posted_by).maybeSingle();
+
+  // View counts are best-effort analytics; they must not block the listing page.
+  void supabase.rpc('increment_listing_views', { listing_id: id }).then(() => {});
+  return { ...data, poster: poster ?? null } as unknown as ListingFull;
 }
 
 export async function getSimilarListings(l: ListingFull, limit = 3): Promise<ListingFull[]> {
