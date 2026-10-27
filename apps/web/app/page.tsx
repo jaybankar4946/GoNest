@@ -30,7 +30,7 @@ const TRUST = [
   { icon: Flag, title: 'Report anything', items: ['Report button on every listing', 'Reasons include fake, wrong price, already sold', 'Owners can mark listings sold or rented'] },
 ];
 export default async function HomePage() {
-  const [featured, cities, stats, agents, popular, homeContent] = await Promise.all([getFeatured(6), getCities(), getHomeStats(), getAgents(), getPopularLocalities(8), getHomepageContent(), getActiveHomepageCampaign()]);
+  const [featured, cities, stats, agents, popular, homeContent, homepageCampaign] = await Promise.all([getFeatured(6), getCities(), getHomeStats(), getAgents(), getPopularLocalities(8), getHomepageContent(), getActiveHomepageCampaign()]);
   const topAgents = [...agents].sort((a, b) => Number(b.agent_verified) - Number(a.agent_verified)).slice(0, 4);
   const strip = [
     { v: stats.listings, l: 'Live listings' },
