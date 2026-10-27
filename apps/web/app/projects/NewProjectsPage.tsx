@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Nav } from "@/components/layout/Nav";
 import { Footer } from "@/components/layout/Footer";
 import { supabase } from "@/lib/supabase";
@@ -23,6 +24,7 @@ const dateLabel = (s: string | null | undefined) => s ? new Date(s).toLocaleDate
 const isFresh = (s: string | null | undefined) => !!s && Date.now() - new Date(s).getTime() <= 14 * 86400000;
 
 export default function NewProjectsPage() {
+  const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
@@ -165,7 +167,7 @@ export default function NewProjectsPage() {
                 </div>
                 <div className="mt-4 flex items-center gap-2 text-xs text-slate-500"><ShieldCheck className="h-4 w-4"/>{p.verification_status==="verified"?"GoNest project record verified":"Source-linked record · details need confirmation"}</div>
                 <div className="mt-5 flex gap-2">
-                  <button onClick={()=>{setSelected(p);setRequestType("enquiry");setFeedback("");}} className="flex-1 rounded-xl bg-blue-700 px-3 py-3 text-sm font-bold text-white hover:bg-blue-800">View details & enquire <ArrowRight className="ml-1 inline h-4 w-4"/></button>
+                  <button onClick={()=>router.push(`/projects/${p.id}`)} className="flex-1 rounded-xl bg-blue-700 px-3 py-3 text-sm font-bold text-white hover:bg-blue-800">View details & enquire <ArrowRight className="ml-1 inline h-4 w-4"/></button>
                   {p.official_project_url && <a href={p.official_project_url} target="_blank" rel="noreferrer" aria-label="Open official developer project page" className="flex items-center justify-center rounded-xl border border-slate-200 px-3 text-slate-700 hover:bg-slate-50"><ExternalLink className="h-4 w-4"/></a>}
                 </div>
               </div>
