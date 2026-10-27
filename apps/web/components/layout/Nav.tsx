@@ -102,7 +102,7 @@ export function Nav() {
                     </Link>
                     <Link href="/saved-searches" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 10px', borderRadius: 8, fontSize: 13, color: '#111' }}>Saved searches</Link>
                     <Link href="/notifications" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 10px', borderRadius: 8, fontSize: 13, color: '#111' }}>Notifications</Link>
-                    <Link href="/dashboard/new" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 10px', borderRadius: 8, fontSize: 13, color: '#111' }}>
+                    <Link href="/list-with-gonest" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 10px', borderRadius: 8, fontSize: 13, color: '#111' }}>
                       <Plus size={14} /> Post a property
                     </Link>
                     <div style={{ height: 1, background: 'var(--border)', margin: '4px 0' }} />
