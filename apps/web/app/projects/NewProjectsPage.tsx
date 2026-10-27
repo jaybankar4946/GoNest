@@ -48,9 +48,9 @@ export default function NewProjectsPage() {
       if (!live) return;
       if (error) setLoadError("Project data could not be loaded right now. Please try again shortly.");
       else {
-        // Keep this launch directory focused on Hiranandani only. Match the developer brand
-        // or the official project name so records with a missing joined brand are not leaked.
-        const hiranandaniProjects = ((data ?? []) as unknown as Project[]).filter((project) => {
+        // Keep the builder inventory focused on the currently onboarded developers.
+        // Match either the joined brand or project name so missing joins don't leak unrelated projects.
+        const builderProjects = ((data ?? []) as unknown as Project[]).filter((project) => {
           // Supabase joins may return an object or an array depending on relationship metadata.
           const joined = project.developer as unknown as
             | { operating_brand?: string | null }[]
@@ -60,9 +60,9 @@ export default function NewProjectsPage() {
           const brands = Array.isArray(joined)
             ? joined.map((developer) => developer?.operating_brand ?? "").join(" ")
             : joined?.operating_brand ?? "";
-          return /hiranandani/i.test(`${brands} ${project.official_name ?? ""}`);
+          return /hiranandani|oberoi realty/i.test(`${brands} ${project.official_name ?? ""}`);
         });
-        setProjects(hiranandaniProjects);
+        setProjects(builderProjects);
       }
       setLoading(false);
     })();
@@ -115,6 +115,9 @@ export default function NewProjectsPage() {
   }
 
   const isWestgate = !!selected && /westgate/i.test(selected.official_name);
+  const isEternia = !!selected && /eternia/i.test(selected.official_name);
+  const isEnigma = !!selected && /enigma/i.test(selected.official_name);
+  const isOberoi = isEternia || isEnigma;
   const availableUnits = units.filter(u => u.availability_status === "available" && isFresh(u.observed_at) && !!u.source_url && !!u.verified_by);
   const verifiedInventory = !!selected && selected.verification_status === "verified" && selected.inventory_status === "verified_available" && isFresh(selected.inventory_verified_at);
 
@@ -228,6 +231,27 @@ export default function NewProjectsPage() {
               <p className="mt-2 text-sm leading-6 text-amber-950">The supplied channel quote states all-inclusive starting prices of ₹1.39 Cr (2 BHK), ₹2.82 Cr (3 BHK) and ₹5.41 Cr (4 BHK). The floor-plan PDF identifies MahaRERA possession as 31 October 2031; the channel message separately mentions a developer estimate of December 2029 or October 2030. These dates conflict, so GoNest should not present the earlier dates as confirmed possession. Ask for the current price sheet, exact unit cost sheet and written possession commitment.</p>
             </div>
             <div className="rounded-xl border border-slate-200 p-4"><h3 className="font-extrabold">Location & site visit</h3><p className="mt-1 text-sm leading-6 text-slate-600">Waghbil, Thane West, adjacent to Hiranandani Estate as described by the sales representative. Map opens a location search; the precise project pin has not been independently confirmed.</p><a className="mt-3 inline-flex items-center gap-2 font-bold text-blue-700 hover:underline" href="https://www.google.com/maps/search/?api=1&query=Hiranandani+Westgate+Waghbil+Thane" target="_blank" rel="noreferrer">Open map search <ExternalLink className="h-4 w-4"/></a><p className="mt-2 text-xs text-slate-500">Use “Request a visit” below to send a preferred date/time. This is a request only; the slot is not booked until the project team confirms it.</p></div>
+          </section>}
+          {isOberoi && <section className="space-y-5">
+            <div className="overflow-hidden rounded-2xl border border-slate-200">
+              <div className="bg-slate-950 p-5 text-white">
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-amber-200">Oberoi Realty · Mulund West, Mumbai</p>
+                <h3 className="mt-2 text-2xl font-extrabold">{isEternia ? "Eternia · Towers A–D" : "Enigma · Towers A–B"}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-200">Ready-to-move homes as described in the supplied channel inventory. The combined development is described in the developer brochure as a luxury residential destination on L.B.S. Road.</p>
+                <div className="mt-4 flex flex-wrap gap-2"><span className="rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold">MahaRERA: {isEternia ? "P51800006141" : "P51800002656"}</span><span className="rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold">OC / ready-to-move stated by source</span></div>
+              </div>
+              <div className="grid gap-3 p-4 sm:grid-cols-2">
+                {isEternia ? <>
+                  <div className="rounded-xl border border-slate-200 p-3"><p className="text-xs font-bold uppercase tracking-wide text-blue-700">3 BHK · Supreme Zone 2</p><p className="mt-1 text-lg font-extrabold">932 sq ft carpet</p><p className="mt-2 text-sm text-slate-600">31st floor onwards</p><p className="mt-3 text-xl font-extrabold">₹3.10 Cr onwards</p><p className="mt-1 text-xs text-slate-500">Approximate channel quote; exact unit and current price to be confirmed.</p></div>
+                  <div className="rounded-xl border border-slate-200 p-3"><p className="text-xs font-bold uppercase tracking-wide text-blue-700">3 BHK · Luxury Zone 2</p><p className="mt-1 text-lg font-extrabold">1,091 sq ft carpet</p><p className="text-sm text-slate-600">1,127 sq ft including balcony · 50th floor onwards</p><p className="mt-3 text-xl font-extrabold">₹4.05 Cr onwards</p><p className="mt-1 text-xs text-slate-500">Approximate channel quote; balcony-inclusive area is shown separately.</p></div>
+                </> : <div className="rounded-xl border border-slate-200 p-3 sm:col-span-2"><p className="text-xs font-bold uppercase tracking-wide text-blue-700">4 BHK · Royale Zone 2</p><p className="mt-1 text-lg font-extrabold">2,130 sq ft RERA carpet</p><p className="text-sm text-slate-600">2,170 sq ft including balcony · 43rd floor onwards</p><p className="mt-3 text-xl font-extrabold">₹7.58 Cr</p><p className="mt-1 text-xs text-slate-500">Approximate channel quote for the stated floor range; confirm current unit-specific price.</p></div>}
+              </div>
+            </div>
+            <div><h3 className="text-lg font-extrabold">Payment schedule</h3><div className="mt-3 rounded-xl border border-slate-200 p-4"><ol className="list-decimal space-y-2 pl-5 text-sm leading-6 text-slate-700"><li><strong>10% on booking</strong></li><li><strong>10% within 30 days</strong> from booking, or on the registration day, whichever is earlier</li><li><strong>Balance within 60 days</strong> from booking</li></ol><p className="mt-3 text-xs leading-5 text-slate-500">Payment terms supplied by the channel representative; request a written payment demand schedule and complete cost sheet from Oberoi Realty before paying.</p></div></div>
+            <div><h3 className="text-lg font-extrabold">Project overview</h3><div className="mt-3 grid gap-3 sm:grid-cols-2"><div className="rounded-xl bg-slate-50 p-4"><h4 className="font-bold">Eternia</h4><p className="mt-1 text-sm leading-6 text-slate-600">Sales message states 9 acres, four towers and 62 storeys. MahaRERA registration: P51800006141. Ready-to-move / OC received is stated in the supplied inventory; confirm the relevant OC and exact wing with the developer.</p></div><div className="rounded-xl bg-slate-50 p-4"><h4 className="font-bold">Enigma</h4><p className="mt-1 text-sm leading-6 text-slate-600">Sales message states 9 acres, two towers and 64 storeys. MahaRERA registration: P51800002656. Ready-to-move / OC received is stated in the supplied inventory; confirm the relevant OC and exact wing with the developer.</p></div></div><p className="mt-2 text-xs leading-5 text-slate-500">The developer brochure describes the combined Eternia and Enigma development as approximately 19 acres, which differs from adding the 9-acre figures in the supplied channel message. This listing preserves both source descriptions and flags the land-area difference for confirmation.</p></div>
+            <div><h3 className="text-lg font-extrabold">Location & map</h3><p className="mt-1 text-sm leading-6 text-slate-600">L.B.S. Road, Mulund West, Mumbai 400080. Explore the location and directions before arranging a visit.</p><a className="mt-3 inline-flex items-center gap-2 font-bold text-blue-700 hover:underline" href="https://www.google.com/maps/search/?api=1&query=Oberoi+Eternia+Enigma+LBS+Road+Mulund+West+Mumbai" target="_blank" rel="noreferrer">Open map & directions <ExternalLink className="h-4 w-4"/></a></div>
+            <div className="rounded-xl border border-slate-200 p-4"><h3 className="font-extrabold">Photos, floor plans & brochure</h3><p className="mt-1 text-sm leading-6 text-slate-600">The developer's published brochure includes project visuals and floor-plan material. Open it to inspect the official project imagery; GoNest's own image gallery still needs the selected brochure images uploaded and attached.</p><a className="mt-3 inline-flex items-center gap-2 font-bold text-blue-700 hover:underline" href="https://d3dy70zhjs5mi1.cloudfront.net/s3fs-public/2025-05/Eternia_and_Enigm_brochure_0.pdf" target="_blank" rel="noreferrer">Open developer brochure <ExternalLink className="h-4 w-4"/></a><p className="mt-2 text-xs text-slate-500">Images in the brochure may be artist impressions or illustrative visuals; refer to the brochure's disclaimers.</p></div>
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-4"><h3 className="font-extrabold text-amber-950">Before you buy</h3><p className="mt-2 text-sm leading-6 text-amber-950">Prices are approximate channel quotes, not verified live offers. Confirm unit number, floor, view, carpet area, balcony area, parking, maintenance/deposit, stamp duty, registration, taxes and any other charges in a written cost sheet. GoNest marks these offers as unverified until reviewed.</p></div>
           </section>}
           <section><h3 className="text-lg font-extrabold">Available units</h3>{unitsLoading?<p className="mt-2 text-sm text-slate-500">Checking latest unit observations…</p>:availableUnits.length===0?null:<div className="mt-3 space-y-3">{availableUnits.map(u=><div key={u.id} className="rounded-xl border border-emerald-200 p-4"><div className="flex items-center justify-between gap-3"><p className="font-bold">{u.unit_reference || u.configuration || "Available unit"}{u.tower_name? ` · ${u.tower_name}`:""}</p><span className="rounded-full bg-emerald-50 px-2 py-1 text-xs font-bold text-emerald-800">Available · source checked</span></div><p className="mt-2 text-sm text-slate-600">{[u.configuration,u.floor_number? `Floor ${u.floor_number}`:null,u.carpet_area_sqft?`${u.carpet_area_sqft} sq ft carpet`:null].filter(Boolean).join(" · ") || "Details not supplied"}</p><p className="mt-2 text-lg font-extrabold">{money(u.asking_price_inr)}{u.additional_charges_inr? <span className="text-xs font-medium text-slate-500"> + {money(u.additional_charges_inr)} charges</span>:null}</p><p className="mt-1 text-xs text-slate-500">Observed {new Date(u.observed_at).toLocaleString("en-IN")} · <a href={u.source_url||"#"} target="_blank" rel="noreferrer" className="underline">Source</a></p></div>)}</div>}</section>
           <section><h3 className="text-lg font-extrabold">Enquire or request a site visit</h3><p className="mt-1 text-sm text-slate-500">Your request is recorded in GoNest and is pending confirmation; a visit is not booked until the project team confirms the slot.</p>
