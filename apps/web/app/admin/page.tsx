@@ -132,7 +132,7 @@ export default function AdminPage() {
                     <td style={{padding:11,fontSize:12}}>{p.developer}</td><td style={{padding:11,fontSize:12}}>{p.city}</td>
                     <td style={{padding:11,fontSize:12}}>{p.rera_number??'Not recorded'}</td><td style={{padding:11,fontSize:12}}>{p.construction_status}</td>
                     <td style={{padding:11,fontSize:12}}>{p.inventory_status}</td><td style={{padding:11,fontSize:12}}>{p.verification_status}</td>
-                    <td style={{padding:11}}><span style={SB(p.is_sample?'#B45309':'#2563EB')}>{p.is_sample?'SAMPLE':'REAL RECORD'}</span></td>
+                    <td style={{padding:11}}><span style={SB(p.is_sample?'#B45309':'#2563EB')}>{p.is_sample?'SAMPLE':'REAL RECORD'}</span><div style={{marginTop:6}}><button disabled={busy||p.verification_status==='rejected'} onClick={async()=>{if(!confirm('Remove this project from public GoNest discovery? It will be marked rejected, not hard-deleted, so linked enquiries and inventory history remain.'))return;setBusy(true);try{const {error}=await (await import('@/lib/supabase')).supabase.from('real_estate_projects').update({verification_status:'rejected',inventory_status:'not_open_for_sale',updated_at:new Date().toISOString()}).eq('id',p.id);if(error)throw error;setLaunchInventory((old:any)=>old?({...old,projectRecords:old.projectRecords.map((x:any)=>x.id===p.id?({...x,verification_status:'rejected',inventory_status:'not_open_for_sale'}):x)}):old);}catch{alert('Could not remove project. Confirm the admin RLS policy allows this action.');}finally{setBusy(false);}} style={{...BTN('#991B1B'),fontSize:10}}>{p.verification_status==='rejected'?'Removed from public':'Remove project'}</button></div></td>
                   </tr>)}</tbody>
                 </table></div>
               </div>
@@ -196,6 +196,8 @@ export default function AdminPage() {
                   {l.status==='pending_review'&&<button onClick={()=>moderate(l.id,'active','verified')} disabled={busy} style={{...BTN('#16A34A'),fontSize:11}}>Approve</button>}
                   {l.status==='active'&&<button onClick={()=>{if(confirm('Suspend this listing? It will be hidden from the public.'))moderate(l.id,'suspended','unverified','Suspended by admin');}} disabled={busy} style={{...BTN('#DC2626'),fontSize:11}}>Suspend</button>}
                   {l.status==='suspended'&&<button onClick={()=>moderate(l.id,'active','verified')} disabled={busy} style={{...BTN('#16A34A'),fontSize:11}}>Restore</button>}
+                  {l.status!=='archived'&&<button onClick={()=>{if(confirm('Remove this listing from GoNest? It will be archived and hidden from public search; its enquiry history will be retained.'))moderate(l.id,'archived','unverified','Archived by admin');}} disabled={busy} style={{...BTN('#991B1B'),fontSize:11}}>Remove</button>}
+                  {l.status==='archived'&&<button onClick={()=>moderate(l.id,'pending_review','unverified')} disabled={busy} style={{...BTN('#16A34A'),fontSize:11}}>Restore</button>}
                 </div>
               </div>
             ))}
@@ -210,6 +212,7 @@ export default function AdminPage() {
                 <div style={{display:'flex',gap:8,alignItems:'center'}}>
                   <button onClick={()=>adminVerifyAgent(b.id,!b.agent_verified).then(()=>adminGetBrokers().then(setBrokers))} style={BTN(b.agent_verified?'#6B6B6B':'#16A34A')}>{b.agent_verified?'Unverify':'Verify'}</button>
                   <select value={b.role} onChange={e=>adminSetRole(b.id,e.target.value).then(()=>adminGetBrokers().then(setBrokers))} style={INP}>{['buyer','owner','agent','admin'].map(r=><option key={r} value={r}>{r}</option>)}</select>
+                  <button onClick={async()=>{if(!confirm('Remove this person from the public agent/owner directory? Their account and historical records will be retained.'))return;setBusy(true);try{await adminVerifyAgent(b.id,false);await adminSetRole(b.id,'buyer');await adminGetBrokers().then(setBrokers);}catch{alert('Could not remove this profile. Check admin permissions.');}finally{setBusy(false);}}} disabled={busy||b.role==='admin'} style={{...BTN('#991B1B'),fontSize:11}}>Remove from directory</button>
                 </div>
               </div>
             ))}
