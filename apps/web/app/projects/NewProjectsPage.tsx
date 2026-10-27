@@ -12,6 +12,7 @@ type Project = {
   project_category: string; construction_status: string; launch_date: string | null; expected_possession_date: string | null;
   total_units: number | null; configurations: unknown; published_price_min_inr: number | null; published_price_max_inr: number | null;
   price_observed_at: string | null; official_project_url: string | null; brochure_url: string | null;
+  cover_image_url?: string | null; gallery_image_urls?: string[] | null; image_source_url?: string | null; image_checked_at?: string | null;
   inventory_status: string; inventory_verified_at: string | null; verification_status: string; is_sample: boolean;
   developer?: { operating_brand?: string | null; website_url?: string | null } | null;
   city?: { name?: string } | null; locality?: { name?: string } | null;
@@ -44,7 +45,7 @@ export default function NewProjectsPage() {
     (async () => {
       setLoading(true); setLoadError("");
       const { data, error } = await supabase.from("real_estate_projects")
-        .select("id,official_name,public_address,rera_number,project_category,construction_status,launch_date,expected_possession_date,total_units,configurations,published_price_min_inr,published_price_max_inr,price_observed_at,official_project_url,brochure_url,inventory_status,inventory_verified_at,verification_status,is_sample,developer:developers(operating_brand,website_url),city:cities(name),locality:localities(name)")
+        .select("id,official_name,public_address,rera_number,project_category,construction_status,launch_date,expected_possession_date,total_units,configurations,published_price_min_inr,published_price_max_inr,price_observed_at,official_project_url,brochure_url,cover_image_url,gallery_image_urls,image_source_url,image_checked_at,inventory_status,inventory_verified_at,verification_status,is_sample,developer:developers(operating_brand,website_url),city:cities(name),locality:localities(name)")
         .eq("is_sample", false).in("verification_status", ["pending","verified"]).not("official_project_url","is",null)
         .order("official_name");
       if (!live) return;
@@ -151,9 +152,15 @@ export default function NewProjectsPage() {
             const location = [p.locality?.name,p.city?.name].filter(Boolean).join(", ") || p.public_address || "Location details pending";
             const configurations = Array.isArray(p.configurations) ? p.configurations.map((x:any)=>typeof x==="string"?x:x?.label||x?.configuration).filter(Boolean).join(" · ") : "";
             return <article key={p.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
-              <div className="relative flex h-40 items-center justify-center bg-gradient-to-br from-slate-100 via-blue-50 to-slate-200">
-                <Building2 className="h-12 w-12 text-slate-300"/>
-                <span className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-[11px] font-bold text-slate-700">PROJECT REFERENCE</span>
+              <div className="group/image relative flex h-44 items-center justify-center overflow-hidden bg-gradient-to-br from-sky-100 via-violet-100 to-amber-100">
+                {(p.cover_image_url || p.official_project_url) && <img src={p.cover_image_url || `/api/project-image?url=${encodeURIComponent(p.official_project_url || "")}`} alt={`${p.official_name} — official project image`} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover/image:scale-105" onError={(e)=>{e.currentTarget.style.display="none";}} />}
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/45 via-transparent to-transparent"/>
+                <div className="relative z-[1] flex flex-col items-center gap-2 text-white drop-shadow">
+                  <Building2 className="h-10 w-10"/>
+                  <span className="text-xs font-bold tracking-wide">{developer}</span>
+                </div>
+                <span className="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1 text-[11px] font-bold text-slate-700">PROJECT</span>
+                <span className="absolute bottom-3 right-3 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold text-slate-700">Image source: developer</span>
               </div>
               <div className="p-5">
                 <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">{developer}</p>
