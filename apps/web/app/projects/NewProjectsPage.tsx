@@ -153,14 +153,14 @@ export default function NewProjectsPage() {
             const configurations = Array.isArray(p.configurations) ? p.configurations.map((x:any)=>typeof x==="string"?x:x?.label||x?.configuration).filter(Boolean).join(" · ") : "";
             return <article key={p.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
               <div className="group/image relative flex h-44 items-center justify-center overflow-hidden bg-gradient-to-br from-sky-100 via-violet-100 to-amber-100">
-                {(p.cover_image_url || p.official_project_url) && <img src={p.cover_image_url || `/api/project-image?url=${encodeURIComponent(p.official_project_url || "")}`} alt={`${p.official_name} — official project image`} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover/image:scale-105" onError={(e)=>{e.currentTarget.style.display="none";}} />}
+                {p.cover_image_url && <img src={p.cover_image_url} alt={`${p.official_name} — official project image`} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover/image:scale-105" onError={(e)=>{e.currentTarget.style.display="none";}} />}
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/45 via-transparent to-transparent"/>
                 <div className="relative z-[1] flex flex-col items-center gap-2 text-white drop-shadow">
                   <Building2 className="h-10 w-10"/>
                   <span className="text-xs font-bold tracking-wide">{developer}</span>
                 </div>
                 <span className="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1 text-[11px] font-bold text-slate-700">PROJECT</span>
-                <span className="absolute bottom-3 right-3 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold text-slate-700">Image source: developer</span>
+                <span className="absolute bottom-3 right-3 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-semibold text-slate-700">{p.cover_image_url ? "Project image" : "Project overview"}</span>
               </div>
               <div className="p-5">
                 <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">{developer}</p>
