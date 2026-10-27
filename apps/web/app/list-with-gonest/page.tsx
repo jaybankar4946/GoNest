@@ -44,7 +44,7 @@ export default function ListWithGoNestPage() {
               <div style={{ width: 46, height: 46, display: 'grid', placeItems: 'center', borderRadius: 14, background: '#EEF2FF', color: 'var(--primary)', marginBottom: 20 }}><Icon size={22} /></div>
               <h2 style={{ fontSize: 20, fontWeight: 750, color: '#111827', margin: '0 0 10px' }}>{title}</h2>
               <p style={{ color: '#5B6472', fontSize: 14, lineHeight: 1.7, margin: '0 0 24px', flex: 1 }}>{detail}</p>
-              <Link href={`/auth?mode=signup&role=${role}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, borderRadius: 12, padding: '12px 14px', background: 'var(--primary)', color: '#fff', fontSize: 14, fontWeight: 700 }}>
+              <Link href={`/auth?mode=signup&next=${encodeURIComponent('/dashboard/supply?role=' + role)}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, borderRadius: 12, padding: '12px 14px', background: 'var(--primary)', color: '#fff', fontSize: 14, fontWeight: 700 }}>
                 {action}<ArrowRight size={17} />
               </Link>
             </article>

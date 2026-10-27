@@ -4,10 +4,10 @@ import { useRouter } from 'next/navigation';
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
 import { useAuth } from '@/components/layout/AuthProvider';
-import { adminGetPendingListings, adminGetAllListings, adminGetBrokers, adminGetAllLeads, adminGetAllVisits, adminGetStats, adminModerate, adminToggleFeatured, adminVerifyAgent, adminSetRole, adminGetReports, adminResolveReport, adminGetAuditLog, adminGetFunnel, adminGetLaunchInventoryDashboard } from '@/lib/api';
+import { adminGetPendingListings, adminGetAllListings, adminGetBrokers, adminGetAllLeads, adminGetAllVisits, adminGetStats, adminModerate, adminToggleFeatured, adminVerifyAgent, adminSetRole, adminGetReports, adminResolveReport, adminGetAuditLog, adminGetFunnel, adminGetLaunchInventoryDashboard, adminGetPendingSubmissions, adminReviewSubmission } from '@/lib/api';
 import { imgUrl } from '@/lib/api';
 import { formatPrice, timeAgo } from '@/lib/format';
-const TABS=['queue','listings','supply','brokers','leads','visits','reports','audit','funnel'] as const;
+const TABS=['queue','submissions','listings','supply','brokers','leads','visits','reports','audit','funnel'] as const;
 type Tab=typeof TABS[number];
 const SC: Record<string,string>={active:'#16A34A',pending_review:'#D97706',rejected:'#DC2626',draft:'#6B6B6B',archived:'#6B6B6B',new:'#2563EB',contacted:'#D97706',closed:'#16A34A',confirmed:'#16A34A',requested:'#D97706',completed:'#6B6B6B'};
 const SB=(c:string): React.CSSProperties=>({fontSize:11,fontWeight:500,padding:'3px 10px',borderRadius:9999,background:c+'18',color:c});
@@ -17,6 +17,9 @@ export default function AdminPage() {
   const router=useRouter();
   const{profile,loading}=useAuth();
   const[tab,setTab]=useState<Tab>('queue');
+  const[subs,setSubs]=useState<{projects:any[];brokerages:any[]}>({projects:[],brokerages:[]});
+  const[subNote,setSubNote]=useState<Record<string,string>>({});
+  const[subErr,setSubErr]=useState<string|null>(null);
   const[queue,setQueue]=useState<any[]>([]);
   const[listings,setListings]=useState<any[]>([]);
   const[brokers,setBrokers]=useState<any[]>([]);
@@ -42,8 +45,15 @@ export default function AdminPage() {
     adminGetAuditLog().then(setAudit);
     adminGetStats().then(setStats);
     adminGetLaunchInventoryDashboard().then(setLaunchInventory);
+    adminGetPendingSubmissions().then(setSubs);
   },[]);
   useEffect(()=>{adminGetFunnel(fdays).then(setFunnel);},[fdays]);
+  const reviewSub=async(kind:'project'|'brokerage',id:string,decision:'verified'|'rejected')=>{
+    setBusy(true);setSubErr(null);
+    try{await adminReviewSubmission(kind,id,decision,subNote[id]);setSubs(p=>({projects:p.projects.filter(x=>x.id!==id),brokerages:p.brokerages.filter(x=>x.id!==id)}));adminGetAuditLog().then(setAudit);}
+    catch(e){setSubErr((e as {message?:string})?.message??'Could not save the review.');}
+    finally{setBusy(false);}
+  };
   const moderate=async(id:string,status:string,vl:string,rej?:string)=>{setBusy(true);await adminModerate(id,status,vl,rej);setQueue(p=>p.filter(l=>l.id!==id));setListings(p=>p.map(l=>l.id===id?{...l,status,verification_level:vl}:l));setBusy(false);};
   const TS=(t:string): React.CSSProperties=>({padding:'7px 18px',borderRadius:9999,fontSize:13,fontWeight:tab===t?600:400,color:tab===t?'#111':'#6B6B6B',background:tab===t?'#F7F7F7':'transparent',border:'none',cursor:'pointer'});
   if (loading) return <><Nav/><main style={{maxWidth:1100,margin:'0 auto',padding:'48px 24px',color:'#6B6B6B'}}>Checking administrator access…</main><Footer/></>;
@@ -59,7 +69,7 @@ export default function AdminPage() {
           ))}
         </div>}
         <div style={{display:'flex',gap:4,marginBottom:28,flexWrap:'wrap'}}>
-          {TABS.map(t=><button key={t} onClick={()=>setTab(t)} style={TS(t)}>{t==='queue'?`Review queue (${queue.length})`:t==='reports'?`Reports (${reports.filter(r=>r.status==='open').length})`:t==='audit'?'Audit log':t==='supply'?'Launch inventory':t.charAt(0).toUpperCase()+t.slice(1)}</button>)}
+          {TABS.map(t=><button key={t} onClick={()=>setTab(t)} style={TS(t)}>{t==='queue'?`Review queue (${queue.length})`:t==='reports'?`Reports (${reports.filter(r=>r.status==='open').length})`:t==='audit'?'Audit log':t==='supply'?'Launch inventory':t==='submissions'?`Supply review (${subs.projects.length+subs.brokerages.length})`:t.charAt(0).toUpperCase()+t.slice(1)}</button>)}
         </div>
         {tab==='supply'&&(
           <section style={{display:'flex',flexDirection:'column',gap:18}}>
@@ -152,6 +162,32 @@ export default function AdminPage() {
               </div>
             </>}
           </section>
+        )}
+        {tab==='submissions'&&(
+          <div style={{display:'flex',flexDirection:'column',gap:12}}>
+            <p style={{fontSize:13,color:'#6B6B6B'}}>Agency and builder-project submissions from the supply onboarding flow. Verify only after checking the RERA number on the relevant state RERA website and the official URLs.</p>
+            {subErr&&<p style={{fontSize:13,color:'#DC2626'}}>{subErr}</p>}
+            {subs.projects.length+subs.brokerages.length===0&&<p style={{fontSize:14,color:'#16A34A'}}>No supply submissions waiting for review.</p>}
+            {[...subs.projects.map((x:any)=>({...x,kind:'project' as const,title:x.official_name})),...subs.brokerages.map((x:any)=>({...x,kind:'brokerage' as const,title:x.business_name}))].map((x:any)=>(
+              <div key={x.kind+x.id} style={{padding:16,border:'1px solid #E5E5E5',borderRadius:12}}>
+                <div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap',marginBottom:4}}>
+                  <p style={{fontSize:14,fontWeight:600,color:'#111'}}>{x.title}</p>
+                  <span style={SB('#2563EB')}>{x.kind==='project'?'Builder project':'Agency'}</span>
+                  <span style={{fontSize:12,color:'#9B9B9B'}}>{x.city_name} · {timeAgo(x.created_at)}</span>
+                </div>
+                {x.kind==='project'&&<p style={{fontSize:12,color:'#6B6B6B'}}>Developer: {x.developer?.registered_name??'—'} · Project RERA: {x.rera_number??'not given'} · Developer RERA: {x.developer?.rera_registration??'not given'}</p>}
+                {x.kind==='brokerage'&&<p style={{fontSize:12,color:'#6B6B6B'}}>RERA: {x.rera_registration??'not given'} · Phone: {x.public_business_phone??'—'}{x.localities?.length?` · Covers: ${x.localities.join(', ')}`:''}</p>}
+                <p style={{fontSize:12,marginTop:2}}>
+                  {(x.kind==='project'?x.official_project_url:x.website_url)&&<a href={x.kind==='project'?x.official_project_url:x.website_url} target="_blank" rel="noopener noreferrer nofollow" style={{color:'#2563EB',textDecoration:'underline'}}>Open submitted link</a>}
+                </p>
+                <div style={{display:'flex',gap:8,flexWrap:'wrap',alignItems:'center',marginTop:10}}>
+                  <input placeholder="Review notes (required to reject)" value={subNote[x.id]??''} onChange={e=>setSubNote(p=>({...p,[x.id]:e.target.value}))} style={{...INP,width:260}}/>
+                  <button onClick={()=>reviewSub(x.kind,x.id,'verified')} disabled={busy} style={BTN('#16A34A')}>Verify</button>
+                  <button onClick={()=>reviewSub(x.kind,x.id,'rejected')} disabled={busy||!(subNote[x.id]??'').trim()} style={{...BTN('#DC2626'),opacity:(subNote[x.id]??'').trim()?1:0.4}}>Reject</button>
+                </div>
+              </div>
+            ))}
+          </div>
         )}
         {tab==='queue'&&(
           <div style={{display:'flex',flexDirection:'column',gap:12}}>
