@@ -18,6 +18,17 @@ type Project = {
 type Unit = { id: string; unit_reference: string | null; tower_name: string | null; floor_number: number | null; configuration: string | null; carpet_area_sqft: number | null; asking_price_inr: number | null; additional_charges_inr: number | null; availability_status: string; observed_at: string; source_url: string | null; verified_by: string | null };
 
 const MAHARERA = "https://maharera.maharashtra.gov.in/";
+const HIRANANDANI_ASSETS = "https://www.houseofhiranandani.com";
+function projectHeroImage(project: Project) {
+  const name = project.official_name.toLowerCase();
+  if (name.includes("westgate")) return `${HIRANANDANI_ASSETS}/west-gate-newssxx-bnr-desk.jpg`;
+  if (name.includes("aralia")) return `${HIRANANDANI_ASSETS}/banner-desk-aralia.jpg`;
+  if (name.includes("delanna")) return `${HIRANANDANI_ASSETS}/delenna-new-desk-bnrx1up.jpg`;
+  if (name.includes("falcon")) return `${HIRANANDANI_ASSETS}/banner-desk-falcon.jpg`;
+  if (name.includes("solitaire")) return `${HIRANANDANI_ASSETS}/solitiar_desk_bnr.jpg`;
+  if (name.includes("villa carino")) return `${HIRANANDANI_ASSETS}/villa-carino-desk.jpg`;
+  return null;
+}
 const money = (n: number | null | undefined) => n == null ? "Ask for current pricing" : n >= 10000000 ? `₹${(n / 10000000).toFixed(2).replace(/0+$/,"").replace(/\.$/,"")} Cr` : n >= 100000 ? `₹${(n / 100000).toFixed(1).replace(/\.0$/,"")} L` : `₹${n.toLocaleString("en-IN")}`;
 const dateLabel = (s: string | null | undefined) => s ? new Date(s).toLocaleDateString("en-IN",{month:"short",year:"numeric"}) : "Not provided";
 const isFresh = (s: string | null | undefined) => !!s && Date.now() - new Date(s).getTime() <= 14 * 86400000;
@@ -146,9 +157,11 @@ export default function NewProjectsPage() {
             const location = [p.locality?.name,p.city?.name].filter(Boolean).join(", ") || p.public_address || "Location details pending";
             const configurations = Array.isArray(p.configurations) ? p.configurations.map((x:any)=>typeof x==="string"?x:x?.label||x?.configuration).filter(Boolean).join(" · ") : "";
             return <article key={p.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
-              <div className="relative flex h-40 items-center justify-center bg-gradient-to-br from-slate-100 via-blue-50 to-slate-200">
-                <Building2 className="h-12 w-12 text-slate-300"/>
-                <span className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-[11px] font-bold text-slate-700">PROJECT REFERENCE</span>
+              <div className="relative h-52 overflow-hidden bg-gradient-to-br from-slate-100 via-blue-50 to-slate-200">
+                {projectHeroImage(p) && <img src={projectHeroImage(p)!} alt={`${p.official_name} by House of Hiranandani`} loading="lazy" className="h-full w-full object-cover" onError={e=>{e.currentTarget.style.display="none";}}/>}
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/45 via-transparent to-transparent"/>
+                <span className="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1 text-[11px] font-bold text-slate-700">OFFICIAL DEVELOPER VISUAL</span>
+                <a href={p.official_project_url || "https://www.houseofhiranandani.com/residential-projects/thane"} target="_blank" rel="noreferrer" className="absolute bottom-3 right-3 rounded-lg bg-white/95 px-3 py-2 text-xs font-bold text-slate-800">Official photos ↗</a>
               </div>
               <div className="p-5">
                 <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">{developer}</p>
@@ -183,6 +196,28 @@ export default function NewProjectsPage() {
           <div className="rounded-2xl bg-slate-50 p-4"><p className="flex items-center gap-2 font-bold"><MapPin className="h-4 w-4"/>{[selected.locality?.name,selected.city?.name].filter(Boolean).join(", ") || selected.public_address || "Location to be confirmed"}</p><p className="mt-2 text-sm text-slate-600">Project data shown here is limited to recorded source information. Ask the developer to confirm the exact phase, live unit inventory, full price sheet and possession terms.</p>
             <div className="mt-3 flex flex-wrap gap-2">{selected.official_project_url&&<a className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold" href={selected.official_project_url} target="_blank" rel="noreferrer">Official project page <ExternalLink className="ml-1 inline h-3.5 w-3.5"/></a>}<a className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold" href={MAHARERA} target="_blank" rel="noreferrer">MahaRERA search <ExternalLink className="ml-1 inline h-3.5 w-3.5"/></a>{selected.brochure_url&&<a className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold" href={selected.brochure_url} target="_blank" rel="noreferrer">Brochure <ExternalLink className="ml-1 inline h-3.5 w-3.5"/></a>}</div>
           </div>
+          {selected.developer?.operating_brand?.toLowerCase().includes("hiranandani") && <section className="space-y-5">
+            <div className="overflow-hidden rounded-2xl border border-slate-200">
+              <div className="relative h-56 bg-slate-100">
+                {projectHeroImage(selected) && <img src={projectHeroImage(selected)!} alt={`${selected.official_name} official developer visual`} className="h-full w-full object-cover" onError={e=>{e.currentTarget.style.display="none";}}/>}
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/85 to-transparent p-5 text-white"><p className="text-xs font-bold uppercase tracking-wider">House of Hiranandani · Official source imagery</p><h3 className="mt-1 text-2xl font-extrabold">{selected.official_name}</h3><p className="mt-1 text-sm">Illustrative imagery; confirm actual finishes, unit condition and inclusions during the visit.</p></div>
+              </div>
+              <div className="grid gap-3 p-4 sm:grid-cols-2">
+                <div className="rounded-xl bg-slate-50 p-4"><h4 className="font-bold">Project & home details</h4><p className="mt-2 text-sm leading-6 text-slate-600">{selected.official_name.toLowerCase().includes("westgate") ? "25-acre gated residential community. Official project material describes 6+ acres of landscaped podium, 2+ additional landscape acres, 60+ amenities and a multilevel clubhouse. Phase I is registered under MahaRERA P51700077268." : selected.official_name.toLowerCase().includes("aralia") ? "Official page: 3 BHK residences, 35-storey tower, ready-to-move status and OC received. Official overview states 1,199–1,204 sq ft, while the floor-plan table states 1,084.26 and 1,112.24 sq ft carpet; confirm the exact plan." : selected.official_name.toLowerCase().includes("delanna") ? "Official page: 2 BHK residences, 35-storey tower, ready-to-move status and OC received. Overview says 698–703 sq ft carpet; floor plans list 628.29, 633.56 and 634.59 sq ft. Confirm the exact plan." : selected.official_name.toLowerCase().includes("falcon") ? "Official page: 2 BHK residences, under construction. Overview says 671.03 sq ft carpet while the floor plan lists 643.47 sq ft; verify the approved unit plan and current possession date." : selected.official_name.toLowerCase().includes("solitaire") ? "Official page: 1 BHK residences in a 36-storey tower, ready-to-move with OC received. Official marketing range is 366–409 sq ft carpet; confirm the exact approved unit plan." : selected.official_name.toLowerCase().includes("villa carino") ? "Official page: 1 BHK premium tower, 11 storeys, ready-to-move with OC received; marketed carpet area 438–453 sq ft. Located beside The Walk." : "See official developer source for current tower, configuration, possession and floor-plan information."}</p></div>
+                <div className="rounded-xl bg-slate-50 p-4"><h4 className="font-bold">Township connectivity</h4><ul className="mt-2 space-y-1 text-sm leading-6 text-slate-600"><li>• Eastern Express Highway: approx. 5.5 km</li><li>• Thane Railway Station: approx. 8.9 km</li><li>• Foundation School, Podar International and New Horizon Scholars School within the township</li><li>• Hiranandani Hospital and KIMS Multispeciality Hospital within the township</li><li>• The Walk retail and dining boulevard within Hiranandani Estate</li></ul><a className="mt-3 inline-flex items-center gap-2 font-bold text-blue-700 hover:underline" href="https://www.google.com/maps/search/?api=1&query=House+of+Hiranandani+Estate+Ghodbunder+Road+Thane" target="_blank" rel="noreferrer">Open map & directions <ExternalLink className="h-4 w-4"/></a></div>
+              </div>
+            </div>
+            <div><h3 className="text-lg font-extrabold">Township amenities</h3><div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{[
+              ["Club & fitness","Clubhouse, gymnasium, racquet club, badminton court, tennis court and multipurpose hall."],
+              ["Outdoor & green spaces","Open green spaces, walking/jogging tracks and landscaped common areas."],
+              ["Family facilities","Children’s play area and shared community facilities."],
+              ["Daily convenience","Retail, dining and services at The Walk; maintained roads and pavements."],
+              ["Education","Foundation School, Podar International School and New Horizon Scholars School in the township."],
+              ["Healthcare","Hiranandani Hospital and KIMS Multispeciality Hospital within the township."]
+            ].map(([title,description])=><div key={title} className="rounded-xl border border-slate-200 p-3"><h4 className="font-bold">{title}</h4><p className="mt-1 text-sm leading-6 text-slate-600">{description}</p></div>)}</div><p className="mt-2 text-xs leading-5 text-slate-500">Township facilities may be shared, vary by building and have separate access or charges. Confirm with the society/developer.</p></div>
+            <div className="rounded-xl border border-slate-200 p-4"><h3 className="font-extrabold">Photo gallery & documents</h3><p className="mt-1 text-sm leading-6 text-slate-600">The lead image is sourced from House of Hiranandani’s public project page. Use the official page for the full current gallery, floor plans and brochure. Image labels distinguish project photography from artist impressions.</p><a className="mt-3 inline-flex items-center gap-2 font-bold text-blue-700 hover:underline" href={selected.official_project_url || "https://www.houseofhiranandani.com/residential-projects/thane"} target="_blank" rel="noreferrer">View official gallery & floor plans <ExternalLink className="h-4 w-4"/></a></div>
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-4"><h3 className="font-extrabold text-amber-950">Buyer checklist</h3><p className="mt-2 text-sm leading-6 text-amber-950">Before paying a token, request the exact flat number and floor, approved RERA carpet area, balcony/deck area, written cost sheet, parking details, maintenance and corpus charges, stamp duty/registration estimates, current possession/OC documents, and a dated availability confirmation. GoNest does not imply a live unit is available unless it has a recent, source-linked and verified inventory observation.</p></div>
+          </section>}
           {isWestgate && <section className="space-y-5">
             <div className="overflow-hidden rounded-2xl border border-slate-200">
               <div className="bg-slate-950 p-5 text-white">
@@ -195,7 +230,9 @@ export default function NewProjectsPage() {
                 {[
                   {name:"Florencia",type:"2 BHK · 47 storeys",area:"483–728 sq ft RERA carpet",price:"₹1.39 Cr onwards"},
                   {name:"Belvedere",type:"3 BHK · 51 storeys",area:"949–1,203 sq ft RERA carpet",price:"₹2.82 Cr onwards"},
-                  {name:"Somerset",type:"4 BHK · 55 storeys",area:"1,535–1,662 sq ft RERA carpet",price:"₹5.41 Cr onwards"}
+                  {name:"Somerset",type:"4 BHK · 55 storeys",area:"1,535–1,662 sq ft RERA carpet",price:"₹5.41 Cr onwards"},
+                  {name:"Amalfi",type:"2 BHK residences",area:"Official project page lists 2 BHK; unit sizes vary by plan",price:"Request current quote"},
+                  {name:"Hampstead",type:"4 BHK residences",area:"Official project page lists 4 BHK; confirm exact unit plan",price:"Request current quote"}
                 ].map(tower=><div key={tower.name} className="rounded-xl border border-slate-200 p-3"><p className="text-xs font-bold uppercase tracking-wide text-blue-700">{tower.type}</p><h4 className="mt-1 text-lg font-extrabold">{tower.name}</h4><p className="mt-2 text-sm text-slate-600">{tower.area}</p><p className="mt-3 font-extrabold">{tower.price}</p><p className="mt-1 text-[11px] leading-4 text-slate-500">Builder channel quote; reconfirm inclusions and current price.</p></div>)}
               </div>
             </div>
