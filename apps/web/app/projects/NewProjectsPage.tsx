@@ -122,18 +122,11 @@ export default function NewProjectsPage() {
     <main className="min-h-screen bg-slate-50 text-slate-900">
       <section className="bg-white border-b border-slate-200">
         <div className="mx-auto max-w-7xl px-4 py-10 md:px-6 md:py-14">
-          <div className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-[.18em] text-blue-700"><Building2 className="h-4 w-4"/> Hiranandani · Mumbai & Thane</div>
           <h1 className="max-w-3xl text-3xl font-extrabold tracking-tight md:text-5xl">Explore New Projects</h1>
-          <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600">Explore Hiranandani residential projects. Review available project details and request current inventory or a site visit. Availability is confirmed only when recent, source-linked inventory evidence is present.</p>
           <div className="mt-7 grid gap-3 md:grid-cols-[1fr_190px_210px]">
             <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3"><Search className="h-5 w-5 text-slate-400"/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search project, developer, RERA or locality…" className="w-full bg-transparent text-sm outline-none"/></label>
             <select value={city} onChange={e=>setCity(e.target.value)} className="rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm">{cities.map(c=><option key={c}>{c}</option>)}</select>
             <select value={registration} onChange={e=>setRegistration(e.target.value)} className="rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm"><option>All projects</option><option>Registration listed</option><option>Registration not listed</option></select>
-          </div>
-          <div className="mt-5 flex flex-wrap gap-3 text-sm text-slate-500">
-            <span className="rounded-full bg-slate-100 px-3 py-1.5">{projects.length} source-linked project records</span>
-            <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-emerald-800">{projects.filter(p=>p.verification_status==="verified").length} project records verified</span>
-            <span className="rounded-full bg-blue-50 px-3 py-1.5 text-blue-800">Unit availability requires recent evidence</span>
           </div>
         </div>
       </section>
