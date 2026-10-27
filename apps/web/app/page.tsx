@@ -183,34 +183,35 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Thane Top 10 local brokerages — Zillow-inspired directory preview */}
+        {/* Agent Explore uses the same featured collection card format as Homes For You */}
         <section className="bg-white py-16 sm:py-20">
           <div className="mx-auto max-w-7xl px-5 sm:px-6">
-            <div className="mb-8 flex items-end justify-between gap-4">
+            <div className="mb-7 flex items-end justify-between gap-4">
               <div>
-                <p className="mb-2 text-xs font-bold uppercase tracking-widest text-blue-700">Local property professionals</p>
-                <h2 className="text-3xl font-extrabold tracking-tight text-gray-950 sm:text-4xl" style={{ ...display, letterSpacing: '-0.03em' }}>Top 10 Agents & Brokerages in Thane</h2>
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-600 sm:text-base">Discover local property firms by neighbourhood, public reviews and the services they offer.</p>
+                <p className="mb-2 text-xs font-bold uppercase tracking-widest text-blue-700">Featured collection · Thane</p>
+                <h2 className="text-3xl font-extrabold tracking-tight text-gray-950 sm:text-4xl" style={{ ...display, letterSpacing: '-0.03em' }}>Agents For You</h2>
+                <p className="mt-2 text-sm text-gray-600 sm:text-base">Explore local real estate agents and brokerages across Thane.</p>
               </div>
-              <Link href="/agents" className="shrink-0 text-sm font-bold text-blue-700 hover:text-blue-900">View all →</Link>
+              <Link href="/agents" className="shrink-0 text-sm font-bold text-blue-700 hover:text-blue-900">Explore agents →</Link>
             </div>
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
+            <div className="-mx-5 flex snap-x snap-mandatory gap-5 overflow-x-auto px-5 pb-4 sm:-mx-6 sm:px-6">
               {THANE_TOP_AGENTS.map((broker, index) => (
-                <article key={broker.name} className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
-                  <div className="relative h-28 overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-slate-700">
-                    <img src={["https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&h=320&fit=crop&auto=format","https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=600&h=320&fit=crop&auto=format","https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=600&h=320&fit=crop&auto=format","https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&h=320&fit=crop&auto=format","https://images.unsplash.com/photo-1600607687644-c7171b42498f?w=600&h=320&fit=crop&auto=format","https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=600&h=320&fit=crop&auto=format","https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&h=320&fit=crop&auto=format","https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=600&h=320&fit=crop&auto=format","https://images.unsplash.com/photo-1600566752355-35792bedcfea?w=600&h=320&fit=crop&auto=format","https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=600&h=320&fit=crop&auto=format"][index]} alt="Illustrative residential property" loading="lazy" className="h-full w-full object-cover" />
-                    <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2 py-1 text-[10px] font-bold text-gray-800">#{index + 1}</span>
+                <article key={broker.name} className="w-[78vw] max-w-[300px] shrink-0 snap-start overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg sm:w-[270px]">
+                  <div className="relative h-40 overflow-hidden bg-slate-100">
+                    <img src={["https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600607687644-c7171b42498f?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600566752355-35792bedcfea?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=800&h=480&fit=crop&auto=format"][index]} alt={`Illustrative property photography for ${broker.name}`} loading="lazy" className="h-full w-full object-cover transition duration-500 hover:scale-105" />
+                    <span className="absolute left-3 top-3 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-gray-800">#{index + 1} · Thane</span>
                   </div>
-                  <div className="p-3 sm:p-4">
-                    <h3 className="line-clamp-2 min-h-10 text-sm font-extrabold text-gray-950">{broker.name}</h3>
-                    <p className="mt-1 line-clamp-2 min-h-8 text-xs text-gray-500">{broker.area}</p>
-                    <p className="mt-2 text-xs font-bold text-amber-700">★ {broker.rating.toFixed(1)} <span className="font-normal text-gray-500">({broker.reviews.toLocaleString("en-IN")})</span></p>
-                    <a href={businessMapsUrl(broker)} target="_blank" rel="noreferrer" className="mt-3 inline-flex text-xs font-bold text-blue-700 hover:text-blue-900">View business ↗</a>
+                  <div className="p-4 sm:p-5">
+                    <h3 className="line-clamp-2 min-h-10 text-base font-extrabold text-gray-950">{broker.name}</h3>
+                    <p className="mt-1 line-clamp-2 min-h-8 text-sm text-gray-600">{broker.area}</p>
+                    <p className="mt-2 text-sm font-bold text-amber-700">★ {broker.rating.toFixed(1)} <span className="font-normal text-gray-500">({broker.reviews.toLocaleString("en-IN")} public reviews)</span></p>
+                    <p className="mt-2 line-clamp-2 min-h-10 text-sm leading-5 text-gray-600">{broker.note}</p>
+                    <Link href="/agents" className="mt-4 inline-flex w-full items-center justify-center rounded-xl border border-gray-200 px-3 py-2.5 text-sm font-bold text-blue-700 hover:bg-blue-50">Explore agent →</Link>
                   </div>
                 </article>
               ))}
             </div>
-            <p className="mt-4 text-xs leading-5 text-gray-500">Public business-directory ratings are not GoNest reviews or endorsements. Photos are illustrative property images, not portraits or verified photos of these businesses.</p>
+            <p className="mt-3 text-xs leading-5 text-gray-500">Public business-directory ratings are snapshots, not GoNest reviews or endorsements. Photos are illustrative property photography, not verified photos of each business or its staff.</p>
           </div>
         </section>
 
