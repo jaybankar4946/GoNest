@@ -67,26 +67,36 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Zillow-inspired buy, rent and sell pathways */}
-        <section className="border-b border-gray-100 bg-gray-50 py-14 sm:py-16">
+        {/* Home pathways — visual cards inspired by Zillow's editorial layout */}
+        <section className="border-b border-gray-100 bg-white py-14 sm:py-20">
           <div className="mx-auto max-w-7xl px-5 sm:px-6">
-            <div className="mb-8">
-              <h2 className="text-3xl font-extrabold tracking-tight text-gray-950" style={{ ...display, letterSpacing: '-0.03em' }}>How can GoNest help?</h2>
-              <p className="mt-2 text-gray-600">Choose your next step, whether you’re finding a home or listing one.</p>
+            <div className="mb-8 max-w-2xl sm:mb-10">
+              <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-blue-700">Your next move</p>
+              <h2 className="text-3xl font-extrabold tracking-tight text-gray-950 sm:text-4xl" style={{ ...display, letterSpacing: '-0.03em' }}>How can GoNest help?</h2>
+              <p className="mt-3 text-base leading-7 text-gray-600">Whether you’re buying, renting or listing a property, take your next step with confidence.</p>
             </div>
-            <div className="grid gap-5 md:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-3 md:gap-7">
               {[
-                {title:'Buy a home',desc:'Compare homes, understand the costs and contact the owner or agent.',href:'/buy',cta:'Explore homes',icon:Landmark},
-                {title:'Rent a home',desc:'Explore rentals and check rent, deposit and other stated charges.',href:'/rent',cta:'Find rentals',icon:Navigation},
-                {title:'Sell or rent out',desc:'Reach people looking for a home. Submit your property for review.',href:'/list-with-gonest',cta:'List with GoNest',icon:Users},
-              ].map(item=>{const Icon=item.icon;return(
-                <article key={item.title} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:p-7">
-                  <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50"><Icon className="h-6 w-6 text-blue-700"/></div>
-                  <h3 className="text-xl font-extrabold text-gray-950">{item.title}</h3>
-                  <p className="mt-2 min-h-12 text-sm leading-6 text-gray-600">{item.desc}</p>
-                  <Link href={item.href} className="mt-5 inline-flex text-sm font-bold text-blue-700 hover:text-blue-900">{item.cta} →</Link>
+                {title:'Buy a home',desc:'Explore homes, compare prices and understand the costs before you make your move.',href:'/buy',cta:'Explore homes',image:'https://images.unsplash.com/photo-160059	global?auto=format&fit=crop&w=1200&q=85',alt:'Modern family home exterior'},
+                {title:'Rent a home',desc:'Find a place that fits your life, with rent, deposit and stated charges made clear.',href:'/rent',cta:'Find a rental',image:'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=85',alt:'Bright contemporary home interior'},
+                {title:'Sell or rent out',desc:'Reach people looking for a home. Add your property details and submit them for review.',href:'/list-with-gonest',cta:'List with GoNest',image:'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=1200&q=85',alt:'Premium residential property'},
+              ].map(item=>(
+                <article key={item.title} className="group overflow-hidden rounded-2xl border border-gray-200 bg-white transition duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl">
+                  <Link href={item.href} className="block overflow-hidden" aria-label={item.cta}>
+                    <div className="relative h-52 overflow-hidden bg-slate-100 sm:h-56">
+                      <img src={item.image} alt={item.alt} loading="lazy" className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 motion-reduce:transform-none" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/35 via-transparent to-transparent transition-opacity duration-300 group-hover:from-slate-950/15" />
+                    </div>
+                  </Link>
+                  <div className="p-6 sm:p-7">
+                    <h3 className="text-xl font-extrabold tracking-tight text-gray-950 sm:text-2xl">{item.title}</h3>
+                    <p className="mt-3 min-h-[72px] text-sm leading-6 text-gray-600 sm:text-base">{item.desc}</p>
+                    <Link href={item.href} className="mt-5 inline-flex items-center gap-2 rounded-xl bg-blue-700 px-4 py-3 text-sm font-bold text-white transition duration-200 hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                      {item.cta}<span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">→</span>
+                    </Link>
+                  </div>
                 </article>
-              )})}
+              ))}
             </div>
           </div>
         </section>
