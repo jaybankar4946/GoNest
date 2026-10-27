@@ -215,11 +215,10 @@ export default async function HomePage() {
               <h2 className="text-3xl font-extrabold tracking-tight text-gray-950" style={{ ...display, letterSpacing: '-0.03em' }}>How can GoNest help?</h2>
               <p className="mt-2 text-gray-600">Choose your next step, whether you’re finding a home or listing one.</p>
             </div>
-            <div className="grid gap-5 md:grid-cols-3">
+            <div className="grid gap-5 md:grid-cols-2">
               {[
                 {title:'Buy a home',desc:'Compare homes, understand the costs and contact the owner or agent.',href:'/buy',cta:'Explore homes',icon:Landmark},
                 {title:'Rent a home',desc:'Explore rentals and check rent, deposit and other stated charges.',href:'/rent',cta:'Find rentals',icon:Navigation},
-                {title:'Sell or rent out',desc:'Reach people looking for a home. Submit your property for review.',href:'/dashboard/new',cta:'List with GoNest',icon:Users},
               ].map(item=>{const Icon=item.icon;return(
                 <article key={item.title} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:p-7">
                   <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50"><Icon className="h-6 w-6 text-blue-700"/></div>
