@@ -83,10 +83,16 @@ export default async function HomePage() {
               ].map(item=>(
                 <article key={item.title} className="group overflow-hidden rounded-2xl border border-gray-200 bg-white transition duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl">
                   <Link href={item.href} className="block overflow-hidden" aria-label={item.cta}>
-                    <div className="relative flex h-52 items-center justify-center overflow-hidden bg-[#f3f7fc] sm:h-56">
-                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(191,219,254,0.7),transparent_45%),radial-gradient(circle_at_85%_80%,rgba(219,234,254,0.9),transparent_42%)]" />
-                      <svg viewBox="0 0 420 250" role="img" aria-label={item.kind === 'buy' ? 'Illustration of a house and location pin' : item.kind === 'rent' ? 'Illustration of apartments and a key' : 'Illustration of a home with a property listing sign'} className="relative h-full w-full max-w-[420px] transition-transform duration-500 ease-out group-hover:scale-[1.04]" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <div className="relative flex h-44 items-center justify-center overflow-hidden bg-gradient-to-br from-sky-50 via-violet-50 to-amber-50 sm:h-48">
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(253,230,138,0.72),transparent_28%),radial-gradient(circle_at_83%_24%,rgba(249,168,212,0.48),transparent_28%),radial-gradient(circle_at_78%_82%,rgba(167,243,208,0.62),transparent_32%)]" />
+                      <svg viewBox="0 0 420 250" role="img" aria-label={item.kind === 'buy' ? 'Illustration of a house and location pin' : item.kind === 'rent' ? 'Illustration of apartments and a key' : 'Illustration of a home with a property listing sign'} className="relative h-full w-full max-w-[320px] transition-transform duration-500 ease-out group-hover:scale-[1.06]" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <ellipse cx="210" cy="218" rx="138" ry="12" fill="#D9E5F3" />
+                        <circle cx="72" cy="65" r="22" fill="#FDE68A" opacity="0.95" />
+                        <circle cx="347" cy="47" r="15" fill="#FBCFE8" opacity="0.95" />
+                        <path d="M56 112C65 100 75 101 80 113C69 119 61 118 56 112Z" fill="#86EFAC" />
+                        <path d="M80 113C81 101 91 96 100 103C96 114 88 118 80 113Z" fill="#34D399" />
+                        <circle cx="350" cy="204" r="5" fill="#F59E0B" />
+                        <path d="M333 211L338 216L333 221L328 216Z" fill="#A78BFA" />
                         {item.kind === 'buy' && <>
                           <path d="M94 126L210 39L326 126V199H94V126Z" fill="#FFFFFF" stroke="#9BB6D4" strokeWidth="3" strokeLinejoin="round" />
                           <path d="M78 127L210 27L342 127" stroke="#285A91" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round" />
