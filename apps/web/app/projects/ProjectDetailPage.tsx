@@ -12,6 +12,7 @@ type Project = {
   project_category: string; construction_status: string; launch_date: string | null; expected_possession_date: string | null;
   total_units: number | null; configurations: unknown; published_price_min_inr: number | null; published_price_max_inr: number | null;
   price_observed_at: string | null; official_project_url: string | null; brochure_url: string | null;
+  cover_image_url?: string | null; gallery_image_urls?: string[] | null; image_source_url?: string | null; image_checked_at?: string | null;
   inventory_status: string; inventory_verified_at: string | null; verification_status: string; is_sample: boolean;
   developer?: { operating_brand?: string | null; website_url?: string | null } | { operating_brand?: string | null; website_url?: string | null }[] | null;
   city?: { name?: string } | { name?: string }[] | null; locality?: { name?: string } | { name?: string }[] | null;
@@ -50,7 +51,7 @@ export default function ProjectDetailPage({ id }: { id: string }) {
     let live = true;
     (async () => {
       setLoading(true); setError("");
-      const projectSelect = "id,official_name,public_address,rera_number,project_category,construction_status,launch_date,expected_possession_date,total_units,configurations,published_price_min_inr,published_price_max_inr,price_observed_at,official_project_url,brochure_url,inventory_status,inventory_verified_at,verification_status,is_sample,developer:developers(operating_brand,website_url),city:cities(name),locality:localities(name)";
+      const projectSelect = "id,official_name,public_address,rera_number,project_category,construction_status,launch_date,expected_possession_date,total_units,configurations,published_price_min_inr,published_price_max_inr,price_observed_at,official_project_url,brochure_url,cover_image_url,gallery_image_urls,image_source_url,image_checked_at,inventory_status,inventory_verified_at,verification_status,is_sample,developer:developers(operating_brand,website_url),city:cities(name),locality:localities(name)";
       const homeSlugNames: Record<string, string> = {
         "villa-carino": "Villa Carino",
         "solitaire": "Solitaire",
@@ -92,7 +93,7 @@ export default function ProjectDetailPage({ id }: { id: string }) {
   const city = one(project?.city)?.name || "";
   const locality = one(project?.locality)?.name || "";
   const location = [locality, city].filter(Boolean).join(", ") || project?.public_address || "Location details not provided";
-  const images = useMemo(() => project ? projectImages(project.official_name) : [], [project]);
+  const images = useMemo(() => project ? Array.from(new Set([project.cover_image_url, ...(project.gallery_image_urls ?? []), ...projectImages(project.official_name)].filter((url): url is string => Boolean(url && /^https:\/\//i.test(url))))) : [], [project]);
   const configurations = useMemo(() => {
     const raw = project?.configurations;
     if (!Array.isArray(raw)) return [];
