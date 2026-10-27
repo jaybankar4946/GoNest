@@ -50,9 +50,24 @@ export default function ProjectDetailPage({ id }: { id: string }) {
     let live = true;
     (async () => {
       setLoading(true); setError("");
-      const { data, error: projectError } = await supabase.from("real_estate_projects")
-        .select("id,official_name,public_address,rera_number,project_category,construction_status,launch_date,expected_possession_date,total_units,configurations,published_price_min_inr,published_price_max_inr,price_observed_at,official_project_url,brochure_url,inventory_status,inventory_verified_at,verification_status,is_sample,developer:developers(operating_brand,website_url),city:cities(name),locality:localities(name)")
-        .eq("id", id).eq("is_sample", false).maybeSingle();
+      const projectSelect = "id,official_name,public_address,rera_number,project_category,construction_status,launch_date,expected_possession_date,total_units,configurations,published_price_min_inr,published_price_max_inr,price_observed_at,official_project_url,brochure_url,inventory_status,inventory_verified_at,verification_status,is_sample,developer:developers(operating_brand,website_url),city:cities(name),locality:localities(name)";
+      const homeSlugNames: Record<string, string> = {
+        "villa-carino": "Villa Carino",
+        "solitaire": "Solitaire",
+        "delanna": "Delanna",
+        "aralia": "Aralia",
+        "eagleridge-wing-b": "Eagleridge Wing B",
+        "villa-rica": "Villa Rica",
+        "hill-cranje": "Hill Grange",
+        "skylark-enclave": "Skylark Enclave",
+        "annora": "Annora",
+        "villa-nebula": "Villa Nebula",
+      };
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
+      const projectQuery = supabase.from("real_estate_projects").select(projectSelect).eq("is_sample", false);
+      const { data, error: projectError } = isUuid
+        ? await projectQuery.eq("id", id).maybeSingle()
+        : await projectQuery.ilike("official_name", homeSlugNames[id] || id.replace(/-/g, " ")).maybeSingle();
       if (!live) return;
       if (projectError || !data) { setError("We couldn't load this project. It may have been removed or is not published."); setProject(null); setLoading(false); return; }
       const p = data as unknown as Project; setProject(p);
