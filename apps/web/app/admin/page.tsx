@@ -4,10 +4,10 @@ import { useRouter } from 'next/navigation';
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
 import { useAuth } from '@/components/layout/AuthProvider';
-import { adminGetPendingListings, adminGetAllListings, adminGetBrokers, adminGetAllLeads, adminGetAllVisits, adminGetStats, adminModerate, adminToggleFeatured, adminVerifyAgent, adminSetRole, adminGetReports, adminResolveReport, adminGetAuditLog, adminGetFunnel, adminGetLaunchInventoryDashboard } from '@/lib/api';
+import { adminGetPendingListings, adminGetAllListings, adminGetBrokers, adminGetAllLeads, adminGetAllVisits, adminGetStats, adminModerate, adminToggleFeatured, adminVerifyAgent, adminSetRole, adminGetReports, adminResolveReport, adminGetAuditLog, adminGetFunnel, adminGetLaunchInventoryDashboard, adminGetPendingProjects, adminReviewSubmission } from '@/lib/api';
 import { imgUrl } from '@/lib/api';
 import { formatPrice, timeAgo } from '@/lib/format';
-const TABS=['queue','listings','supply','brokers','leads','visits','reports','audit','funnel'] as const;
+const TABS=['queue','projects','listings','supply','brokers','leads','visits','reports','audit','funnel'] as const;
 type Tab=typeof TABS[number];
 const SC: Record<string,string>={active:'#16A34A',pending_review:'#D97706',rejected:'#DC2626',draft:'#6B6B6B',archived:'#6B6B6B',new:'#2563EB',contacted:'#D97706',closed:'#16A34A',confirmed:'#16A34A',requested:'#D97706',completed:'#6B6B6B'};
 const SB=(c:string): React.CSSProperties=>({fontSize:11,fontWeight:500,padding:'3px 10px',borderRadius:9999,background:c+'18',color:c});
@@ -18,6 +18,8 @@ export default function AdminPage() {
   const{profile,loading}=useAuth();
   const[tab,setTab]=useState<Tab>('queue');
   const[queue,setQueue]=useState<any[]>([]);
+  const[projectQueue,setProjectQueue]=useState<any[]>([]);
+  const[projectNotes,setProjectNotes]=useState<Record<string,string>>({});
   const[listings,setListings]=useState<any[]>([]);
   const[brokers,setBrokers]=useState<any[]>([]);
   const[leads,setLeads]=useState<any[]>([]);
@@ -34,6 +36,7 @@ export default function AdminPage() {
   useEffect(()=>{if(!loading && profile && profile.role!=='admin') router.replace('/dashboard');},[loading,profile,router]);
   useEffect(()=>{
     adminGetPendingListings().then(setQueue);
+    adminGetPendingProjects().then(setProjectQueue).catch(()=>setProjectQueue([]));
     adminGetAllListings().then(setListings);
     adminGetBrokers().then(setBrokers);
     adminGetAllLeads().then(setLeads);
@@ -184,6 +187,48 @@ export default function AdminPage() {
               );
             })}
           </div>
+        )}
+        {tab==='projects'&&(
+          <section style={{display:'flex',flexDirection:'column',gap:12}}>
+            <div style={{padding:16,border:'1px solid #E5E5E5',borderRadius:12,background:'#FAFAFA'}}>
+              <h2 style={{fontSize:17,fontWeight:700,marginBottom:5}}>Project verification queue</h2>
+              <p style={{fontSize:13,color:'#666',lineHeight:1.6}}>Review project identity and source evidence separately from unit availability. Verifying a project does not verify current inventory or pricing.</p>
+            </div>
+            {projectQueue.length===0&&<p style={{fontSize:14,color:'#6B6B6B'}}>No pending non-sample projects were returned. Refresh the dashboard to check again.</p>}
+            {projectQueue.map((p:any)=>(
+              <article key={p.id} style={{padding:16,border:'1px solid #E5E5E5',borderRadius:12}}>
+                <div style={{display:'flex',justifyContent:'space-between',gap:12,flexWrap:'wrap'}}>
+                  <div style={{minWidth:220,flex:1}}>
+                    <h3 style={{fontSize:15,fontWeight:700,color:'#111'}}>{p.official_name}</h3>
+                    <p style={{fontSize:12,color:'#666',marginTop:4}}>{p.developer?.operating_brand??'Developer not linked'} · {[p.locality?.name,p.city?.name].filter(Boolean).join(', ')||'Location not recorded'}</p>
+                    <p style={{fontSize:12,color:'#666',marginTop:4}}>RERA: {p.rera_number||'Not recorded'} · Inventory: {p.inventory_status||'Unknown'}</p>
+                    {p.official_project_url&&<a href={p.official_project_url} target="_blank" rel="noreferrer" style={{display:'inline-block',fontSize:12,textDecoration:'underline',marginTop:6}}>Open source website ↗</a>}
+                  </div>
+                  <span style={SB('#D97706')}>PENDING REVIEW</span>
+                </div>
+                <input aria-label={'Review notes for '+p.official_name} placeholder="Evidence checked / rejection reason (recommended)" value={projectNotes[p.id]??''} onChange={e=>setProjectNotes(old=>({...old,[p.id]:e.target.value}))} style={{...INP,width:'100%',marginTop:12,padding:'9px 10px'}}/>
+                <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:10}}>
+                  <button disabled={busy} onClick={async()=>{
+                    if(!p.official_project_url){alert('A source URL is required before project verification.');return;}
+                    if(!confirm('Mark the project record as verified? This does not verify inventory, pricing or individual units.'))return;
+                    setBusy(true);
+                    try{await adminReviewSubmission('project',p.id,'verified',projectNotes[p.id]);setProjectQueue(old=>old.filter(x=>x.id!==p.id));alert('Project record verified. Inventory remains separately unverified.');}
+                    catch{alert('Could not verify this project. Check permissions and review logs.');}
+                    finally{setBusy(false);}
+                  }} style={BTN('#16A34A')}>Verify project record</button>
+                  <button disabled={busy} onClick={async()=>{
+                    const note=projectNotes[p.id]?.trim();
+                    if(!note){alert('Add the reason for rejection before rejecting.');return;}
+                    if(!confirm('Reject this project submission?'))return;
+                    setBusy(true);
+                    try{await adminReviewSubmission('project',p.id,'rejected',note);setProjectQueue(old=>old.filter(x=>x.id!==p.id));}
+                    catch{alert('Could not reject this project. Check permissions and review logs.');}
+                    finally{setBusy(false);}
+                  }} style={BTN('#DC2626')}>Reject with reason</button>
+                </div>
+              </article>
+            ))}
+          </section>
         )}
         {tab==='listings'&&(
           <div style={{display:'flex',flexDirection:'column',gap:8}}>
