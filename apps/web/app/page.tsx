@@ -77,15 +77,55 @@ export default async function HomePage() {
             </div>
             <div className="grid gap-6 md:grid-cols-3 md:gap-7">
               {[
-                {title:'Buy a home',desc:'Explore homes, compare prices and understand the costs before you make your move.',href:'/buy',cta:'Explore homes',image:'https://images.unsplash.com/photo-1600597687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=85',alt:'Modern family home exterior'},
-                {title:'Rent a home',desc:'Find a place that fits your life, with rent, deposit and stated charges made clear.',href:'/rent',cta:'Find a rental',image:'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=85',alt:'Bright contemporary home interior'},
-                {title:'Sell or rent out',desc:'Reach people looking for a home. Add your property details and submit them for review.',href:'/list-with-gonest',cta:'List with GoNest',image:'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=1200&q=85',alt:'Premium residential property'},
+                {title:'Buy a home',desc:'Explore homes, compare prices and understand the costs before you make your move.',href:'/buy',cta:'Explore homes',kind:'buy'},
+                {title:'Rent a home',desc:'Find a place that fits your life, with rent, deposit and stated charges made clear.',href:'/rent',cta:'Find a rental',kind:'rent'},
+                {title:'Sell or rent out',desc:'Reach people looking for a home. Add your property details and submit them for review.',href:'/list-with-gonest',cta:'List with GoNest',kind:'list'},
               ].map(item=>(
                 <article key={item.title} className="group overflow-hidden rounded-2xl border border-gray-200 bg-white transition duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl">
                   <Link href={item.href} className="block overflow-hidden" aria-label={item.cta}>
-                    <div className="relative h-52 overflow-hidden bg-slate-100 sm:h-56">
-                      <img src={item.image} alt={item.alt} loading="lazy" className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 motion-reduce:transform-none" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/35 via-transparent to-transparent transition-opacity duration-300 group-hover:from-slate-950/15" />
+                    <div className="relative flex h-52 items-center justify-center overflow-hidden bg-[#f3f7fc] sm:h-56">
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(191,219,254,0.7),transparent_45%),radial-gradient(circle_at_85%_80%,rgba(219,234,254,0.9),transparent_42%)]" />
+                      <svg viewBox="0 0 420 250" role="img" aria-label={item.kind === 'buy' ? 'Illustration of a house and location pin' : item.kind === 'rent' ? 'Illustration of apartments and a key' : 'Illustration of a home with a property listing sign'} className="relative h-full w-full max-w-[420px] transition-transform duration-500 ease-out group-hover:scale-[1.04]" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <ellipse cx="210" cy="218" rx="138" ry="12" fill="#D9E5F3" />
+                        {item.kind === 'buy' && <>
+                          <path d="M94 126L210 39L326 126V199H94V126Z" fill="#FFFFFF" stroke="#9BB6D4" strokeWidth="3" strokeLinejoin="round" />
+                          <path d="M78 127L210 27L342 127" stroke="#285A91" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round" />
+                          <path d="M177 199V145C177 133 187 123 199 123H221C233 123 243 133 243 145V199" fill="#D8EAFE" stroke="#6D91BA" strokeWidth="3" />
+                          <rect x="118" y="137" width="38" height="35" rx="4" fill="#D8EAFE" stroke="#6D91BA" strokeWidth="3" />
+                          <path d="M137 137V172M118 154H156" stroke="#6D91BA" strokeWidth="2.5" />
+                          <rect x="263" y="137" width="38" height="35" rx="4" fill="#D8EAFE" stroke="#6D91BA" strokeWidth="3" />
+                          <path d="M282 137V172M263 154H301" stroke="#6D91BA" strokeWidth="2.5" />
+                          <path d="M292 48C292 28 308 12 328 12C348 12 364 28 364 48C364 75 328 104 328 104S292 75 292 48Z" fill="#2563EB" stroke="#FFFFFF" strokeWidth="4" />
+                          <circle cx="328" cy="47" r="10" fill="#FFFFFF" />
+                          <path d="M73 199H347" stroke="#8DA9C8" strokeWidth="4" strokeLinecap="round" />
+                        </>}
+                        {item.kind === 'rent' && <>
+                          <path d="M107 200V73C107 65 114 58 122 58H238C246 58 253 65 253 73V200" fill="#FFFFFF" stroke="#91AECF" strokeWidth="3" />
+                          <path d="M253 200V39C253 31 260 24 268 24H309C317 24 324 31 324 39V200" fill="#DCEBFA" stroke="#6D91BA" strokeWidth="3" />
+                          {[0,1,2].map(row => [0,1,2].map(col => <rect key={row+'-'+col} x={126+col*37} y={78+row*34} width="21" height="21" rx="3" fill="#D8EAFE" stroke="#8AA9CB" strokeWidth="2" />))}
+                          {[0,1,2,3].map(row => <rect key={row} x="270" y={42+row*34} width="15" height="20" rx="3" fill="#FFFFFF" stroke="#8AA9CB" strokeWidth="2" />)}
+                          {[0,1,2,3].map(row => <rect key={row} x="295" y={42+row*34} width="15" height="20" rx="3" fill="#FFFFFF" stroke="#8AA9CB" strokeWidth="2" />)}
+                          <rect x="162" y="166" width="36" height="34" rx="4" fill="#B8D6F7" stroke="#6D91BA" strokeWidth="3" />
+                          <circle cx="337" cy="164" r="29" fill="#FFFFFF" stroke="#2563EB" strokeWidth="4" />
+                          <circle cx="337" cy="155" r="7" stroke="#2563EB" strokeWidth="4" />
+                          <path d="M337 162V180M337 172H350M346 172V178" stroke="#2563EB" strokeWidth="4" strokeLinecap="round" />
+                          <path d="M77 200H351" stroke="#8DA9C8" strokeWidth="4" strokeLinecap="round" />
+                        </>}
+                        {item.kind === 'list' && <>
+                          <path d="M89 133L190 57L291 133V199H89V133Z" fill="#FFFFFF" stroke="#91AECF" strokeWidth="3" strokeLinejoin="round" />
+                          <path d="M74 133L190 44L306 133" stroke="#285A91" strokeWidth="11" strokeLinecap="round" strokeLinejoin="round" />
+                          <rect x="163" y="147" width="53" height="52" rx="4" fill="#D8EAFE" stroke="#6D91BA" strokeWidth="3" />
+                          <rect x="109" y="143" width="34" height="32" rx="4" fill="#D8EAFE" stroke="#6D91BA" strokeWidth="3" />
+                          <rect x="237" y="143" width="34" height="32" rx="4" fill="#D8EAFE" stroke="#6D91BA" strokeWidth="3" />
+                          <path d="M304 94H360V161H304Z" fill="#FFFFFF" stroke="#2563EB" strokeWidth="3" />
+                          <path d="M332 161V197" stroke="#2563EB" strokeWidth="5" strokeLinecap="round" />
+                          <path d="M314 113H350M314 125H344M314 137H339" stroke="#6D91BA" strokeWidth="3" strokeLinecap="round" />
+                          <rect x="301" y="78" width="62" height="22" rx="11" fill="#2563EB" />
+                          <path d="M315 89H349" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" />
+                          <path d="M65 199H365" stroke="#8DA9C8" strokeWidth="4" strokeLinecap="round" />
+                        </>}
+                      </svg>
+                      <span className="sr-only">{item.title}</span>
                     </div>
                   </Link>
                   <div className="p-6 sm:p-7">
