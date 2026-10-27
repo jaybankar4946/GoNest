@@ -25,8 +25,9 @@ function AgentCard({ agent, top = false }: { agent: Profile; top?: boolean }) {
     <article className={`flex h-full flex-col overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg ${top ? 'border-blue-300 ring-2 ring-blue-100' : 'border-slate-200 hover:border-blue-200'}`}>
                 <div className="p-5">
                   <div className="flex items-start gap-3">
-                    <Link href={`/agents/${agent.id}`} aria-label={`View ${agent.full_name ?? 'agent'} profile`} className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-100 bg-slate-100 text-xl font-extrabold text-slate-500">
-                      {agent.avatar_url ? <img src={agent.avatar_url} alt="" className="h-full w-full object-cover" /> : (agent.full_name ?? 'G').charAt(0).toUpperCase()}
+                    <Link href={`/agents/${agent.id}`} aria-label={`View ${agent.full_name ?? 'agent'} profile`} className={`relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white shadow-sm ${agent.avatar_url ? 'bg-slate-100' : 'bg-gradient-to-br from-sky-200 via-violet-200 to-amber-100'}`}>
+                      {agent.avatar_url ? <img src={agent.avatar_url} alt={agent.full_name ? `${agent.full_name} profile photo` : 'Agent profile photo'} loading="lazy" className="h-full w-full object-cover" /> : <span aria-hidden="true" className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-white/90 bg-white/75 text-2xl font-black text-slate-700 shadow-sm">{(agent.full_name ?? 'G').trim().split(/\\s+/).map((part) => part[0]).slice(0,2).join('').toUpperCase()}</span>}
+                      {!agent.avatar_url && <span className="absolute bottom-1 right-1 h-3 w-3 rounded-full border-2 border-white bg-amber-400" title="Profile photo not added yet"/>}
                     </Link>
                     <div className="min-w-0 flex-1">
                       <Link href={`/agents/${agent.id}`} className="block text-lg font-extrabold leading-tight text-slate-950 hover:text-blue-700">{agent.full_name ?? 'GoNest agent'}</Link>
