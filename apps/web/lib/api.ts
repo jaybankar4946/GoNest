@@ -19,8 +19,8 @@ const PUBLIC_PROFILE = 'id,full_name,role,agency_name,rera_number,agent_verified
 
 export type SearchParams = {
   q?: string; purpose?: string; cityId?: string; localityId?: string; pincode?: string; landmark?: string;
-  minBedrooms?: number; propertyType?: string; minPrice?: number; maxPrice?: number;
-  furnishing?: string; sort?: 'newest' | 'price_asc' | 'price_desc' | 'popular'; page?: number;
+  minBedrooms?: number; minBathrooms?: number; propertyType?: string; minPrice?: number; maxPrice?: number;
+  minArea?: number; maxArea?: number; amenities?: string[]; availability?: string; furnishing?: string; sort?: 'newest' | 'price_asc' | 'price_desc' | 'popular'; page?: number;
 };
 
 export async function searchListings(p: SearchParams = {}) {
@@ -61,6 +61,13 @@ export async function searchListings(p: SearchParams = {}) {
   if (p.cityId)       q = q.eq('city_id', p.cityId);
   if (p.localityId)   q = q.eq('locality_id', p.localityId);
   if (p.minBedrooms)  q = q.gte('bedrooms', p.minBedrooms);
+  if (p.minBathrooms) q = q.gte('bathrooms', p.minBathrooms);
+  if (p.minArea) q = q.gte('sqft', p.minArea);
+  if (p.maxArea) q = q.lte('sqft', p.maxArea);
+  if (p.amenities?.length) q = q.contains('amenities', p.amenities);
+  if (p.availability === 'now') q = q.or('available_from.is.null,available_from.lte.' + new Date().toISOString().slice(0,10));
+  if (p.availability === '30') q = q.or('available_from.is.null,available_from.lte.' + new Date(Date.now()+30*86400000).toISOString().slice(0,10));
+  if (p.availability === '90') q = q.or('available_from.is.null,available_from.lte.' + new Date(Date.now()+90*86400000).toISOString().slice(0,10));
   if (p.propertyType) q = q.eq('property_type', p.propertyType);
   if (p.minPrice)     q = q.gte('price', p.minPrice);
   if (p.maxPrice)     q = q.lte('price', p.maxPrice);
