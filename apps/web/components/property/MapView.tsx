@@ -7,12 +7,14 @@ import Link from 'next/link';
 import { formatPrice } from '@/lib/format';
 import type { ListingFull } from '@/lib/types';
 
-const icon = L.icon({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-  iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41],
-});
+function priceIcon(price: number, purpose: string) {
+  const label = formatPrice(price, purpose as any);
+  return L.divIcon({
+    className: 'gonest-price-marker',
+    html: '<span style="display:inline-flex;align-items:center;white-space:nowrap;padding:7px 10px;border:1px solid #1D4ED8;border-radius:999px;background:#fff;color:#111827;font:700 12px/1.1 Arial,sans-serif;box-shadow:0 2px 8px rgba(15,23,42,.18)">' + label + '</span>',
+    iconSize: [1, 1], iconAnchor: [0, 0], popupAnchor: [0, -8],
+  });
+}
 
 function FitBounds({ points }: { points: [number, number][] }) {
   const map = useMap();
@@ -61,7 +63,7 @@ export function MapView({ listings, onSelect }: Props) {
         <TileLayer attribution='&copy; OpenStreetMap contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         {pts.length > 1 && <FitBounds points={pts.map(p => p.pos)} />}
         {pts.map(({ l, pos }) => (
-          <Marker key={l.id} position={pos} icon={icon} eventHandlers={{ click: () => onSelect?.(l) }}>
+          <Marker key={l.id} position={pos} icon={priceIcon(l.price, l.purpose)} eventHandlers={{ click: () => onSelect?.(l) }}>
             <Popup>
               <div style={{ fontFamily: 'var(--font-body)' }}>
                 <strong>{formatPrice(l.price, l.purpose)}</strong><br />
