@@ -15,10 +15,10 @@ const CARD = `id,title,price,purpose,property_type,bedrooms,bathrooms,sqft,pinco
 const FULL = `*,city:cities(id,name,slug,state),locality:localities(id,name,slug,latitude,longitude),
   listing_images(id,storage_path,sort_order,is_cover)`;
 
-const PUBLIC_PROFILE = 'id,full_name,role,agency_name,rera_number,agent_verified,avatar_url,bio,total_listings,rating,review_count,created_at';
+const PUBLIC_PROFILE = 'id,full_name,role,agency_name,rera_number,agent_verified,avatar_url,bio,total_listings,rating,review_count,created_at,service_localities,service_pincodes';
 
 export type SearchParams = {
-  q?: string; purpose?: string; cityId?: string; localityId?: string;
+  q?: string; purpose?: string; cityId?: string; localityId?: string; pincode?: string; landmark?: string;
   minBedrooms?: number; propertyType?: string; minPrice?: number; maxPrice?: number;
   furnishing?: string; sort?: 'newest' | 'price_asc' | 'price_desc' | 'popular'; page?: number;
 };
