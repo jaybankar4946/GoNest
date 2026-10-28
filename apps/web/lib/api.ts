@@ -138,6 +138,11 @@ export async function getCities(): Promise<City[]> {
   return (data ?? []) as City[];
 }
 
+export async function getAllLocalities(): Promise<Locality[]> {
+  const { data } = await supabase.from('localities').select('id,city_id,name,slug,latitude,longitude').order('name').limit(1000);
+  return (data ?? []) as Locality[];
+}
+
 export async function getLocalities(cityId: string): Promise<Locality[]> {
   const { data } = await supabase.from('localities')
     .select('id,city_id,name,slug,latitude,longitude').eq('city_id', cityId).order('name');
