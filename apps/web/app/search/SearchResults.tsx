@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Map as MapIcon, List, Columns } from 'lucide-react';
 import { track } from '@/lib/track';
 import { PropertyCardSkeleton } from '@/components/ui/Skeleton';
+import { PropertySearchBar } from '@/components/search/PropertySearchBar';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { ListingQuickView } from '@/components/property/ListingQuickView';
 import { searchListings, getSavedIds, toggleSaved, saveSearch, getLocalities } from '@/lib/api';
@@ -45,6 +46,9 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
     max:     init.max     ?? '',
     min:     init.min     ?? '',
     sort:    (init.sort   ?? 'newest') as 'newest'|'price_asc'|'price_desc'|'popular',
+    baths: init.baths ?? '', minArea: init.minArea ?? '', maxArea: init.maxArea ?? '',
+    availability: init.availability ?? '', amenities: init.amenities ? init.amenities.split(',').filter(Boolean) : [],
+    furnishing: init.furnishing ?? '',
   });
 
   useEffect(() => { if (!f.cityId) { setLocalities([]); return; } getLocalities(f.cityId).then(setLocalities).catch(() => setLocalities([])); }, [f.cityId]);
@@ -55,7 +59,9 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
     try {
       const r = await searchListings({
         q: f.q||undefined, purpose: f.purpose||undefined, cityId: f.cityId||undefined, localityId: f.localityId||undefined, pincode: f.pincode||undefined, landmark: f.landmark||undefined,
-        minBedrooms: f.beds ? Number(f.beds) : undefined,
+        minBedrooms: f.beds ? Number(f.beds) : undefined, minBathrooms: f.baths ? Number(f.baths) : undefined,
+        minArea: f.minArea ? Number(f.minArea) : undefined, maxArea: f.maxArea ? Number(f.maxArea) : undefined,
+        amenities: f.amenities, availability: f.availability || undefined, furnishing: f.furnishing || undefined,
         propertyType: f.type||undefined, maxPrice: f.max ? Number(f.max) : undefined, minPrice: f.min ? Number(f.min) : undefined, sort: f.sort, page: 1,
       });
       setResults(r.listings); setTotal(r.total); track('search', undefined, { total: r.total, purpose: f.purpose || 'any', hasText: !!f.q });
@@ -88,7 +94,9 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
       const nextPage = page + 1;
       const r = await searchListings({
         q: f.q||undefined, purpose: f.purpose||undefined, cityId: f.cityId||undefined, localityId: f.localityId||undefined, pincode: f.pincode||undefined, landmark: f.landmark||undefined,
-        minBedrooms: f.beds ? Number(f.beds) : undefined,
+        minBedrooms: f.beds ? Number(f.beds) : undefined, minBathrooms: f.baths ? Number(f.baths) : undefined,
+        minArea: f.minArea ? Number(f.minArea) : undefined, maxArea: f.maxArea ? Number(f.maxArea) : undefined,
+        amenities: f.amenities, availability: f.availability || undefined, furnishing: f.furnishing || undefined,
         propertyType: f.type||undefined, maxPrice: f.max ? Number(f.max) : undefined, minPrice: f.min ? Number(f.min) : undefined, sort: f.sort, page: nextPage,
       });
       setResults(p => [...p, ...r.listings]);
@@ -121,53 +129,17 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
       <h1 style={{fontFamily:'var(--font-manrope), var(--font-display)',fontSize:28,fontWeight:800,letterSpacing:'-0.025em',color:'#111827',marginBottom:16}}>
         {f.purpose==='rent'?'Properties for rent':f.purpose==='sale'?'Properties for sale':'Search properties'}
       </h1>
-      <div style={{display:'flex',gap:10,flexWrap:'wrap',marginBottom:18,alignItems:'center',background:'#fff',border:'1px solid #E5E7EB',borderRadius:20,padding:14,boxShadow:'var(--shadow-sm)'}}>
-        <input value={text} onChange={e=>setText(e.target.value)} onKeyDown={e=>e.key==='Enter'&&runText()} onBlur={runText}
-          placeholder="e.g. 2 BHK apartment in Thane under 1 crore" style={{...sel,minWidth:260,flex:'1 1 260px',cursor:'text',background:'#fff'}} />
-        <select style={sel} value={f.purpose} onChange={e=>upd('purpose',e.target.value)}>
-          <option value="">Buy or Rent</option>
-          <option value="sale">Buy</option>
-          <option value="rent">Rent</option>
-        </select>
-        <select style={sel} value={f.cityId} onChange={e=>updateCity(e.target.value)}>
-          <option value="">Any city</option>
-          {cities.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}
-        </select>
-        <select style={sel} value={f.localityId} onChange={e=>upd('localityId',e.target.value)} disabled={!f.cityId}>
-          <option value="">Any locality</option>
-          {localities.map(l=><option key={l.id} value={l.id}>{l.name}</option>)}
-        </select>
-        <input style={{...sel,minWidth:130}} value={pincode} maxLength={6} inputMode="numeric" onChange={e=>{const v=e.target.value.replace(/\D/g,'').slice(0,6);setPincode(v);upd('pincode',v)}} placeholder="PIN code" aria-label="PIN code" />
-        <input style={{...sel,minWidth:170}} value={landmark} onChange={e=>{setLandmark(e.target.value);upd('landmark',e.target.value)}} placeholder="Landmark / neighbourhood" aria-label="Landmark or neighbourhood" />
-        <select style={sel} value={f.beds} onChange={e=>upd('beds',e.target.value)}>
-          <option value="">Any BHK</option>
-          {['1','2','3','4'].map(n=><option key={n} value={n}>{n}+ BHK</option>)}
-        </select>
-        <select style={sel} value={f.type} onChange={e=>upd('type',e.target.value)}>
-          <option value="">Any type</option>
-          {['apartment','villa','house','plot','studio','office','shop','warehouse','commercial'].map(t=>(
-            <option key={t} value={t}>{t.charAt(0).toUpperCase()+t.slice(1)}</option>
-          ))}
-        </select>
-        <select style={sel} value={f.max} onChange={e=>upd('max',e.target.value)}>
-          <option value="">Any budget</option>
-          {(f.purpose==='rent' ? [15000,25000,40000,60000,100000] : [5000000,10000000,20000000,50000000])
-            .map(n=><option key={n} value={n}>Up to {formatPrice(n, f.purpose==='rent'?'rent':'sale')}</option>)}
-        </select>
-        <button onClick={saveThis} style={{...sel,fontWeight:600,color:'var(--primary)',borderColor:'var(--primary)'}}>Save this search</button>
-        <select style={sel} value={f.sort} onChange={e=>upd('sort',e.target.value as typeof f.sort)}>
-          <option value="newest">Newest</option>
-          <option value="price_asc">Price ↑</option>
-          <option value="price_desc">Price ↓</option>
-          <option value="popular">Most popular</option>
-        </select>
-
-        <div style={{display:'flex',gap:6,marginLeft:'auto'}}>
-          {viewBtn('list', List, 'List')}
-          {viewBtn('split', Columns, 'Split')}
-          {viewBtn('map', MapIcon, 'Map')}
-        </div>
-      </div>
+      <PropertySearchBar
+        cities={cities}
+        mode="results"
+        initial={{q:f.q,purpose:(f.purpose === 'rent' ? 'rent' : 'sale'),cityId:f.cityId,localityId:f.localityId,min:f.min,max:f.max,type:f.type,beds:f.beds,baths:f.baths,minArea:f.minArea,maxArea:f.maxArea,furnishing:f.furnishing,availability:f.availability,amenities:f.amenities,pincode:f.pincode}}
+        onSearch={(values) => {
+          setText(values.q);
+          setPincode(values.pincode);
+          setLandmark(values.q);
+          setF(prev => ({...prev,q:values.q,purpose:values.purpose,cityId:values.cityId,localityId:values.localityId,pincode:values.pincode,landmark:values.q,beds:values.beds,baths:values.baths,type:values.type,min:values.min,max:values.max,minArea:values.minArea,maxArea:values.maxArea,furnishing:values.furnishing,availability:values.availability,amenities:values.amenities}));
+        }}
+      />
 
       {savedMsg&&<p role="status" style={{fontSize:13,color:'#065F46',background:'#ECFDF5',padding:'8px 12px',borderRadius:10,marginBottom:12}}>{savedMsg} <a href="/saved-searches" style={{textDecoration:'underline'}}>View saved searches</a></p>}
       <p style={{fontSize:13,color:'var(--gray-4)',marginBottom:12}}>
