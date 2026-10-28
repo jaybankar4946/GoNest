@@ -22,7 +22,7 @@ type Props = {
 };
 
 const TYPES = ['apartment', 'villa', 'house', 'plot', 'studio', 'pg', 'commercial'];
-const AMENITIES = ['Parking', 'Lift', 'Gym', 'Swimming pool', 'Security', 'Power backup', 'Garden', 'Clubhouse', 'Pet friendly'];
+const AMENITIES = ['Lift', 'Parking', 'Security / CCTV', 'Power backup', 'Gym', 'Swimming pool', 'Clubhouse', 'Children play area', 'Garden', 'Gated community', '24x7 water supply', 'Piped gas', 'Intercom', 'Visitor parking'];
 const field = 'w-full min-w-0 rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-50';
 const label = 'mb-1.5 block text-xs font-semibold text-slate-500';
 
