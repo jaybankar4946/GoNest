@@ -3,6 +3,7 @@ import { ShieldCheck, Layers, Eye, Search, Heart, MessageCircle, Check, Clipboar
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
 import { PropertyCard } from '@/components/property/PropertyCard';
+import { DemoHomes } from '@/components/home/DemoHomes';
 import { HomeSearch } from './HomeSearch';
 import { HomeEMI } from './HomeEMI';
 import { getFeatured, getCities, getHomeStats, getPopularLocalities } from '@/lib/api';
@@ -101,6 +102,7 @@ export default async function HomePage() {
           </div>
         </section>
 
+        <DemoHomes />
         {/* Live stats (real counts) */}
         {stats.listings >= 20 && (<section className="border-y border-gray-100 bg-white">
           <div className="max-w-7xl mx-auto px-6 py-6 grid grid-cols-2 md:grid-cols-4 divide-x divide-gray-100">

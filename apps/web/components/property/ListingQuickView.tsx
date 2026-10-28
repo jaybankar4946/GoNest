@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import Link from 'next/link';
 import { getListingById, imgUrl } from '@/lib/api';
+import { demoOnClient } from '@/lib/demo';
 import { formatPrice, bhkLabel, capitalize } from '@/lib/format';
 import type { ListingFull } from '@/lib/types';
 
@@ -13,7 +14,7 @@ export function ListingQuickView({ listingId, onClose }: { listingId: string; on
   useEffect(() => {
     let alive = true;
     setLoading(true);
-    getListingById(listingId).then(d => { if (alive) { setL(d); setLoading(false); } });
+    getListingById(listingId, demoOnClient()).then(d => { if (alive) { setL(d); setLoading(false); } });
     return () => { alive = false; };
   }, [listingId]);
 

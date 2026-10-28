@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { demoOnClient } from './demo';
 import type { ListingFull, City, Locality, Profile, Lead, Visit } from './types';
 
 export const imgUrl = (path: string) =>
@@ -24,7 +25,8 @@ export type SearchParams = {
 
 export async function searchListings(p: SearchParams = {}) {
   const page = p.page ?? 1;
-  let q = supabase.from('listings').select(CARD, { count: 'exact' }).eq('status', 'active').eq('is_sample', false);
+  let q = supabase.from('listings').select(CARD, { count: 'exact' }).eq('status', 'active');
+  if (!demoOnClient()) q = q.eq('is_sample', false);
   if (p.q) {
     const term = p.q.replace(/[%,()]/g, ' ').trim();
     if (term) {
@@ -53,6 +55,15 @@ export async function searchListings(p: SearchParams = {}) {
   return { listings: (data ?? []) as unknown as ListingFull[], total: count ?? 0, page };
 }
 
+export async function getDemoHomes(limit = 8): Promise<ListingFull[]> {
+  const { data: imgs } = await supabase.from('listing_images').select('listing_id').limit(300);
+  const ids = Array.from(new Set((imgs ?? []).map((r: any) => r.listing_id)));
+  let q = supabase.from('listings').select(CARD).eq('status', 'active').eq('is_sample', true);
+  if (ids.length) q = q.in('id', ids);
+  const { data } = await q.order('view_count', { ascending: false }).limit(limit);
+  return (data ?? []) as unknown as ListingFull[];
+}
+
 export async function getFeatured(limit = 3): Promise<ListingFull[]> {
   const { data } = await supabase.from('listings').select(CARD)
     .eq('status', 'active').eq('is_sample', false).eq('featured', true)
@@ -62,12 +73,13 @@ export async function getFeatured(limit = 3): Promise<ListingFull[]> {
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-export async function getListingById(id: string): Promise<ListingFull | null> {
+export async function getListingById(id: string, demo = false): Promise<ListingFull | null> {
   // Reject malformed route IDs before they reach Postgres UUID columns.
   if (!UUID_RE.test(id)) return null;
 
-  const { data, error } = await supabase.from('listings').select(FULL)
-    .eq('id', id).eq('status', 'active').eq('is_sample', false).maybeSingle();
+  let lq = supabase.from('listings').select(FULL).eq('id', id).eq('status', 'active');
+  if (!demo) lq = lq.eq('is_sample', false);
+  const { data, error } = await lq.maybeSingle();
   if (error) throw error;
   if (!data) return null;
 
@@ -77,15 +89,17 @@ export async function getListingById(id: string): Promise<ListingFull | null> {
     .select(PUBLIC_PROFILE).eq('id', (data as any).posted_by).maybeSingle();
 
   // View counts are best-effort analytics; they must not block the listing page.
-  void supabase.rpc('increment_listing_views', { listing_id: id }).then(() => {});
+  if (!(data as any).is_sample) void supabase.rpc('increment_listing_views', { listing_id: id }).then(() => {});
   return { ...data, poster: poster ?? null } as unknown as ListingFull;
 }
 
-export async function getSimilarListings(l: ListingFull, limit = 3): Promise<ListingFull[]> {
-  const { data } = await supabase.from('listings').select(CARD)
-    .eq('status', 'active').eq('is_sample', false).eq('city_id', l.city_id)
+export async function getSimilarListings(l: ListingFull, limit = 3, demo = false): Promise<ListingFull[]> {
+  let sq = supabase.from('listings').select(CARD)
+    .eq('status', 'active').eq('city_id', l.city_id)
     .eq('purpose', l.purpose).eq('property_type', l.property_type)
-    .neq('id', l.id).limit(limit);
+    .neq('id', l.id);
+  if (!demo) sq = sq.eq('is_sample', false);
+  const { data } = await sq.limit(limit);
   return (data ?? []) as unknown as ListingFull[];
 }
 
