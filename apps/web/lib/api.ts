@@ -6,7 +6,7 @@ export const imgUrl = (path: string) =>
   /^https?:\/\//.test(path) ? path :
   `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/listing-images/${path}`;
 
-const CARD = `id,title,price,purpose,property_type,bedrooms,bathrooms,sqft,
+const CARD = `id,title,price,purpose,property_type,bedrooms,bathrooms,sqft,pincode,
   verification_level,status,featured,view_count,lead_count,price_negotiable,
   furnishing,created_at,published_at,latitude,longitude,is_sample,
   city:cities(id,name,slug),locality:localities(id,name,slug,latitude,longitude),
@@ -28,13 +28,31 @@ export async function searchListings(p: SearchParams = {}) {
   let q = supabase.from('listings').select(CARD, { count: 'exact' }).eq('status', 'active');
   if (!demoOnClient()) q = q.eq('is_sample', false);
   if (p.q) {
-    const term = p.q.replace(/[%,()]/g, ' ').trim();
-    if (term) {
-      const { data: locs } = await supabase.from('localities').select('id').ilike('name', `%${term}%`).limit(20);
-      const ids = (locs ?? []).map((l: any) => l.id);
-      q = q.or([`title.ilike.%${term}%`, ids.length ? `locality_id.in.(${ids.join(',')})` : ''].filter(Boolean).join(','));
+    // Search every meaningful token across property title, locality, city, landmark, address and PIN.
+    // Applying each token as an OR group lets a query such as "Hiranandani Estate Thane 400607"
+    // match the relevant fields without requiring the whole phrase in one database column.
+    const terms = Array.from(new Set(p.q.toLowerCase().replace(/[^a-z0-9\\s-]/g, ' ').split(/\\s+/).filter(t => t.length > 1))).slice(0, 8);
+    for (const term of terms) {
+      const [{ data: locs }, { data: cityRows }] = await Promise.all([
+        supabase.from('localities').select('id').ilike('name', `%${term}%`).limit(30),
+        supabase.from('cities').select('id').ilike('name', `%${term}%`).eq('is_active', true).limit(20),
+      ]);
+      const localityIds = (locs ?? []).map((l: any) => l.id);
+      const cityIds = (cityRows ?? []).map((city: any) => city.id);
+      const ors = [
+        `title.ilike.%${term}%`,
+        `address_line.ilike.%${term}%`,
+        `landmark.ilike.%${term}%`,
+        `pincode.ilike.%${term}%`,
+        localityIds.length ? `locality_id.in.(${localityIds.join(',')})` : '',
+        cityIds.length ? `city_id.in.(${cityIds.join(',')})` : '',
+      ].filter(Boolean);
+      if (ors.length) q = q.or(ors.join(','));
+      else q = q.ilike('title', `%${term}%`);
     }
   }
+  if (p.pincode) q = q.ilike('pincode', `%${p.pincode.replace(/[^0-9]/g, '').slice(0, 6)}%`);
+  if (p.landmark) q = q.ilike('landmark', `%${p.landmark.replace(/[%,()]/g, ' ').trim()}%`);
   if (p.purpose)      q = q.eq('purpose', p.purpose);
   if (p.cityId)       q = q.eq('city_id', p.cityId);
   if (p.localityId)   q = q.eq('locality_id', p.localityId);
