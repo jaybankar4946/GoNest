@@ -298,21 +298,22 @@ function SupplyInner() {
       {role === 'owner' && (
         <section style={card}>
           <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 6 }}>List your property</h2>
-          <p style={{ fontSize: 14, color: '#6B7280', marginBottom: 16 }}>Add details, price and photos. Your listing goes live after review.</p>
-          <Link href="/dashboard/new" style={{ ...btn, display: 'inline-block' }}>Create a listing</Link>
+          <p style={{ fontSize: 14, color: '#6B7280', marginBottom: 16 }}>Add complete property details, location, pricing, availability, amenities and photos. Your listing goes live after review.</p>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}><Link href="/dashboard/new" style={{ ...btn, display: 'inline-block' }}>Create a listing</Link><Link href="/dashboard/settings" style={{ ...btn, display: 'inline-block', background: '#fff', color: '#111827', border: '1px solid #D1D5DB' }}>Edit my profile & photo</Link></div>
         </section>
       )}
       {role === 'agent' && (
         <>
+          <section style={card}><h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 6 }}>Your public agent profile</h2><p style={{ fontSize: 14, color: '#6B7280', marginBottom: 14 }}>Add your professional photo, experience, contact details and agency information so customers can understand who they are contacting.</p><Link href="/dashboard/settings" style={{ ...btn, display: 'inline-block' }}>Edit profile & upload photo</Link></section>
           <AgencyForm cities={cities} onDone={() => loadSubs(user.id)} />
           <section style={card}>
             <h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 6 }}>Your listings</h2>
-            <p style={{ fontSize: 14, color: '#6B7280', marginBottom: 16 }}>Add rental and resale listings with photos.</p>
-            <Link href="/dashboard/new" style={{ ...btn, display: 'inline-block' }}>Create a listing</Link>
+            <p style={{ fontSize: 14, color: '#6B7280', marginBottom: 16 }}>Create and manage rental and resale listings, photos, pricing, availability and enquiries from your dashboard.</p>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}><Link href="/dashboard/new" style={{ ...btn, display: 'inline-block' }}>Create a listing</Link><Link href="/dashboard" style={{ ...btn, display: 'inline-block', background: '#fff', color: '#111827', border: '1px solid #D1D5DB' }}>Manage inventory</Link></div>
           </section>
         </>
       )}
-      {role === 'builder' && <ProjectForm cities={cities} userId={user.id} onDone={() => loadSubs(user.id)} />}
+      {role === 'builder' && <><section style={card}><h2 style={{ fontSize: 18, fontWeight: 800, marginBottom: 6 }}>Developer profile</h2><p style={{ fontSize: 14, color: '#6B7280', marginBottom: 14 }}>Keep your company name, public photo/avatar and overview up to date. Project submissions are managed below.</p><Link href="/dashboard/settings" style={{ ...btn, display: 'inline-block' }}>Edit company profile</Link></section><ProjectForm cities={cities} userId={user.id} onDone={() => loadSubs(user.id)} /></>}
       {(role === 'agent' || role === 'builder') && <Submissions subs={subs} cities={cities} />}
     </>,
   );
