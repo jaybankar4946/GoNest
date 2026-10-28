@@ -28,7 +28,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [view,    setView]    = useState<'list'|'map'|'split'>(init.purpose ? 'split' : 'list');
-  const [quickViewId, setQuickViewId] = useState<string|null>(null);
+  const [quickViewId, setQuickViewId] = useState<string|null>(null);\n  const [activeListingId, setActiveListingId] = useState<string|null>(null);
   const [f, setF] = useState({
     q:       init.q       ?? '',
     purpose: init.purpose ?? '',
@@ -179,7 +179,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
       {view === 'list' && (
         <>
           <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:'36px 20px'}}>
-            {results.map(l=><PropertyCard key={l.id} listing={l} onQuickView={setQuickViewId} isSaved={saved.has(l.id)} onToggle={toggle} />)}
+            {results.map(l=><div key={l.id} onMouseEnter={() => setActiveListingId(l.id)} onFocus={() => setActiveListingId(l.id)}><PropertyCard listing={l} onQuickView={setQuickViewId} isSaved={saved.has(l.id)} onToggle={toggle} /></div>)}
           </div>
           <LoadMoreBtn />
         </>
@@ -187,7 +187,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
 
       {view === 'map' && results.length > 0 && (
         <div style={{height:600}}>
-          <MapView listings={results} onSelect={(l)=>setQuickViewId(l.id)} />
+          <MapView listings={results} activeListingId={activeListingId} onSelect={(l)=>{setActiveListingId(l.id);setQuickViewId(l.id);}} />
         </div>
       )}
 
