@@ -20,7 +20,7 @@ export default function NewListingPage() {
   const[images,setImages]=useState<File[]>([]);
   const[saving,setSaving]=useState(false);
   const[err,setErr]=useState<string|null>(null);
-  const[f,setF]=useState({purpose:'sale',property_type:'apartment',title:'',description:'',bedrooms:1,bathrooms:1,balconies:0,sqft:'',furnishing:'',facing:'',city_id:'',locality_id:'',address_line:'',landmark:'',price:'',maintenance_monthly:'',security_deposit:'',price_negotiable:false,brokerage:'none',floor_number:'',total_floors:'',property_age:'',amenities:[] as string[]});
+  const[f,setF]=useState({purpose:'sale',property_type:'apartment',title:'',description:'',bedrooms:1,bathrooms:1,balconies:0,sqft:'',furnishing:'',facing:'',city_id:'',locality_id:'',address_line:'',landmark:'',neighbourhood:'',pincode:'',price:'',maintenance_monthly:'',security_deposit:'',price_negotiable:false,brokerage:'none',floor_number:'',total_floors:'',property_age:'',amenities:[] as string[]});
   useEffect(()=>{getCities().then(setCities);},[]);
   useEffect(()=>{if(!f.city_id){setLocalities([]);return;}getLocalities(f.city_id).then(setLocalities);},[f.city_id]);
   const upd=useCallback(<K extends keyof typeof f>(k:K,v:(typeof f)[K])=>setF(p=>({...p,[k]:v})),[]);
@@ -35,7 +35,7 @@ export default function NewListingPage() {
     let listingId:string|null=null;
     const uploadedPaths:string[]=[];
     try{
-      listingId=await createListing({posted_by:user.id,poster_type:profile?.role==='agent'?'agent':'owner',title:f.title.trim(),description:f.description.trim()||null,property_type:f.property_type,purpose:f.purpose,city_id:f.city_id,locality_id:f.locality_id,address_line:f.address_line.trim()||null,landmark:f.landmark.trim()||null,price:Number(f.price),maintenance_monthly:f.maintenance_monthly?Number(f.maintenance_monthly):null,security_deposit:f.security_deposit?Number(f.security_deposit):null,price_negotiable:f.price_negotiable,brokerage:f.brokerage,bedrooms:f.bedrooms,bathrooms:f.bathrooms,balconies:f.balconies,sqft:f.sqft?Number(f.sqft):null,furnishing:f.furnishing||null,facing:f.facing||null,floor_number:f.floor_number?Number(f.floor_number):null,total_floors:f.total_floors?Number(f.total_floors):null,property_age:f.property_age?Number(f.property_age):null,amenities:f.amenities});
+      listingId=await createListing({posted_by:user.id,poster_type:profile?.role==='agent'?'agent':'owner',title:f.title.trim(),description:f.description.trim()||null,property_type:f.property_type,purpose:f.purpose,city_id:f.city_id,locality_id:f.locality_id,address_line:f.address_line.trim()||null,landmark:f.landmark.trim()||null,neighbourhood:f.neighbourhood.trim()||null,pincode:f.pincode.trim()||null,price:Number(f.price),maintenance_monthly:f.maintenance_monthly?Number(f.maintenance_monthly):null,security_deposit:f.security_deposit?Number(f.security_deposit):null,price_negotiable:f.price_negotiable,brokerage:f.brokerage,bedrooms:f.bedrooms,bathrooms:f.bathrooms,balconies:f.balconies,sqft:f.sqft?Number(f.sqft):null,furnishing:f.furnishing||null,facing:f.facing||null,floor_number:f.floor_number?Number(f.floor_number):null,total_floors:f.total_floors?Number(f.total_floors):null,property_age:f.property_age?Number(f.property_age):null,amenities:f.amenities});
       for(let i=0;i<images.length;i++)uploadedPaths.push(await uploadListingImage(user.id,listingId,images[i],i));
       router.push('/dashboard?listingSubmitted=1');
     }catch(e){
@@ -131,6 +131,8 @@ export default function NewListingPage() {
             <h1 style={{fontSize:20,fontWeight:700,color:'#111'}}>Where is it located?</h1>
             <div><label style={lbl}>City</label><select value={f.city_id} onChange={e=>{upd('city_id',e.target.value);upd('locality_id','');}} style={inp}><option value="">Select a city</option>{cities.map((c:any)=><option key={c.id} value={c.id}>{c.name}</option>)}</select></div>
             <div><label style={lbl}>Locality</label><select value={f.locality_id} onChange={e=>upd('locality_id',e.target.value)} style={inp} disabled={!f.city_id}><option value="">{f.city_id?'Select a locality':'Select city first'}</option>{localities.map((l:any)=><option key={l.id} value={l.id}>{l.name}</option>)}</select></div>
+            <div><label style={lbl}>Neighbourhood / micro-market <span style={{color:'#9B9B9B',fontWeight:400}}>(optional)</span></label><input placeholder="e.g. Hiranandani Estate, Pokhran Road 2" value={f.neighbourhood} onChange={e=>upd('neighbourhood',e.target.value)} style={inp}/></div>
+            <div><label style={lbl}>PIN code <span style={{color:'#9B9B9B',fontWeight:400}}>(optional)</span></label><input inputMode="numeric" maxLength={6} placeholder="e.g. 400607" value={f.pincode} onChange={e=>upd('pincode',e.target.value.replace(/\D/g,'').slice(0,6))} style={inp}/></div>
             <div><label style={lbl}>Landmark <span style={{color:'#9B9B9B',fontWeight:400}}>(optional)</span></label><input placeholder="Near metro, mall, etc." value={f.landmark} onChange={e=>upd('landmark',e.target.value)} style={inp}/></div>
             <div><label style={lbl}>Exact address <span style={{color:'#9B9B9B',fontWeight:400}}>(shown only to interested buyers)</span></label><input placeholder="Building name, street" value={f.address_line} onChange={e=>upd('address_line',e.target.value)} style={inp}/></div>
           </div>
