@@ -7,11 +7,11 @@ import { track } from '@/lib/track';
 import { PropertyCardSkeleton } from '@/components/ui/Skeleton';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { ListingQuickView } from '@/components/property/ListingQuickView';
-import { searchListings, getSavedIds, toggleSaved, saveSearch } from '@/lib/api';
+import { searchListings, getSavedIds, toggleSaved, saveSearch, getLocalities } from '@/lib/api';
 import { useAuth } from '@/components/layout/AuthProvider';
 import { formatPrice } from '@/lib/format';
 import { parseQuery } from '@/lib/parseQuery';
-import type { ListingFull, City } from '@/lib/types';
+import type { ListingFull, City, Locality } from '@/lib/types';
 
 const MapView = dynamic(() => import('@/components/property/MapView').then(m => m.MapView), { ssr: false });
 
@@ -30,10 +30,16 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
   const [view,    setView]    = useState<'list'|'map'|'split'>(init.purpose ? 'split' : 'list');
   const [quickViewId, setQuickViewId] = useState<string|null>(null);
   const [activeListingId, setActiveListingId] = useState<string|null>(null);
+  const [localities, setLocalities] = useState<Locality[]>([]);
+  const [pincode, setPincode] = useState(init.pin ?? '');
+  const [landmark, setLandmark] = useState(init.landmark ?? '');
   const [f, setF] = useState({
     q:       init.q       ?? '',
     purpose: init.purpose ?? '',
     cityId:  init.city    ?? '',
+    localityId: init.locality ?? '',
+    pincode: init.pin ?? '',
+    landmark: init.landmark ?? '',
     beds:    init.beds    ?? '',
     type:    init.type    ?? '',
     max:     init.max     ?? '',
@@ -41,12 +47,14 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
     sort:    (init.sort   ?? 'newest') as 'newest'|'price_asc'|'price_desc'|'popular',
   });
 
+  useEffect(() => { if (!f.cityId) { setLocalities([]); return; } getLocalities(f.cityId).then(setLocalities).catch(() => setLocalities([])); }, [f.cityId]);
+
   const load = useCallback(async () => {
     setLoading(true);
     setPage(1);
     try {
       const r = await searchListings({
-        q: f.q||undefined, purpose: f.purpose||undefined, cityId: f.cityId||undefined,
+        q: f.q||undefined, purpose: f.purpose||undefined, cityId: f.cityId||undefined, localityId: f.localityId||undefined, pincode: f.pincode||undefined, landmark: f.landmark||undefined,
         minBedrooms: f.beds ? Number(f.beds) : undefined,
         propertyType: f.type||undefined, maxPrice: f.max ? Number(f.max) : undefined, minPrice: f.min ? Number(f.min) : undefined, sort: f.sort, page: 1,
       });
@@ -64,12 +72,13 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
     try { await toggleSaved(user.id, id, was); if (!was) track('save', id); } catch { flip(was); }
   };
   const upd = (k: string, v: string) => setF(p=>({...p,[k]:v}));
+  const updateCity = (value: string) => setF(p => ({...p, cityId:value, localityId:''}));
   const [savedMsg, setSavedMsg] = useState<string|null>(null);
   const saveThis = async () => {
     if (!user) { window.location.href = '/auth?next=/search'; return; }
     const cityName = cities.find(c => c.id === f.cityId)?.name;
-    const name = [f.purpose==='rent'?'Rent':f.purpose==='sale'?'Buy':null, f.beds?`${f.beds}+ BHK`:null, f.type?f.type.charAt(0).toUpperCase()+f.type.slice(1):null, cityName, f.q||null, f.max?`under ₹${Number(f.max).toLocaleString('en-IN')}`:null].filter(Boolean).join(' · ') || 'All properties';
-    try { await saveSearch(user.id, { name, cityId: f.cityId||undefined, purpose: f.purpose||undefined, type: f.type||undefined, min: f.min?Number(f.min):undefined, max: f.max?Number(f.max):undefined, beds: f.beds?Number(f.beds):undefined }); setSavedMsg('Saved. We will notify you about new matches.'); } catch { setSavedMsg('Could not save this search.'); }
+    const name = [f.purpose==='rent'?'Rent':f.purpose==='sale'?'Buy':null, f.beds?`${f.beds}+ BHK`:null, f.type?f.type.charAt(0).toUpperCase()+f.type.slice(1):null, cityName, localities.find(l=>l.id===f.localityId)?.name, f.q||null, f.pincode||null, f.landmark||null, f.max?`under ₹${Number(f.max).toLocaleString('en-IN')}`:null].filter(Boolean).join(' · ') || 'All properties';
+    try { await saveSearch(user.id, { name, cityId: f.cityId||undefined, purpose: f.purpose||undefined, type: f.type||undefined, min: f.min?Number(f.min):undefined, max: f.max?Number(f.max):undefined, beds: f.beds?Number(f.beds):undefined, localityId:f.localityId||undefined, pincode:f.pincode||undefined, landmark:f.landmark||undefined }); setSavedMsg('Saved. We will notify you about new matches.'); } catch { setSavedMsg('Could not save this search.'); }
     setTimeout(() => setSavedMsg(null), 4000);
   };
 
@@ -120,10 +129,16 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
           <option value="sale">Buy</option>
           <option value="rent">Rent</option>
         </select>
-        <select style={sel} value={f.cityId} onChange={e=>upd('cityId',e.target.value)}>
+        <select style={sel} value={f.cityId} onChange={e=>updateCity(e.target.value)}>
           <option value="">Any city</option>
           {cities.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
+        <select style={sel} value={f.localityId} onChange={e=>upd('localityId',e.target.value)} disabled={!f.cityId}>
+          <option value="">Any locality</option>
+          {localities.map(l=><option key={l.id} value={l.id}>{l.name}</option>)}
+        </select>
+        <input style={{...sel,minWidth:130}} value={pincode} maxLength={6} inputMode="numeric" onChange={e=>{const v=e.target.value.replace(/\D/g,'').slice(0,6);setPincode(v);upd('pincode',v)}} placeholder="PIN code" aria-label="PIN code" />
+        <input style={{...sel,minWidth:170}} value={landmark} onChange={e=>{setLandmark(e.target.value);upd('landmark',e.target.value)}} placeholder="Landmark / neighbourhood" aria-label="Landmark or neighbourhood" />
         <select style={sel} value={f.beds} onChange={e=>upd('beds',e.target.value)}>
           <option value="">Any BHK</option>
           {['1','2','3','4'].map(n=><option key={n} value={n}>{n}+ BHK</option>)}
