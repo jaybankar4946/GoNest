@@ -11,7 +11,7 @@ function priceIcon(price: number, purpose: string, active = false) {
   const label = formatPrice(price, purpose as any);
   return L.divIcon({
     className: 'gonest-price-marker',
-    html: '<span style="display:inline-flex;align-items:center;white-space:nowrap;padding:7px 10px;border:1px solid #1D4ED8;border-radius:999px;background:#fff;color:#111827;font:700 12px/1.1 Arial,sans-serif;box-shadow:0 2px 8px rgba(15,23,42,.18)">' + label + '</span>',
+    html: '<span style="display:inline-flex;align-items:center;white-space:nowrap;padding:8px 11px;border:' + (active ? '2px solid #111827' : '1px solid #1D4ED8') + ';border-radius:999px;background:' + (active ? '#111827' : '#fff') + ';color:' + (active ? '#fff' : '#111827') + ';font:700 12px/1.1 Arial,sans-serif;box-shadow:0 3px 12px rgba(15,23,42,' + (active ? '.30' : '.18') + ')">' + label + '</span>',
     iconSize: [1, 1], iconAnchor: [0, 0], popupAnchor: [0, -8],
   });
 }
