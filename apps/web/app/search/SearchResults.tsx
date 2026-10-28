@@ -107,11 +107,11 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
 
   return (
     <div style={{background:'#F9FAFB',minHeight:'70vh'}}>
-    <main style={{maxWidth:1200,margin:'0 auto',padding:'36px 24px'}}>
-      <h1 style={{fontFamily:'var(--font-manrope), var(--font-display)',fontSize:30,fontWeight:800,letterSpacing:'-0.025em',color:'#111827',marginBottom:20}}>
+    <main style={{maxWidth:f.purpose ? 'none' : 1200,margin:'0 auto',padding:f.purpose ? '20px 16px 32px' : '36px 24px'}}>
+      <h1 style={{fontFamily:'var(--font-manrope), var(--font-display)',fontSize:28,fontWeight:800,letterSpacing:'-0.025em',color:'#111827',marginBottom:16}}>
         {f.purpose==='rent'?'Properties for rent':f.purpose==='sale'?'Properties for sale':'Search properties'}
       </h1>
-      <div style={{display:'flex',gap:10,flexWrap:'wrap',marginBottom:28,alignItems:'center',background:'#fff',border:'1px solid #E5E7EB',borderRadius:20,padding:14,boxShadow:'var(--shadow-sm)'}}>
+      <div style={{display:'flex',gap:10,flexWrap:'wrap',marginBottom:18,alignItems:'center',background:'#fff',border:'1px solid #E5E7EB',borderRadius:20,padding:14,boxShadow:'var(--shadow-sm)'}}>
         <input value={text} onChange={e=>setText(e.target.value)} onKeyDown={e=>e.key==='Enter'&&runText()} onBlur={runText}
           placeholder="e.g. 2 BHK apartment in Thane under 1 crore" style={{...sel,minWidth:260,flex:'1 1 260px',cursor:'text',background:'#fff'}} />
         <select style={sel} value={f.purpose} onChange={e=>upd('purpose',e.target.value)}>
@@ -154,7 +154,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
       </div>
 
       {savedMsg&&<p role="status" style={{fontSize:13,color:'#065F46',background:'#ECFDF5',padding:'8px 12px',borderRadius:10,marginBottom:12}}>{savedMsg} <a href="/saved-searches" style={{textDecoration:'underline'}}>View saved searches</a></p>}
-      <p style={{fontSize:13,color:'var(--gray-4)',marginBottom:20}}>
+      <p style={{fontSize:13,color:'var(--gray-4)',marginBottom:12}}>
         {loading ? 'Searching…' : `${total} ${total===1?'property':'properties'} found`}
       </p>
 
@@ -192,15 +192,18 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
       )}
 
       {view === 'split' && results.length > 0 && (
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-5 items-start">
-          <div>
-            <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(240px,1fr))',gap:'28px 16px'}}>
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] gap-4 items-start">
+          <div style={{position:'sticky',top:84,height:'calc(100vh - 104px)',minHeight:560,order:1}} className="hidden lg:block">
+            <MapView listings={results} onSelect={(l)=>setQuickViewId(l.id)} />
+          </div>
+          <div style={{minWidth:0,order:2}}>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:'20px 14px'}}>
               {results.map(l=><PropertyCard key={l.id} listing={l} onQuickView={setQuickViewId} isSaved={saved.has(l.id)} onToggle={toggle} />)}
             </div>
             <LoadMoreBtn />
-          </div>
-          <div style={{position:'sticky',top:80,height:'calc(100vh - 120px)'}}>
-            <MapView listings={results} onSelect={(l)=>setQuickViewId(l.id)} />
+            <div className="lg:hidden" style={{marginTop:20,height:460}}>
+              <MapView listings={results} onSelect={(l)=>setQuickViewId(l.id)} />
+            </div>
           </div>
         </div>
       )}
