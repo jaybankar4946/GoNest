@@ -31,7 +31,7 @@ export async function searchListings(p: SearchParams = {}) {
     // Search every meaningful token across property title, locality, city, landmark, address and PIN.
     // Applying each token as an OR group lets a query such as "Hiranandani Estate Thane 400607"
     // match the relevant fields without requiring the whole phrase in one database column.
-    const terms = Array.from(new Set(p.q.toLowerCase().replace(/[^a-z0-9\\s-]/g, ' ').split(/\\s+/).filter(t => t.length > 1))).slice(0, 8);
+    const terms = Array.from(new Set(p.q.toLowerCase().replace(/[^a-z0-9\s-]/g, ' ').split(/\s+/).filter(t => t.length > 1))).slice(0, 8);
     for (const term of terms) {
       const [{ data: locs }, { data: cityRows }] = await Promise.all([
         supabase.from('localities').select('id').ilike('name', `%${term}%`).limit(30),
