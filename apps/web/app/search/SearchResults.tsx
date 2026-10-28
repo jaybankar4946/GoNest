@@ -195,7 +195,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
       {view === 'split' && results.length > 0 && (
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] gap-4 items-start">
           <div style={{position:'sticky',top:84,height:'calc(100vh - 104px)',minHeight:560,order:1}} className="hidden lg:block">
-            <MapView listings={results} onSelect={(l)=>setQuickViewId(l.id)} />
+            <MapView listings={results} activeListingId={activeListingId} onSelect={(l)=>{setActiveListingId(l.id);setQuickViewId(l.id);}} />
           </div>
           <div style={{minWidth:0,order:2}}>
             <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:'20px 14px'}}>
