@@ -20,7 +20,7 @@ export function HomeSearch({ cities }: { cities: City[] }) {
   const go = () => {
     const t = parseQuery(q);
     const p = new URLSearchParams({ purpose: t.purpose ?? purpose });
-    if (t.q || location.trim()) p.set('q', [t.q, location.trim()].filter(Boolean).join(' '));
+    if (location.trim() || t.q) p.set('q', location.trim() || t.q);
     if (city) p.set('city', city);
     if (t.beds ?? beds) p.set('beds', (t.beds ?? beds) as string);
     if (t.maxPrice ?? max) p.set('max', String(t.maxPrice ?? max));
