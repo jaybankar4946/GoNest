@@ -5,6 +5,7 @@ import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
 import { useAuth } from '@/components/layout/AuthProvider';
 import { updateProfile, updatePassword } from '@/lib/api';
+import { supabase } from '@/lib/supabase';
 
 const inp: React.CSSProperties={width:'100%',padding:'11px 14px',border:'1px solid #E5E5E5',borderRadius:12,fontSize:14,outline:'none',background:'#fff'};
 const lbl: React.CSSProperties={fontSize:13,fontWeight:600,color:'#111',marginBottom:6,display:'block'};
@@ -19,6 +20,8 @@ export default function SettingsPage() {
   const [agency, setAgency] = useState('');
   const [rera, setRera] = useState('');
   const [savingProfile, setSavingProfile] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [profileMsg, setProfileMsg] = useState<{ type: 'ok'|'err'; text: string } | null>(null);
 
   const [newPass, setNewPass] = useState('');
@@ -33,8 +36,35 @@ export default function SettingsPage() {
       setPhone(profile.phone ?? '');
       setAgency(profile.agency_name ?? '');
       setRera(profile.rera_number ?? '');
+      setAvatarUrl(profile.avatar_url ?? null);
     }
   }, [profile]);
+
+  const uploadAvatar = async (file?: File) => {
+    if (!user || !file) return;
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      setProfileMsg({ type: 'err', text: 'Choose a JPG, PNG or WebP image.' });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setProfileMsg({ type: 'err', text: 'Profile pictures must be 5 MB or smaller.' });
+      return;
+    }
+    setUploadingAvatar(true); setProfileMsg(null);
+    try {
+      const ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg';
+      const path = `${user.id}/profile-${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabase.storage.from('agent-avatars').upload(path, file, { upsert: true, contentType: file.type });
+      if (uploadError) throw uploadError;
+      const { data } = supabase.storage.from('agent-avatars').getPublicUrl(path);
+      await updateProfile(user.id, { avatar_url: data.publicUrl });
+      setAvatarUrl(data.publicUrl);
+      await refresh();
+      setProfileMsg({ type: 'ok', text: 'Profile picture updated and visible on your agent profile.' });
+    } catch (e) {
+      setProfileMsg({ type: 'err', text: e instanceof Error ? e.message : 'Could not upload profile picture.' });
+    } finally { setUploadingAvatar(false); }
+  };
 
   const saveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,6 +103,19 @@ export default function SettingsPage() {
 
         <form onSubmit={saveProfile} style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 40, paddingBottom: 32, borderBottom: '1px solid #E5E5E5' }}>
           <h2 style={{ fontSize: 15, fontWeight: 600, color: '#111', marginBottom: 4 }}>Profile</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: 16, borderRadius: 16, background: 'linear-gradient(135deg,#eff6ff,#fdf2f8,#fffbeb)' }}>
+            <div style={{ width: 76, height: 76, flexShrink: 0, borderRadius: 22, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg,#2563eb,#8b5cf6,#ec4899)', color: '#fff', fontSize: 28, fontWeight: 800, boxShadow: '0 8px 24px #64748b30' }}>
+              {avatarUrl ? <img src={avatarUrl} alt="Your agent profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : (name || 'G').trim().charAt(0).toUpperCase()}
+            </div>
+            <div style={{ minWidth: 0 }}>
+              <p style={{ fontSize: 14, fontWeight: 700, color: '#111' }}>Your profile picture</p>
+              <p style={{ marginTop: 3, fontSize: 12, lineHeight: 1.5, color: '#64748b' }}>Use your real professional photo so customers can recognise you.</p>
+              <label style={{ display: 'inline-flex', marginTop: 8, padding: '7px 12px', borderRadius: 9999, background: '#1d4ed8', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                {uploadingAvatar ? 'Uploading…' : avatarUrl ? 'Change photo' : 'Upload photo'}
+                <input aria-label="Upload agent profile photo" type="file" accept="image/jpeg,image/png,image/webp" disabled={uploadingAvatar} onChange={e => { const file = e.target.files?.[0]; void uploadAvatar(file); e.currentTarget.value = ''; }} style={{ display: 'none' }} />
+              </label>
+            </div>
+          </div>
           <div><label style={lbl}>Full name</label><input value={name} onChange={e=>setName(e.target.value)} style={inp}/></div>
           <div><label style={lbl}>Contact phone (optional)</label><input type="tel" inputMode="tel" autoComplete="tel" aria-label="Contact phone number" placeholder="e.g. +91 98765 43210" value={phone} onChange={e=>setPhone(e.target.value)} style={inp}/><p style={{fontSize:12,color:'#6B6B6B',marginTop:6,lineHeight:1.5}}>For account and property enquiries only. This number is saved to your profile; GoNest will not send SMS login codes or OTPs.</p></div>
           {canAgencyFields && <>
