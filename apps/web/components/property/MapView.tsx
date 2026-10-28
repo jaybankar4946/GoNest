@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { formatPrice } from '@/lib/format';
 import type { ListingFull } from '@/lib/types';
 
-function priceIcon(price: number, purpose: string) {
+function priceIcon(price: number, purpose: string, active = false) {
   const label = formatPrice(price, purpose as any);
   return L.divIcon({
     className: 'gonest-price-marker',
@@ -24,9 +24,9 @@ function FitBounds({ points }: { points: [number, number][] }) {
   return null;
 }
 
-type Props = { listings: ListingFull[]; onSelect?: (l: ListingFull) => void };
+type Props = { listings: ListingFull[]; onSelect?: (l: ListingFull) => void; activeListingId?: string | null };
 
-export function MapView({ listings, onSelect }: Props) {
+function FocusActive({ point }: { point?: [number, number] }) {\n  const map = useMap();\n  useEffect(() => { if (point) map.flyTo(point, Math.max(map.getZoom(), 13), { duration: 0.35 }); }, [point, map]);\n  return null;\n}\n\nexport function MapView({ listings, onSelect, activeListingId }: Props) {
   const pts = listings
     .map(l => {
       // Listing coordinates are preferred. Locality coordinates are area-centre fallbacks,
@@ -61,9 +61,9 @@ export function MapView({ listings, onSelect }: Props) {
       <div style={{ height: 'calc(100% - 40px)', minHeight: 440 }}>
       <MapContainer center={center} zoom={11} style={{ height: '100%', width: '100%' }} scrollWheelZoom>
         <TileLayer attribution='&copy; OpenStreetMap contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-        {pts.length > 1 && <FitBounds points={pts.map(p => p.pos)} />}
+        {pts.length > 1 && <FitBounds points={pts.map(p => p.pos)} />}\n        <FocusActive point={pts.find(p => p.l.id === activeListingId)?.pos} />
         {pts.map(({ l, pos }) => (
-          <Marker key={l.id} position={pos} icon={priceIcon(l.price, l.purpose)} eventHandlers={{ click: () => onSelect?.(l) }}>
+          <Marker key={l.id} position={pos} icon={priceIcon(l.price, l.purpose, l.id === activeListingId)} eventHandlers={{ click: () => onSelect?.(l) }}>
             <Popup>
               <div style={{ fontFamily: 'var(--font-body)' }}>
                 <strong>{formatPrice(l.price, l.purpose)}</strong><br />
