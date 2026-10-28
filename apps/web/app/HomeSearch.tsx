@@ -13,13 +13,14 @@ export function HomeSearch({ cities }: { cities: City[] }) {
   const [purpose, setPurpose] = useState<'sale' | 'rent'>('sale');
   const [q, setQ] = useState('');
   const [city, setCity] = useState('');
+  const [location, setLocation] = useState('');
   const [beds, setBeds] = useState('');
   const [max, setMax] = useState('');
   const budgets = purpose === 'rent' ? [15000, 25000, 40000, 60000, 100000] : [5000000, 10000000, 20000000, 50000000];
   const go = () => {
     const t = parseQuery(q);
     const p = new URLSearchParams({ purpose: t.purpose ?? purpose });
-    if (t.q) p.set('q', t.q);
+    if (t.q || location.trim()) p.set('q', [t.q, location.trim()].filter(Boolean).join(' '));
     if (city) p.set('city', city);
     if (t.beds ?? beds) p.set('beds', (t.beds ?? beds) as string);
     if (t.maxPrice ?? max) p.set('max', String(t.maxPrice ?? max));
@@ -45,13 +46,19 @@ export function HomeSearch({ cities }: { cities: City[] }) {
             placeholder="Try: 2 BHK apartment in Thane under 1 crore"
             className="w-full pl-12 pr-4 py-3.5 border border-gray-200 rounded-2xl text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
           <div className="relative">
             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500" />
             <select value={city} onChange={e => setCity(e.target.value)} className={sel + ' pl-10'}>
               <option value="">Any city</option>
               {cities.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select><Chev />
+          </div>
+          <div className="relative">
+            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-500" />
+            <input value={location} onChange={e => setLocation(e.target.value)} onKeyDown={e => e.key === 'Enter' && go()}
+              placeholder="Locality, landmark, neighbourhood or PIN code"
+              className={sel + ' pl-10'} />
           </div>
           <div className="relative">
             <select value={beds} onChange={e => setBeds(e.target.value)} className={sel}>
