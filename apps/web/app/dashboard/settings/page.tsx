@@ -32,7 +32,7 @@ export default function SettingsPage() {
     e.preventDefault();if(!user)return;
     setSavingProfile(true);setProfileMsg(null);
     try{
-      await updateProfile(user.id,{full_name:name.trim()||null,phone:phone.trim()||null,agency_name:agency.trim()||null,rera_number:rera.trim()||null,bio:bio.trim()||null,avatar_url:avatar||null,service_localities:serviceLocalities.split(',').map(v=>v.trim()).filter(Boolean).slice(0,40),service_pincodes:servicePincodes.split(',').map(v=>v.trim().replace(/\\D/g,'')).filter(v=>/^\\d{6}$/.test(v)).slice(0,40)});
+      await updateProfile(user.id,{full_name:name.trim()||null,phone:phone.trim()||null,agency_name:agency.trim()||null,rera_number:rera.trim()||null,bio:bio.trim()||null,avatar_url:avatar||null,service_localities:serviceLocalities.split(',').map(v=>v.trim()).filter(Boolean).slice(0,40),service_pincodes:servicePincodes.split(',').map(v=>v.trim().replace(/\D/g,'')).filter(v=>/^\d{6}$/.test(v)).slice(0,40)});
       await refresh();setProfileMsg({type:'ok',text:'Profile saved. Your public profile will show the details you have provided.'});
     }catch(e){setProfileMsg({type:'err',text:e instanceof Error?e.message:'Could not update profile.'});}
     finally{setSavingProfile(false);}
