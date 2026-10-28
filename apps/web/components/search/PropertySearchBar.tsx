@@ -51,7 +51,7 @@ export function PropertySearchBar({ cities, initial = {}, mode = 'results', onSe
     if (!term) return [];
     const cityMatches = cities.filter(c => c.name.toLowerCase().includes(term)).slice(0, 4).map(c => ({label:c.name, cityId:c.id, localityId:'', kind:'City'}));
     const localityMatches = localities.filter(l => l.name.toLowerCase().includes(term) && (!v.cityId || l.city_id === v.cityId)).slice(0, 6).map(l => ({label:l.name, cityId:l.city_id, localityId:l.id, kind:'Locality'}));
-    if (/^\\d{3,6}$/.test(term)) return [{label:term, cityId:v.cityId, localityId:'', kind:'PIN code'}];
+    if (/^\d{3,6}$/.test(term)) return [{label:term, cityId:v.cityId, localityId:'', kind:'PIN code'}];
     return [...localityMatches, ...cityMatches].slice(0, 7);
   }, [v.q, cities, localities, v.cityId]);
 
@@ -113,7 +113,7 @@ export function PropertySearchBar({ cities, initial = {}, mode = 'results', onSe
       {advanced&&<div className="mt-4 grid grid-cols-1 gap-4 border-t border-slate-100 pt-4 sm:grid-cols-2 lg:grid-cols-4">
         <div><label className={label}>City</label><select className={field} value={v.cityId} onChange={e=>setV(p=>({...p,cityId:e.target.value,localityId:''}))}><option value="">All cities</option>{cities.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></div>
         <div><label className={label}>Locality</label><select className={field} value={v.localityId} disabled={!v.cityId} onChange={e=>set('localityId',e.target.value)}><option value="">All localities</option>{cityLocalities.map(l=><option key={l.id} value={l.id}>{l.name}</option>)}</select></div>
-        <div><label className={label}>PIN code</label><input className={field} inputMode="numeric" maxLength={6} value={v.pincode} onChange={e=>set('pincode',e.target.value.replace(/\\D/g,'').slice(0,6))} placeholder="6-digit PIN"/></div>
+        <div><label className={label}>PIN code</label><input className={field} inputMode="numeric" maxLength={6} value={v.pincode} onChange={e=>set('pincode',e.target.value.replace(/\D/g,'').slice(0,6))} placeholder="6-digit PIN"/></div>
         <div><label className={label}>Property type</label><select className={field} value={v.type} onChange={e=>set('type',e.target.value)}><option value="">Any type</option>{TYPES.map(t=><option key={t} value={t}>{t.charAt(0).toUpperCase()+t.slice(1)}</option>)}</select></div>
         <div><label className={label}>Bathrooms</label><select className={field} value={v.baths} onChange={e=>set('baths',e.target.value)}><option value="">Any bathrooms</option>{['1','2','3','4'].map(n=><option key={n} value={n}>{n}+ bathrooms</option>)}</select></div>
         <div><label className={label}>Minimum area (sq ft)</label><input className={field} type="number" min="0" value={v.minArea} onChange={e=>set('minArea',e.target.value)} placeholder="e.g. 500"/></div>
