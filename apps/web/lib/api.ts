@@ -6,7 +6,7 @@ export const imgUrl = (path: string) =>
   /^https?:\/\//.test(path) ? path :
   `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/listing-images/${path}`;
 
-const CARD = `id,title,price,purpose,property_type,bedrooms,bathrooms,sqft,pincode,
+const CARD = `id,title,price,purpose,property_type,bedrooms,bathrooms,sqft,pincode,neighbourhood,
   verification_level,status,featured,view_count,lead_count,price_negotiable,
   furnishing,created_at,published_at,latitude,longitude,is_sample,
   city:cities(id,name,slug),locality:localities(id,name,slug,latitude,longitude),
@@ -43,6 +43,7 @@ export async function searchListings(p: SearchParams = {}) {
         `title.ilike.%${term}%`,
         `address_line.ilike.%${term}%`,
         `landmark.ilike.%${term}%`,
+        `neighbourhood.ilike.%${term}%`,
         `pincode.ilike.%${term}%`,
         localityIds.length ? `locality_id.in.(${localityIds.join(',')})` : '',
         cityIds.length ? `city_id.in.(${cityIds.join(',')})` : '',
