@@ -12,7 +12,9 @@ function priceIcon(price: number, purpose: string, active = false) {
   return L.divIcon({
     className: 'gonest-price-marker',
     html: '<span style="display:inline-flex;align-items:center;white-space:nowrap;padding:8px 11px;border:' + (active ? '2px solid #111827' : '1px solid #1D4ED8') + ';border-radius:999px;background:' + (active ? '#111827' : '#fff') + ';color:' + (active ? '#fff' : '#111827') + ';font:700 12px/1.1 Arial,sans-serif;box-shadow:0 3px 12px rgba(15,23,42,' + (active ? '.30' : '.18') + ')">' + label + '</span>',
-    iconSize: [1, 1], iconAnchor: [0, 0], popupAnchor: [0, -8],
+    iconSize: [1, 1],
+    iconAnchor: [0, 0],
+    popupAnchor: [0, -8],
   });
 }
 
@@ -24,13 +26,20 @@ function FitBounds({ points }: { points: [number, number][] }) {
   return null;
 }
 
+function FocusActive({ point }: { point?: [number, number] }) {
+  const map = useMap();
+  useEffect(() => {
+    if (point) map.flyTo(point, Math.max(map.getZoom(), 13), { duration: 0.35 });
+  }, [point, map]);
+  return null;
+}
+
 type Props = { listings: ListingFull[]; onSelect?: (l: ListingFull) => void; activeListingId?: string | null };
 
-function FocusActive({ point }: { point?: [number, number] }) {\n  const map = useMap();\n  useEffect(() => { if (point) map.flyTo(point, Math.max(map.getZoom(), 13), { duration: 0.35 }); }, [point, map]);\n  return null;\n}\n\nexport function MapView({ listings, onSelect, activeListingId }: Props) {
+export function MapView({ listings, onSelect, activeListingId }: Props) {
   const pts = listings
     .map(l => {
-      // Listing coordinates are preferred. Locality coordinates are area-centre fallbacks,
-      // so those markers must never be represented as the exact building address.
+      // Prefer listing coordinates; locality coordinates are approximate area-centre fallbacks.
       const rawLat = l.latitude ?? (l.locality as any)?.latitude;
       const rawLng = l.longitude ?? (l.locality as any)?.longitude;
       const lat = rawLat == null ? NaN : Number(rawLat);
@@ -42,16 +51,18 @@ function FocusActive({ point }: { point?: [number, number] }) {\n  const map = u
     })
     .filter(Boolean) as { l: ListingFull; pos: [number, number] }[];
 
-  const center: [number, number] = pts[0]?.pos ?? [19.076, 72.8777]; // Mumbai fallback
+  const center: [number, number] = pts[0]?.pos ?? [19.076, 72.8777];
 
   if (pts.length === 0) {
     return (
-      <div style={{height:'100%',minHeight:480,borderRadius:'var(--radius-lg)',border:'1px solid var(--border)',display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',gap:6,background:'var(--gray-1)'}}>
-        <p style={{fontSize:14,fontWeight:600,color:'#111'}}>No mapped listings yet</p>
-        <p style={{fontSize:12,color:'var(--gray-4)'}}>These results don't have coordinates saved.</p>
+      <div style={{ height: '100%', minHeight: 480, borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 6, background: 'var(--gray-1)' }}>
+        <p style={{ fontSize: 14, fontWeight: 600, color: '#111' }}>No mapped listings yet</p>
+        <p style={{ fontSize: 12, color: 'var(--gray-4)' }}>These results don't have coordinates saved.</p>
       </div>
     );
   }
+
+  const activePoint = pts.find(p => p.l.id === activeListingId)?.pos;
 
   return (
     <div style={{ borderRadius: 'var(--radius-lg)', overflow: 'hidden', height: '100%', minHeight: 480, border: '1px solid var(--border)' }}>
@@ -59,20 +70,21 @@ function FocusActive({ point }: { point?: [number, number] }) {\n  const map = u
         Map pins use exact listing coordinates when available; otherwise they show the approximate locality area, not the exact building.
       </div>
       <div style={{ height: 'calc(100% - 40px)', minHeight: 440 }}>
-      <MapContainer center={center} zoom={11} style={{ height: '100%', width: '100%' }} scrollWheelZoom>
-        <TileLayer attribution='&copy; OpenStreetMap contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-        {pts.length > 1 && <FitBounds points={pts.map(p => p.pos)} />}\n        <FocusActive point={pts.find(p => p.l.id === activeListingId)?.pos} />
-        {pts.map(({ l, pos }) => (
-          <Marker key={l.id} position={pos} icon={priceIcon(l.price, l.purpose, l.id === activeListingId)} eventHandlers={{ click: () => onSelect?.(l) }}>
-            <Popup>
-              <div style={{ fontFamily: 'var(--font-body)' }}>
-                <strong>{formatPrice(l.price, l.purpose)}</strong><br />
-                <Link href={`/property/${l.id}`}>{l.title}</Link>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
-      </MapContainer>
+        <MapContainer center={center} zoom={11} style={{ height: '100%', width: '100%' }} scrollWheelZoom>
+          <TileLayer attribution='&copy; OpenStreetMap contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+          {pts.length > 1 && <FitBounds points={pts.map(p => p.pos)} />}
+          <FocusActive point={activePoint} />
+          {pts.map(({ l, pos }) => (
+            <Marker key={l.id} position={pos} icon={priceIcon(l.price, l.purpose, l.id === activeListingId)} eventHandlers={{ click: () => onSelect?.(l) }}>
+              <Popup>
+                <div style={{ fontFamily: 'var(--font-body)' }}>
+                  <strong>{formatPrice(l.price, l.purpose)}</strong><br />
+                  <Link href={`/property/${l.id}`}>{l.title}</Link>
+                </div>
+              </Popup>
+            </Marker>
+          ))}
+        </MapContainer>
       </div>
     </div>
   );
