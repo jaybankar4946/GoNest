@@ -10,8 +10,6 @@ import { PropertyCard } from '@/components/property/PropertyCard';
 import { ListingQuickView } from '@/components/property/ListingQuickView';
 import { searchListings, getSavedIds, toggleSaved, saveSearch, getLocalities } from '@/lib/api';
 import { useAuth } from '@/components/layout/AuthProvider';
-import { formatPrice } from '@/lib/format';
-import { parseQuery } from '@/lib/parseQuery';
 import type { ListingFull, City, Locality } from '@/lib/types';
 
 const MapView = dynamic(() => import('@/components/property/MapView').then(m => m.MapView), { ssr: false });
@@ -20,8 +18,6 @@ const sel: React.CSSProperties = {padding:'10px 16px',borderRadius:12,fontSize:1
 
 export function SearchResults({ cities, init }: { cities: City[]; init: Record<string,string> }) {
   const { user } = useAuth();
-  const [text, setText] = useState(init.q ?? '');
-  const runText = () => { const t = parseQuery(text); setF(p => ({ ...p, q: t.q, purpose: t.purpose ?? p.purpose, beds: t.beds ?? '', type: t.type ?? '', max: t.maxPrice ? String(t.maxPrice) : '', min: t.minPrice ? String(t.minPrice) : '' })); };
   const [saved, setSaved] = useState<Set<string>>(new Set());
   const [results, setResults] = useState<ListingFull[]>([]);
   const [total,   setTotal]   = useState(0);
@@ -32,8 +28,6 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
   const [quickViewId, setQuickViewId] = useState<string|null>(null);
   const [activeListingId, setActiveListingId] = useState<string|null>(null);
   const [localities, setLocalities] = useState<Locality[]>([]);
-  const [pincode, setPincode] = useState(init.pin ?? '');
-  const [landmark, setLandmark] = useState(init.landmark ?? '');
   const [f, setF] = useState({
     q:       init.q       ?? '',
     purpose: init.purpose ?? '',
@@ -134,9 +128,6 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
         mode="results"
         initial={{q:f.q,purpose:(f.purpose === 'rent' ? 'rent' : 'sale'),cityId:f.cityId,localityId:f.localityId,min:f.min,max:f.max,type:f.type,beds:f.beds,baths:f.baths,minArea:f.minArea,maxArea:f.maxArea,furnishing:f.furnishing,availability:f.availability,amenities:f.amenities,pincode:f.pincode}}
         onSearch={(values) => {
-          setText(values.q);
-          setPincode(values.pincode);
-          setLandmark(values.q);
           setF(prev => ({...prev,q:values.q,purpose:values.purpose,cityId:values.cityId,localityId:values.localityId,pincode:values.pincode,landmark:values.q,beds:values.beds,baths:values.baths,type:values.type,min:values.min,max:values.max,minArea:values.minArea,maxArea:values.maxArea,furnishing:values.furnishing,availability:values.availability,amenities:values.amenities}));
         }}
       />
