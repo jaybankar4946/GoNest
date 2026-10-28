@@ -17,6 +17,7 @@ export default function SettingsPage() {
   const [name,setName]=useState(''); const [phone,setPhone]=useState('');
   const [agency,setAgency]=useState(''); const [rera,setRera]=useState('');
   const [bio,setBio]=useState(''); const [avatar,setAvatar]=useState('');
+  const [serviceLocalities,setServiceLocalities]=useState(''); const [servicePincodes,setServicePincodes]=useState('');
   const [savingProfile,setSavingProfile]=useState(false);
   const [photoBusy,setPhotoBusy]=useState(false);
   const [profileMsg,setProfileMsg]=useState<{type:'ok'|'err';text:string}|null>(null);
@@ -25,13 +26,13 @@ export default function SettingsPage() {
   const [passMsg,setPassMsg]=useState<{type:'ok'|'err';text:string}|null>(null);
 
   useEffect(()=>{if(!loading&&!user)router.push('/auth');},[loading,user,router]);
-  useEffect(()=>{if(profile){setName(profile.full_name??'');setPhone(profile.phone??'');setAgency(profile.agency_name??'');setRera(profile.rera_number??'');setBio(profile.bio??'');setAvatar(profile.avatar_url??'');}},[profile]);
+  useEffect(()=>{if(profile){setName(profile.full_name??'');setPhone(profile.phone??'');setAgency(profile.agency_name??'');setRera(profile.rera_number??'');setBio(profile.bio??'');setAvatar(profile.avatar_url??'');setServiceLocalities((profile.service_localities??[]).join(', '));setServicePincodes((profile.service_pincodes??[]).join(', '));}},[profile]);
 
   const saveProfile=async(e:React.FormEvent)=>{
     e.preventDefault();if(!user)return;
     setSavingProfile(true);setProfileMsg(null);
     try{
-      await updateProfile(user.id,{full_name:name.trim()||null,phone:phone.trim()||null,agency_name:agency.trim()||null,rera_number:rera.trim()||null,bio:bio.trim()||null,avatar_url:avatar||null});
+      await updateProfile(user.id,{full_name:name.trim()||null,phone:phone.trim()||null,agency_name:agency.trim()||null,rera_number:rera.trim()||null,bio:bio.trim()||null,avatar_url:avatar||null,service_localities:serviceLocalities.split(',').map(v=>v.trim()).filter(Boolean).slice(0,40),service_pincodes:servicePincodes.split(',').map(v=>v.trim().replace(/\\D/g,'')).filter(v=>/^\\d{6}$/.test(v)).slice(0,40)});
       await refresh();setProfileMsg({type:'ok',text:'Profile saved. Your public profile will show the details you have provided.'});
     }catch(e){setProfileMsg({type:'err',text:e instanceof Error?e.message:'Could not update profile.'});}
     finally{setSavingProfile(false);}
@@ -72,7 +73,11 @@ export default function SettingsPage() {
           {isSupply&&<div><label style={lbl}>{profile?.role==='builder'?'Developer / company name':'Agency / business name'}</label><input maxLength={160} value={agency} onChange={e=>setAgency(e.target.value)} style={inp}/></div>}
           {profile?.role==='agent'&&<div><label style={lbl}>RERA registration number</label><input maxLength={80} value={rera} onChange={e=>setRera(e.target.value)} style={inp}/><p style={{fontSize:11,color:'#6B7280',marginTop:4}}>A number entered here is not automatically verified by GoNest.</p></div>}
         </div>
-        <div><label style={lbl}>{profile?.role==='agent'?'Professional bio and experience':profile?.role==='builder'?'Developer / company overview':profile?.role==='owner'?'About you (optional)':'About you'}</label><textarea rows={5} maxLength={1500} placeholder={profile?.role==='agent'?'Describe your experience, areas served, property specialities and languages.':'Add a short description.'} value={bio} onChange={e=>setBio(e.target.value)} style={{...inp,resize:'vertical'}}/><p style={{fontSize:11,color:'#6B7280',marginTop:4}}>{bio.length}/1500 characters</p></div>
+        {profile?.role==='agent'&&<div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))',gap:14}}>
+          <div><label style={lbl}>Service localities / neighbourhoods</label><input maxLength={1000} placeholder="Hiranandani Estate, Majiwada, Pokhran Road" value={serviceLocalities} onChange={e=>setServiceLocalities(e.target.value)} style={inp}/><p style={{fontSize:11,color:'#6B7280',marginTop:4}}>Separate areas with commas. Only add areas you actually serve.</p></div>
+          <div><label style={lbl}>Service PIN codes</label><input maxLength={500} inputMode="numeric" placeholder="400607, 400610, 400601" value={servicePincodes} onChange={e=>setServicePincodes(e.target.value)} style={inp}/><p style={{fontSize:11,color:'#6B7280',marginTop:4}}>Comma-separated six-digit PIN codes.</p></div>
+        </div>}
+                <div><label style={lbl}>{profile?.role==='agent'?'Professional bio and experience':profile?.role==='builder'?'Developer / company overview':profile?.role==='owner'?'About you (optional)':'About you'}</label><textarea rows={5} maxLength={1500} placeholder={profile?.role==='agent'?'Describe your experience, areas served, property specialities and languages.':'Add a short description.'} value={bio} onChange={e=>setBio(e.target.value)} style={{...inp,resize:'vertical'}}/><p style={{fontSize:11,color:'#6B7280',marginTop:4}}>{bio.length}/1500 characters</p></div>
         {msg(profileMsg)}
         <div><button type="submit" disabled={savingProfile} style={{...btn,opacity:savingProfile?0.6:1}}>{savingProfile?'Saving…':'Save profile'}</button></div>
       </form>
