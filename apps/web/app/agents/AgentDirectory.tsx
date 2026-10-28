@@ -61,6 +61,7 @@ function AgentCard({ agent, top = false }: { agent: Profile; top?: boolean }) {
 
 export function AgentDirectory({ agents }: Props) {
   const [search, setSearch] = useState('');
+  const [location, setLocation] = useState('');
   const [city, setCity] = useState('All Cities');
   const [specialization, setSpecialization] = useState('All Specializations');
   const [language, setLanguage] = useState('Any Language');
@@ -74,8 +75,11 @@ export function AgentDirectory({ agents }: Props) {
   const filtered = useMemo(() => {
     const term = search.trim().toLowerCase();
     const result = licensedAgents.filter((agent) => {
-      const text = [agent.full_name, agent.agency_name, agent.bio, agent.rera_number].filter(Boolean).join(' ').toLowerCase();
+      const areas = [...(agent.service_localities ?? []), ...(agent.service_pincodes ?? [])].join(' ');
+      const text = [agent.full_name, agent.agency_name, agent.bio, agent.rera_number, areas].filter(Boolean).join(' ').toLowerCase();
       const matchesSearch = !term || text.includes(term);
+      const locationTerm = location.trim().toLowerCase();
+      const matchesLocation = !locationTerm || areas.toLowerCase().includes(locationTerm) || text.includes(locationTerm);
       const matchesCity = city === 'All Cities' || text.includes(city.toLowerCase()) ||
         (city === 'Thane' && text.includes('mumbai')) || (city === 'Navi Mumbai' && text.includes('navi'));
       const matchesSpecialization = specialization === 'All Specializations' || text.includes(specialization.toLowerCase()) ||
@@ -83,16 +87,16 @@ export function AgentDirectory({ agents }: Props) {
       const langTerm = language === 'Any Language' ? '' : language.toLowerCase();
       const matchesLanguage = !langTerm || text.includes(langTerm) ||
         (language === 'English' && Boolean(agent.full_name));
-      return matchesSearch && matchesCity && matchesSpecialization && matchesLanguage;
+      return matchesSearch && matchesLocation && matchesCity && matchesSpecialization && matchesLanguage;
     });
     return [...result].sort((a, b) => {
       if (sort === 'Top Rated') return (b.rating ?? -1) - (a.rating ?? -1);
       if (sort === 'Most Reviews') return (b.review_count ?? 0) - (a.review_count ?? 0);
       return (b.total_listings ?? 0) - (a.total_listings ?? 0);
     });
-  }, [licensedAgents, search, city, specialization, language, sort]);
+  }, [licensedAgents, search, location, city, specialization, language, sort]);
 
-  const isFiltered = search.trim() !== '' || city !== 'All Cities' || specialization !== 'All Specializations' || language !== 'Any Language';
+  const isFiltered = search.trim() !== '' || location.trim() !== '' || city !== 'All Cities' || specialization !== 'All Specializations' || language !== 'Any Language';
   const topAgents = isFiltered ? [] : [...filtered].filter((a) => a.rating != null && (a.review_count ?? 0) > 0).sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0) || (b.review_count ?? 0) - (a.review_count ?? 0)).slice(0, 3);
   const topIds = new Set(topAgents.map((a) => a.id));
   const rest = filtered.filter((a) => !topIds.has(a.id));
@@ -125,11 +129,12 @@ export function AgentDirectory({ agents }: Props) {
               ))}
             </div>
           </div>
-          <div className="mt-7 grid gap-3 rounded-2xl bg-white p-3 shadow-lg md:grid-cols-[minmax(220px,1.5fr)_repeat(3,minmax(135px,1fr))_auto]">
+          <div className="mt-7 grid gap-3 rounded-2xl bg-white p-3 shadow-lg md:grid-cols-[minmax(200px,1.2fr)_minmax(190px,1.1fr)_repeat(3,minmax(125px,1fr))_minmax(140px,auto)]">
             <label className="relative block">
               <span className="sr-only">Agent or agency name</span>
               <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Agent or agency name…" className="h-full min-h-12 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100" />
             </label>
+            <label><span className="sr-only">Service locality, neighbourhood or PIN code</span><input value={location} onChange={(event) => setLocation(event.target.value)} placeholder="Locality, neighbourhood or PIN code" className="min-h-12 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-700 outline-none focus:border-blue-500" /></label>
             <label><span className="sr-only">City</span><select value={city} onChange={(event) => setCity(event.target.value)} className="min-h-12 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm font-medium text-slate-700 outline-none focus:border-blue-500">{cities.map((value) => <option key={value}>{value}</option>)}</select></label>
             <label><span className="sr-only">Specialization</span><select value={specialization} onChange={(event) => setSpecialization(event.target.value)} className="min-h-12 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm font-medium text-slate-700 outline-none focus:border-blue-500">{specializations.map((value) => <option key={value}>{value}</option>)}</select></label>
             <label><span className="sr-only">Language</span><select value={language} onChange={(event) => setLanguage(event.target.value)} className="min-h-12 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm font-medium text-slate-700 outline-none focus:border-blue-500">{languages.map((value) => <option key={value}>{value}</option>)}</select></label>
