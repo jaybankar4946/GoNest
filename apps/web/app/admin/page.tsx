@@ -4,10 +4,10 @@ import { useRouter } from 'next/navigation';
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
 import { useAuth } from '@/components/layout/AuthProvider';
-import { adminGetPendingListings, adminGetAllListings, adminGetBrokers, adminGetAllLeads, adminGetAllVisits, adminGetStats, adminModerate, adminToggleFeatured, adminVerifyAgent, adminSetRole, adminGetReports, adminResolveReport, adminGetAuditLog, adminGetFunnel, adminGetLaunchInventoryDashboard, adminGetPendingProjects, adminReviewSubmission } from '@/lib/api';
+import { adminGetPendingBrokerages, adminGetPendingListings, adminGetAllListings, adminGetBrokers, adminGetAllLeads, adminGetAllVisits, adminGetStats, adminModerate, adminToggleFeatured, adminVerifyAgent, adminSetRole, adminGetReports, adminResolveReport, adminGetAuditLog, adminGetFunnel, adminGetLaunchInventoryDashboard, adminGetPendingProjects, adminReviewSubmission } from '@/lib/api';
 import { imgUrl } from '@/lib/api';
 import { formatPrice, timeAgo } from '@/lib/format';
-const TABS=['queue','projects','listings','supply','brokers','leads','visits','reports','audit','funnel'] as const;
+const TABS=['queue','projects','agencies','listings','supply','brokers','leads','visits','reports','audit','funnel'] as const;
 type Tab=typeof TABS[number];
 const SC: Record<string,string>={active:'#16A34A',pending_review:'#D97706',rejected:'#DC2626',draft:'#6B6B6B',archived:'#6B6B6B',new:'#2563EB',contacted:'#D97706',closed:'#16A34A',confirmed:'#16A34A',requested:'#D97706',completed:'#6B6B6B'};
 const SB=(c:string): React.CSSProperties=>({fontSize:11,fontWeight:500,padding:'3px 10px',borderRadius:9999,background:c+'18',color:c});
@@ -20,6 +20,9 @@ export default function AdminPage() {
   const[queue,setQueue]=useState<any[]>([]);
   const[projectQueue,setProjectQueue]=useState<any[]>([]);
   const[projectNotes,setProjectNotes]=useState<Record<string,string>>({});
+  const[agencyQueue,setAgencyQueue]=useState<any[]>([]);
+  const[agencyNotes,setAgencyNotes]=useState<Record<string,string>>({});
+  const[agencyErr,setAgencyErr]=useState<string|null>(null);
   const[listings,setListings]=useState<any[]>([]);
   const[brokers,setBrokers]=useState<any[]>([]);
   const[leads,setLeads]=useState<any[]>([]);
@@ -37,6 +40,7 @@ export default function AdminPage() {
   useEffect(()=>{
     adminGetPendingListings().then(setQueue);
     adminGetPendingProjects().then(setProjectQueue).catch(()=>setProjectQueue([]));
+    adminGetPendingBrokerages().then(setAgencyQueue).catch(()=>setAgencyQueue([]));
     adminGetAllListings().then(setListings);
     adminGetBrokers().then(setBrokers);
     adminGetAllLeads().then(setLeads);
@@ -186,6 +190,28 @@ export default function AdminPage() {
                 </div>
               );
             })}
+          </div>
+        )}
+        {tab==='agencies'&&(
+          <div style={{display:'flex',flexDirection:'column',gap:12}}>
+            <p style={{fontSize:13,color:'#6B6B6B'}}>Agency submissions from agents. Verify only after checking the RERA number on the relevant state RERA website.</p>
+            {agencyErr&&<p style={{fontSize:13,color:'#DC2626'}}>{agencyErr}</p>}
+            {agencyQueue.length===0&&<p style={{fontSize:14,color:'#16A34A'}}>No agency submissions waiting for review.</p>}
+            {agencyQueue.map((a:any)=>(
+              <div key={a.id} style={{padding:16,border:'1px solid #E5E5E5',borderRadius:12}}>
+                <div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap',marginBottom:4}}>
+                  <p style={{fontSize:14,fontWeight:600,color:'#111'}}>{a.business_name}</p>
+                  <span style={{fontSize:12,color:'#9B9B9B'}}>{a.city_name} · {timeAgo(a.created_at)}</span>
+                </div>
+                <p style={{fontSize:12,color:'#6B6B6B'}}>RERA: {a.rera_registration??'not given'} · Phone: {a.public_business_phone??'—'}{a.localities?.length?` · Covers: ${a.localities.join(', ')}`:''}</p>
+                {a.website_url&&<p style={{fontSize:12,marginTop:2}}><a href={a.website_url} target="_blank" rel="noopener noreferrer nofollow" style={{color:'#2563EB',textDecoration:'underline'}}>Open submitted website</a></p>}
+                <div style={{display:'flex',gap:8,flexWrap:'wrap',alignItems:'center',marginTop:10}}>
+                  <input aria-label={'Review notes for '+a.business_name} placeholder="Evidence checked / rejection reason (required to reject)" value={agencyNotes[a.id]??''} onChange={e=>setAgencyNotes(p=>({...p,[a.id]:e.target.value}))} style={{...INP,width:300}}/>
+                  <button disabled={busy} onClick={async()=>{setBusy(true);setAgencyErr(null);try{await adminReviewSubmission('brokerage',a.id,'verified',agencyNotes[a.id]);setAgencyQueue(o=>o.filter(x=>x.id!==a.id));}catch(e){setAgencyErr((e as {message?:string})?.message??'Could not save the review.');}finally{setBusy(false);}}} style={BTN('#16A34A')}>Verify</button>
+                  <button disabled={busy||!(agencyNotes[a.id]??'').trim()} onClick={async()=>{setBusy(true);setAgencyErr(null);try{await adminReviewSubmission('brokerage',a.id,'rejected',agencyNotes[a.id]);setAgencyQueue(o=>o.filter(x=>x.id!==a.id));}catch(e){setAgencyErr((e as {message?:string})?.message??'Could not save the review.');}finally{setBusy(false);}}} style={{...BTN('#DC2626'),opacity:(agencyNotes[a.id]??'').trim()?1:0.4}}>Reject</button>
+                </div>
+              </div>
+            ))}
           </div>
         )}
         {tab==='projects'&&(

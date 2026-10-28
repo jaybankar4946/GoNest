@@ -90,7 +90,7 @@ export async function getSimilarListings(l: ListingFull, limit = 3): Promise<Lis
 }
 
 export async function getCities(): Promise<City[]> {
-  const { data } = await supabase.from('cities').select('id,name,state,slug,listing_count')
+  const { data } = await supabase.from('cities').select('id,name,state,slug')
     .eq('is_active', true).in('name', ['Mumbai', 'Bengaluru', 'Delhi NCR', 'Pune', 'Hyderabad']).order('name');
   return (data ?? []) as City[];
 }
@@ -397,7 +397,7 @@ export async function adminGetAuditLog() {
   return (data ?? []) as any[];
 }
 
-export async function chooseAccountType(role: 'owner' | 'agent') {
+export async function chooseAccountType(role: 'owner' | 'agent' | 'builder') {
   const { error } = await supabase.rpc('choose_account_type', { p_role: role });
   if (error) throw error;
 }
@@ -469,4 +469,63 @@ export async function adminGetLaunchInventoryDashboard(): Promise<LaunchInventor
     return null;
   }
   return data as LaunchInventoryDashboard;
+}
+
+// ---------------- Supply-side submissions (agents, builders) ----------------
+export type BrokerageInput = { name: string; website?: string; phone?: string; enquiryUrl?: string; address?: string; cityId: string; rera: string; localities: string[] };
+export async function submitBrokerage(i: BrokerageInput): Promise<string> {
+  const { data, error } = await supabase.rpc('submit_brokerage', {
+    p_name: i.name, p_website: i.website || null, p_phone: i.phone || null, p_enquiry_url: i.enquiryUrl || null,
+    p_address: i.address || null, p_city_id: i.cityId, p_rera: i.rera, p_localities: i.localities,
+  });
+  if (error) throw error;
+  return data as string;
+}
+
+export async function uploadProjectImage(userId: string, file: File): Promise<string> {
+  const extension = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+  const path = `${userId}/${crypto.randomUUID()}.${extension}`;
+  const { error } = await supabase.storage.from('project-images').upload(path, file, { contentType: file.type, upsert: false });
+  if (error) throw error;
+  return path;
+}
+export async function removeProjectImages(paths: string[]) {
+  if (paths.length) await supabase.storage.from('project-images').remove(paths);
+}
+
+export type BuilderProjectInput = {
+  registeredName: string; brand: string; websiteUrl: string; developerRera: string; projectName: string;
+  cityId: string; localityId: string; address: string; projectRera: string; status: string; category: string;
+  officialUrl: string; inventory: Array<Record<string, unknown>>; mediaPaths: string[];
+};
+export async function submitBuilderProject(i: BuilderProjectInput): Promise<string> {
+  const { data, error } = await supabase.rpc('submit_builder_project_with_media', {
+    p_registered_name: i.registeredName, p_operating_brand: i.brand || null, p_website_url: i.websiteUrl,
+    p_rera_registration: i.developerRera || null, p_project_name: i.projectName, p_city_id: i.cityId,
+    p_locality_id: i.localityId || null, p_public_address: i.address || null, p_rera_number: i.projectRera || null,
+    p_construction_status: i.status, p_project_category: i.category, p_official_project_url: i.officialUrl,
+    p_inventory: i.inventory, p_media_paths: i.mediaPaths,
+  });
+  if (error) throw error;
+  return data as string;
+}
+
+export async function getMySubmissions(userId: string) {
+  const [p, b] = await Promise.all([
+    supabase.from('real_estate_projects').select('id,official_name,verification_status,created_at,city_id').eq('created_by_user_id', userId).order('created_at', { ascending: false }),
+    supabase.from('brokerages').select('id,business_name,verification_status,created_at,city_id').eq('created_by_user_id', userId).order('created_at', { ascending: false }),
+  ]);
+  return { projects: (p.data ?? []) as any[], brokerages: (b.data ?? []) as any[] };
+}
+
+export async function adminGetPendingBrokerages() {
+  const [b, c] = await Promise.all([
+    supabase.from('brokerages')
+      .select('id,business_name,rera_registration,website_url,public_business_phone,verification_status,created_at,city_id,localities')
+      .eq('is_sample', false).eq('verification_status', 'pending').not('created_by_user_id', 'is', null).order('created_at', { ascending: true }),
+    supabase.from('cities').select('id,name'),
+  ]);
+  if (b.error) throw b.error;
+  const cityName = new Map<string, string>((c.data ?? []).map((x: any) => [x.id, x.name]));
+  return ((b.data ?? []) as any[]).map((x) => ({ ...x, city_name: cityName.get(x.city_id) ?? '' }));
 }

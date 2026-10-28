@@ -3,7 +3,7 @@ import { Footer } from '@/components/layout/Footer';
 import { SearchResults } from '../search/SearchResults';
 import { getCities } from '@/lib/api';
 export const revalidate = 60;
-export const metadata = { title: 'Buy Property in Mumbai' };
+export const metadata = { title: 'Buy Property in India' };
 export default async function BuyPage() {
   return (<><Nav /><SearchResults cities={await getCities()} init={{purpose:'sale'}} /><Footer /></>);
 }
