@@ -65,9 +65,9 @@ export async function searchListings(p: SearchParams = {}) {
   if (p.minArea) q = q.gte('sqft', p.minArea);
   if (p.maxArea) q = q.lte('sqft', p.maxArea);
   if (p.amenities?.length) q = q.contains('amenities', p.amenities);
-  if (p.availability === 'now') q = q.or('available_from.is.null,available_from.lte.' + new Date().toISOString().slice(0,10));
-  if (p.availability === '30') q = q.or('available_from.is.null,available_from.lte.' + new Date(Date.now()+30*86400000).toISOString().slice(0,10));
-  if (p.availability === '90') q = q.or('available_from.is.null,available_from.lte.' + new Date(Date.now()+90*86400000).toISOString().slice(0,10));
+  if (p.availability === 'now') q = q.lte('available_from', new Date().toISOString().slice(0,10));
+  if (p.availability === '30') q = q.gte('available_from', new Date().toISOString().slice(0,10)).lte('available_from', new Date(Date.now()+30*86400000).toISOString().slice(0,10));
+  if (p.availability === '90') q = q.gte('available_from', new Date().toISOString().slice(0,10)).lte('available_from', new Date(Date.now()+90*86400000).toISOString().slice(0,10));
   if (p.propertyType) q = q.eq('property_type', p.propertyType);
   if (p.minPrice)     q = q.gte('price', p.minPrice);
   if (p.maxPrice)     q = q.lte('price', p.maxPrice);
