@@ -78,7 +78,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
     if (!user) { window.location.href = '/auth?next=/search'; return; }
     const cityName = cities.find(c => c.id === f.cityId)?.name;
     const name = [f.purpose==='rent'?'Rent':f.purpose==='sale'?'Buy':null, f.beds?`${f.beds}+ BHK`:null, f.type?f.type.charAt(0).toUpperCase()+f.type.slice(1):null, cityName, localities.find(l=>l.id===f.localityId)?.name, f.q||null, f.pincode||null, f.landmark||null, f.max?`under ₹${Number(f.max).toLocaleString('en-IN')}`:null].filter(Boolean).join(' · ') || 'All properties';
-    try { await saveSearch(user.id, { name, cityId: f.cityId||undefined, purpose: f.purpose||undefined, type: f.type||undefined, min: f.min?Number(f.min):undefined, max: f.max?Number(f.max):undefined, beds: f.beds?Number(f.beds):undefined, localityId:f.localityId||undefined, pincode:f.pincode||undefined, landmark:f.landmark||undefined }); setSavedMsg('Saved. We will notify you about new matches.'); } catch { setSavedMsg('Could not save this search.'); }
+    try { await saveSearch(user.id, { name, cityId: f.cityId||undefined, purpose: f.purpose||undefined, type: f.type||undefined, min: f.min?Number(f.min):undefined, max: f.max?Number(f.max):undefined, beds: f.beds?Number(f.beds):undefined }); setSavedMsg('Saved. We will notify you about new matches.'); } catch { setSavedMsg('Could not save this search.'); }
     setTimeout(() => setSavedMsg(null), 4000);
   };
 
@@ -87,7 +87,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
     try {
       const nextPage = page + 1;
       const r = await searchListings({
-        q: f.q||undefined, purpose: f.purpose||undefined, cityId: f.cityId||undefined,
+        q: f.q||undefined, purpose: f.purpose||undefined, cityId: f.cityId||undefined, localityId: f.localityId||undefined, pincode: f.pincode||undefined, landmark: f.landmark||undefined,
         minBedrooms: f.beds ? Number(f.beds) : undefined,
         propertyType: f.type||undefined, maxPrice: f.max ? Number(f.max) : undefined, minPrice: f.min ? Number(f.min) : undefined, sort: f.sort, page: nextPage,
       });
