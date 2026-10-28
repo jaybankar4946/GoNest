@@ -28,7 +28,7 @@ export function parseQuery(input: string): Parsed {
   const words: string[] = [];
   for (const w of s.split(/[^a-z0-9]+/).filter(Boolean)) {
     if (TYPES[w]) { out.type ??= TYPES[w]; continue; }
-    if (STOP.has(w) || /^\d+$/.test(w)) continue;
+    if (STOP.has(w) || (/^\d+$/.test(w) && w.length !== 6)) continue;
     words.push(w);
   }
   out.q = words.join(' ');
