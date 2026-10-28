@@ -20,7 +20,7 @@ export type ListingImage = { id: string; listing_id: string; storage_path: strin
 export type Listing = {
   id: string; posted_by: string; poster_type: 'owner' | 'agent';
   title: string; description: string | null; property_type: PropertyType; purpose: Purpose;
-  city_id: string; locality_id: string; address_line: string | null; landmark: string | null;
+  city_id: string; locality_id: string; address_line: string | null; landmark: string | null; neighbourhood?: string | null; pincode?: string | null;
   latitude: number | null; longitude: number | null;
   price: number; price_negotiable: boolean; maintenance_monthly: number | null;
   security_deposit: number | null; brokerage: string | null;
