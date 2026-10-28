@@ -27,7 +27,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
   const [page,    setPage]    = useState(1);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [view,    setView]    = useState<'list'|'map'|'split'>('list');
+  const [view,    setView]    = useState<'list'|'map'|'split'>(init.purpose ? 'split' : 'list');
   const [quickViewId, setQuickViewId] = useState<string|null>(null);
   const [f, setF] = useState({
     q:       init.q       ?? '',
