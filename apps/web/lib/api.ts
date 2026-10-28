@@ -53,7 +53,10 @@ export async function searchListings(p: SearchParams = {}) {
     }
   }
   if (p.pincode) q = q.ilike('pincode', `%${p.pincode.replace(/[^0-9]/g, '').slice(0, 6)}%`);
-  if (p.landmark) q = q.ilike('landmark', `%${p.landmark.replace(/[%,()]/g, ' ').trim()}%`);
+  if (p.landmark) {
+    const locationTerm = p.landmark.replace(/[%,()]/g, ' ').trim();
+    if (locationTerm) q = q.or('landmark.ilike.%' + locationTerm + '%,neighbourhood.ilike.%' + locationTerm + '%');
+  }
   if (p.purpose)      q = q.eq('purpose', p.purpose);
   if (p.cityId)       q = q.eq('city_id', p.cityId);
   if (p.localityId)   q = q.eq('locality_id', p.localityId);
