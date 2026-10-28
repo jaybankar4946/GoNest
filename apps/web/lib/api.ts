@@ -529,3 +529,15 @@ export async function adminGetPendingBrokerages() {
   const cityName = new Map<string, string>((c.data ?? []).map((x: any) => [x.id, x.name]));
   return ((b.data ?? []) as any[]).map((x) => ({ ...x, city_name: cityName.get(x.city_id) ?? '' }));
 }
+
+
+export async function uploadProfileImage(userId: string, file: File): Promise<string> {
+  if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) throw new Error('Use a JPG, PNG or WebP image.');
+  if (file.size > 5 * 1024 * 1024) throw new Error('Profile photos must be 5 MB or smaller.');
+  const extension = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg';
+  const path = `${userId}/profile/${crypto.randomUUID()}.${extension}`;
+  const { error } = await supabase.storage.from('listing-images').upload(path, file, { contentType: file.type, upsert: false });
+  if (error) throw error;
+  const { data } = supabase.storage.from('listing-images').getPublicUrl(path);
+  return data.publicUrl;
+}
