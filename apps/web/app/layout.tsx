@@ -4,6 +4,7 @@ import './globals.css';
 import { AuthProvider } from '@/components/layout/AuthProvider';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { Analytics } from '@/components/layout/Analytics';
+import { DemoMode } from '@/components/layout/DemoMode';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
 const manrope = Manrope({ subsets: ['latin'], weight: ['600','700','800'], variable: '--font-manrope', display: 'swap' });
@@ -25,7 +26,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${jakarta.variable} ${manrope.variable}`}>
-      <body><AuthProvider>{children}<BottomNav /><Analytics /></AuthProvider></body>
+      <body><AuthProvider>{children}<BottomNav /><Analytics /><DemoMode /></AuthProvider></body>
     </html>
   );
 }
