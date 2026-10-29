@@ -298,6 +298,15 @@ export async function adminGetPendingProjects() {
   if (error) throw error;
   return data ?? [];
 }
+export async function adminGetAllProjects() {
+  const { data, error } = await supabase.from('real_estate_projects')
+    .select('id,official_name,public_address,rera_number,construction_status,inventory_status,verification_status,official_project_url,updated_at,is_sample,developer:developers(operating_brand),city:cities(name),locality:localities(name)')
+    .eq('is_sample', false)
+    .order('updated_at', { ascending: false });
+  if (error) throw error;
+  return data ?? [];
+}
+
 export async function adminReviewSubmission(kind: 'project' | 'brokerage', id: string, decision: 'verified' | 'rejected', notes?: string) {
   const { error } = await supabase.rpc('admin_review_submission', {
     p_kind: kind, p_id: id, p_decision: decision, p_notes: notes?.trim() || null,
