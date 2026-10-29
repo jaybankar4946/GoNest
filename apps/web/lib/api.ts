@@ -357,7 +357,7 @@ export async function getAgents(): Promise<Profile[]> {
       profile.service_localities?.length ||
       profile.service_pincodes?.length
     );
-    return hasFullName || hasProfessionalDetails;
+    return hasFullName && hasProfessionalDetails;
   });
 }
 export async function getAgentById(id: string): Promise<Profile | null> {
