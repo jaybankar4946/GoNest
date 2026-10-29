@@ -156,10 +156,16 @@ export function AgentDirectory({ agents }: Props) {
           <div className="-mx-5 flex snap-x snap-mandatory gap-5 overflow-x-auto px-5 pb-4 sm:-mx-6 sm:px-6 md:mx-0 md:grid md:grid-cols-2 md:overflow-visible md:px-0 lg:grid-cols-3 xl:grid-cols-4">
             {THANE_TOP_AGENTS.map((broker, index) => (
               <article key={broker.name} className="group w-[82vw] max-w-[320px] shrink-0 snap-start overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg md:w-auto md:max-w-none">
-                <div className="relative h-44 overflow-hidden bg-slate-100">
-                  <img src={["https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=900&h=560&fit=crop&auto=format","https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=900&h=560&fit=crop&auto=format","https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=900&h=560&fit=crop&auto=format","https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=900&h=560&fit=crop&auto=format","https://images.unsplash.com/photo-1600607687644-c7171b42498f?w=900&h=560&fit=crop&auto=format","https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=900&h=560&fit=crop&auto=format","https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=900&h=560&fit=crop&auto=format","https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=900&h=560&fit=crop&auto=format","https://images.unsplash.com/photo-1600566752355-35792bedcfea?w=900&h=560&fit=crop&auto=format","https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=900&h=560&fit=crop&auto=format"][index]} alt={`Illustrative property photography for ${broker.name}`} loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                <div className="relative flex h-44 items-center justify-center overflow-hidden bg-gradient-to-br from-slate-50 via-white to-blue-50">
+                  {broker.profileImageUrl ? (
+                    <img src={broker.profileImageUrl} alt={`${broker.name} business profile image`} loading="lazy" referrerPolicy="no-referrer" className="h-24 w-24 rounded-2xl border border-slate-200 bg-white p-2 object-contain shadow-sm" />
+                  ) : (
+                    <div aria-label={`${broker.name} logo placeholder`} className="flex h-24 w-24 items-center justify-center rounded-2xl border border-slate-200 bg-white text-3xl font-extrabold text-slate-500 shadow-sm">
+                      {broker.name.split(/\\s+/).map((part) => part[0]).slice(0, 2).join("").toUpperCase()}
+                    </div>
+                  )}
                   <span className="absolute left-3 top-3 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-slate-800">#{index + 1} · Thane</span>
-                  <span className="absolute bottom-3 left-3 rounded-md bg-slate-950/75 px-2.5 py-1 text-[10px] font-semibold text-white">Business profile</span>
+                  <span className="absolute bottom-3 left-3 rounded-md bg-slate-950/75 px-2.5 py-1 text-[10px] font-semibold text-white">{broker.imageSourceLabel ?? "Business identity pending"}</span>
                 </div>
                 <div className="p-5">
                   <h3 className="line-clamp-2 min-h-12 text-lg font-extrabold text-slate-950">{broker.name}</h3>
@@ -176,7 +182,7 @@ export function AgentDirectory({ agents }: Props) {
               </article>
             ))}
           </div>
-          <p className="mt-3 text-xs leading-5 text-slate-500">Public business-directory ratings are snapshots and may change. They are not GoNest reviews or endorsements. Images are illustrative property photography, not verified photos of the businesses or their staff.</p>
+          <p className="mt-3 text-xs leading-5 text-slate-500">Public business-directory ratings are snapshots and may change. They are not GoNest reviews or endorsements. Images are official-site identity icons where a source is recorded; other businesses show a neutral initials placeholder until a matching, publicly available business or team photo can be verified.</p>
         </div>
       </section>
 
