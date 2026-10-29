@@ -12,6 +12,7 @@ type Project = {
   project_category: string; construction_status: string; launch_date: string | null; expected_possession_date: string | null;
   total_units: number | null; configurations: unknown; published_price_min_inr: number | null; published_price_max_inr: number | null;
   price_observed_at: string | null; official_project_url: string | null; brochure_url: string | null;
+  cover_image_url: string | null; gallery_image_urls: string[]; image_source_url: string | null;
   inventory_status: string; inventory_verified_at: string | null; verification_status: string; is_sample: boolean;
   developer?: { operating_brand?: string | null; website_url?: string | null } | null;
   city?: { name?: string } | null; locality?: { name?: string } | null;
@@ -44,7 +45,7 @@ export default function NewProjectsPage() {
     (async () => {
       setLoading(true); setLoadError("");
       const { data, error } = await supabase.from("real_estate_projects")
-        .select("id,official_name,public_address,landmark,neighbourhood,pincode,rera_number,project_category,construction_status,launch_date,expected_possession_date,total_units,configurations,published_price_min_inr,published_price_max_inr,price_observed_at,official_project_url,brochure_url,inventory_status,inventory_verified_at,verification_status,is_sample,developer:developers(operating_brand,website_url),city:cities(name),locality:localities(name)")
+        .select("id,official_name,public_address,landmark,neighbourhood,pincode,rera_number,project_category,construction_status,launch_date,expected_possession_date,total_units,configurations,published_price_min_inr,published_price_max_inr,price_observed_at,official_project_url,brochure_url,cover_image_url,gallery_image_urls,image_source_url,inventory_status,inventory_verified_at,verification_status,is_sample,developer:developers(operating_brand,website_url),city:cities(name),locality:localities(name)")
         .eq("is_sample", false).in("verification_status", ["pending","verified"]).not("official_project_url","is",null)
         .order("official_name");
       if (!live) return;
@@ -151,9 +152,9 @@ export default function NewProjectsPage() {
             const location = [p.locality?.name,p.city?.name].filter(Boolean).join(", ") || p.public_address || "Location details pending";
             const configurations = Array.isArray(p.configurations) ? p.configurations.map((x:any)=>typeof x==="string"?x:x?.label||x?.configuration).filter(Boolean).join(" · ") : "";
             return <article key={p.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
-              <div className="relative flex h-40 items-center justify-center bg-gradient-to-br from-slate-100 via-blue-50 to-slate-200">
-                <Building2 className="h-12 w-12 text-slate-300"/>
-                <span className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-[11px] font-bold text-slate-700">PROJECT REFERENCE</span>
+              <div className="relative h-52 overflow-hidden bg-gradient-to-br from-slate-100 via-blue-50 to-slate-200">
+                {p.cover_image_url ? <img src={p.cover_image_url} alt={p.official_name + " official project image"} loading="lazy" className="h-full w-full object-cover transition duration-300 hover:scale-[1.02]"/> : <div className="flex h-full items-center justify-center"><Building2 className="h-12 w-12 text-slate-300"/></div>}
+                <span className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-[11px] font-bold text-slate-700">{p.cover_image_url ? "PROJECT GALLERY" : "IMAGE PENDING"}</span>
               </div>
               <div className="p-5">
                 <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">{developer}</p>
@@ -163,7 +164,7 @@ export default function NewProjectsPage() {
                   <div className="rounded-xl bg-slate-50 p-3"><p className="text-xs text-slate-500">Price range</p><p className="mt-1 text-sm font-bold">{p.published_price_min_inr == null && p.published_price_max_inr == null ? "Request current quote" : `${money(p.published_price_min_inr)} – ${money(p.published_price_max_inr)}`}</p></div>
                   <div className="rounded-xl bg-slate-50 p-3"><p className="text-xs text-slate-500">Possession</p><p className="mt-1 text-sm font-bold">{dateLabel(p.expected_possession_date)}</p></div>
                   <div className="rounded-xl bg-slate-50 p-3"><p className="text-xs text-slate-500">Configurations</p><p className="mt-1 text-sm font-bold">{configurations || "Confirm with developer"}</p></div>
-                  <div className="rounded-xl bg-slate-50 p-3"><p className="text-xs text-slate-500">MahaRERA reference</p><p className="mt-1 break-words text-sm font-bold">{p.rera_number || "Not recorded"}</p></div>
+                  <div className="rounded-xl bg-slate-50 p-3"><p className="text-xs text-slate-500">MahaRERA reference</p><p className="mt-1 break-words text-sm font-bold">{p.rera_number || "Tower-specific check required"}</p></div>
                 </div>
                 <div className="mt-4 flex items-center gap-2 text-xs text-slate-500"><ShieldCheck className="h-4 w-4"/>{p.verification_status==="verified"?"GoNest project record verified":"Source-linked record · details need confirmation"}</div>
                 <div className="mt-5 flex gap-2">
