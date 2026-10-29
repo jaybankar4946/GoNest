@@ -8,6 +8,9 @@ export type ThaneBroker = {
   note: string;
   mapQuery: string;
   ratingSource: string;
+  websiteUrl?: string;
+  profileImageUrl?: string;
+  imageSourceLabel?: string;
 };
 
 export const THANE_TOP_AGENTS: ThaneBroker[] = [
