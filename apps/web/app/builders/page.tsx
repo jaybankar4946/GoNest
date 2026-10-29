@@ -60,6 +60,33 @@ function isFresh(value: string | null | undefined) {
   return !!value && Date.now() - new Date(value).getTime() <= 14 * 86400000;
 }
 
+const additionalProjects = [
+  { city: "Pune", name: "Godrej Woodsville", area: "Hinjewadi Phase 1", builder: "Godrej Properties", rera: "P52100046729", source: "https://www.godrejproperties.com/domestic/landingpage", developer: "https://www.godrejproperties.com/", note: "Official developer portfolio reference. Verify current phase, price and available units directly." },
+  { city: "Pune", name: "Godrej Parkridge", area: "Kharadi–Manjari Road", builder: "Godrej Properties", rera: "P52100028310", source: "https://www.godrejproperties.com/domestic/landingpage", developer: "https://www.godrejproperties.com/", note: "Official developer portfolio reference. Verify current phase, price and available units directly." },
+  { city: "Pune", name: "Godrej Rejuve", area: "Keshav Nagar", builder: "Godrej Properties / Oxford Realty LLP", rera: "P52100018720", source: "https://lp.godrejproperties.com/pune/residential/godrej-rejuve/landingpage", developer: "https://www.godrejproperties.com/", note: "Developer page identifies the project registration. Confirm current construction status and inventory." },
+  { city: "Mumbai / MMR", name: "The Highlands at Godrej City — Tower 5", area: "Panvel", builder: "Caroa Properties LLP / Godrej Properties", rera: "P52000049669", source: "https://www.godrejproperties.com/mumbai/residential/the-highlands-at-godrej-city-intl/landingpage", developer: "https://www.godrejproperties.com/", note: "Official page identifies Tower 5 and its registration. Confirm live availability and pricing directly." },
+  { city: "Mumbai / MMR", name: "Godrej Bayview", area: "Vashi, Navi Mumbai", builder: "Godrej Properties", rera: "P51700031726", source: "https://www.godrejproperties.com/domestic/landingpage", developer: "https://www.godrejproperties.com/", note: "Official developer portfolio reference. Confirm current phase and unit availability directly." },
+  { city: "Pune", name: "Lodha One", area: "Bund Garden Road", builder: "Lodha Group", rera: "P52100050987", source: "https://www.lodhagroup.com/projects/residential-property-in-pune/lodha-one", developer: "https://www.lodhagroup.com/", note: "Official Lodha project page provides a registration reference. Confirm current inventory and terms directly." },
+  { city: "Mumbai", name: "Lodha Adrina", area: "Worli", builder: "Lodha Group", rera: "P51900001339 / P51900014937", source: "https://www.lodhagroup.com/projects/residential-property-in-worli/lodha-adrina", developer: "https://www.lodhagroup.com/", note: "Official Lodha page lists registration numbers. Confirm current unit availability and pricing directly." },
+  { city: "Mumbai", name: "Lodha Aureus Sewri", area: "Sewri / Eastern Waterfront", builder: "Lodha Group", rera: "PR1170002502863", source: "https://www.lodhagroup.com/projects/residential-property-in-mumbai/lodha-aureus-sewri", developer: "https://www.lodhagroup.com/", note: "Official Lodha project page displays a registration reference. Verify the exact registration and current status on MahaRERA." },
+  { city: "Mumbai", name: "Rustomjee Balmoral — Wing C", area: "Chembur", builder: "Rustomjee / Keystone Realtors", rera: "PR1180002502115", source: "https://admin.rustomjee.com/assets/uploads/project/documentation/RERACertificateBalmoralWingC.pdf", developer: "https://www.rustomjee.com/", note: "Official registration certificate for Wing C only; do not infer that this registration covers other wings." },
+];
+const developerDirectoryLinks = [
+  { name: "Kolte-Patil Developers", city: "Pune & Mumbai", url: "https://www.koltepatil.com/" },
+  { name: "Godrej Properties", city: "Mumbai / MMR / Pune", url: "https://www.godrejproperties.com/" },
+  { name: "Keystone Realtors (Rustomjee)", city: "Mumbai / MMR", url: "https://www.rustomjee.com/" },
+  { name: "Kalpataru", city: "Mumbai / MMR", url: "https://www.kalpataru.com/" },
+  { name: "Runwal Group", city: "Mumbai / MMR / Pune", url: "https://runwalrealty.com/" },
+  { name: "DLF", city: "Mumbai", url: "https://www.dlf.in/" },
+  { name: "Nyati Group", city: "Pune", url: "https://www.nyatigroup.com/" },
+  { name: "Paranjape Schemes", city: "Pune", url: "https://www.pscl.in/" },
+  { name: "House of Hiranandani", city: "Mumbai / Thane", url: "https://www.houseofhiranandani.com/" },
+  { name: "Lodha Group", city: "Mumbai / Pune", url: "https://www.lodhagroup.com/" },
+  { name: "Birla Estates", city: "Pune / Mumbai", url: "https://www.birlaestates.com/" },
+  { name: "Gera Developments", city: "Pune", url: "https://www.gera.in/" },
+  { name: "Mahindra Lifespaces", city: "Pune / Mumbai", url: "https://www.mahindralifespaces.com/" },
+];
+
 export default function BuildersPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
@@ -179,11 +206,20 @@ export default function BuildersPage() {
         })}</div>}
       </section>
 
+      <section className="border-t border-slate-200 bg-slate-50 py-10">
+        <div className="mx-auto max-w-7xl px-5 md:px-8">
+          <p className="text-sm font-bold uppercase tracking-widest text-blue-700">Additional source references</p>
+          <h2 className="mt-2 text-2xl font-extrabold">More projects to onboard into the live inventory</h2>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">These source references preserve the broader builder shortlist while project-specific data is added to the main inventory. They are not yet full GoNest project records and do not imply live availability.</p>
+          <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">{additionalProjects.map((p) => <article key={p.name} className="rounded-2xl border border-slate-200 bg-white p-5"><div className="flex items-center justify-between gap-2"><span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-800">{p.city}</span><span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-800">Reference only</span></div><h3 className="mt-3 text-lg font-extrabold">{p.name}</h3><p className="mt-1 text-sm text-slate-600">{p.builder} · {p.area}</p><p className="mt-3 text-sm"><span className="font-semibold">Registration reference:</span> {p.rera}</p><p className="mt-3 text-sm leading-6 text-slate-600">{p.note}</p><div className="mt-4 flex flex-wrap gap-4 border-t border-slate-100 pt-4"><a className="text-sm font-bold text-blue-700 hover:underline" href={p.source} target="_blank" rel="noreferrer">Source page ↗</a><a className="text-sm font-semibold text-slate-600 hover:underline" href={p.developer} target="_blank" rel="noreferrer">Developer ↗</a></div></article>)}</div>
+        </div>
+      </section>
+
       <section className="border-t border-slate-200 bg-white py-10">
         <div className="mx-auto max-w-7xl px-5 md:px-8">
           <h2 className="text-2xl font-extrabold">Official developer directory</h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">These links come from GoNest’s developer records. They do not imply a formal partnership or guarantee current inventory.</p>
-          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{directory.map((d) => <a key={d.name} href={d.url} target="_blank" rel="noreferrer" className="rounded-xl border border-slate-200 p-4 transition hover:border-blue-300"><span className="block font-bold">{d.name}</span><span className="mt-1 block text-xs text-slate-500">{d.count} tracked project record{d.count === 1 ? "" : "s"}</span><span className="mt-3 block text-sm font-semibold text-blue-700">Open official website ↗</span></a>)}</div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{developerDirectoryLinks.map((d) => { const tracked = directory.find((item) => item.name.toLowerCase() === d.name.toLowerCase()); return <a key={d.name} href={d.url} target="_blank" rel="noreferrer" className="rounded-xl border border-slate-200 p-4 transition hover:border-blue-300"><span className="block font-bold">{d.name}</span><span className="mt-1 block text-xs text-slate-500">{d.city}</span><span className="mt-1 block text-xs text-slate-500">{tracked ? `${tracked.count} tracked project record${tracked.count === 1 ? "" : "s"}` : "Project records to onboard"}</span><span className="mt-3 block text-sm font-semibold text-blue-700">Open official website ↗</span></a>; })}</div>
           <div className="mt-8 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm leading-6 text-amber-950"><strong>Inventory transparency:</strong> this page now reads the same project database as New Projects instead of relying on a separate hard-coded list. A source URL, brochure or MahaRERA reference is not proof of current unit availability. Verify the exact phase/tower, approved carpet area, price, taxes, possession and OC directly before booking.</div>
         </div>
       </section>
