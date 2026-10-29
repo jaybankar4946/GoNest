@@ -130,7 +130,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
   return (
     <div style={{background:'#F9FAFB',minHeight:'70vh'}}>
     <main style={{maxWidth:f.purpose ? 'none' : 1200,margin:'0 auto',padding:f.purpose ? '20px 16px 32px' : '36px 24px'}}>
-      <div style={{maxWidth:1200,margin:'0 auto'}}>
+      <div style={{maxWidth:768,margin:'0 auto'}}>
       <h1 style={{fontFamily:'var(--font-manrope), var(--font-display)',fontSize:28,fontWeight:800,letterSpacing:'-0.025em',color:'#111827',marginBottom:16}}>
         {f.purpose==='rent'?'Properties for rent':f.purpose==='sale'?'Properties for sale':'Search properties'}
       </h1>
