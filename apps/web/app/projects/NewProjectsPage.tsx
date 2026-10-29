@@ -32,6 +32,7 @@ export default function NewProjectsPage() {
   const [query, setQuery] = useState("");
   const [city, setCity] = useState("All Cities");
   const [registration, setRegistration] = useState("All projects");
+  const [builder, setBuilder] = useState("All builders");
   const [selected, setSelected] = useState<Project | null>(null);
   const [units, setUnits] = useState<Unit[]>([]);
   const [unitsLoading, setUnitsLoading] = useState(false);
@@ -51,21 +52,7 @@ export default function NewProjectsPage() {
       if (!live) return;
       if (error) setLoadError("Project data could not be loaded right now. Please try again shortly.");
       else {
-        // Keep this launch directory focused on Hiranandani only. Match the developer brand
-        // or the official project name so records with a missing joined brand are not leaked.
-        const hiranandaniProjects = ((data ?? []) as unknown as Project[]).filter((project) => {
-          // Supabase joins may return an object or an array depending on relationship metadata.
-          const joined = project.developer as unknown as
-            | { operating_brand?: string | null }[]
-            | { operating_brand?: string | null }
-            | null
-            | undefined;
-          const brands = Array.isArray(joined)
-            ? joined.map((developer) => developer?.operating_brand ?? "").join(" ")
-            : joined?.operating_brand ?? "";
-          return /hiranandani/i.test(`${brands} ${project.official_name ?? ""}`);
-        });
-        setProjects(hiranandaniProjects);
+        setProjects((data ?? []) as unknown as Project[]);
       }
       setLoading(false);
     })();
@@ -90,12 +77,14 @@ export default function NewProjectsPage() {
   }, [selected]);
 
   const cities = useMemo(() => ["All Cities", ...Array.from(new Set(projects.map(p => p.city?.name).filter(Boolean) as string[])).sort()], [projects]);
+  const builders = useMemo(() => ["All builders", ...Array.from(new Set(projects.map(p => p.developer?.operating_brand).filter(Boolean) as string[])).sort()], [projects]);
   const filtered = useMemo(() => projects.filter(p => {
     const haystack = [p.official_name,p.developer?.operating_brand,p.city?.name,p.locality?.name,p.public_address,p.landmark,p.neighbourhood,p.pincode,p.rera_number].filter(Boolean).join(" ").toLowerCase();
     const matchCity = city === "All Cities" || p.city?.name === city || (city === "Mumbai" && /thane|navi mumbai|mumbai/i.test(haystack));
     const matchRegistration = registration === "All projects" || (registration === "Registration listed" ? !!p.rera_number : !p.rera_number);
-    return matchCity && matchRegistration && haystack.includes(query.trim().toLowerCase());
-  }), [projects, city, registration, query]);
+    const matchBuilder = builder === "All builders" || p.developer?.operating_brand === builder;
+    return matchCity && matchRegistration && matchBuilder && haystack.includes(query.trim().toLowerCase());
+  }), [projects, city, registration, builder, query]);
 
   async function submitRequest(e: React.FormEvent) {
     e.preventDefault();
@@ -125,16 +114,18 @@ export default function NewProjectsPage() {
     <main className="min-h-screen bg-slate-50 text-slate-900">
       <section className="bg-white border-b border-slate-200">
         <div className="mx-auto max-w-7xl px-4 py-10 md:px-6 md:py-14">
-          <div className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-[.18em] text-blue-700"><Building2 className="h-4 w-4"/> Hiranandani · Mumbai & Thane</div>
+          <div className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-[.18em] text-blue-700"><Building2 className="h-4 w-4"/> Multi-builder project directory · India</div>
           <h1 className="max-w-3xl text-3xl font-extrabold tracking-tight md:text-5xl">Explore New Projects</h1>
-          <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600">Explore Hiranandani residential projects. Review available project details and request current inventory or a site visit. Availability is confirmed only when recent, source-linked inventory evidence is present.</p>
-          <div className="mt-7 grid gap-3 md:grid-cols-[1fr_190px_210px]">
+          <p className="mt-4 max-w-3xl text-base leading-7 text-slate-600">Explore projects across listed developers. Review sourced project details and request current inventory or a site visit. Availability is confirmed only when recent, source-linked inventory evidence is present.</p>
+          <div className="mt-7 grid gap-3 md:grid-cols-[1fr_190px_210px_220px]">
             <label className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3"><Search className="h-5 w-5 text-slate-400"/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search project, developer, locality, neighbourhood, landmark, PIN or RERA…" className="w-full bg-transparent text-sm outline-none"/></label>
             <select value={city} onChange={e=>setCity(e.target.value)} className="rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm">{cities.map(c=><option key={c}>{c}</option>)}</select>
             <select value={registration} onChange={e=>setRegistration(e.target.value)} className="rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm"><option>All projects</option><option>Registration listed</option><option>Registration not listed</option></select>
+            <select value={builder} onChange={e=>setBuilder(e.target.value)} className="rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm">{builders.map(b=><option key={b}>{b}</option>)}</select>
           </div>
           <div className="mt-5 flex flex-wrap gap-3 text-sm text-slate-500">
-            <span className="rounded-full bg-slate-100 px-3 py-1.5">{projects.length} source-linked project records</span>
+            <span className="rounded-full bg-slate-100 px-3 py-1.5">{projects.length} listed project records</span>
+            <span className="rounded-full bg-slate-100 px-3 py-1.5">{builders.length - 1} developers</span>
             <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-emerald-800">{projects.filter(p=>p.verification_status==="verified").length} project records verified</span>
             <span className="rounded-full bg-blue-50 px-3 py-1.5 text-blue-800">Unit availability requires recent evidence</span>
           </div>
@@ -144,7 +135,7 @@ export default function NewProjectsPage() {
       <section className="mx-auto max-w-7xl px-4 py-8 md:px-6">
         {loading ? <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center text-slate-500">Loading live project data…</div>
         : loadError ? <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-amber-900">{loadError}</div>
-        : filtered.length === 0 ? <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center"><Building2 className="mx-auto mb-3 h-10 w-10 text-slate-300"/><h2 className="font-bold">No projects match these filters</h2><p className="mt-1 text-sm text-slate-500">Try a broader search or choose all cities.</p><button onClick={()=>{setCity("All Cities");setRegistration("All projects");setQuery("");}} className="mt-4 font-semibold text-blue-700">Clear filters</button></div>
+        : filtered.length === 0 ? <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center"><Building2 className="mx-auto mb-3 h-10 w-10 text-slate-300"/><h2 className="font-bold">No projects match these filters</h2><p className="mt-1 text-sm text-slate-500">Try a broader search or choose all cities.</p><button onClick={()=>{setCity("All Cities");setRegistration("All projects");setBuilder("All builders");setQuery("");}} className="mt-4 font-semibold text-blue-700">Clear filters</button></div>
         : <><div className="mb-4 flex items-center justify-between"><p className="text-sm text-slate-600"><strong>{filtered.length}</strong> projects found</p><p className="text-xs text-slate-500">Project records are not a guarantee of current inventory</p></div>
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{filtered.map(p=>{
             const verified = p.verification_status==="verified" && p.inventory_status==="verified_available" && isFresh(p.inventory_verified_at);
