@@ -33,15 +33,14 @@ function AgentCard({ agent, top = false }: { agent: Profile; top?: boolean }) {
                       <p className="mt-1 text-sm text-slate-500">{agent.agency_name ?? 'Independent agent'}</p>
                       <div className="mt-2 flex flex-wrap items-center gap-1.5">
                         {top && <span className="rounded-full bg-blue-600 px-2.5 py-1 text-xs font-bold text-white">Top Agent</span>}
-                        <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-800">MahaRERA details on file</span>
+                        {agent.agent_verified && agent.rera_number ? <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-800">✓ Verified agent</span> : <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-800">Verification pending</span>}
                         {agent.rating != null && <span className="text-sm font-extrabold text-amber-700">★ {agent.rating.toFixed(2)} <span className="font-normal text-slate-500">({agent.review_count} reviews)</span></span>}
                       </div>
                     </div>
                   </div>
                   <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3">
-                    <p className="text-xs font-semibold text-slate-500">Registration number</p>
-                    <p className="mt-1 break-all text-sm font-extrabold tracking-wide text-slate-900">{agent.rera_number}</p>
-                    <a href="https://maharera.maharashtra.gov.in/" target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-blue-700 hover:underline">Verify on MahaRERA <span aria-hidden="true">↗</span></a>
+                    <p className="text-xs font-semibold text-slate-500">MahaRERA registration</p>
+                    {agent.rera_number ? <><p className="mt-1 break-all text-sm font-extrabold tracking-wide text-slate-900">{agent.rera_number}</p><a href="https://maharera.maharashtra.gov.in/" target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-blue-700 hover:underline">Check registration <span aria-hidden="true">↗</span></a></> : <p className="mt-1 text-sm text-slate-600">Not provided</p>}
                   </div>
                 </div>
                 <div className="grid grid-cols-3 divide-x divide-slate-100 border-y border-slate-100 bg-white">
@@ -67,8 +66,10 @@ export function AgentDirectory({ agents }: Props) {
   const [language, setLanguage] = useState('Any Language');
   const [sort, setSort] = useState('Top Rated');
 
+  // Keep real agent profiles discoverable while distinguishing verified profiles from pending ones.
+  // Filtering the whole directory to verified-only profiles made the page appear empty during onboarding.
   const licensedAgents = useMemo(
-    () => agents.filter((agent) => agent.role === 'agent' && agent.agent_verified && Boolean(agent.rera_number)),
+    () => agents.filter((agent) => agent.role === 'agent'),
     [agents],
   );
 
@@ -146,9 +147,9 @@ export function AgentDirectory({ agents }: Props) {
           <div>
             <p className="text-xs font-extrabold uppercase tracking-widest text-blue-700">Mumbai · Pune · Thane · Navi Mumbai</p>
             <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-slate-950 md:text-3xl">Verified real estate agents</h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">Compare agent photos, brokerage, customer ratings where available, active listing counts, service areas and registration details.</p>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">Compare agent photos, brokerage, customer ratings where available, active listing counts, service areas and registration details. Verified badges appear only on profiles GoNest has verified.</p>
           </div>
-          <p className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700">{filtered.length} verified {filtered.length === 1 ? 'agent' : 'agents'}</p>
+          <p className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700">{filtered.length} {filtered.length === 1 ? 'agent profile' : 'agent profiles'}</p>
         </div>
         {filtered.length > 0 ? (
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
@@ -157,8 +158,8 @@ export function AgentDirectory({ agents }: Props) {
         ) : (
           <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-2xl text-blue-700">⌕</div>
-            <h3 className="mt-4 text-xl font-extrabold text-slate-950">{licensedAgents.length === 0 ? 'Verified agent profiles are being onboarded' : 'No verified agents match these filters'}</h3>
-            <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-600">{licensedAgents.length === 0 ? 'GoNest only displays agents marked as verified with a registration number on file. We do not invent agent profiles, photos, ratings or sales history.' : 'Try a nearby locality, choose another city, or reset the filters.'}</p>
+            <h3 className="mt-4 text-xl font-extrabold text-slate-950">{licensedAgents.length === 0 ? 'Agent profiles are being onboarded' : 'No agents match these filters'}</h3>
+            <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-600">{licensedAgents.length === 0 ? 'No agent profiles were returned from the current GoNest database. We will not invent agent identities, photos, ratings or sales history.' : 'Try a nearby locality, choose another city, or reset the filters.'}</p>
             <button type="button" onClick={() => { setSearch(''); setLocation(''); setCity('All Cities'); setSpecialization('All Specializations'); setLanguage('Any Language'); setSort('Top Rated'); }} className="mt-5 rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700">Reset filters</button>
           </div>
         )}
