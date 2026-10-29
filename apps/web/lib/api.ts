@@ -276,13 +276,18 @@ export async function adminModerate(listingId: string, status: string, verificat
   await supabase.rpc('admin_moderate_listing', { p_listing_id: listingId, p_new_status: status, p_new_verification: verification, p_reason: reason ?? null });
 }
 export async function adminToggleFeatured(listingId: string, featured: boolean) {
-  await supabase.from('listings').update({ featured }).eq('id', listingId);
+  const { error } = await supabase.from('listings').update({ featured }).eq('id', listingId);
+  if (error) throw error;
 }
 export async function adminVerifyAgent(userId: string, verified: boolean) {
-  await supabase.from('profiles').update({ agent_verified: verified }).eq('id', userId);
+  const { error } = await supabase.from('profiles').update({ agent_verified: verified }).eq('id', userId);
+  if (error) throw error;
 }
 export async function adminSetRole(userId: string, role: string) {
-  await supabase.from('profiles').update({ role }).eq('id', userId);
+  const allowed = ['buyer', 'owner', 'agent'];
+  if (!allowed.includes(role)) throw new Error('Unsupported role change.');
+  const { error } = await supabase.from('profiles').update({ role }).eq('id', userId);
+  if (error) throw error;
 }
 
 export async function adminGetPendingProjects() {
