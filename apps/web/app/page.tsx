@@ -78,7 +78,7 @@ export default async function HomePage() {
             </div>
             <div className="grid gap-6 md:grid-cols-3 md:gap-7">
               {[
-                {title:'Buy a home',desc:'Explore homes, compare prices and understand the costs before you make your move.',href:'/buy',cta:'Explore homes',image:'https://images.unsplash.com/photo-1600597687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=85',alt:'Modern family home exterior'},
+                {title:'Buy a home',desc:'Explore homes, compare prices and understand the costs before you make your move.',href:'/buy',cta:'Explore homes',image:'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=85',alt:'Contemporary residential home exterior'},
                 {title:'Rent a home',desc:'Find a place that fits your life, with rent, deposit and stated charges made clear.',href:'/rent',cta:'Find a rental',image:'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=85',alt:'Bright contemporary home interior'},
                 {title:'Sell or rent out',desc:'Reach people looking for a home. Add your property details and submit them for review.',href:'/list-with-gonest',cta:'List with GoNest',image:'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=1200&q=85',alt:'Premium residential property'},
               ].map(item=>(
