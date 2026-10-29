@@ -96,9 +96,31 @@ function AuthInner() {
 
   const forgot = async () => {
     reset();
-    if (!email.trim()) return setMsg({ type: 'err', text: 'Enter your email above first.' });
-    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: `${origin()}/auth/reset-password` });
-    setMsg(error ? { type: 'err', text: explain(error) } : { type: 'ok', text: 'If that email has an account, a reset link is on its way.' });
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail) {
+      setMsg({ type: 'err', text: 'Enter your email above first.' });
+      return;
+    }
+    setBusy(true);
+    try {
+      const redirectTo = new URL('/auth/reset-password', window.location.origin).toString();
+      const { error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, { redirectTo });
+      if (error) {
+        const message = /redirect.*(url|allow|whitelist)/i.test(error.message)
+          ? 'Password reset redirect is not allowed in Supabase yet. Add this site’s /auth/reset-password URL to Supabase Auth → URL Configuration → Redirect URLs.'
+          : /rate limit|too many|429/i.test(error.message)
+            ? 'Too many reset requests. Wait a few minutes, then try again.'
+            : explain(error);
+        setMsg({ type: 'err', text: message });
+      } else {
+        setMsg({ type: 'ok', text: 'If that email has an account, a password-reset link is on its way. Check your inbox and spam folder.' });
+      }
+    } catch (error) {
+      console.error('Password reset request failed:', error);
+      setMsg({ type: 'err', text: 'We could not send the reset email. Check your connection and try again.' });
+    } finally {
+      setBusy(false);
+    }
   };
 
   const methods: { id: Method; label: string }[] = [{ id: 'password', label: 'Email + password' }, { id: 'link', label: 'Email link' }, { id: 'google', label: 'Google' }];
@@ -130,7 +152,7 @@ function AuthInner() {
               <input required type={show ? 'text' : 'password'} autoComplete={tab === 'signin' ? 'current-password' : 'new-password'} aria-label="Password" placeholder={tab === 'signup' ? 'Password (8+ characters)' : 'Password'} value={pass} onChange={e => setPass(e.target.value)} className={field + ' pr-12'} />
               <button type="button" aria-label={show ? 'Hide password' : 'Show password'} onClick={() => setShow(s => !s)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700">{show ? <EyeOff size={18} /> : <Eye size={18} />}</button>
             </div>
-            {tab === 'signin' && <button type="button" onClick={forgot} className="self-end text-xs font-semibold text-blue-600 hover:underline">Forgot password?</button>}
+            {tab === 'signin' && <button type="button" onClick={forgot} disabled={busy} className="self-end text-xs font-semibold text-blue-600 hover:underline disabled:opacity-60">{busy ? 'Sending reset link…' : 'Forgot password?'}</button>}
             <button disabled={busy} className={primary}>{busy ? 'Please wait…' : tab === 'signin' ? 'Sign in' : 'Create account'}</button>
           </form>
         )}
