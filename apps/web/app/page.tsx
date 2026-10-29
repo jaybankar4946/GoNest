@@ -6,7 +6,7 @@ import { PropertyCard } from '@/components/property/PropertyCard';
 import { DemoHomes } from '@/components/home/DemoHomes';
 import { HomeSearch } from './HomeSearch';
 import { HomeEMI } from './HomeEMI';
-import { getFeatured, getCities, getHomeStats, getPopularLocalities } from '@/lib/api';
+import { getFeatured, getCities, getHomeStats, getPopularLocalities, getAgents } from '@/lib/api';
 import { THANE_TOP_AGENTS, businessMapsUrl } from '@/lib/thane-agents';
 import type { Metadata } from 'next';
 
@@ -32,7 +32,8 @@ const TRUST = [
   { icon: Flag, title: 'Report anything', items: ['Report button on every listing', 'Reasons include fake, wrong price, already sold', 'Owners can mark listings sold or rented'] },
 ];
 export default async function HomePage() {
-  const [featured, cities, stats, popular] = await Promise.all([getFeatured(6), getCities(), getHomeStats(), getPopularLocalities(8)]);
+  const [featured, cities, stats, popular, agentProfiles] = await Promise.all([getFeatured(6), getCities(), getHomeStats(), getPopularLocalities(8), getAgents()]);
+  const directoryAgents = agentProfiles.filter((agent) => agent.role === 'agent');
   const strip = [
     { v: stats.listings, l: 'Live listings' },
     { v: stats.verified, l: 'Verified listings' },
@@ -195,35 +196,59 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Agent Explore uses the same featured collection card format as Homes For You */}
-        <section className="bg-white py-16 sm:py-20">
+        {/* Verified real estate agents — live profiles, not illustrative broker listings */}
+        <section className="bg-slate-50 py-16 sm:py-20">
           <div className="mx-auto max-w-7xl px-5 sm:px-6">
-            <div className="mb-7 flex items-end justify-between gap-4">
+            <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
               <div>
-                <p className="mb-2 text-xs font-bold uppercase tracking-widest text-blue-700">Featured collection · Thane</p>
-                <h2 className="text-3xl font-extrabold tracking-tight text-gray-950 sm:text-4xl" style={{ ...display, letterSpacing: '-0.03em' }}>Agents For You</h2>
-                <p className="mt-2 text-sm text-gray-600 sm:text-base">Explore local real estate agents and brokerages across Thane.</p>
+                <p className="mb-2 text-xs font-bold uppercase tracking-widest text-blue-700">Mumbai · Pune · Thane · Navi Mumbai</p>
+                <h2 className="text-3xl font-extrabold tracking-tight text-gray-950 sm:text-4xl" style={{ ...display, letterSpacing: '-0.03em' }}>Verified real estate agents</h2>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-600 sm:text-base">Compare agent photos, brokerage, customer ratings where available, active listing counts, service areas and registration details. Verified badges appear only on profiles GoNest has verified.</p>
               </div>
-              <Link href="/agents" className="shrink-0 text-sm font-bold text-blue-700 hover:text-blue-900">Explore agents →</Link>
+              <Link href="/agents" className="shrink-0 text-sm font-bold text-blue-700 hover:text-blue-900">Find Verified Agents →</Link>
             </div>
-            <div className="-mx-5 flex snap-x snap-mandatory gap-5 overflow-x-auto px-5 pb-4 sm:-mx-6 sm:px-6">
-              {THANE_TOP_AGENTS.map((broker, index) => (
-                <article key={broker.name} className="w-[78vw] max-w-[300px] shrink-0 snap-start overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg sm:w-[270px]">
-                  <div className="relative h-40 overflow-hidden bg-slate-100">
-                    <img src={["https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600607687644-c7171b42498f?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600566752355-35792bedcfea?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=800&h=480&fit=crop&auto=format"][index]} alt={`Illustrative property photography for ${broker.name}`} loading="lazy" className="h-full w-full object-cover transition duration-500 hover:scale-105" />
-                    <span className="absolute left-3 top-3 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-gray-800">#{index + 1} · Thane</span>
-                  </div>
-                  <div className="p-4 sm:p-5">
-                    <h3 className="line-clamp-2 min-h-10 text-base font-extrabold text-gray-950">{broker.name}</h3>
-                    <p className="mt-1 line-clamp-2 min-h-8 text-sm text-gray-600">{broker.area}</p>
-                    <p className="mt-2 text-sm font-bold text-amber-700">★ {broker.rating.toFixed(1)} <span className="font-normal text-gray-500">({broker.reviews.toLocaleString("en-IN")} public reviews)</span></p>
-                    <p className="mt-2 line-clamp-2 min-h-10 text-sm leading-5 text-gray-600">{broker.note}</p>
-                    <Link href="/agents" className="mt-4 inline-flex w-full items-center justify-center rounded-xl border border-gray-200 px-3 py-2.5 text-sm font-bold text-blue-700 hover:bg-blue-50">Explore agent →</Link>
-                  </div>
-                </article>
-              ))}
-            </div>
-            <p className="mt-3 text-xs leading-5 text-gray-500">Public business-directory ratings are snapshots, not GoNest reviews or endorsements. Photos are illustrative property photography, not verified photos of each business or its staff.</p>
+            {directoryAgents.length > 0 ? (
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {directoryAgents.slice(0, 6).map((agent) => (
+                  <article key={agent.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
+                    <div className="p-5">
+                      <div className="flex items-start gap-3">
+                        <Link href={`/agents/${agent.id}`} aria-label={`View ${agent.full_name ?? 'agent'} profile`} className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-100 bg-slate-100 text-xl font-extrabold text-slate-500">
+                          {agent.avatar_url ? <img src={agent.avatar_url} alt={agent.full_name ? `${agent.full_name} profile` : 'Agent profile'} loading="lazy" className="h-full w-full object-cover" /> : (agent.full_name ?? 'A').charAt(0).toUpperCase()}
+                        </Link>
+                        <div className="min-w-0 flex-1">
+                          <Link href={`/agents/${agent.id}`} className="block text-lg font-extrabold leading-tight text-slate-950 hover:text-blue-700">{agent.full_name ?? 'Agent profile'}</Link>
+                          <p className="mt-1 text-sm text-slate-500">{agent.agency_name ?? 'Independent agent'}</p>
+                          <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                            {agent.agent_verified && agent.rera_number ? <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-800">✓ Verified agent</span> : <span className="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-800">Verification pending</span>}
+                            {agent.rating != null && <span className="text-sm font-extrabold text-amber-700">★ {agent.rating.toFixed(1)} <span className="font-normal text-slate-500">({agent.review_count ?? 0} reviews)</span></span>}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3">
+                        <p className="text-xs font-semibold text-slate-500">MahaRERA registration</p>
+                        <p className="mt-1 break-all text-sm font-bold text-slate-900">{agent.rera_number || 'Not provided'}</p>
+                        {agent.rera_number && <a href="https://maharera.maharashtra.gov.in/" target="_blank" rel="noreferrer" className="mt-2 inline-flex text-xs font-bold text-blue-700 hover:underline">Check registration ↗</a>}
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-3 divide-x divide-slate-100 border-y border-slate-100">
+                      {[{ value: agent.total_listings ?? 0, label: 'Listings' }, { value: agent.review_count ?? 0, label: 'Reviews' }, { value: agent.rating == null ? '—' : agent.rating.toFixed(1), label: 'Rating' }].map((stat) => <div key={stat.label} className="px-2 py-3 text-center"><p className="text-lg font-extrabold text-slate-950">{stat.value}</p><p className="text-xs text-slate-500">{stat.label}</p></div>)}
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 p-4">
+                      <Link href={`/agents/${agent.id}`} className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-3 py-2.5 text-sm font-bold text-white hover:bg-blue-700">View profile</Link>
+                      <Link href="/agents" className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50">Find agents</Link>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-10 text-center">
+                <h3 className="text-lg font-extrabold text-slate-950">Agent profiles are being onboarded</h3>
+                <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-600">No agent profiles are currently available from the GoNest database. Ratings, photos and sales figures will appear when supported by real profile data.</p>
+                <Link href="/agents" className="mt-4 inline-flex rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white">Find Verified Agents →</Link>
+              </div>
+            )}
+            <p className="mt-4 text-xs leading-5 text-slate-500">Ratings and reviews appear only when recorded in GoNest. A verification badge is shown only when the profile is marked verified and has a registration number on file.</p>
           </div>
         </section>
 
