@@ -184,8 +184,8 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
           <label style={{fontSize:12,fontWeight:700,color:'#475569'}}>Bathrooms<select aria-label="Bathrooms" value={f.baths} onChange={e=>upd('baths',e.target.value)} style={{...sel,display:'block',width:'100%',marginTop:6,background:'#fff'}}><option value="">Any</option>{['1','2','3','4'].map(n=><option key={n} value={n}>{n}+ bathrooms</option>)}</select></label>
           <label style={{fontSize:12,fontWeight:700,color:'#475569'}}>Min area (sq ft)<input type="number" min="0" value={f.minArea} onChange={e=>upd('minArea',e.target.value)} placeholder="Any" style={{...sel,display:'block',width:'100%',marginTop:6,boxSizing:'border-box',background:'#fff'}} /></label>
           <label style={{fontSize:12,fontWeight:700,color:'#475569'}}>Max area (sq ft)<input type="number" min="0" value={f.maxArea} onChange={e=>upd('maxArea',e.target.value)} placeholder="Any" style={{...sel,display:'block',width:'100%',marginTop:6,boxSizing:'border-box',background:'#fff'}} /></label>
-          <label style={{fontSize:12,fontWeight:700,color:'#475569'}}>Furnishing<select value={f.furnishing} onChange={e=>upd('furnishing',e.target.value)} style={{...sel,display:'block',width:'100%',marginTop:6,background:'#fff'}}><option value="">Any</option><option value="unfurnished">Unfurnished</option><option value="semi_furnished">Semi-furnished</option><option value="furnished">Furnished</option></select></label>
-          <label style={{fontSize:12,fontWeight:700,color:'#475569'}}>Availability<select value={f.availability} onChange={e=>upd('availability',e.target.value)} style={{...sel,display:'block',width:'100%',marginTop:6,background:'#fff'}}><option value="">Any</option><option value="ready_to_move">Ready to move</option><option value="under_construction">Under construction</option><option value="immediate">Immediate possession</option></select></label>
+          <label style={{fontSize:12,fontWeight:700,color:'#475569'}}>Furnishing<select value={f.furnishing} onChange={e=>upd('furnishing',e.target.value)} style={{...sel,display:'block',width:'100%',marginTop:6,background:'#fff'}}><option value="">Any</option><option value="unfurnished">Unfurnished</option><option value="semi-furnished">Semi-furnished</option><option value="fully-furnished">Fully furnished</option></select></label>
+          <label style={{fontSize:12,fontWeight:700,color:'#475569'}}>Availability<select value={f.availability} onChange={e=>upd('availability',e.target.value)} style={{...sel,display:'block',width:'100%',marginTop:6,background:'#fff'}}><option value="">Any</option><option value="now">Available now</option><option value="30">Available within 30 days</option><option value="90">Available within 90 days</option></select></label>
         </div>
         <div style={{marginTop:16}}><p style={{fontSize:12,fontWeight:800,color:'#475569',marginBottom:9}}>Amenities</p><div style={{display:'flex',gap:8,flexWrap:'wrap'}}>{['Parking','Lift','Security','Gym','Swimming pool','Balcony','Power backup','Pet friendly'].map(a=>{const key=a.toLowerCase().replace(/ /g,'_');const on=f.amenities.includes(key);return <button type="button" key={key} aria-pressed={on} onClick={()=>setF(p=>({...p,amenities:on?p.amenities.filter(x=>x!==key):[...p.amenities,key]}))} style={{padding:'8px 12px',borderRadius:999,border:'1px solid '+(on?'#2563EB':'#D1D5DB'),background:on?'#EFF6FF':'#fff',color:on?'#1D4ED8':'#374151',fontSize:12,fontWeight:600}}>{on?'✓ ':''}{a}</button>})}</div></div>
       </section>}
@@ -242,11 +242,11 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
           </div>
           <div style={{minWidth:0,order:2}}>
             <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:'20px 14px'}}>
-              {results.map(l=><PropertyCard key={l.id} listing={l} onQuickView={setQuickViewId} isSaved={saved.has(l.id)} onToggle={toggle} />)}
+              {results.map(l=><div key={l.id} onMouseEnter={() => setActiveListingId(l.id)} onFocus={() => setActiveListingId(l.id)}><PropertyCard listing={l} onQuickView={setQuickViewId} isSaved={saved.has(l.id)} onToggle={toggle} /></div>)}
             </div>
             <LoadMoreBtn />
             <div className="lg:hidden" style={{marginTop:20,height:460}}>
-              <MapView listings={results} onSelect={(l)=>setQuickViewId(l.id)} />
+              <MapView listings={results} activeListingId={activeListingId} onSelect={(l)=>{setActiveListingId(l.id);setQuickViewId(l.id);}} />
             </div>
           </div>
         </div>
