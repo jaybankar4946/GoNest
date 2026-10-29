@@ -141,13 +141,28 @@ export function AgentDirectory({ agents }: Props) {
         </div>
       </section>
 
-      {topAgents.length > 0 && (
-        <section className="mx-auto max-w-7xl px-5 pt-10 md:px-8">
-          <h2 className="text-xl font-extrabold text-slate-950">Top agents</h2>
-          <p className="mb-5 mt-1 text-sm text-slate-600">Ranked by customer rating and number of reviews. Placement is never sold.</p>
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">{topAgents.map((agent) => <AgentCard key={agent.id} agent={agent} top />)}</div>
-        </section>
-      )}
+      <section className="mx-auto max-w-7xl px-5 py-10 md:px-8 md:py-14">
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="text-xs font-extrabold uppercase tracking-widest text-blue-700">Mumbai · Pune · Thane · Navi Mumbai</p>
+            <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-slate-950 md:text-3xl">Verified real estate agents</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">Compare agent photos, brokerage, customer ratings where available, active listing counts, service areas and registration details.</p>
+          </div>
+          <p className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700">{filtered.length} verified {filtered.length === 1 ? 'agent' : 'agents'}</p>
+        </div>
+        {filtered.length > 0 ? (
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {filtered.map((agent, index) => <AgentCard key={agent.id} agent={agent} top={!isFiltered && index < 3 && agent.rating != null && (agent.review_count ?? 0) > 0} />)}
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 text-2xl text-blue-700">⌕</div>
+            <h3 className="mt-4 text-xl font-extrabold text-slate-950">{licensedAgents.length === 0 ? 'Verified agent profiles are being onboarded' : 'No verified agents match these filters'}</h3>
+            <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-600">{licensedAgents.length === 0 ? 'GoNest only displays agents marked as verified with a registration number on file. We do not invent agent profiles, photos, ratings or sales history.' : 'Try a nearby locality, choose another city, or reset the filters.'}</p>
+            <button type="button" onClick={() => { setSearch(''); setLocation(''); setCity('All Cities'); setSpecialization('All Specializations'); setLanguage('Any Language'); setSort('Top Rated'); }} className="mt-5 rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700">Reset filters</button>
+          </div>
+        )}
+      </section>
 
       <section className="border-y border-slate-200 bg-slate-50 py-12 md:py-14">
         <div className="mx-auto max-w-7xl px-5 md:px-8">
