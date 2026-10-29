@@ -24,6 +24,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
   const [page,    setPage]    = useState(1);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [view,    setView]    = useState<'list'|'map'|'split'>(init.purpose ? 'split' : 'list');
   const [quickViewId, setQuickViewId] = useState<string|null>(null);
   const [activeListingId, setActiveListingId] = useState<string|null>(null);
@@ -58,7 +59,12 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
         amenities: f.amenities, availability: f.availability || undefined, furnishing: f.furnishing || undefined,
         propertyType: f.type||undefined, maxPrice: f.max ? Number(f.max) : undefined, minPrice: f.min ? Number(f.min) : undefined, sort: f.sort, page: 1,
       });
-      setResults(r.listings); setTotal(r.total); track('search', undefined, { total: r.total, purpose: f.purpose || 'any', hasText: !!f.q });
+      setResults(r.listings); setTotal(r.total); setLoadError(null); track('search', undefined, { total: r.total, purpose: f.purpose || 'any', hasText: !!f.q });
+    } catch (error) {
+      console.error('GoNest property search failed', error);
+      setResults([]);
+      setTotal(0);
+      setLoadError('We could not load property results. Check your connection and try again.');
     } finally { setLoading(false); }
   }, [f]);
 
@@ -138,7 +144,14 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
       </p>
 
       {loading && results.length === 0 && (<div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:'36px 20px'}}>{[1,2,3,4,5,6].map(i=><PropertyCardSkeleton key={i}/>)}</div>)}
-      {!loading && results.length === 0 && (
+      {!loading && loadError && (
+        <div role="alert" style={{textAlign:'center',padding:'40px 24px',background:'#fff',border:'1px solid #FECACA',borderRadius:24}}>
+          <p style={{fontSize:18,fontWeight:800,marginBottom:8,color:'#991B1B'}}>Search temporarily unavailable</p>
+          <p style={{fontSize:14,lineHeight:1.7,color:'#6B7280',margin:'0 auto 18px',maxWidth:520}}>{loadError}</p>
+          <button type="button" onClick={() => load()} style={{padding:'10px 18px',borderRadius:12,background:'#1D4ED8',color:'#fff',fontSize:13,fontWeight:700}}>Try search again</button>
+        </div>
+      )}
+      {!loading && !loadError && results.length === 0 && (
         <div style={{textAlign:'center',padding:'64px 24px',background:'#fff',border:'1px solid #E5E7EB',borderRadius:24}}>
           <div style={{width:56,height:56,margin:'0 auto 18px',display:'grid',placeItems:'center',borderRadius:16,background:'#EFF6FF',color:'#1D4ED8',fontSize:26}}>⌂</div>
           <p style={{fontSize:22,fontWeight:800,marginBottom:8,color:'#111827'}}>
