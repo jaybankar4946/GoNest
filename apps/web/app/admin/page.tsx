@@ -51,7 +51,7 @@ export default function AdminPage() {
     adminGetLaunchInventoryDashboard().then(setLaunchInventory);
   },[]);
   useEffect(()=>{adminGetFunnel(fdays).then(setFunnel);},[fdays]);
-  const moderate=async(id:string,status:string,vl:string,rej?:string)=>{setBusy(true);await adminModerate(id,status,vl,rej);setQueue(p=>p.filter(l=>l.id!==id));setListings(p=>p.map(l=>l.id===id?{...l,status,verification_level:vl}:l));setBusy(false);};
+  const moderate=async(id:string,status:string,vl:string,rej?:string)=>{setBusy(true);try{await adminModerate(id,status,vl,rej);setQueue(p=>p.filter(l=>l.id!==id));setListings(p=>p.map(l=>l.id===id?{...l,status,verification_level:vl}:l));}catch(e){alert((e as {message?:string})?.message??'Could not update this listing. Check permissions and try again.');}finally{setBusy(false);}};
   const TS=(t:string): React.CSSProperties=>({padding:'7px 18px',borderRadius:9999,fontSize:13,fontWeight:tab===t?600:400,color:tab===t?'#111':'#6B6B6B',background:tab===t?'#F7F7F7':'transparent',border:'none',cursor:'pointer'});
   if (loading) return <><Nav/><main style={{maxWidth:1100,margin:'0 auto',padding:'48px 24px',color:'#6B6B6B'}}>Checking administrator access…</main><Footer/></>;
   if (!profile || profile.role!=='admin') return <><Nav/><main style={{maxWidth:1100,margin:'0 auto',padding:'48px 24px'}}><h1 style={{fontSize:22,fontWeight:700,marginBottom:8}}>Administrator access required</h1><p style={{fontSize:14,color:'#6B6B6B'}}>This page is available only to accounts with the administrator role.</p></main><Footer/></>;
@@ -265,8 +265,9 @@ export default function AdminPage() {
                   <span style={SB(SC[l.status]??'#6B6B6B')}>{l.status.replace('_',' ')}</span>
                   <button onClick={()=>adminToggleFeatured(l.id,!l.featured).then(()=>setListings(p=>p.map(x=>x.id===l.id?{...x,featured:!x.featured}:x)))} style={{...BTN(l.featured?'#6B6B6B':'#2563EB'),fontSize:11}}>{l.featured?'Unfeature':'Feature'}</button>
                   {l.status==='pending_review'&&<button onClick={()=>moderate(l.id,'active','verified')} disabled={busy} style={{...BTN('#16A34A'),fontSize:11}}>Approve</button>}
-                  {l.status==='active'&&<button onClick={()=>{if(confirm('Suspend this listing? It will be hidden from the public.'))moderate(l.id,'suspended','unverified','Suspended by admin');}} disabled={busy} style={{...BTN('#DC2626'),fontSize:11}}>Suspend</button>}
-                  {l.status==='suspended'&&<button onClick={()=>moderate(l.id,'active','verified')} disabled={busy} style={{...BTN('#16A34A'),fontSize:11}}>Restore</button>}
+                  {l.status==='active'&&<button onClick={()=>{if(confirm('Suspend this listing? It will be hidden from public search.'))void moderate(l.id,'suspended','unverified','Suspended by admin');}} disabled={busy} style={{...BTN('#DC2626'),fontSize:11}}>Suspend</button>}
+                  {['active','suspended','rejected'].includes(l.status)&&<button onClick={()=>{if(confirm('Archive this listing? It will be removed from public search while keeping its record for audit.'))void moderate(l.id,'archived','unverified','Archived by admin');}} disabled={busy} style={{...BTN('#7C2D12'),fontSize:11}}>Archive</button>}
+                  {['suspended','archived'].includes(l.status)&&<button onClick={()=>{if(confirm('Restore this listing to public active status? Confirm the listing is current and accurate first.'))void moderate(l.id,'active','unverified','Restored by admin; verification requires review');}} disabled={busy} style={{...BTN('#16A34A'),fontSize:11}}>Restore</button>}
                 </div>
               </div>
             ))}
@@ -279,8 +280,9 @@ export default function AdminPage() {
               <div key={b.id} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 16px',border:'1px solid #E5E5E5',borderRadius:12}}>
                 <div><p style={{fontSize:14,fontWeight:600,color:'#111',marginBottom:2}}>{b.full_name??'—'}</p><p style={{fontSize:12,color:'#6B6B6B'}}>{b.role} · {b.agent_verified?'✓ Verified':'Unverified'}</p>{b.rera_number&&<p style={{fontSize:11,color:'#9B9B9B'}}>RERA: {b.rera_number}</p>}</div>
                 <div style={{display:'flex',gap:8,alignItems:'center'}}>
-                  <button onClick={()=>adminVerifyAgent(b.id,!b.agent_verified).then(()=>adminGetBrokers().then(setBrokers))} style={BTN(b.agent_verified?'#6B6B6B':'#16A34A')}>{b.agent_verified?'Unverify':'Verify'}</button>
-                  <select value={b.role} onChange={e=>adminSetRole(b.id,e.target.value).then(()=>adminGetBrokers().then(setBrokers))} style={INP}>{['buyer','owner','agent','admin'].map(r=><option key={r} value={r}>{r}</option>)}</select>
+                  <button onClick={async()=>{try{await adminVerifyAgent(b.id,!b.agent_verified);setBrokers(await adminGetBrokers());}catch(e){alert((e as {message?:string})?.message??'Could not update verification.');}}} style={BTN(b.agent_verified?'#6B6B6B':'#16A34A')}>{b.agent_verified?'Unverify':'Verify'}</button>
+                  <select value={b.role} aria-label={'Role for '+(b.full_name??'user')} onChange={async e=>{const role=e.target.value;if(!confirm('Change this account role to '+role+'?'))return;try{await adminSetRole(b.id,role);setBrokers(await adminGetBrokers());}catch(err){alert((err as {message?:string})?.message??'Could not update account role.');}}} style={INP}>{['buyer','owner','agent'].map(r=><option key={r} value={r}>{r}</option>)}</select>
+                  <button onClick={async()=>{if(!confirm('Remove this person from the public agent/owner directory? Their account and data will be retained; role changes to buyer.'))return;try{await adminSetRole(b.id,'buyer');setBrokers(await adminGetBrokers());}catch(e){alert((e as {message?:string})?.message??'Could not remove from directory.');}}} style={{...BTN('#B91C1C'),fontSize:11}}>Remove from directory</button>
                 </div>
               </div>
             ))}
