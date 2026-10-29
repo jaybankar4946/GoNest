@@ -130,6 +130,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
   return (
     <div style={{background:'#F9FAFB',minHeight:'70vh'}}>
     <main style={{maxWidth:f.purpose ? 'none' : 1200,margin:'0 auto',padding:f.purpose ? '20px 16px 32px' : '36px 24px'}}>
+      <div style={{maxWidth:1200,margin:'0 auto'}}>
       <h1 style={{fontFamily:'var(--font-manrope), var(--font-display)',fontSize:28,fontWeight:800,letterSpacing:'-0.025em',color:'#111827',marginBottom:16}}>
         {f.purpose==='rent'?'Properties for rent':f.purpose==='sale'?'Properties for sale':'Search properties'}
       </h1>
@@ -141,6 +142,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
           setF(prev => ({...prev,q:values.q,purpose:values.purpose,cityId:values.cityId,localityId:values.localityId,pincode:values.pincode,landmark:values.q,beds:values.beds,baths:values.baths,type:values.type,min:values.min,max:values.max,minArea:values.minArea,maxArea:values.maxArea,furnishing:values.furnishing,availability:values.availability,amenities:values.amenities}));
         }}
       />
+      </div>
 
       {savedMsg&&<p role="status" style={{fontSize:13,color:'#065F46',background:'#ECFDF5',padding:'8px 12px',borderRadius:10,marginBottom:12}}>{savedMsg} <a href="/saved-searches" style={{textDecoration:'underline'}}>View saved searches</a></p>}
       <p style={{fontSize:13,color:'var(--gray-4)',marginBottom:12}}>
