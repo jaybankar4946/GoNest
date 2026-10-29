@@ -101,6 +101,10 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
       });
       setResults(p => [...p, ...r.listings]);
       setPage(nextPage);
+      setLoadError(null);
+    } catch (error) {
+      console.error('GoNest load-more search failed', error);
+      setLoadError('We could not load more properties. Please try again.');
     } finally { setLoadingMore(false); }
   };
 
