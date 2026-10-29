@@ -12,6 +12,7 @@ type Project = {
   project_category: string; construction_status: string; launch_date: string | null; expected_possession_date: string | null;
   total_units: number | null; configurations: unknown; published_price_min_inr: number | null; published_price_max_inr: number | null;
   price_observed_at: string | null; official_project_url: string | null; brochure_url: string | null;
+  cover_image_url: string | null; gallery_image_urls: string[]; image_source_url: string | null; rera_source_url: string | null; rera_checked_at: string | null;
   inventory_status: string; inventory_verified_at: string | null; verification_status: string; is_sample: boolean;
   developer?: { operating_brand?: string | null; website_url?: string | null } | { operating_brand?: string | null; website_url?: string | null }[] | null;
   city?: { name?: string } | { name?: string }[] | null; locality?: { name?: string } | { name?: string }[] | null;
@@ -22,13 +23,6 @@ const money = (n: number | null | undefined) => n == null ? "Request current pri
 const dateLabel = (s: string | null | undefined) => s ? new Date(s).toLocaleDateString("en-IN", { month: "long", year: "numeric" }) : "Not provided";
 const fresh = (s: string | null | undefined) => !!s && Date.now() - new Date(s).getTime() <= 14 * 86400000;
 function one<T>(v: T | T[] | null | undefined): T | null { return Array.isArray(v) ? v[0] ?? null : v ?? null; }
-function projectImages(name: string): string[] {
-  const n = name.toLowerCase();
-  if (n.includes("villa carino")) return ["https://www.houseofhiranandani.com/villa-carino-desk.jpg", "https://www.houseofhiranandani.com/villa-carnio-1-big.jpg"];
-  if (n.includes("solitaire")) return ["https://www.houseofhiranandani.com/solitiar_desk_bnr.jpg", "https://www.houseofhiranandani.com/solitaire_exterior_big_3.jpg"];
-  if (n.includes("delanna") || n.includes("delenna")) return ["https://www.houseofhiranandani.com/_next/image?q=75&url=%2Fdelenna-new-desk-bnrx1up.jpg&w=1200"];
-  return [];
-}
 
 export default function ProjectDetailPage({ id }: { id: string }) {
   const [project, setProject] = useState<Project | null>(null);
@@ -50,7 +44,7 @@ export default function ProjectDetailPage({ id }: { id: string }) {
     let live = true;
     (async () => {
       setLoading(true); setError("");
-      const projectSelect = "id,official_name,public_address,rera_number,project_category,construction_status,launch_date,expected_possession_date,total_units,configurations,published_price_min_inr,published_price_max_inr,price_observed_at,official_project_url,brochure_url,inventory_status,inventory_verified_at,verification_status,is_sample,developer:developers(operating_brand,website_url),city:cities(name),locality:localities(name)";
+      const projectSelect = "id,official_name,public_address,rera_number,project_category,construction_status,launch_date,expected_possession_date,total_units,configurations,published_price_min_inr,published_price_max_inr,price_observed_at,official_project_url,brochure_url,cover_image_url,gallery_image_urls,image_source_url,rera_source_url,rera_checked_at,inventory_status,inventory_verified_at,verification_status,is_sample,developer:developers(operating_brand,website_url),city:cities(name),locality:localities(name)";
       const homeSlugNames: Record<string, string> = {
         "villa-carino": "Villa Carino",
         "solitaire": "Solitaire",
@@ -92,7 +86,7 @@ export default function ProjectDetailPage({ id }: { id: string }) {
   const city = one(project?.city)?.name || "";
   const locality = one(project?.locality)?.name || "";
   const location = [locality, city].filter(Boolean).join(", ") || project?.public_address || "Location details not provided";
-  const images = useMemo(() => project ? projectImages(project.official_name) : [], [project]);
+  const images = useMemo(() => { if (!project) return []; const urls = [project.cover_image_url, ...(project.gallery_image_urls ?? [])].filter((url): url is string => typeof url === "string" && url.startsWith("https://")); return Array.from(new Set(urls)); }, [project]);
   const configurations = useMemo(() => {
     const raw = project?.configurations;
     if (!Array.isArray(raw)) return [];
