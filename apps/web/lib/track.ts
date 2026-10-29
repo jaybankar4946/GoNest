@@ -1,6 +1,7 @@
 import { supabase } from './supabase';
 
-export type TrackName = 'session_start' | 'search' | 'property_view' | 'save' | 'call_click' | 'whatsapp_click' | 'lead_submitted' | 'visit_requested';
+export type TrackName = 'session_start' | 'search' | 'property_view' | 'save' | 'call_click' | 'whatsapp_click' | 'lead_submitted' | 'visit_requested'
+  | 'supply_landing_view' | 'supply_role_click' | 'supply_account_type_chosen' | 'supply_agency_submitted' | 'supply_project_submitted' | 'supply_submit_failed';
 
 // Anonymous, fire-and-forget funnel event. Never sends names, phones, emails or free text.
 function sessionId(): string {

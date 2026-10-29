@@ -9,6 +9,7 @@ import {
   chooseAccountType, getCities, getLocalities, getMySubmissions, submitBrokerage, submitBuilderProject,
   uploadProjectImage, removeProjectImages,
 } from '@/lib/api';
+import { track } from '@/lib/track';
 import type { City, Locality } from '@/lib/types';
 
 type Want = 'owner' | 'agent' | 'builder';
@@ -36,6 +37,7 @@ const msgOf = (e: unknown) => {
   const m = (e as { message?: string } | null)?.message ?? '';
   return ERR[m] ?? (m ? `Could not save: ${m}` : 'Something went wrong. Please try again.');
 };
+const errCode = (e: unknown) => { const m = (e as { message?: string } | null)?.message ?? ''; return ERR[m] ? m : 'other'; };
 const isUrl = (v: string) => /^https?:\/\/[^\s]+$/i.test(v.trim());
 
 const card: React.CSSProperties = { border: '1px solid #E5E7EB', borderRadius: 20, padding: 24, background: '#fff', marginBottom: 20 };
@@ -102,8 +104,9 @@ function AgencyForm({ cities, onDone }: { cities: City[]; onDone: () => void }) 
     setBusy(true);
     try {
       await submitBrokerage({ name: f.name, website: f.website, phone: f.phone, enquiryUrl: f.enquiryUrl, address: f.address, cityId: f.cityId, rera: f.rera, localities: f.localities.split(',').map((x) => x.trim()).filter(Boolean) });
+      track('supply_agency_submitted');
       setOk(true); setF({ name: '', cityId: '', rera: '', website: '', phone: '', enquiryUrl: '', address: '', localities: '' }); onDone();
-    } catch (x) { setErr(msgOf(x)); } finally { setBusy(false); }
+    } catch (x) { track('supply_submit_failed', undefined, { kind: 'agency', code: errCode(x) }); setErr(msgOf(x)); } finally { setBusy(false); }
   };
   return (
     <form onSubmit={submit} style={card}>
@@ -164,8 +167,9 @@ function ProjectForm({ cities, userId, onDone }: { cities: City[]; userId: strin
           source_url: u.source.trim(), availability_status: u.availability, market_type: 'primary',
         })), mediaPaths: uploaded,
       });
+      track('supply_project_submitted', undefined, { photos: files.length, units: filled.length });
       setOk(true); setFiles([]); setUnits([]); setF((p) => ({ ...p, projectName: '', address: '', projectRera: '', officialUrl: '', localityId: '' })); onDone();
-    } catch (x) { await removeProjectImages(uploaded).catch(() => {}); setErr(msgOf(x)); } finally { setBusy(false); }
+    } catch (x) { await removeProjectImages(uploaded).catch(() => {}); track('supply_submit_failed', undefined, { kind: 'project', code: errCode(x) }); setErr(msgOf(x)); } finally { setBusy(false); }
   };
   return (
     <form onSubmit={submit} style={card}>
@@ -264,7 +268,7 @@ function SupplyInner() {
   const role = profile.role;
   const choose = async (r: Want) => {
     setBusy(true); setErr(null);
-    try { await chooseAccountType(r); await refresh(); } catch (x) { setErr(msgOf(x)); } finally { setBusy(false); }
+    try { await chooseAccountType(r); track('supply_account_type_chosen', undefined, { role: r }); await refresh(); } catch (x) { setErr(msgOf(x)); } finally { setBusy(false); }
   };
 
   if (role === 'buyer') {

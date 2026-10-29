@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
 import { useAuth } from '@/components/layout/AuthProvider';
-import { adminGetPendingBrokerages, adminGetPendingListings, adminGetAllListings, adminGetBrokers, adminGetAllLeads, adminGetAllVisits, adminGetStats, adminModerate, adminToggleFeatured, adminVerifyAgent, adminSetRole, adminGetReports, adminResolveReport, adminGetAuditLog, adminGetFunnel, adminGetLaunchInventoryDashboard, adminGetPendingProjects, adminGetAllProjects, adminReviewSubmission } from '@/lib/api';
+import { adminGetPendingBrokerages, adminGetSupplyFunnel, type SupplyFunnel, adminGetPendingListings, adminGetAllListings, adminGetBrokers, adminGetAllLeads, adminGetAllVisits, adminGetStats, adminModerate, adminToggleFeatured, adminVerifyAgent, adminSetRole, adminGetReports, adminResolveReport, adminGetAuditLog, adminGetFunnel, adminGetLaunchInventoryDashboard, adminGetPendingProjects, adminGetAllProjects, adminReviewSubmission } from '@/lib/api';
 import { imgUrl } from '@/lib/api';
 import { formatPrice, timeAgo } from '@/lib/format';
 const TABS=['queue','projects','agencies','listings','supply','brokers','leads','visits','reports','audit','funnel'] as const;
@@ -32,6 +32,7 @@ export default function AdminPage() {
   const[audit,setAudit]=useState<any[]>([]);
   const[funnel,setFunnel]=useState<{name:string;events:number;sessions:number}[]>([]);
   const[fdays,setFdays]=useState(7);
+  const[supplyFunnel,setSupplyFunnel]=useState<SupplyFunnel|null>(null);
   const[rnote,setRnote]=useState<Record<string,string>>({});
   const[stats,setStats]=useState<any>(null);
   const[launchInventory,setLaunchInventory]=useState<any>(null);
@@ -52,7 +53,7 @@ export default function AdminPage() {
     adminGetStats().then(setStats);
     adminGetLaunchInventoryDashboard().then(setLaunchInventory);
   },[]);
-  useEffect(()=>{adminGetFunnel(fdays).then(setFunnel);},[fdays]);
+  useEffect(()=>{adminGetFunnel(fdays).then(setFunnel);adminGetSupplyFunnel(fdays).then(setSupplyFunnel);},[fdays]);
   const moderate=async(id:string,status:string,vl:string,rej?:string)=>{setBusy(true);try{await adminModerate(id,status,vl,rej);setQueue(p=>p.filter(l=>l.id!==id));setListings(p=>p.map(l=>l.id===id?{...l,status,verification_level:vl}:l));}catch(e){alert((e as {message?:string})?.message??'Could not update this listing. Check permissions and try again.');}finally{setBusy(false);}};
   const TS=(t:string): React.CSSProperties=>({padding:'7px 18px',borderRadius:9999,fontSize:13,fontWeight:tab===t?600:400,color:tab===t?'#111':'#6B6B6B',background:tab===t?'#F7F7F7':'transparent',border:'none',cursor:'pointer'});
   if (loading) return <><Nav/><main style={{maxWidth:1100,margin:'0 auto',padding:'48px 24px',color:'#6B6B6B'}}>Checking administrator access…</main><Footer/></>;
@@ -393,6 +394,29 @@ export default function AdminPage() {
                   </div>);})}
               </div>
               <p style={{fontSize:12,color:'#6B6B6B',marginTop:10}}>Counts are anonymous and per browser session. Percentages are of all visitors. Use this to see where people drop off.</p>
+              {supplyFunnel&&(()=>{
+                const labels:[string,string][]=[['supply_landing_view','Opened List with GoNest'],['supply_role_click','Clicked a role button'],['supply_account_type_chosen','Confirmed account type'],['supply_agency_submitted','Submitted an agency'],['supply_project_submitted','Submitted a project'],['supply_submit_failed','Submission errors']];
+                const ev=(k:string)=>supplyFunnel.supply_events.find(e=>e.name===k);
+                const stat=(v:number,l:string)=><div style={{background:'#F7F7F7',borderRadius:12,padding:'12px 14px'}}><div style={{fontSize:20,fontWeight:700}}>{v}</div><div style={{fontSize:12,color:'#6B6B6B'}}>{l}</div></div>;
+                return(
+                  <div style={{marginTop:28}}>
+                    <h2 style={{fontSize:16,fontWeight:700,marginBottom:10}}>Supply funnel (last {supplyFunnel.days} days)</h2>
+                    <div style={{border:'1px solid #E5E5E5',borderRadius:12,overflow:'hidden'}}>
+                      {labels.map(([k,l],i)=><div key={k} style={{display:'flex',justifyContent:'space-between',padding:'11px 16px',borderTop:i?'1px solid #F0F0F0':'none',fontSize:13}}><span style={{fontWeight:600}}>{l}</span><span><b>{ev(k)?.people??0}</b> <span style={{color:'#6B6B6B'}}>people · {ev(k)?.events??0} events</span></span></div>)}
+                    </div>
+                    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))',gap:10,marginTop:12}}>
+                      {stat(supplyFunnel.accounts.builders,'Builder accounts')}{stat(supplyFunnel.accounts.agents,'Agent accounts')}{stat(supplyFunnel.accounts.owners,'Owner accounts')}
+                      {stat(supplyFunnel.submissions.projects_new,'Projects submitted')}{stat(supplyFunnel.submissions.agencies_new,'Agencies submitted')}
+                      {stat(supplyFunnel.submissions.projects_pending+supplyFunnel.submissions.agencies_pending,'Waiting for review')}{stat(supplyFunnel.submissions.projects_verified,'Verified projects')}
+                    </div>
+                    <h2 style={{fontSize:16,fontWeight:700,margin:'22px 0 10px'}}>Demand side (same period)</h2>
+                    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))',gap:10}}>
+                      {stat(supplyFunnel.demand.sessions,'Visitor sessions')}{stat(supplyFunnel.demand.searchers,'People who searched')}{stat(supplyFunnel.demand.property_viewers,'Viewed a property')}{stat(supplyFunnel.demand.enquiries,'Enquiries sent')}
+                    </div>
+                    <p style={{fontSize:12,color:'#6B6B6B',marginTop:10}}>Anonymous counts only. Review the weekly question: where do suppliers drop off, and are searchers finding anything?</p>
+                  </div>);
+              })()}
+
             </div>);
         })()}
       </main>

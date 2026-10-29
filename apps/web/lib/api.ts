@@ -474,6 +474,19 @@ export async function adminGetFunnel(days: number) {
   return (data ?? []) as { name: string; events: number; sessions: number }[];
 }
 
+export type SupplyFunnel = {
+  days: number;
+  supply_events: { name: string; events: number; people: number }[];
+  demand: { sessions: number; searchers: number; property_viewers: number; enquiries: number };
+  submissions: { projects_new: number; agencies_new: number; projects_pending: number; agencies_pending: number; projects_verified: number };
+  accounts: { builders: number; agents: number; owners: number };
+};
+export async function adminGetSupplyFunnel(days: number): Promise<SupplyFunnel | null> {
+  const { data, error } = await supabase.rpc('admin_supply_funnel', { p_days: days });
+  if (error) return null;
+  return data as SupplyFunnel;
+}
+
 // ---- Visit booking
 export async function getBookedSlots(listingId: string, date: string): Promise<string[]> {
   const { data } = await supabase.rpc('get_booked_slots', { p_listing: listingId, p_date: date });
