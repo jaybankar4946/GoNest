@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
 import { useAuth } from '@/components/layout/AuthProvider';
-import { adminGetPendingBrokerages, adminGetPendingListings, adminGetAllListings, adminGetBrokers, adminGetAllLeads, adminGetAllVisits, adminGetStats, adminModerate, adminToggleFeatured, adminVerifyAgent, adminSetRole, adminGetReports, adminResolveReport, adminGetAuditLog, adminGetFunnel, adminGetLaunchInventoryDashboard, adminGetPendingProjects, adminReviewSubmission } from '@/lib/api';
+import { adminGetPendingBrokerages, adminGetPendingListings, adminGetAllListings, adminGetBrokers, adminGetAllLeads, adminGetAllVisits, adminGetStats, adminModerate, adminToggleFeatured, adminVerifyAgent, adminSetRole, adminGetReports, adminResolveReport, adminGetAuditLog, adminGetFunnel, adminGetLaunchInventoryDashboard, adminGetPendingProjects, adminGetAllProjects, adminReviewSubmission } from '@/lib/api';
 import { imgUrl } from '@/lib/api';
 import { formatPrice, timeAgo } from '@/lib/format';
 const TABS=['queue','projects','agencies','listings','supply','brokers','leads','visits','reports','audit','funnel'] as const;
@@ -19,6 +19,7 @@ export default function AdminPage() {
   const[tab,setTab]=useState<Tab>('queue');
   const[queue,setQueue]=useState<any[]>([]);
   const[projectQueue,setProjectQueue]=useState<any[]>([]);
+  const[allProjects,setAllProjects]=useState<any[]>([]);
   const[projectNotes,setProjectNotes]=useState<Record<string,string>>({});
   const[agencyQueue,setAgencyQueue]=useState<any[]>([]);
   const[agencyNotes,setAgencyNotes]=useState<Record<string,string>>({});
@@ -40,6 +41,7 @@ export default function AdminPage() {
   useEffect(()=>{
     adminGetPendingListings().then(setQueue);
     adminGetPendingProjects().then(setProjectQueue).catch(()=>setProjectQueue([]));
+    adminGetAllProjects().then(setAllProjects).catch(()=>setAllProjects([]));
     adminGetPendingBrokerages().then(setAgencyQueue).catch(()=>setAgencyQueue([]));
     adminGetAllListings().then(setListings);
     adminGetBrokers().then(setBrokers);
@@ -51,7 +53,7 @@ export default function AdminPage() {
     adminGetLaunchInventoryDashboard().then(setLaunchInventory);
   },[]);
   useEffect(()=>{adminGetFunnel(fdays).then(setFunnel);},[fdays]);
-  const moderate=async(id:string,status:string,vl:string,rej?:string)=>{setBusy(true);await adminModerate(id,status,vl,rej);setQueue(p=>p.filter(l=>l.id!==id));setListings(p=>p.map(l=>l.id===id?{...l,status,verification_level:vl}:l));setBusy(false);};
+  const moderate=async(id:string,status:string,vl:string,rej?:string)=>{setBusy(true);try{await adminModerate(id,status,vl,rej);setQueue(p=>p.filter(l=>l.id!==id));setListings(p=>p.map(l=>l.id===id?{...l,status,verification_level:vl}:l));}catch(e){alert((e as {message?:string})?.message??'Could not update this listing. Check permissions and try again.');}finally{setBusy(false);}};
   const TS=(t:string): React.CSSProperties=>({padding:'7px 18px',borderRadius:9999,fontSize:13,fontWeight:tab===t?600:400,color:tab===t?'#111':'#6B6B6B',background:tab===t?'#F7F7F7':'transparent',border:'none',cursor:'pointer'});
   if (loading) return <><Nav/><main style={{maxWidth:1100,margin:'0 auto',padding:'48px 24px',color:'#6B6B6B'}}>Checking administrator access…</main><Footer/></>;
   if (!profile || profile.role!=='admin') return <><Nav/><main style={{maxWidth:1100,margin:'0 auto',padding:'48px 24px'}}><h1 style={{fontSize:22,fontWeight:700,marginBottom:8}}>Administrator access required</h1><p style={{fontSize:14,color:'#6B6B6B'}}>This page is available only to accounts with the administrator role.</p></main><Footer/></>;
@@ -217,10 +219,11 @@ export default function AdminPage() {
         {tab==='projects'&&(
           <section style={{display:'flex',flexDirection:'column',gap:12}}>
             <div style={{padding:16,border:'1px solid #E5E5E5',borderRadius:12,background:'#FAFAFA'}}>
-              <h2 style={{fontSize:17,fontWeight:700,marginBottom:5}}>Project verification queue</h2>
-              <p style={{fontSize:13,color:'#666',lineHeight:1.6}}>Review project identity and source evidence separately from unit availability. Verifying a project does not verify current inventory or pricing.</p>
+              <h2 style={{fontSize:17,fontWeight:700,marginBottom:5}}>Project review and inventory</h2>
+              <p style={{fontSize:13,color:'#666',lineHeight:1.6}}>Review real project records and their evidence. Verifying a project does not verify current inventory, pricing or individual units. Sample records are excluded.</p>
+              <p style={{fontSize:12,color:'#666',marginTop:8}}>{allProjects.length} real project records · {projectQueue.length} awaiting review</p>
             </div>
-            {projectQueue.length===0&&<p style={{fontSize:14,color:'#6B6B6B'}}>No pending non-sample projects were returned. Refresh the dashboard to check again.</p>}
+            {projectQueue.length===0&&<p style={{fontSize:14,color:'#6B6B6B'}}>No projects are awaiting review.</p>}
             {projectQueue.map((p:any)=>(
               <article key={p.id} style={{padding:16,border:'1px solid #E5E5E5',borderRadius:12}}>
                 <div style={{display:'flex',justifyContent:'space-between',gap:12,flexWrap:'wrap'}}>
@@ -254,6 +257,26 @@ export default function AdminPage() {
                 </div>
               </article>
             ))}
+            <div style={{padding:16,border:'1px solid #E5E5E5',borderRadius:12,marginTop:10}}>
+              <h3 style={{fontSize:15,fontWeight:700,marginBottom:8}}>All non-sample projects</h3>
+              {allProjects.filter((p:any)=>p.verification_status!=='pending').length===0&&<p style={{fontSize:13,color:'#6B6B6B'}}>No previously reviewed real projects.</p>}
+              <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                {allProjects.filter((p:any)=>p.verification_status!=='pending').map((p:any)=>(
+                  <article key={p.id} style={{display:'flex',justifyContent:'space-between',gap:12,flexWrap:'wrap',alignItems:'center',padding:12,border:'1px solid #E5E7EB',borderRadius:10}}>
+                    <div style={{minWidth:220,flex:1}}>
+                      <p style={{fontSize:13,fontWeight:700,color:'#111'}}>{p.official_name}</p>
+                      <p style={{fontSize:12,color:'#666',marginTop:3}}>{p.developer?.operating_brand??'Developer not linked'} · {[p.locality?.name,p.city?.name].filter(Boolean).join(', ')||'Location not recorded'}</p>
+                      <p style={{fontSize:11,color:'#666',marginTop:3}}>Status: {p.verification_status} · RERA: {p.rera_number||'Not recorded'}</p>
+                      {p.official_project_url&&<a href={p.official_project_url} target="_blank" rel="noreferrer" style={{fontSize:12,textDecoration:'underline',display:'inline-block',marginTop:4}}>Open source website ↗</a>}
+                    </div>
+                    <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+                      {p.verification_status!=='verified'&&<button disabled={busy||!p.official_project_url} onClick={async()=>{if(!confirm('Verify the project record only? Current prices and unit availability remain unverified.'))return;setBusy(true);try{await adminReviewSubmission('project',p.id,'verified','Re-reviewed from admin project inventory');setAllProjects(await adminGetAllProjects());}catch(e){alert((e as {message?:string})?.message??'Could not verify project.');}finally{setBusy(false);}}} style={BTN('#16A34A')}>Verify record</button>}
+                      {p.verification_status!=='rejected'&&<button disabled={busy} onClick={async()=>{if(!confirm('Reject this project record? This does not delete the record.'))return;setBusy(true);try{await adminReviewSubmission('project',p.id,'rejected','Rejected from admin project inventory');setAllProjects(await adminGetAllProjects());}catch(e){alert((e as {message?:string})?.message??'Could not reject project.');}finally{setBusy(false);}}} style={BTN('#DC2626')}>Reject record</button>}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
           </section>
         )}
         {tab==='listings'&&(
@@ -265,8 +288,9 @@ export default function AdminPage() {
                   <span style={SB(SC[l.status]??'#6B6B6B')}>{l.status.replace('_',' ')}</span>
                   <button onClick={()=>adminToggleFeatured(l.id,!l.featured).then(()=>setListings(p=>p.map(x=>x.id===l.id?{...x,featured:!x.featured}:x)))} style={{...BTN(l.featured?'#6B6B6B':'#2563EB'),fontSize:11}}>{l.featured?'Unfeature':'Feature'}</button>
                   {l.status==='pending_review'&&<button onClick={()=>moderate(l.id,'active','verified')} disabled={busy} style={{...BTN('#16A34A'),fontSize:11}}>Approve</button>}
-                  {l.status==='active'&&<button onClick={()=>{if(confirm('Suspend this listing? It will be hidden from the public.'))moderate(l.id,'suspended','unverified','Suspended by admin');}} disabled={busy} style={{...BTN('#DC2626'),fontSize:11}}>Suspend</button>}
-                  {l.status==='suspended'&&<button onClick={()=>moderate(l.id,'active','verified')} disabled={busy} style={{...BTN('#16A34A'),fontSize:11}}>Restore</button>}
+                  {l.status==='active'&&<button onClick={()=>{if(confirm('Suspend this listing? It will be hidden from public search.'))void moderate(l.id,'suspended','unverified','Suspended by admin');}} disabled={busy} style={{...BTN('#DC2626'),fontSize:11}}>Suspend</button>}
+                  {['active','suspended','rejected'].includes(l.status)&&<button onClick={()=>{if(confirm('Archive this listing? It will be removed from public search while keeping its record for audit.'))void moderate(l.id,'archived','unverified','Archived by admin');}} disabled={busy} style={{...BTN('#7C2D12'),fontSize:11}}>Archive</button>}
+                  {['suspended','archived'].includes(l.status)&&<button onClick={()=>{if(confirm('Restore this listing to public active status? Confirm the listing is current and accurate first.'))void moderate(l.id,'active','unverified','Restored by admin; verification requires review');}} disabled={busy} style={{...BTN('#16A34A'),fontSize:11}}>Restore</button>}
                 </div>
               </div>
             ))}
@@ -279,8 +303,9 @@ export default function AdminPage() {
               <div key={b.id} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 16px',border:'1px solid #E5E5E5',borderRadius:12}}>
                 <div><p style={{fontSize:14,fontWeight:600,color:'#111',marginBottom:2}}>{b.full_name??'—'}</p><p style={{fontSize:12,color:'#6B6B6B'}}>{b.role} · {b.agent_verified?'✓ Verified':'Unverified'}</p>{b.rera_number&&<p style={{fontSize:11,color:'#9B9B9B'}}>RERA: {b.rera_number}</p>}</div>
                 <div style={{display:'flex',gap:8,alignItems:'center'}}>
-                  <button onClick={()=>adminVerifyAgent(b.id,!b.agent_verified).then(()=>adminGetBrokers().then(setBrokers))} style={BTN(b.agent_verified?'#6B6B6B':'#16A34A')}>{b.agent_verified?'Unverify':'Verify'}</button>
-                  <select value={b.role} onChange={e=>adminSetRole(b.id,e.target.value).then(()=>adminGetBrokers().then(setBrokers))} style={INP}>{['buyer','owner','agent','admin'].map(r=><option key={r} value={r}>{r}</option>)}</select>
+                  <button onClick={async()=>{try{await adminVerifyAgent(b.id,!b.agent_verified);setBrokers(await adminGetBrokers());}catch(e){alert((e as {message?:string})?.message??'Could not update verification.');}}} style={BTN(b.agent_verified?'#6B6B6B':'#16A34A')}>{b.agent_verified?'Unverify':'Verify'}</button>
+                  <select value={b.role} aria-label={'Role for '+(b.full_name??'user')} onChange={async e=>{const role=e.target.value;if(!confirm('Change this account role to '+role+'?'))return;try{await adminSetRole(b.id,role);setBrokers(await adminGetBrokers());}catch(err){alert((err as {message?:string})?.message??'Could not update account role.');}}} style={INP}>{['buyer','owner','agent'].map(r=><option key={r} value={r}>{r}</option>)}</select>
+                  <button onClick={async()=>{if(!confirm('Remove this person from the public agent/owner directory? Their account and data will be retained; role changes to buyer.'))return;try{await adminSetRole(b.id,'buyer');setBrokers(await adminGetBrokers());}catch(e){alert((e as {message?:string})?.message??'Could not remove from directory.');}}} style={{...BTN('#B91C1C'),fontSize:11}}>Remove from directory</button>
                 </div>
               </div>
             ))}
