@@ -52,7 +52,13 @@ export default function NewProjectsPage() {
       if (!live) return;
       if (error) setLoadError("Project data could not be loaded right now. Please try again shortly.");
       else {
-        setProjects((data ?? []) as unknown as Project[]);
+        const records = ((data ?? []) as unknown as Project[]).map((project) => ({
+          ...project,
+          developer: Array.isArray(project.developer) ? project.developer[0] ?? null : project.developer,
+          city: Array.isArray(project.city) ? project.city[0] ?? null : project.city,
+          locality: Array.isArray(project.locality) ? project.locality[0] ?? null : project.locality,
+        }));
+        setProjects(records);
       }
       setLoading(false);
     })();
