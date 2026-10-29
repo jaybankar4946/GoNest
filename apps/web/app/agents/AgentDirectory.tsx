@@ -115,8 +115,8 @@ export function AgentDirectory({ agents }: Props) {
           <div className="grid items-end gap-7 lg:grid-cols-[1.15fr_1fr]">
             <div>
               <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-white/90 px-3 py-1.5 text-xs font-bold text-blue-800"><span aria-hidden="true">⌖</span> GoNest Agent Directory</p>
-              <h1 className="text-4xl font-extrabold tracking-tight text-slate-950 md:text-5xl">Find a real estate agent in Mumbai, Maharashtra</h1>
-              <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">Find local property professionals to help you buy, sell or rent. Review profile details and confirm registration before you engage.</p>
+              <h1 className="text-4xl font-extrabold tracking-tight text-slate-950 md:text-5xl">Find Verified Agents</h1>
+              <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">Browse agents with GoNest verification and registration details on file. Confirm current registration directly with MahaRERA before engaging.</p>
             </div>
             <div className="grid grid-cols-3 gap-3">
               {[{ value: licensedAgents.length.toLocaleString('en-IN'), label: 'Agent profiles' }, { value: totalListings.toLocaleString('en-IN'), label: 'Listed properties' }, { value: averageRating == null ? '—' : averageRating.toFixed(2), label: 'Average rating' }].map((stat) => (
@@ -141,49 +141,6 @@ export function AgentDirectory({ agents }: Props) {
         </div>
       </section>
 
-      <section className="bg-white py-12 sm:py-16">
-        <div className="mx-auto max-w-7xl px-5 sm:px-6 md:px-8">
-          <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <p className="mb-2 text-xs font-bold uppercase tracking-widest text-blue-700">Explore by location</p>
-              <h2 className="text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">Real estate agents near you</h2>
-              <p className="mt-2 max-w-2xl text-sm text-slate-600 sm:text-base">Compare local agencies and agent profiles. Public directory information is clearly distinguished from GoNest verification.</p>
-            </div>
-            <span className="shrink-0 text-sm font-semibold text-slate-600">{THANE_TOP_AGENTS.length} local businesses</span>
-          </div>
-          <div className="-mx-5 flex snap-x snap-mandatory gap-5 overflow-x-auto px-5 pb-4 sm:-mx-6 sm:px-6 md:mx-0 md:grid md:grid-cols-2 md:overflow-visible md:px-0 lg:grid-cols-3 xl:grid-cols-4">
-            {THANE_TOP_AGENTS.map((broker, index) => (
-              <article key={broker.name} className="group w-[82vw] max-w-[320px] shrink-0 snap-start overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg md:w-auto md:max-w-none">
-                <div className="relative flex h-44 items-center justify-center overflow-hidden bg-gradient-to-br from-slate-50 via-white to-blue-50">
-                  {broker.profileImageUrl ? (
-                    <img src={broker.profileImageUrl} alt={`${broker.name} business profile image`} loading="lazy" referrerPolicy="no-referrer" className="h-24 w-24 rounded-2xl border border-slate-200 bg-white p-2 object-contain shadow-sm" />
-                  ) : (
-                    <div aria-label={`${broker.name} logo placeholder`} className="flex h-24 w-24 items-center justify-center rounded-2xl border border-slate-200 bg-white text-3xl font-extrabold text-slate-500 shadow-sm">
-                      {broker.name.split(/\\s+/).map((part) => part[0]).slice(0, 2).join("").toUpperCase()}
-                    </div>
-                  )}
-                  <span className="absolute left-3 top-3 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-slate-800">#{index + 1} · Thane</span>
-                  <span className="absolute bottom-3 left-3 rounded-md bg-slate-950/75 px-2.5 py-1 text-[10px] font-semibold text-white">{broker.imageSourceLabel ?? "Business identity pending"}</span>
-                </div>
-                <div className="p-5">
-                  <h3 className="line-clamp-2 min-h-12 text-lg font-extrabold text-slate-950">{broker.name}</h3>
-                  <p className="mt-1 min-h-10 text-sm font-medium text-slate-600">{broker.area}</p>
-                  <div className="mt-2 flex items-center gap-2"><span className="text-amber-500">★</span><strong className="text-sm text-slate-950">{broker.rating.toFixed(1)}</strong><span className="text-sm text-slate-500">({broker.reviews.toLocaleString("en-IN")} public reviews)</span></div>
-                  <p className="mt-3 min-h-10 text-sm leading-5 text-slate-600">{broker.note}</p>
-                  <div className="mt-3 flex flex-wrap gap-1.5">{broker.services.map(service => <span key={service} className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">{service}</span>)}</div>
-                  <p className="mt-3 line-clamp-2 min-h-10 text-xs leading-5 text-slate-500">{broker.address}</p>
-                  <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4">
-                    <a href={businessMapsUrl(broker)} target="_blank" rel="noreferrer" className="text-sm font-bold text-blue-700 hover:text-blue-900">View business →</a>
-                    <a href={`https://www.google.com/search?q=${encodeURIComponent(broker.name + " Thane reviews")}`} target="_blank" rel="noreferrer" className="text-sm font-semibold text-slate-600 hover:text-slate-950">Read reviews ↗</a>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
-          <p className="mt-3 text-xs leading-5 text-slate-500">Public business-directory ratings are snapshots and may change. They are not GoNest reviews or endorsements. Images are business identity marks where sourced; otherwise a neutral initials placeholder is shown until a matching public team photo can be verified.</p>
-        </div>
-      </section>
-
       {topAgents.length > 0 && (
         <section className="mx-auto max-w-7xl px-5 pt-10 md:px-8">
           <h2 className="text-xl font-extrabold text-slate-950">Top agents</h2>
@@ -192,37 +149,6 @@ export function AgentDirectory({ agents }: Props) {
         </section>
       )}
 
-      <section className="mx-auto max-w-7xl px-5 py-8 md:px-8 md:py-10">
-        <div className="mb-5 flex items-center justify-between gap-3">
-          <h2 className="text-lg font-extrabold text-slate-950">MahaRERA registration details on file</h2>
-          <span className="rounded-full bg-blue-50 px-3 py-1.5 text-sm font-bold text-blue-800">{filtered.length} agents</span>
-        </div>
-        {filtered.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-6 py-16 text-center">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-100 text-2xl text-blue-700">⌕</div>
-            <h3 className="mt-4 text-xl font-extrabold text-slate-950">{licensedAgents.length === 0 ? 'Verified agent profiles are being onboarded' : 'No agents match these filters'}</h3>
-            <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-slate-600">{licensedAgents.length === 0 ? 'Only profiles with GoNest verification and a recorded registration number appear in this directory. Registration must still be checked against the official MahaRERA register.' : 'Try another search or reset the filters to see available agent profiles.'}</p>
-            <button type="button" onClick={() => { setSearch(''); setCity('All Cities'); setSpecialization('All Specializations'); setLanguage('Any Language'); setSort('Top Rated'); }} className="mt-5 rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700">Reset filters</button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {rest.map((agent) => (
-              <AgentCard key={agent.id} agent={agent} />
-            ))}
-          </div>
-        )}
-      </section>
-
-      <section className="mx-auto max-w-7xl px-5 py-8 md:px-8">
-        <div className="flex flex-col gap-5 rounded-2xl border border-blue-100 bg-gradient-to-r from-blue-50 to-white p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
-          <div className="max-w-2xl">
-            <p className="text-xs font-extrabold uppercase tracking-widest text-blue-700">For buyers and renters</p>
-            <h2 className="mt-2 text-2xl font-extrabold text-slate-950">Need help finding the right agent?</h2>
-            <p className="mt-2 text-sm leading-7 text-slate-600">Explore local professionals and review the information they have published. Contact details are available on individual profiles when provided.</p>
-          </div>
-          <Link href="/agents" className="inline-flex shrink-0 justify-center rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700">Explore agent profiles</Link>
-        </div>
-      </section>
       <section className="border-y border-slate-200 bg-slate-50 py-12 md:py-14">
         <div className="mx-auto max-w-7xl px-5 md:px-8">
           <div className="mx-auto max-w-3xl text-center">
@@ -235,25 +161,6 @@ export function AgentDirectory({ agents }: Props) {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-5 py-8 md:px-8">
-        <div className="mb-6">
-          <h2 className="text-lg font-extrabold text-slate-950">Popular areas for agents</h2>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {['Bandra', 'Andheri', 'Juhu', 'Thane', 'Navi Mumbai', 'Powai', 'Worli', 'Lower Parel', 'Kandivali', 'Dadar', 'Pune'].map((area) => <button key={area} type="button" onClick={() => { setLocation(area); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="rounded-full border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-800">{area}</button>)}
-          </div>
-        </div>
-        <div className="grid gap-8 md:grid-cols-[0.8fr_1.2fr]">
-          <div>
-            <h2 className="text-2xl font-extrabold text-slate-950">GoNest verified agent network</h2>
-            <p className="mt-3 text-sm leading-7 text-slate-600">Agent registration details and profile information should be verified before making a property decision. Use the official portal for current registration status.</p>
-            <a href="https://maharera.maharashtra.gov.in/" target="_blank" rel="noreferrer" className="mt-4 inline-flex rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50">MahaRERA Info ↗</a>
-          </div>
-          <div className="rounded-2xl border border-slate-200 bg-white p-5 md:p-7">
-            <h2 className="text-xl font-extrabold text-slate-950">Frequently asked questions</h2>
-            <div className="mt-4 divide-y divide-slate-100">{FAQ.map((item) => <details key={item.q} className="group py-4"><summary className="cursor-pointer list-none pr-6 font-semibold text-slate-800">{item.q}<span className="float-right text-blue-700 group-open:rotate-45">＋</span></summary><p className="mt-3 text-sm leading-6 text-slate-600">{item.a}</p></details>)}</div>
-          </div>
-        </div>
-      </section>
     </>
   );
 }
