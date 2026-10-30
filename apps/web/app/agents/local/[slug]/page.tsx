@@ -28,7 +28,7 @@ export default async function LocalAgencyProfilePage({ params }: { params: Promi
           <div className="bg-gradient-to-r from-slate-950 via-slate-800 to-blue-950 px-6 py-10 text-white md:px-10 md:py-14">
             <div className="flex flex-col gap-6 md:flex-row md:items-center">
               <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/20 bg-white p-2">
-                {broker.profileImageUrl ? <img src={broker.profileImageUrl} alt={broker.name + " public business identity"} className="h-full w-full object-contain" referrerPolicy="no-referrer" /> : <span className="text-3xl font-extrabold text-slate-600">{broker.name.split(/\\s+/).map((part) => part[0]).slice(0,2).join('').toUpperCase()}</span>}
+                {broker.profileImageUrl ? <img src={broker.profileImageUrl} alt={broker.name + " public business identity"} className="h-full w-full object-contain" referrerPolicy="no-referrer" /> : <span className="text-3xl font-extrabold text-slate-600">{broker.name.split(/\s+/).map((part) => part[0]).slice(0,2).join('').toUpperCase()}</span>}
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-200">Local agency · Thane</p>
