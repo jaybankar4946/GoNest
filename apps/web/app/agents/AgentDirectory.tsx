@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import type { Profile } from '@/lib/types';
-import { THANE_TOP_AGENTS, businessMapsUrl } from '@/lib/thane-agents';
+import { THANE_TOP_AGENTS, businessMapsUrl, businessSlug } from '@/lib/thane-agents';
 import { telHref, waHref } from '@/lib/contact';
 
 type Props = { agents: Profile[] };
@@ -102,6 +102,12 @@ export function AgentDirectory({ agents }: Props) {
     ? rated.reduce((sum, agent) => sum + (agent.rating ?? 0), 0) / rated.length
     : null;
   const totalListings = agentProfiles.reduce((sum, agent) => sum + (agent.total_listings ?? 0), 0);
+  const localBusinesses = useMemo(() => THANE_TOP_AGENTS.filter((broker) => {
+    const term = search.trim().toLowerCase();
+    const place = location.trim().toLowerCase();
+    const searchable = [broker.name, broker.area, broker.address, broker.note, ...broker.services].join(' ').toLowerCase();
+    return (!term || searchable.includes(term)) && (!place || searchable.includes(place)) && (city === 'All Cities' || city === 'Thane');
+  }).sort((a, b) => sort === 'Most Reviews' ? b.reviews - a.reviews : sort === 'Most Listings' ? a.name.localeCompare(b.name) : b.rating - a.rating || b.reviews - a.reviews), [search, location, city, sort]);
 
   return (
     <>
@@ -138,46 +144,55 @@ export function AgentDirectory({ agents }: Props) {
         </div>
       </section>
 
-      <section className="bg-white py-12 sm:py-16">
+      <section className="bg-slate-50 py-10 sm:py-14">
         <div className="mx-auto max-w-7xl px-5 sm:px-6 md:px-8">
           <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="mb-2 text-xs font-bold uppercase tracking-widest text-blue-700">Explore by location</p>
-              <h2 className="text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">Real estate agents near you</h2>
-              <p className="mt-2 max-w-2xl text-sm text-slate-600 sm:text-base">Compare local agencies and agent profiles. Public directory information is clearly distinguished from GoNest verification.</p>
+              <p className="mb-2 text-xs font-bold uppercase tracking-widest text-blue-700">Explore by location · Thane</p>
+              <h2 className="text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">Local real estate agencies</h2>
+              <p className="mt-2 max-w-2xl text-sm text-slate-600 sm:text-base">Browse local agency listings in a consistent GoNest profile format. Public business details and ratings are external directory information—not GoNest reviews or verification.</p>
             </div>
-            <span className="shrink-0 text-sm font-semibold text-slate-600">{THANE_TOP_AGENTS.length} local businesses</span>
+            <span className="rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-bold text-slate-700">{localBusinesses.length} businesses</span>
           </div>
-          <div className="-mx-5 flex snap-x snap-mandatory gap-5 overflow-x-auto px-5 pb-4 sm:-mx-6 sm:px-6 md:mx-0 md:grid md:grid-cols-2 md:overflow-visible md:px-0 lg:grid-cols-3 xl:grid-cols-4">
-            {THANE_TOP_AGENTS.map((broker, index) => (
-              <article key={broker.name} className="group w-[82vw] max-w-[320px] shrink-0 snap-start overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg md:w-auto md:max-w-none">
-                <div className="relative flex h-44 items-center justify-center overflow-hidden bg-gradient-to-br from-slate-50 via-white to-blue-50">
-                  {broker.profileImageUrl ? (
-                    <img src={broker.profileImageUrl} alt={`${broker.name} business profile image`} loading="lazy" referrerPolicy="no-referrer" className="h-24 w-24 rounded-2xl border border-slate-200 bg-white p-2 object-contain shadow-sm" />
-                  ) : (
-                    <div aria-label={`${broker.name} logo placeholder`} className="flex h-24 w-24 items-center justify-center rounded-2xl border border-slate-200 bg-white text-3xl font-extrabold text-slate-500 shadow-sm">
-                      {broker.name.split(/\\s+/).map((part) => part[0]).slice(0, 2).join("").toUpperCase()}
+          {localBusinesses.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center">
+              <h3 className="text-lg font-bold text-slate-900">No local agencies match these filters</h3>
+              <p className="mt-2 text-sm text-slate-600">Choose All Cities or Thane, or try another locality or agency name.</p>
+            </div>
+          ) : (
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {localBusinesses.map((broker, index) => (
+                <article key={broker.name} className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-lg">
+                  <div className="flex items-start gap-4 p-5">
+                    <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+                      {broker.profileImageUrl ? <img src={broker.profileImageUrl} alt={broker.name + " public business identity"} loading="lazy" referrerPolicy="no-referrer" className="h-full w-full object-contain p-2" /> : <span className="text-xl font-extrabold text-slate-500">{broker.name.split(/\s+/).map((part) => part[0]).slice(0,2).join('').toUpperCase()}</span>}
                     </div>
-                  )}
-                  <span className="absolute left-3 top-3 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-slate-800">#{index + 1} · Thane</span>
-                  <span className="absolute bottom-3 left-3 rounded-md bg-slate-950/75 px-2.5 py-1 text-[10px] font-semibold text-white">{broker.imageSourceLabel ?? "Business identity pending"}</span>
-                </div>
-                <div className="p-5">
-                  <h3 className="line-clamp-2 min-h-12 text-lg font-extrabold text-slate-950">{broker.name}</h3>
-                  <p className="mt-1 min-h-10 text-sm font-medium text-slate-600">{broker.area}</p>
-                  <div className="mt-2 flex items-center gap-2"><span className="text-amber-500">★</span><strong className="text-sm text-slate-950">{broker.rating.toFixed(1)}</strong><span className="text-sm text-slate-500">({broker.reviews.toLocaleString("en-IN")} public reviews)</span></div>
-                  <p className="mt-3 min-h-10 text-sm leading-5 text-slate-600">{broker.note}</p>
-                  <div className="mt-3 flex flex-wrap gap-1.5">{broker.services.map(service => <span key={service} className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">{service}</span>)}</div>
-                  <p className="mt-3 line-clamp-2 min-h-10 text-xs leading-5 text-slate-500">{broker.address}</p>
-                  <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4">
-                    <a href={businessMapsUrl(broker)} target="_blank" rel="noreferrer" className="text-sm font-bold text-blue-700 hover:text-blue-900">View business →</a>
-                    <a href={`https://www.google.com/search?q=${encodeURIComponent(broker.name + " Thane reviews")}`} target="_blank" rel="noreferrer" className="text-sm font-semibold text-slate-600 hover:text-slate-950">Read reviews ↗</a>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-[11px] font-bold uppercase tracking-wide text-slate-500">#{index + 1} · Thane</span>
+                        <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-800">Public listing · not GoNest verified</span>
+                      </div>
+                      <h3 className="mt-1 text-lg font-extrabold leading-tight text-slate-950">{broker.name}</h3>
+                      <p className="mt-1 text-sm text-slate-600">{broker.area}</p>
+                      <div className="mt-2 flex items-center gap-1.5"><span className="text-amber-500">★</span><strong className="text-sm text-slate-950">{broker.rating.toFixed(1)}</strong><span className="text-xs text-slate-500">({broker.reviews.toLocaleString('en-IN')} public reviews)</span></div>
+                    </div>
                   </div>
-                </div>
-              </article>
-            ))}
-          </div>
-          <p className="mt-3 text-xs leading-5 text-slate-500">Public business-directory ratings are snapshots and may change. They are not GoNest reviews or endorsements. Images are business identity marks where sourced; otherwise a neutral initials placeholder is shown until a matching public team photo can be verified.</p>
+                  <div className="flex-1 border-t border-slate-100 px-5 py-4">
+                    <p className="text-sm leading-5 text-slate-600">{broker.note}</p>
+                    <div className="mt-3 flex flex-wrap gap-1.5">{broker.services.map((service) => <span key={service} className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">{service}</span>)}</div>
+                    <p className="mt-3 text-xs leading-5 text-slate-500">{broker.address}</p>
+                    <p className="mt-3 text-[11px] text-slate-400">{broker.imageSourceLabel ?? 'Business identity pending'} · Rating source: {broker.ratingSource}</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 border-t border-slate-100 bg-slate-50 p-4">
+                    <Link href={`/agents/local/${businessSlug(broker.name)}`} className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-3 py-2.5 text-sm font-bold text-white hover:bg-blue-700">View agency profile</Link>
+                    <a href={businessMapsUrl(broker)} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-bold text-slate-700 hover:border-blue-300">Directions ↗</a>
+                    <a href={`https://www.google.com/search?q=${encodeURIComponent(broker.name + ' Thane reviews')}`} target="_blank" rel="noreferrer" className="col-span-2 text-center text-xs font-semibold text-slate-600 hover:text-blue-700">Read public reviews ↗</a>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+          <p className="mt-5 text-xs leading-5 text-slate-500">These are public business-directory records. Ratings, review counts and logos may change and are not endorsements. A business becomes a GoNest agent profile only after its representative claims the profile, supplies details and completes GoNest onboarding.</p>
         </div>
       </section>
 
