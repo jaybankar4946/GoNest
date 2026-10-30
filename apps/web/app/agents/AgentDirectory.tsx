@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import type { Profile } from '@/lib/types';
-import { THANE_TOP_AGENTS, businessMapsUrl, businessSlug } from '@/lib/thane-agents';
+import { THANE_TOP_AGENTS, businessSlug } from '@/lib/thane-agents';
 import { telHref, waHref } from '@/lib/contact';
 
 type Props = { agents: Profile[] };
@@ -185,9 +185,9 @@ export function AgentDirectory({ agents }: Props) {
                     <p className="mt-3 text-[11px] text-slate-400">{broker.imageSourceLabel ?? 'Business identity pending'} · Rating source: {broker.ratingSource}</p>
                   </div>
                   <div className="grid grid-cols-2 gap-2 border-t border-slate-100 bg-slate-50 p-4">
-                    <Link href={`/agents/local/${businessSlug(broker.name)}`} className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-3 py-2.5 text-sm font-bold text-white hover:bg-blue-700">View agency profile</Link>
-                    <a href={businessMapsUrl(broker)} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-bold text-slate-700 hover:border-blue-300">Directions ↗</a>
-                    <a href={`https://www.google.com/search?q=${encodeURIComponent(broker.name + ' Thane reviews')}`} target="_blank" rel="noreferrer" className="col-span-2 text-center text-xs font-semibold text-slate-600 hover:text-blue-700">Read public reviews ↗</a>
+                    <Link href={`/agents/local/${businessSlug(broker.name)}`} className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-3 py-2.5 text-sm font-bold text-white hover:bg-blue-700">View GoNest listing</Link>
+                    <Link href={`/search?location=${encodeURIComponent(broker.area.split(" · ")[0] + ", Thane")}`} className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-bold text-slate-700 hover:border-blue-300">Browse nearby homes</Link>
+                    <Link href="/list-with-gonest" className="col-span-2 text-center text-xs font-semibold text-blue-700 hover:text-blue-800">Are you this agency? Claim your GoNest profile →</Link>
                   </div>
                 </article>
               ))}
