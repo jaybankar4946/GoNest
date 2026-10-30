@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
 import { PropertyCard } from '@/components/property/PropertyCard';
-import { getAgentById, getAgentListings } from '@/lib/api';
+import { getAgentById, getAgentListings, imgUrl } from '@/lib/api';
 import { telHref, waHref } from '@/lib/contact';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
@@ -25,6 +25,7 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ i
       <main className="mx-auto max-w-7xl px-5 py-8 md:px-8 md:py-12">
         <Link href="/agents" className="text-sm font-semibold text-blue-700 hover:underline">← All agents & owners</Link>
         <section className="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          {listings[0]?.listing_images?.[0]?.storage_path && <div className="relative h-48 w-full overflow-hidden bg-slate-100 md:h-64"><img src={imgUrl(listings[0].listing_images[0].storage_path)} alt={`Property listed by ${agent.full_name ?? "this agent"}`} className="h-full w-full object-cover" /><span className="absolute bottom-3 left-4 rounded-full bg-slate-950/75 px-3 py-1.5 text-xs font-semibold text-white">Property from this agent’s GoNest inventory</span></div>}
           <div className="flex flex-col gap-6 p-6 md:flex-row md:items-start md:p-8">
             <div className="flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-100 bg-slate-100 text-4xl font-extrabold text-slate-500">
               {agent.avatar_url ? <img src={agent.avatar_url} alt="" className="h-full w-full object-cover" /> : (agent.full_name ?? 'G').charAt(0).toUpperCase()}
