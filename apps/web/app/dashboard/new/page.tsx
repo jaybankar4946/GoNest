@@ -1,4 +1,5 @@
 'use client';
+import dynamic from 'next/dynamic';
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/layout/AuthProvider';
@@ -9,6 +10,7 @@ const STEPS=['Basics','Location','Price','Photos','Amenities','Review'] as const
 const AMENITIES=['Lift','Parking','Security / CCTV','Power backup','Gym','Swimming pool','Clubhouse','Children play area','Garden','Gated community','24x7 water supply','Piped gas','Intercom','Visitor parking'];
 const inp: React.CSSProperties={width:'100%',padding:'11px 14px',border:'1px solid #E5E5E5',borderRadius:12,fontSize:14,outline:'none',background:'#fff'};
 const lbl: React.CSSProperties={fontSize:13,fontWeight:600,color:'#111',marginBottom:6,display:'block'};
+const PinPicker=dynamic(()=>import('@/components/property/PinPicker'),{ssr:false});
 export default function NewListingPage() {
   const router=useRouter();
   const{user,profile,loading:authLoading,refresh}=useAuth();
@@ -18,16 +20,18 @@ export default function NewListingPage() {
   const[cities,setCities]=useState<any[]>([]);
   const[localities,setLocalities]=useState<any[]>([]);
   const[images,setImages]=useState<File[]>([]);
+  const[pin,setPin]=useState<[number,number]|null>(null);
   const[saving,setSaving]=useState(false);
   const[err,setErr]=useState<string|null>(null);
   const[f,setF]=useState({purpose:'sale',property_type:'apartment',title:'',description:'',bedrooms:1,bathrooms:1,balconies:0,sqft:'',furnishing:'',facing:'',city_id:'',locality_id:'',address_line:'',landmark:'',neighbourhood:'',pincode:'',price:'',maintenance_monthly:'',security_deposit:'',price_negotiable:false,brokerage:'none',floor_number:'',total_floors:'',property_age:'',amenities:[] as string[]});
   useEffect(()=>{getCities().then(setCities);},[]);
   useEffect(()=>{if(!f.city_id){setLocalities([]);return;}getLocalities(f.city_id).then(setLocalities);},[f.city_id]);
   const upd=useCallback(<K extends keyof typeof f>(k:K,v:(typeof f)[K])=>setF(p=>({...p,[k]:v})),[]);
-  const canNext=()=>{if(step===0)return f.title.trim().length>3;if(step===1)return!!f.city_id&&!!f.locality_id;if(step===2)return!!f.price&&Number(f.price)>0;if(step===3)return images.length>0;return true;};
+  const canNext=()=>{if(step===0)return f.title.trim().length>=10&&f.description.trim().length>=40;if(step===1)return!!f.city_id&&!!f.locality_id;if(step===2)return!!f.price&&Number(f.price)>0;if(step===3)return images.length>0;return true;};
   const submit=async()=>{
     if(!user)return;
-    if(f.title.trim().length<4){setStep(0);setErr('Add a clear property title with at least 4 characters.');return;}
+    if(f.title.trim().length<10){setStep(0);setErr('Add a clear property title of at least 10 characters, for example "2 BHK flat near the station".');return;}
+    if(f.description.trim().length<40){setStep(0);setErr('Add a description of at least 40 characters so customers know what to expect.');return;}
     if(!f.city_id||!f.locality_id){setStep(1);setErr('Choose a city and locality so customers can find your property.');return;}
     if(!Number.isFinite(Number(f.price))||Number(f.price)<=0){setStep(2);setErr('Enter a valid price greater than zero.');return;}
     if(images.length===0){setStep(3);setErr('Add at least one genuine property photo before submitting.');return;}
@@ -35,7 +39,7 @@ export default function NewListingPage() {
     let listingId:string|null=null;
     const uploadedPaths:string[]=[];
     try{
-      listingId=await createListing({posted_by:user.id,poster_type:profile?.role==='agent'?'agent':'owner',title:f.title.trim(),description:f.description.trim()||null,property_type:f.property_type,purpose:f.purpose,city_id:f.city_id,locality_id:f.locality_id,address_line:f.address_line.trim()||null,landmark:f.landmark.trim()||null,neighbourhood:f.neighbourhood.trim()||null,pincode:f.pincode.trim()||null,price:Number(f.price),maintenance_monthly:f.maintenance_monthly?Number(f.maintenance_monthly):null,security_deposit:f.security_deposit?Number(f.security_deposit):null,price_negotiable:f.price_negotiable,brokerage:f.brokerage,bedrooms:f.bedrooms,bathrooms:f.bathrooms,balconies:f.balconies,sqft:f.sqft?Number(f.sqft):null,furnishing:f.furnishing||null,facing:f.facing||null,floor_number:f.floor_number?Number(f.floor_number):null,total_floors:f.total_floors?Number(f.total_floors):null,property_age:f.property_age?Number(f.property_age):null,amenities:f.amenities});
+      listingId=await createListing({posted_by:user.id,latitude:pin?pin[0]:null,longitude:pin?pin[1]:null,poster_type:profile?.role==='agent'?'agent':'owner',title:f.title.trim(),description:f.description.trim()||null,property_type:f.property_type,purpose:f.purpose,city_id:f.city_id,locality_id:f.locality_id,address_line:f.address_line.trim()||null,landmark:f.landmark.trim()||null,neighbourhood:f.neighbourhood.trim()||null,pincode:f.pincode.trim()||null,price:Number(f.price),maintenance_monthly:f.maintenance_monthly?Number(f.maintenance_monthly):null,security_deposit:f.security_deposit?Number(f.security_deposit):null,price_negotiable:f.price_negotiable,brokerage:f.brokerage,bedrooms:f.bedrooms,bathrooms:f.bathrooms,balconies:f.balconies,sqft:f.sqft?Number(f.sqft):null,furnishing:f.furnishing||null,facing:f.facing||null,floor_number:f.floor_number?Number(f.floor_number):null,total_floors:f.total_floors?Number(f.total_floors):null,property_age:f.property_age?Number(f.property_age):null,amenities:f.amenities});
       for(let i=0;i<images.length;i++)uploadedPaths.push(await uploadListingImage(user.id,listingId,images[i],i));
       router.push('/dashboard?listingSubmitted=1');
     }catch(e){
@@ -135,6 +139,9 @@ export default function NewListingPage() {
             <div><label style={lbl}>PIN code <span style={{color:'#9B9B9B',fontWeight:400}}>(optional)</span></label><input inputMode="numeric" maxLength={6} placeholder="e.g. 400607" value={f.pincode} onChange={e=>upd('pincode',e.target.value.replace(/\D/g,'').slice(0,6))} style={inp}/></div>
             <div><label style={lbl}>Landmark <span style={{color:'#9B9B9B',fontWeight:400}}>(optional)</span></label><input placeholder="Near metro, mall, etc." value={f.landmark} onChange={e=>upd('landmark',e.target.value)} style={inp}/></div>
             <div><label style={lbl}>Exact address <span style={{color:'#9B9B9B',fontWeight:400}}>(shown only to interested buyers)</span></label><input placeholder="Building name, street" value={f.address_line} onChange={e=>upd('address_line',e.target.value)} style={inp}/></div>
+            {f.locality_id&&<div><label style={lbl}>Drop a map pin <span style={{color:'#9B9B9B',fontWeight:400}}>(recommended)</span></label>
+              <PinPicker center={[Number((localities.find((l:any)=>l.id===f.locality_id) as any)?.latitude??19.076),Number((localities.find((l:any)=>l.id===f.locality_id) as any)?.longitude??72.8777)]} pin={pin} onPick={setPin}/>
+              <p style={{fontSize:12,color:'#6B6B6B',marginTop:6}}>{pin?'Pin placed. Drag it to adjust.':'Click the map to place the pin.'} The pin is shown publicly, so place it on the nearest main road or landmark if you prefer not to show the exact building.</p></div>}
           </div>
         )}
         {step===2&&(
@@ -183,6 +190,8 @@ export default function NewListingPage() {
             </div>
           </div>
         )}
+        {step===0&&!canNext()&&<p style={{fontSize:12,color:'#B45309',marginTop:12}}>To continue: a title of 10+ characters ({f.title.trim().length}/10) and a description of 40+ characters ({f.description.trim().length}/40).</p>}
+        {step===5&&(()=>{const w:string[]=[];const m=f.title.match(/(\d)\s*bhk/i);if(m&&Number(m[1])!==Number(f.bedrooms))w.push(`Your title says ${m[1]} BHK but bedrooms is set to ${f.bedrooms}.`);if(!f.sqft)w.push('Area (sq ft) is blank, which customers filter on.');if(!f.furnishing)w.push('Furnishing is not selected.');if(!pin)w.push('No map pin, so the map will only show the general area.');if(images.length<3)w.push('Listings with 3 or more photos get more enquiries.');return w.length?<div style={{border:'1px solid #FDE68A',background:'#FFFBEB',borderRadius:12,padding:'12px 14px',marginTop:12}}><p style={{fontSize:13,fontWeight:700,color:'#92400E',marginBottom:6}}>Before you submit, consider fixing:</p>{w.map(x=><p key={x} style={{fontSize:12,color:'#92400E'}}>• {x}</p>)}</div>:null;})()}
         {err&&<p style={{fontSize:13,color:'#DC2626',marginTop:16}}>{err}</p>}
         <div style={{display:'flex',justifyContent:'space-between',marginTop:36}}>
           <button onClick={()=>setStep(i=>Math.max(0,i-1))} disabled={step===0} style={{padding:'10px 20px',borderRadius:9999,fontSize:13,fontWeight:500,border:'1px solid #E5E5E5',color:'#111',cursor:'pointer',opacity:step===0?0:1}}>Back</button>

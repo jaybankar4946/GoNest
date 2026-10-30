@@ -26,6 +26,14 @@ export const THANE_TOP_AGENTS: ThaneBroker[] = [
   { name: 'Swagat Properties', area: 'Kolshet Road · Dhokali', address: 'Shop 7, Kavyadhara Complex, Kolshet Road, Dhokali, Thane West 400607', rating: 4.9, reviews: 6, services: ['Buy', 'Sell', 'Rent'], note: 'Property consultant and brokerage', mapQuery: 'Swagat Properties Thane West', ratingSource: 'Public business-directory snapshot' },
 ];
 
+export function businessSlug(name: string) {
+  return name.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+export function getThaneBrokerBySlug(slug: string) {
+  return THANE_TOP_AGENTS.find((broker) => businessSlug(broker.name) === slug) ?? null;
+}
+
 export function businessMapsUrl(broker: Pick<ThaneBroker, 'mapQuery'>) {
   return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(broker.mapQuery);
 }
