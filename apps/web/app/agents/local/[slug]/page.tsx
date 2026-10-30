@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
-import { THANE_TOP_AGENTS, getThaneBrokerBySlug, businessMapsUrl } from '@/lib/thane-agents';
+import { THANE_TOP_AGENTS, getThaneBrokerBySlug } from '@/lib/thane-agents';
 
 export function generateStaticParams() {
   return THANE_TOP_AGENTS.map((broker) => ({ slug: broker.name.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') }));
@@ -44,29 +44,37 @@ export default async function LocalAgencyProfilePage({ params }: { params: Promi
           <div className="grid gap-8 p-6 md:grid-cols-[1.3fr_0.7fr] md:p-10">
             <div>
               <h2 className="text-xl font-extrabold text-slate-950">About this business</h2>
-              <p className="mt-3 text-sm leading-7 text-slate-600">{broker.note}. Public listing information is provided for discovery and has not been independently verified by GoNest.</p>
+              <p className="mt-3 text-sm leading-7 text-slate-600">{broker.note}. This directory profile is a GoNest discovery listing created from public business information. The business has not yet claimed this profile or completed GoNest verification.</p>
               <h3 className="mt-7 text-sm font-extrabold uppercase tracking-wide text-slate-500">Services listed</h3>
               <div className="mt-3 flex flex-wrap gap-2">{broker.services.map((service) => <span key={service} className="rounded-full bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-700">{service}</span>)}</div>
               <h3 className="mt-7 text-sm font-extrabold uppercase tracking-wide text-slate-500">Business address</h3>
               <p className="mt-3 text-sm leading-7 text-slate-700">{broker.address}</p>
             </div>
             <aside className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-              <h2 className="text-lg font-extrabold text-slate-950">Public reputation</h2>
+              <h2 className="text-lg font-extrabold text-slate-950">Public rating information</h2>
               <p className="mt-3 text-3xl font-extrabold text-slate-950">★ {broker.rating.toFixed(1)}</p>
               <p className="mt-1 text-sm text-slate-600">{broker.reviews.toLocaleString('en-IN')} public reviews</p>
-              <p className="mt-3 text-xs leading-5 text-slate-500">Source: {broker.ratingSource}. This is not a GoNest rating or endorsement.</p>
+              <p className="mt-3 text-xs leading-5 text-slate-500">Source: {broker.ratingSource}. Displayed as third-party public information, not a GoNest customer rating.</p>
               <div className="mt-5 grid gap-2">
-                <a href={businessMapsUrl(broker)} target="_blank" rel="noreferrer" className="rounded-xl bg-blue-600 px-4 py-3 text-center text-sm font-bold text-white hover:bg-blue-700">View on Google Maps ↗</a>
-                <a href={`https://www.google.com/search?q=${encodeURIComponent(broker.name + ' Thane reviews')}`} target="_blank" rel="noreferrer" className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-center text-sm font-bold text-slate-800 hover:border-blue-300">Read public reviews ↗</a>
-                {broker.websiteUrl && <a href={broker.websiteUrl} target="_blank" rel="noreferrer" className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-center text-sm font-bold text-slate-800 hover:border-blue-300">Official website ↗</a>}
+                <Link href={"/search?location=" + encodeURIComponent(broker.area.split(" · ")[0] + ", Thane")} className="rounded-xl bg-blue-600 px-4 py-3 text-center text-sm font-bold text-white hover:bg-blue-700">Explore homes in {broker.area.split(" · ")[0]} →</Link>
+                <Link href="/agents" className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-center text-sm font-bold text-slate-800 hover:border-blue-300">Compare local professionals</Link>
               </div>
             </aside>
           </div>
         </section>
+        <section className="mt-8">
+          <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+            <div><p className="text-xs font-bold uppercase tracking-widest text-blue-700">Explore this locality</p><h2 className="mt-2 text-2xl font-extrabold text-slate-950">Homes around {broker.area.split(" · ")[0]}</h2><p className="mt-2 text-sm text-slate-600">Browse current GoNest property listings in the same neighbourhood.</p></div>
+            <Link href={"/search?location=" + encodeURIComponent(broker.area.split(" · ")[0] + ", Thane")} className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-blue-700">View nearby homes →</Link>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-3">
+            {["Buy homes","Rent homes","New projects"].map((label, i) => <Link key={label} href={i===2?"/projects":"/search?type="+(i===0?"sale":"rent")+"&location="+encodeURIComponent(broker.area.split(" · ")[0]+", Thane")} className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:border-blue-300 hover:shadow-md"><span className="text-xs font-bold uppercase tracking-wide text-blue-700">GoNest property discovery</span><h3 className="mt-2 text-lg font-extrabold text-slate-950">{label}</h3><p className="mt-2 text-sm text-slate-600">See available inventory, details and enquiry options on GoNest.</p><span className="mt-4 inline-block text-sm font-bold text-blue-700">Explore listings →</span></Link>)}
+          </div>
+        </section>
         <section className="mt-8 rounded-2xl border border-blue-100 bg-blue-50 p-6 md:p-8">
           <h2 className="text-xl font-extrabold text-slate-950">Is this your agency?</h2>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">Claim your presence on GoNest by creating an agent or brokerage account. Add your team, genuine property inventory, contact details and registration information for review. This public directory entry is not a claimed GoNest account.</p>
-          <Link href="/list-with-gonest" className="mt-5 inline-flex rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700">Claim / list with GoNest</Link>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">Manage this GoNest listing. Claim the agency profile to add your team, publish genuine property inventory, receive buyer and tenant enquiries, and manage visits from one dashboard. Add your team, genuine property inventory, contact details and registration information for review. This public directory entry is not a claimed GoNest account.</p>
+          <Link href="/list-with-gonest" className="mt-5 inline-flex rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700">Claim this agency profile</Link>
         </section>
       </main>
       <Footer />
