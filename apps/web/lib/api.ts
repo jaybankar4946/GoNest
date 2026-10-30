@@ -333,9 +333,32 @@ export async function getPublicBrokerages() {
 }
 
 export async function getAgents(): Promise<Profile[]> {
-  const { data } = await supabase.from('profiles').select(PUBLIC_PROFILE)
+  const { data, error } = await supabase.from('profiles').select(PUBLIC_PROFILE)
     .in('role', ['agent','owner']).order('created_at', { ascending: false });
-  return (data ?? []) as Profile[];
+  if (error) {
+    console.error('Could not load public agent profiles', error.message);
+    return [];
+  }
+
+  // Keep incomplete/test accounts out of the public directory. A profile needs
+  // a full name or substantive professional details; never invent missing data.
+  return ((data ?? []) as Profile[]).filter((profile) => {
+    if (profile.role !== 'agent') return true;
+    const name = (profile.full_name ?? '').trim().replace(/\\s+/g, ' ');
+    const hasFullName = name.split(' ').filter(Boolean).length >= 2;
+    const hasProfessionalDetails = Boolean(
+      profile.avatar_url ||
+      profile.agency_name?.trim() ||
+      profile.rera_number?.trim() ||
+      profile.bio?.trim() ||
+      (profile.total_listings ?? 0) > 0 ||
+      (profile.review_count ?? 0) > 0 ||
+      profile.rating != null ||
+      profile.service_localities?.length ||
+      profile.service_pincodes?.length
+    );
+    return hasFullName && hasProfessionalDetails;
+  });
 }
 export async function getAgentById(id: string): Promise<Profile | null> {
   const { data } = await supabase.from('profiles').select(PUBLIC_PROFILE).eq('id', id).maybeSingle();

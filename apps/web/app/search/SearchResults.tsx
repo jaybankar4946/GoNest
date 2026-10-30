@@ -22,6 +22,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
   const [text, setText] = useState(init.q ?? '');
   const runText = () => { const t = parseQuery(text); setF(p => ({ ...p, q: t.q, purpose: t.purpose ?? p.purpose, beds: t.beds ?? '', type: t.type ?? '', max: t.maxPrice ? String(t.maxPrice) : '', min: t.minPrice ? String(t.minPrice) : '' })); };
   const [saved, setSaved] = useState<Set<string>>(new Set());
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [results, setResults] = useState<ListingFull[]>([]);
   const [total,   setTotal]   = useState(0);
   const [page,    setPage]    = useState(1);
@@ -145,6 +146,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
           <option value="">Any city</option>
           {cities.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
+        {f.cityId && <select style={sel} value={f.localityId} onChange={e=>upd('localityId',e.target.value)}><option value="">Any locality</option>{localities.map(l=><option key={l.id} value={l.id}>{l.name}</option>)}</select>}
         <select style={sel} value={f.beds} onChange={e=>upd('beds',e.target.value)}>
           <option value="">Any BHK</option>
           {['1','2','3','4'].map(n=><option key={n} value={n}>{n}+ BHK</option>)}
@@ -160,6 +162,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
           {(f.purpose==='rent' ? [15000,25000,40000,60000,100000] : [5000000,10000000,20000000,50000000])
             .map(n=><option key={n} value={n}>Up to {formatPrice(n, f.purpose==='rent'?'rent':'sale')}</option>)}
         </select>
+        <button type="button" aria-expanded={showAdvanced} onClick={()=>setShowAdvanced(v=>!v)} style={{...sel,fontWeight:600,background:showAdvanced?'#EFF6FF':'#fff',borderColor:showAdvanced?'#2563EB':'#E5E7EB',color:showAdvanced?'#1D4ED8':'#111827'}}>More filters {showAdvanced?'−':'+'}</button>
         <button onClick={saveThis} style={{...sel,fontWeight:600,color:'var(--primary)',borderColor:'var(--primary)'}}>Save this search</button>
         <select style={sel} value={f.sort} onChange={e=>upd('sort',e.target.value as typeof f.sort)}>
           <option value="newest">Newest</option>
@@ -173,6 +176,19 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
           {viewBtn('map', MapIcon, 'Map')}
         </div>
       </div>
+
+      {showAdvanced && <section aria-label="Advanced property filters" style={{background:'#fff',border:'1px solid #DCE3EC',borderRadius:18,padding:18,marginBottom:18,boxShadow:'0 8px 24px rgba(15,23,42,.05)'}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:12,marginBottom:14}}><div><h2 style={{fontSize:16,fontWeight:800,color:'#111827'}}>More ways to find your home</h2><p style={{fontSize:12,color:'#64748B',marginTop:3}}>Filters apply to both the property cards and map results.</p></div><button type="button" onClick={()=>setF(p=>({...p,baths:'',minArea:'',maxArea:'',availability:'',amenities:[],furnishing:'',min:''}))} style={{fontSize:12,fontWeight:700,textDecoration:'underline',color:'#475569'}}>Clear advanced filters</button></div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(155px,1fr))',gap:12}}>
+          <label style={{fontSize:12,fontWeight:700,color:'#475569'}}>Minimum budget<input aria-label="Minimum budget" type="number" min="0" value={f.min} onChange={e=>upd('min',e.target.value)} placeholder="₹ Min" style={{...sel,display:'block',width:'100%',marginTop:6,boxSizing:'border-box',background:'#fff'}} /></label>
+          <label style={{fontSize:12,fontWeight:700,color:'#475569'}}>Bathrooms<select aria-label="Bathrooms" value={f.baths} onChange={e=>upd('baths',e.target.value)} style={{...sel,display:'block',width:'100%',marginTop:6,background:'#fff'}}><option value="">Any</option>{['1','2','3','4'].map(n=><option key={n} value={n}>{n}+ bathrooms</option>)}</select></label>
+          <label style={{fontSize:12,fontWeight:700,color:'#475569'}}>Min area (sq ft)<input type="number" min="0" value={f.minArea} onChange={e=>upd('minArea',e.target.value)} placeholder="Any" style={{...sel,display:'block',width:'100%',marginTop:6,boxSizing:'border-box',background:'#fff'}} /></label>
+          <label style={{fontSize:12,fontWeight:700,color:'#475569'}}>Max area (sq ft)<input type="number" min="0" value={f.maxArea} onChange={e=>upd('maxArea',e.target.value)} placeholder="Any" style={{...sel,display:'block',width:'100%',marginTop:6,boxSizing:'border-box',background:'#fff'}} /></label>
+          <label style={{fontSize:12,fontWeight:700,color:'#475569'}}>Furnishing<select value={f.furnishing} onChange={e=>upd('furnishing',e.target.value)} style={{...sel,display:'block',width:'100%',marginTop:6,background:'#fff'}}><option value="">Any</option><option value="unfurnished">Unfurnished</option><option value="semi-furnished">Semi-furnished</option><option value="fully-furnished">Fully furnished</option></select></label>
+          <label style={{fontSize:12,fontWeight:700,color:'#475569'}}>Availability<select value={f.availability} onChange={e=>upd('availability',e.target.value)} style={{...sel,display:'block',width:'100%',marginTop:6,background:'#fff'}}><option value="">Any</option><option value="now">Available now</option><option value="30">Available within 30 days</option><option value="90">Available within 90 days</option></select></label>
+        </div>
+        <div style={{marginTop:16}}><p style={{fontSize:12,fontWeight:800,color:'#475569',marginBottom:9}}>Amenities</p><div style={{display:'flex',gap:8,flexWrap:'wrap'}}>{['Parking','Lift','Security','Gym','Swimming pool','Balcony','Power backup','Pet friendly'].map(a=>{const key=a.toLowerCase().replace(/ /g,'_');const on=f.amenities.includes(key);return <button type="button" key={key} aria-pressed={on} onClick={()=>setF(p=>({...p,amenities:on?p.amenities.filter(x=>x!==key):[...p.amenities,key]}))} style={{padding:'8px 12px',borderRadius:999,border:'1px solid '+(on?'#2563EB':'#D1D5DB'),background:on?'#EFF6FF':'#fff',color:on?'#1D4ED8':'#374151',fontSize:12,fontWeight:600}}>{on?'✓ ':''}{a}</button>})}</div></div>
+      </section>}
 
       {savedMsg&&<p role="status" style={{fontSize:13,color:'#065F46',background:'#ECFDF5',padding:'8px 12px',borderRadius:10,marginBottom:12}}>{savedMsg} <a href="/saved-searches" style={{textDecoration:'underline'}}>View saved searches</a></p>}
       <p style={{fontSize:13,color:'var(--gray-4)',marginBottom:12}}>
@@ -226,11 +242,11 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
           </div>
           <div style={{minWidth:0,order:2}}>
             <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:'20px 14px'}}>
-              {results.map(l=><PropertyCard key={l.id} listing={l} onQuickView={setQuickViewId} isSaved={saved.has(l.id)} onToggle={toggle} />)}
+              {results.map(l=><div key={l.id} onMouseEnter={() => setActiveListingId(l.id)} onFocus={() => setActiveListingId(l.id)}><PropertyCard listing={l} onQuickView={setQuickViewId} isSaved={saved.has(l.id)} onToggle={toggle} /></div>)}
             </div>
             <LoadMoreBtn />
             <div className="lg:hidden" style={{marginTop:20,height:460}}>
-              <MapView listings={results} onSelect={(l)=>setQuickViewId(l.id)} />
+              <MapView listings={results} activeListingId={activeListingId} onSelect={(l)=>{setActiveListingId(l.id);setQuickViewId(l.id);}} />
             </div>
           </div>
         </div>
