@@ -23,6 +23,7 @@ const languages = ['Any Language', 'English', 'Hindi', 'Marathi', 'Gujarati', 'M
 function AgentCard({ agent, top = false }: { agent: Profile; top?: boolean }) {
   return (
     <article className={`flex h-full flex-col overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg ${top ? 'border-blue-300 ring-2 ring-blue-100' : 'border-slate-200 hover:border-blue-200'}`}>
+                {agent.property_cover_url && <Link href={`/agents/${agent.id}`} className="relative block h-36 overflow-hidden bg-slate-100"><img src={agent.property_cover_url} alt={`Property listed by ${agent.full_name ?? "this agent"}`} loading="lazy" className="h-full w-full object-cover transition duration-300 hover:scale-[1.02]" /><span className="absolute bottom-2 left-3 rounded-full bg-slate-950/75 px-2.5 py-1 text-[10px] font-bold text-white">From agent’s live GoNest inventory</span></Link>}
                 <div className="p-5">
                   <div className="flex items-start gap-3">
                     <Link href={`/agents/${agent.id}`} aria-label={`View ${agent.full_name ?? 'agent'} profile`} className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-100 bg-slate-100 text-xl font-extrabold text-slate-500">
