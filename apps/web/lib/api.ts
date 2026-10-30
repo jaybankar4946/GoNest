@@ -333,9 +333,20 @@ export async function getPublicBrokerages() {
 }
 
 export async function getAgents(): Promise<Profile[]> {
-  const { data } = await supabase.from('profiles').select(PUBLIC_PROFILE)
+  const { data, error } = await supabase.from('profiles').select(PUBLIC_PROFILE)
     .eq('is_sample', false).eq('role', 'agent').order('created_at', { ascending: false });
-  return (data ?? []) as Profile[];
+  if (error || !data?.length) return [];
+  const ids = data.map((profile: any) => profile.id);
+  const { data: listings } = await supabase.from('listings')
+    .select('posted_by,listing_images(storage_path,sort_order,is_cover)')
+    .in('posted_by', ids).eq('status', 'active').eq('is_sample', false)
+    .order('created_at', { ascending: false });
+  const coverByAgent = new Map<string, string>();
+  for (const listing of listings ?? []) {
+    const images = [...(listing.listing_images ?? [])].sort((x: any, y: any) => Number(Boolean(y.is_cover)) - Number(Boolean(x.is_cover)) || (x.sort_order ?? 0) - (y.sort_order ?? 0));
+    if (!coverByAgent.has(listing.posted_by) && images[0]?.storage_path) coverByAgent.set(listing.posted_by, imgUrl(images[0].storage_path));
+  }
+  return data.map((profile: any) => ({ ...profile, property_cover_url: coverByAgent.get(profile.id) ?? null })) as Profile[];
 }
 export async function getAgentById(id: string): Promise<Profile | null> {
   const { data } = await supabase.from('profiles').select(PUBLIC_PROFILE).eq('id', id).maybeSingle();
