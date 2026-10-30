@@ -89,6 +89,7 @@ export function AgentDirectory({ agents }: Props) {
     return [...result].sort((a, b) => {
       if (sort === 'Top Rated') return (b.rating ?? -1) - (a.rating ?? -1);
       if (sort === 'Most Reviews') return (b.review_count ?? 0) - (a.review_count ?? 0);
+      if (sort === 'Name A–Z') return (a.full_name ?? '').localeCompare(b.full_name ?? '');
       return (b.total_listings ?? 0) - (a.total_listings ?? 0);
     });
   }, [agentProfiles, search, location, city, specialization, language, sort]);
@@ -107,7 +108,7 @@ export function AgentDirectory({ agents }: Props) {
     const place = location.trim().toLowerCase();
     const searchable = [broker.name, broker.area, broker.address, broker.note, ...broker.services].join(' ').toLowerCase();
     return (!term || searchable.includes(term)) && (!place || searchable.includes(place)) && (city === 'All Cities' || city === 'Thane');
-  }).sort((a, b) => sort === 'Most Reviews' ? b.reviews - a.reviews : sort === 'Most Listings' ? a.name.localeCompare(b.name) : b.rating - a.rating || b.reviews - a.reviews), [search, location, city, sort]);
+  }).sort((a, b) => sort === 'Most Reviews' ? b.reviews - a.reviews : sort === 'Name A–Z' ? a.name.localeCompare(b.name) : b.rating - a.rating || b.reviews - a.reviews), [search, location, city, sort]);
 
   return (
     <>
@@ -139,7 +140,7 @@ export function AgentDirectory({ agents }: Props) {
             <label><span className="sr-only">City</span><select value={city} onChange={(event) => setCity(event.target.value)} className="min-h-12 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm font-medium text-slate-700 outline-none focus:border-blue-500">{cities.map((value) => <option key={value}>{value}</option>)}</select></label>
             <label><span className="sr-only">Specialization</span><select value={specialization} onChange={(event) => setSpecialization(event.target.value)} className="min-h-12 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm font-medium text-slate-700 outline-none focus:border-blue-500">{specializations.map((value) => <option key={value}>{value}</option>)}</select></label>
             <label><span className="sr-only">Language</span><select value={language} onChange={(event) => setLanguage(event.target.value)} className="min-h-12 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm font-medium text-slate-700 outline-none focus:border-blue-500">{languages.map((value) => <option key={value}>{value}</option>)}</select></label>
-            <label><span className="sr-only">Sort agents</span><select value={sort} onChange={(event) => setSort(event.target.value)} className="min-h-12 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm font-semibold text-slate-800 outline-none focus:border-blue-500"><option>Top Rated</option><option>Most Reviews</option><option>Most Listings</option></select></label>
+            <label><span className="sr-only">Sort agents</span><select value={sort} onChange={(event) => setSort(event.target.value)} className="min-h-12 w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm font-semibold text-slate-800 outline-none focus:border-blue-500"><option>Top Rated</option><option>Most Reviews</option><option>Name A–Z</option><option>Most Listings</option></select></label>
           </div>
         </div>
       </section>
