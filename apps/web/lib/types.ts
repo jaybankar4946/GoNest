@@ -12,7 +12,7 @@ export type Profile = {
   rera_number: string | null; agent_verified: boolean;
   avatar_url: string | null; email: string | null; bio: string | null;
   service_localities?: string[]; service_pincodes?: string[];
-  total_listings: number; rating: number | null; review_count: number; created_at: string; is_sample?: boolean;
+  total_listings: number; rating: number | null; review_count: number; created_at: string; is_sample?: boolean; property_cover_url?: string | null;
 };
 export type City     = { id: string; name: string; state: string; slug: string; listing_count?: number };
 export type Locality = { id: string; city_id: string; name: string; slug: string; latitude: number | null; longitude: number | null };
