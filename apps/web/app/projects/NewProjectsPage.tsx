@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { Nav } from "@/components/layout/Nav";
 import { ProjectUnitInventoryCard } from "./ProjectUnitInventoryCard";
+import { ProjectImage } from "./ProjectImage";
 import { Footer } from "@/components/layout/Footer";
 import { supabase } from "@/lib/supabase";
 import { ArrowRight, Building2, CalendarDays, CheckCircle2, ExternalLink, Filter, GitCompare, Heart, MapPin, Search, ShieldCheck, SlidersHorizontal, X } from "lucide-react";
@@ -206,19 +207,18 @@ export default function NewProjectsPage() {
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{filtered.map(p=>{
             const verified = p.verification_status==="verified" && p.inventory_status==="verified_available" && isFresh(p.inventory_verified_at);
             const developer = p.developer?.operating_brand || "Developer details pending";
-            const coverImage = p.official_name.toLowerCase().includes("birla punya")
-              ? "https://www.birlaestates.com/birla-punya-pune/images/ph_02.webp"
-              : p.cover_image_url;
+            const projectImages = [p.cover_image_url, ...(p.gallery_image_urls ?? [])];
             const projectStatusLabel = p.construction_status === "completed" ? "Ready to move" : p.construction_status === "under_construction" ? "Under construction" : null;
             const location = [p.locality?.name,p.city?.name].filter(Boolean).join(", ") || p.public_address || "Location details pending";
             const configurations = Array.isArray(p.configurations) ? p.configurations.map((x:any)=>typeof x==="string"?x:x?.label||x?.configuration).filter((label:any)=>typeof label==="string" && ["bhk","bed","duplex","villa","plot","studio"].some(term=>label.toLowerCase().includes(term))).join(" · ") : "";
-            return (<article key={p.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
-              <div className="relative h-52 overflow-hidden bg-gradient-to-br from-slate-100 via-blue-50 to-slate-200">
-                {coverImage ? <img src={coverImage} alt={p.official_name + " official project image"} loading="lazy" className="h-full w-full object-cover transition duration-300 hover:scale-[1.02]"/> : <div className="flex h-full items-center justify-center"><Building2 className="h-12 w-12 text-slate-300"/></div>}
+            return (<article key={p.id} className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
+              <div className="relative">
+                <ProjectImage sources={projectImages} alt={p.official_name + " project photograph"} className="h-52 w-full" imageClassName="h-full w-full object-cover transition duration-300 hover:scale-[1.02]" />
+                {!projectImages.some(Boolean) && <span className="absolute bottom-3 left-3 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-semibold text-slate-600">Photo pending</span>}
                 
                 <div className="absolute inset-x-3 top-3 flex items-start justify-between gap-2">{projectStatusLabel && <span className="rounded-full bg-white/95 px-3 py-1 text-[11px] font-bold text-slate-800 shadow-sm">{projectStatusLabel}</span>}{verified && <span className="inline-flex items-center gap-1 rounded-full bg-emerald-700 px-3 py-1 text-[11px] font-bold text-white shadow-sm"><ShieldCheck className="h-3 w-3"/>Recent inventory</span>}</div>
               </div>
-              <div className="p-5">
+              <div className="flex flex-1 flex-col p-5">
                 <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">{developer}</p>
                 <h2 className="mt-1 text-lg font-extrabold leading-snug">{p.official_name}</h2>
                 <p className="mt-2 flex items-start gap-2 text-sm text-slate-500"><MapPin className="mt-0.5 h-4 w-4 shrink-0"/>{location}</p>
@@ -233,7 +233,7 @@ export default function NewProjectsPage() {
                   <button type="button" aria-pressed={shortlistIds.includes(p.id)} onClick={()=>setShortlistIds(ids=>ids.includes(p.id)?ids.filter(id=>id!==p.id):[...ids,p.id])} className={"inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-bold " + (shortlistIds.includes(p.id) ? "border-rose-200 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-600 hover:bg-slate-50")}><Heart className={"h-3.5 w-3.5 " + (shortlistIds.includes(p.id) ? "fill-current" : "")}/>{shortlistIds.includes(p.id) ? "Saved on this device" : "Save project"}</button>
                   <button type="button" disabled={!compareIds.includes(p.id) && compareIds.length>=3} aria-pressed={compareIds.includes(p.id)} onClick={()=>setCompareIds(ids=>ids.includes(p.id)?ids.filter(id=>id!==p.id):[...ids,p.id])} className={"inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-bold disabled:cursor-not-allowed disabled:opacity-40 " + (compareIds.includes(p.id) ? "border-blue-200 bg-blue-50 text-blue-800" : "border-slate-200 text-slate-600 hover:bg-slate-50")}><GitCompare className="h-3.5 w-3.5"/>{compareIds.includes(p.id) ? "Added to compare" : "Compare"}</button>
                 </div>
-                <div className="mt-5 flex gap-2">
+                <div className="mt-auto flex gap-2 pt-5">
                   <button onClick={()=>router.push(`/projects/${p.id}`)} className="flex-1 rounded-xl bg-slate-950 px-3 py-3 text-sm font-bold text-white hover:bg-blue-800">Explore project & enquire <ArrowRight className="ml-1 inline h-4 w-4"/></button>
                   {p.official_project_url && <a href={p.official_project_url} target="_blank" rel="noreferrer" aria-label="Open official developer project page" className="flex items-center justify-center rounded-xl border border-slate-200 px-3 text-slate-700 hover:bg-slate-50"><ExternalLink className="h-4 w-4"/></a>}
                 </div>
@@ -265,7 +265,7 @@ export default function NewProjectsPage() {
         <header className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white p-5"><div><p className="text-xs font-bold uppercase tracking-wide text-blue-700">{selected.developer?.operating_brand || "Project details"}</p><h2 id="project-detail-title" className="mt-1 text-xl font-extrabold">{selected.official_name}</h2></div><button onClick={()=>setSelected(null)} className="rounded-full bg-slate-100 p-2" aria-label="Close"><X className="h-5 w-5"/></button></header>
         <div className="space-y-5 p-5 md:p-6">
           <section aria-label="Project gallery and key facts">
-            {selected.cover_image_url && <img src={selected.cover_image_url} alt={selected.official_name + " project exterior"} className="h-56 w-full rounded-2xl object-cover" loading="lazy"/>}
+            <ProjectImage sources={[selected.cover_image_url, ...(selected.gallery_image_urls ?? [])]} alt={selected.official_name + " project exterior"} className="h-56 w-full rounded-2xl" imageClassName="h-full w-full object-cover" />
             {Array.isArray(selected.gallery_image_urls) && selected.gallery_image_urls.filter(Boolean).length > 0 && <div className="mt-2 grid grid-cols-3 gap-2">{selected.gallery_image_urls.filter(Boolean).slice(0,3).map((url:string,index:number)=><a key={url} href={url} target="_blank" rel="noreferrer" className="overflow-hidden rounded-lg border border-slate-200"><img src={url} alt={selected.official_name + " gallery " + (index+1)} className="h-20 w-full object-cover" loading="lazy"/></a>)}</div>}
             <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
               <div className="rounded-xl border border-slate-200 p-3"><p className="text-[11px] text-slate-500">Construction status</p><p className="mt-1 text-sm font-bold">{selected.construction_status === "completed" ? "Ready to move" : selected.construction_status === "under_construction" ? "Under construction" : "Status not provided"}</p></div>
