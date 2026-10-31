@@ -147,7 +147,7 @@ export default function NewProjectsPage() {
             const verified = p.verification_status==="verified" && p.inventory_status==="verified_available" && isFresh(p.inventory_verified_at);
             const developer = p.developer?.operating_brand || "Developer details pending";
             const location = [p.locality?.name,p.city?.name].filter(Boolean).join(", ") || p.public_address || "Location details pending";
-            const configurations = Array.isArray(p.configurations) ? p.configurations.map((x:any)=>typeof x==="string"?x:x?.label||x?.configuration).filter(Boolean).join(" · ") : "";
+            const configurations = Array.isArray(p.configurations) ? p.configurations.map((x:any)=>typeof x==="string"?x:x?.label||x?.configuration).filter((label:any)=>typeof label==="string" && /\\b(BHK|bed|duplex|villa|plot|studio)\\b/i.test(label)).join(" · ") : "";
             return <article key={p.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
               <div className="relative h-52 overflow-hidden bg-gradient-to-br from-slate-100 via-blue-50 to-slate-200">
                 {p.cover_image_url ? <img src={p.cover_image_url} alt={p.official_name + " official project image"} loading="lazy" className="h-full w-full object-cover transition duration-300 hover:scale-[1.02]"/> : <div className="flex h-full items-center justify-center"><Building2 className="h-12 w-12 text-slate-300"/></div>}
