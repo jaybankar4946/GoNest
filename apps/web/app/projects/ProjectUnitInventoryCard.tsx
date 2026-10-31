@@ -1,6 +1,7 @@
 "use client";
 
-import { CalendarDays, CheckCircle2, ExternalLink, Home } from "lucide-react";
+import { CalendarDays, CheckCircle2, ExternalLink } from "lucide-react";
+import { ProjectImage } from "./ProjectImage";
 
 export type ProjectUnitInventory = {
   id: string;
@@ -46,18 +47,9 @@ export function ProjectUnitInventoryCard({
   return (
     <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md">
       <div className="grid md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-        <div className="relative min-h-[210px] bg-slate-100 md:min-h-[260px]">
-          {projectImage ? (
-            <>
-              <img src={projectImage} alt={projectName + " project photograph"} className="h-full min-h-[210px] w-full object-cover md:min-h-[260px]" loading="lazy" />
-              <span className="absolute bottom-3 left-3 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-semibold text-slate-700">Project photograph · not unit-specific</span>
-            </>
-          ) : (
-            <div className="flex h-full min-h-[210px] flex-col items-center justify-center gap-2 text-slate-400 md:min-h-[260px]">
-              <Home className="h-9 w-9" />
-              <span className="text-xs font-semibold">Unit photograph not supplied</span>
-            </div>
-          )}
+        <div className="relative min-h-[210px] md:min-h-[260px]">
+          <ProjectImage sources={[projectImage]} alt={projectName + " project photograph, not a unit-specific image"} className="h-full min-h-[210px] w-full md:min-h-[260px]" imageClassName="h-full min-h-[210px] w-full object-cover md:min-h-[260px]" fallbackLabel="Unit photograph not supplied" />
+          {projectImage && <span className="absolute bottom-3 left-3 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-semibold text-slate-700">Project photograph · not unit-specific</span>}
         </div>
         <div className="flex min-w-0 flex-col p-4 md:p-5">
           <div className="flex flex-wrap items-center justify-between gap-2">
