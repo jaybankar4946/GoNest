@@ -110,7 +110,7 @@ export default function NewProjectsPage() {
     setUnitsLoading(true); setFeedback("");
     (async () => {
       const { data, error } = await supabase.from("project_inventory_observations")
-        .select("id,unit_reference,tower_name,floor_number,configuration,carpet_area_sqft,asking_price_inr,additional_charges_inr,availability_status,observed_at,source_url,verified_by")
+        .select("id,unit_reference,tower_name,floor_number,configuration,carpet_area_sqft,asking_price_inr,additional_charges_inr,availability_status,observed_at,source_url")
         .eq("project_id", selected.id).eq("is_sample", false).eq("availability_status","available")
         .not("source_url","is",null).gte("observed_at",new Date(Date.now()-14*86400000).toISOString()).order("asking_price_inr");
       if (!live) return;
