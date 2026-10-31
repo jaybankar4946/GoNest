@@ -115,6 +115,11 @@ export default function NewProjectsPage() {
 
   const availableUnits = units.filter(u => u.availability_status === "available" && isFresh(u.observed_at) && !!u.source_url && !!u.verified_by && !!selected && selected.verification_status === "verified" && selected.inventory_status === "verified_available" && isFresh(selected.inventory_verified_at));
   const verifiedInventory = !!selected && selected.verification_status === "verified" && selected.inventory_status === "verified_available" && isFresh(selected.inventory_verified_at);
+  const publishedConfigurations = Array.isArray(selected?.configurations) ? selected.configurations.filter((item: any) => {
+    const label = typeof item === "string" ? item : item?.label || item?.configuration || item?.name || "";
+    return typeof label === "string" && /\\b(BHK|bed|duplex|villa|penthouse|studio|plot)\\b/i.test(label);
+  }).map((item: any) => typeof item === "string" ? { label: item } : item) : [];
+
 
   return <>
     <Nav />
@@ -187,7 +192,35 @@ export default function NewProjectsPage() {
           <div className="rounded-2xl bg-slate-50 p-4"><p className="flex items-center gap-2 font-bold"><MapPin className="h-4 w-4"/>{[selected.locality?.name,selected.city?.name].filter(Boolean).join(", ") || selected.public_address || "Location to be confirmed"}</p><p className="mt-2 text-sm text-slate-600">Project data shown here is limited to recorded source information. Ask the developer to confirm the exact phase, live unit inventory, full price sheet and possession terms.</p>
             <div className="mt-3 flex flex-wrap gap-2">{selected.official_project_url&&<a className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold" href={selected.official_project_url} target="_blank" rel="noreferrer">Official project page <ExternalLink className="ml-1 inline h-3.5 w-3.5"/></a>}<a className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold" href={MAHARERA} target="_blank" rel="noreferrer">MahaRERA search <ExternalLink className="ml-1 inline h-3.5 w-3.5"/></a>{selected.brochure_url&&<a className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold" href={selected.brochure_url} target="_blank" rel="noreferrer">Brochure <ExternalLink className="ml-1 inline h-3.5 w-3.5"/></a>}</div>
           </div>
-          <section><h3 className="text-lg font-extrabold">Available units</h3>{unitsLoading?<p className="mt-2 text-sm text-slate-500">Checking latest unit observations…</p>:availableUnits.length===0?null:<div className="mt-3 space-y-3">{availableUnits.map(u=><ProjectUnitInventoryCard key={u.id} unit={u} projectName={selected.official_name} projectImage={selected.cover_image_url} onEnquire={(unit)=>{setRequestType("enquiry");setForm(v=>({...v,message:"Please confirm current availability and share the complete cost sheet for "+(unit.configuration || "this unit")+(unit.tower_name ? ", "+unit.tower_name : "")+" in "+selected.official_name+"."}));}} />)}</div>}</section>
+          <section>
+            <div className="flex flex-wrap items-center justify-between gap-2"><h3 className="text-lg font-extrabold">Published home configurations</h3><span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-600">Not live availability</span></div>
+            <p className="mt-1 text-sm text-slate-500">These are configurations and plan details recorded from project sources. A configuration is not an available apartment; confirm the selected tower, approved carpet area and current quote with the builder.</p>
+            {publishedConfigurations.length ? <div className="mt-3 grid gap-3">{publishedConfigurations.map((item:any,index:number)=>{
+              const label = item.label || item.configuration || item.name || "Published configuration";
+              const tower = item.tower || item.tower_name || null;
+              const rera = item.rera_number || null;
+              const areas = item.rera_carpet_area_sqft ?? item.floor_plan_carpet_area_sqft ?? item.carpet_area_sqft ?? item.developer_published_area_sqft ?? item.developer_published_unit_plan_size_sqft ?? null;
+              const areaLabel = item.rera_carpet_area_sqft != null ? "RERA carpet area" : item.floor_plan_carpet_area_sqft != null ? "Floor-plan area (basis per source)" : item.carpet_area_sqft != null ? "Recorded carpet area" : areas != null ? "Developer-published area (basis to confirm)" : null;
+              const areaValues = Array.isArray(areas) ? areas : areas == null ? [] : [areas];
+              const source = item.floor_plan_source || item.source_url || item.source || null;
+              const note = item.area_note || item.source_note || item.price_note || item.note || null;
+              const priceFrom = item.price_from_inr || null;
+              return <article key={label+"-"+index} className="rounded-xl border border-slate-200 bg-white p-4">
+                <div className="flex flex-wrap items-center justify-between gap-2"><p className="font-bold text-slate-900">{label}</p>{tower && <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">{tower}</span>}</div>
+                {areaValues.length>0 && areaLabel && <p className="mt-2 text-sm text-slate-700"><span className="font-semibold">{areaLabel}:</span> {areaValues.join(" – ")} sq ft</p>}
+                {item.unit_types && Array.isArray(item.unit_types) && <p className="mt-2 text-sm text-slate-600">Types: {item.unit_types.join(", ")}</p>}
+                {rera && <p className="mt-2 text-xs text-slate-500">MahaRERA / phase: {rera}</p>}
+                {priceFrom && <p className="mt-2 text-sm font-semibold">Recorded indicative price: {money(priceFrom)} <span className="font-normal text-slate-500">· confirm current written offer</span></p>}
+                {note && <p className="mt-2 text-sm leading-6 text-amber-800">{note}</p>}
+                {item.image_url && typeof item.image_url === "string" && item.image_url.startsWith("https://") && <a href={item.image_url} target="_blank" rel="noreferrer" className="mt-3 block overflow-hidden rounded-lg border border-slate-200 bg-slate-50"><img src={item.image_url} alt={item.image_alt || label+" floor plan"} loading="lazy" className="max-h-64 w-full object-contain"/><span className="block border-t border-slate-200 px-3 py-2 text-xs font-semibold text-blue-700">Open plan / image ↗</span></a>}
+                {source && typeof source === "string" && source.startsWith("https://") && <a href={source} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-blue-700 underline">View source / floor plan <ExternalLink className="h-3 w-3"/></a>}
+              </article>;
+            })}</div> : <div className="mt-3 rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500">Configuration and unit-plan details have not yet been sourced for this project.</div>}
+          </section>
+          <section>
+            <div className="flex flex-wrap items-center justify-between gap-2"><h3 className="text-lg font-extrabold">Current individual units</h3><span className="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-bold text-amber-800">Confirmation pending</span></div>
+            {unitsLoading ? <p className="mt-2 text-sm text-slate-500">Checking latest unit observations…</p> : availableUnits.length===0 ? <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50/50 p-4"><p className="text-sm font-semibold text-slate-800">No builder-confirmed current units are recorded in GoNest for this project.</p><p className="mt-1 text-sm leading-6 text-slate-600">We will only publish a unit after its tower, unit reference, RERA carpet area, price, evidence source, verification and observation date are recorded. Project-level configurations above do not imply current availability.</p><button type="button" onClick={()=>{setRequestType("enquiry");setForm(v=>({...v,message:"Please share the latest builder-issued tower-wise unit inventory, approved floor plans, RERA carpet areas, unit-wise complete cost sheet and current availability for "+selected.official_name+"."}));}} className="mt-3 rounded-lg bg-blue-700 px-4 py-2.5 text-sm font-bold text-white">Request latest builder inventory</button></div> : <div className="mt-3 space-y-3">{availableUnits.map(u=><ProjectUnitInventoryCard key={u.id} unit={u} projectName={selected.official_name} projectImage={selected.cover_image_url} onEnquire={(unit)=>{setRequestType("enquiry");setForm(v=>({...v,message:"Please confirm current availability and share the complete cost sheet for "+(unit.configuration || "this unit")+(unit.tower_name ? ", "+unit.tower_name : "")+" in "+selected.official_name+"."}));}} />)}</div>}
+          </section>
           <section><h3 className="text-lg font-extrabold">Enquire or request a site visit</h3><p className="mt-1 text-sm text-slate-500">Your request is recorded in GoNest and is pending confirmation; a visit is not booked until the project team confirms the slot.</p>
             <div className="mt-3 grid grid-cols-2 gap-2"><button onClick={()=>setRequestType("enquiry")} className={`rounded-xl px-3 py-2.5 text-sm font-bold ${requestType==="enquiry"?"bg-blue-700 text-white":"bg-slate-100 text-slate-700"}`}>Project enquiry</button><button onClick={()=>setRequestType("site_visit")} className={`rounded-xl px-3 py-2.5 text-sm font-bold ${requestType==="site_visit"?"bg-blue-700 text-white":"bg-slate-100 text-slate-700"}`}><CalendarDays className="mr-1 inline h-4 w-4"/>Request a visit</button></div>
             <form onSubmit={submitRequest} className="mt-4 space-y-3">
