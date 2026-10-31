@@ -37,6 +37,8 @@ export function ProjectUnitInventoryCard({
 }) {
   const observed = new Date(unit.observed_at);
   const observedLabel = Number.isNaN(observed.getTime()) ? "Date unavailable" : observed.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+  const disclosedTotal = unit.asking_price_inr != null ? unit.asking_price_inr + (unit.additional_charges_inr ?? 0) : null;
+  const pricePerSqft = unit.asking_price_inr != null && unit.carpet_area_sqft ? Math.round(unit.asking_price_inr / unit.carpet_area_sqft) : null;
   const facts = [
     unit.carpet_area_sqft != null ? { label: "RERA carpet area", value: unit.carpet_area_sqft.toLocaleString("en-IN") + " sq ft" } : null,
     unit.floor_number != null ? { label: "Floor", value: String(unit.floor_number) } : null,
@@ -62,12 +64,12 @@ export function ProjectUnitInventoryCard({
         <div className="flex min-w-0 flex-col p-4 md:p-5">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-800"><CheckCircle2 className="h-3.5 w-3.5" />Recently verified availability</span>
-            <span className="text-[11px] text-slate-500">Observed {observedLabel}</span>
+            <span className="text-[11px] text-slate-500">Source updated {observedLabel}</span>
           </div>
           <h3 className="mt-3 text-xl font-extrabold text-slate-950">{unit.configuration || "Configuration not supplied"}</h3>
           <p className="mt-1 text-sm text-slate-600">{unit.unit_reference ? "Unit " + unit.unit_reference : "Unit reference not supplied"}{unit.tower_name ? " · " + unit.tower_name : ""}</p>
-          <p className="mt-3 text-2xl font-extrabold tracking-tight text-slate-950">{money(unit.asking_price_inr)}</p>
-          {unit.additional_charges_inr != null && unit.additional_charges_inr > 0 && <p className="mt-1 text-xs text-slate-500">Additional disclosed charges: {money(unit.additional_charges_inr)}</p>}
+          <div className="mt-4 rounded-xl bg-slate-950 p-4 text-white"><p className="text-[10px] font-bold uppercase tracking-[.14em] text-slate-300">Asking price</p><p className="mt-1 text-2xl font-extrabold tracking-tight">{money(unit.asking_price_inr)}</p>{unit.additional_charges_inr != null && unit.additional_charges_inr > 0 && <div className="mt-3 flex items-center justify-between border-t border-white/15 pt-3 text-xs"><span className="text-slate-300">Price + disclosed charges</span><strong className="text-sm">{money(disclosedTotal)}</strong></div>}<p className="mt-2 text-[10px] leading-4 text-slate-300">Disclosed subtotal only; taxes, stamp duty, registration, parking and other charges may be extra.</p></div>
+          {pricePerSqft != null && <p className="mt-2 text-xs font-semibold text-slate-600">Approx. {money(pricePerSqft)} / sq ft of recorded carpet area</p>}
           <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
             {facts.map((fact) => <div key={fact.label} className="rounded-xl bg-slate-50 p-2.5"><p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">{fact.label}</p><p className="mt-1 text-sm font-bold text-slate-800">{fact.value}</p></div>)}
           </div>
