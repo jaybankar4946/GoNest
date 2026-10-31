@@ -90,7 +90,7 @@ export default function ProjectDetailPage({ id }: { id: string }) {
   const configurations = useMemo(() => {
     const raw = project?.configurations;
     if (!Array.isArray(raw)) return [];
-    return raw.map((x: any) => typeof x === "string" ? x : x?.label || x?.configuration || x?.name).filter(Boolean) as string[];
+    return raw.map((x: any) => typeof x === "string" ? x : x?.label || x?.configuration || x?.name).filter((label: any) => typeof label === "string" && /\\b(BHK|bed|duplex|villa|plot|studio)\\b/i.test(label)) as string[];
   }, [project]);
   const configurationDetails = useMemo(() => {
     const raw = project?.configurations;
