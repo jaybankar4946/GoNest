@@ -23,7 +23,7 @@ type Unit = { id: string; unit_reference: string | null; tower_name: string | nu
 const MAHARERA = "https://maharera.maharashtra.gov.in/";
 const money = (n: number | null | undefined) => n == null ? "Ask for current pricing" : n >= 10000000 ? `₹${(n / 10000000).toFixed(2).replace(/0+$/,"").replace(/\.$/,"")} Cr` : n >= 100000 ? `₹${(n / 100000).toFixed(1).replace(/\.0$/,"")} L` : `₹${n.toLocaleString("en-IN")}`;
 const dateLabel = (s: string | null | undefined) => s ? new Date(s).toLocaleDateString("en-IN",{month:"short",year:"numeric"}) : "Not provided";
-const isFresh = (s: string | null | undefined) => !!s && Date.now() - new Date(s).getTime() <= 14 * 86400000;
+const isFresh = (s: string | null | undefined) => !!s && Date.now() >= new Date(s).getTime() && Date.now() >= new Date(s).getTime() && Date.now() - new Date(s).getTime() <= 14 * 86400000;
 const projectConfigLabels = (p: Project) => Array.isArray(p.configurations)
   ? p.configurations.map((x: any) => typeof x === "string" ? x : x?.label || x?.configuration || x?.name).filter((v: any): v is string => typeof v === "string" && v.trim().length > 0)
   : [];
