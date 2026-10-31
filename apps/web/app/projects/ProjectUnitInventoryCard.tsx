@@ -4,7 +4,6 @@ import { CalendarDays, CheckCircle2, ExternalLink, Home } from "lucide-react";
 
 export type ProjectUnitInventory = {
   id: string;
-  unit_reference: string | null;
   tower_name: string | null;
   floor_number: number | null;
   configuration: string | null;
