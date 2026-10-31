@@ -34,6 +34,8 @@ export default function NewProjectsPage() {
   const [city, setCity] = useState("All Cities");
   const [registration, setRegistration] = useState("All projects");
   const [builder, setBuilder] = useState("All builders");
+  const [sortBy, setSortBy] = useState("recommended");
+  const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [selected, setSelected] = useState<Project | null>(null);
   const [units, setUnits] = useState<Unit[]>([]);
   const [unitsLoading, setUnitsLoading] = useState(false);
@@ -90,8 +92,15 @@ export default function NewProjectsPage() {
     const matchCity = city === "All Cities" || p.city?.name === city || (city === "Mumbai" && /thane|navi mumbai|mumbai/i.test(haystack));
     const matchRegistration = registration === "All projects" || (registration === "Registration listed" ? !!p.rera_number : !p.rera_number);
     const matchBuilder = builder === "All builders" || p.developer?.operating_brand === builder;
-    return matchCity && matchRegistration && matchBuilder && haystack.includes(query.trim().toLowerCase());
-  }), [projects, city, registration, builder, query]);
+    const matchVerified = !verifiedOnly || (p.verification_status === "verified" && p.inventory_status === "verified_available" && isFresh(p.inventory_verified_at));
+    return matchCity && matchRegistration && matchBuilder && matchVerified && haystack.includes(query.trim().toLowerCase());
+  }).sort((a,b) => {
+    if (sortBy === "price_low") return (a.published_price_min_inr ?? Number.MAX_SAFE_INTEGER) - (b.published_price_min_inr ?? Number.MAX_SAFE_INTEGER);
+    if (sortBy === "price_high") return (b.published_price_min_inr ?? -1) - (a.published_price_min_inr ?? -1);
+    if (sortBy === "possession") return (a.expected_possession_date ?? "9999").localeCompare(b.expected_possession_date ?? "9999");
+    if (sortBy === "name") return a.official_name.localeCompare(b.official_name);
+    return Number(b.verification_status === "verified") - Number(a.verification_status === "verified") || a.official_name.localeCompare(b.official_name);
+  }), [projects, city, registration, builder, query, sortBy, verifiedOnly]);
 
   async function submitRequest(e: React.FormEvent) {
     e.preventDefault();
@@ -135,6 +144,7 @@ export default function NewProjectsPage() {
             <select value={registration} onChange={e=>setRegistration(e.target.value)} className="rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm"><option>All projects</option><option>Registration listed</option><option>Registration not listed</option></select>
             <select value={builder} onChange={e=>setBuilder(e.target.value)} className="rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm">{builders.map(b=><option key={b}>{b}</option>)}</select>
           </div>
+          <div className="mt-4 flex flex-wrap items-center gap-2"><button type="button" aria-pressed={verifiedOnly} onClick={()=>setVerifiedOnly(v=>!v)} className={"rounded-full border px-4 py-2 text-xs font-bold transition " + (verifiedOnly ? "border-emerald-700 bg-emerald-50 text-emerald-800" : "border-slate-200 bg-white text-slate-700 hover:border-slate-400")}>{verifiedOnly ? "✓ Recent verified inventory" : "Show recent verified inventory"}</button><label className="ml-auto flex items-center gap-2 text-xs font-semibold text-slate-600">Sort by<select value={sortBy} onChange={e=>setSortBy(e.target.value)} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm"><option value="recommended">Recommended</option><option value="price_low">Price: low to high</option><option value="price_high">Price: high to low</option><option value="possession">Possession date</option><option value="name">Project name</option></select></label></div>
           <div className="mt-5 flex flex-wrap gap-3 text-sm text-slate-500">
             <span className="rounded-full bg-slate-100 px-3 py-1.5">{projects.length} listed project records</span>
             <span className="rounded-full bg-slate-100 px-3 py-1.5">{builders.length - 1} developers</span>
@@ -147,8 +157,8 @@ export default function NewProjectsPage() {
       <section className="mx-auto max-w-7xl px-4 py-8 md:px-6">
         {loading ? <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center text-slate-500">Loading live project data…</div>
         : loadError ? <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-amber-900">{loadError}</div>
-        : filtered.length === 0 ? <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center"><Building2 className="mx-auto mb-3 h-10 w-10 text-slate-300"/><h2 className="font-bold">No projects match these filters</h2><p className="mt-1 text-sm text-slate-500">Try a broader search or choose all cities.</p><button onClick={()=>{setCity("All Cities");setRegistration("All projects");setBuilder("All builders");setQuery("");}} className="mt-4 font-semibold text-blue-700">Clear filters</button></div>
-        : <><div className="mb-4 flex items-center justify-between"><p className="text-sm text-slate-600"><strong>{filtered.length}</strong> projects found</p><p className="text-xs text-slate-500">Project records are not a guarantee of current inventory</p></div>
+        : filtered.length === 0 ? <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center"><Building2 className="mx-auto mb-3 h-10 w-10 text-slate-300"/><h2 className="font-bold">No projects match these filters</h2><p className="mt-1 text-sm text-slate-500">Try a broader search or choose all cities.</p><button onClick={()=>{setCity("All Cities");setRegistration("All projects");setBuilder("All builders");setQuery("");setVerifiedOnly(false);setSortBy("recommended");}} className="mt-4 font-semibold text-blue-700">Clear filters</button></div>
+        : <><div className="mb-4 flex flex-wrap items-center justify-between gap-2"><p className="text-sm text-slate-600"><strong>{filtered.length}</strong> projects found <span className="text-slate-400">·</span> {verifiedOnly ? "Showing recent verified inventory only" : "Browse projects and compare key facts"}</p><p className="text-xs text-slate-500">Availability is shown only with recent source-linked evidence</p></div>
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{filtered.map(p=>{
             const verified = p.verification_status==="verified" && p.inventory_status==="verified_available" && isFresh(p.inventory_verified_at);
             const developer = p.developer?.operating_brand || "Developer details pending";
@@ -162,7 +172,7 @@ export default function NewProjectsPage() {
               <div className="relative h-52 overflow-hidden bg-gradient-to-br from-slate-100 via-blue-50 to-slate-200">
                 {coverImage ? <img src={coverImage} alt={p.official_name + " official project image"} loading="lazy" className="h-full w-full object-cover transition duration-300 hover:scale-[1.02]"/> : <div className="flex h-full items-center justify-center"><Building2 className="h-12 w-12 text-slate-300"/></div>}
                 
-                <span className="absolute right-3 top-3 rounded-full bg-white/95 px-3 py-1 text-[11px] font-bold text-slate-800 shadow-sm">{projectStatusLabel}</span>
+                <div className="absolute inset-x-3 top-3 flex items-start justify-between gap-2"><span className="rounded-full bg-white/95 px-3 py-1 text-[11px] font-bold text-slate-800 shadow-sm">{projectStatusLabel}</span>{verified && <span className="inline-flex items-center gap-1 rounded-full bg-emerald-700 px-3 py-1 text-[11px] font-bold text-white shadow-sm"><ShieldCheck className="h-3 w-3"/>Recent inventory</span>}</div>
               </div>
               <div className="p-5">
                 <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">{developer}</p>
@@ -174,9 +184,9 @@ export default function NewProjectsPage() {
                   <div className="rounded-xl bg-slate-50 p-3"><p className="text-xs text-slate-500">Configurations</p><p className="mt-1 text-sm font-bold">{configurations || "Confirm with developer"}</p></div>
                   <div className="rounded-xl bg-slate-50 p-3"><p className="text-xs text-slate-500">MahaRERA reference</p><p className="mt-1 break-words text-sm font-bold">{p.rera_number || "Tower-specific check required"}</p></div>
                 </div>
-                <div className="mt-4 flex items-center gap-2 text-xs text-slate-500"><ShieldCheck className="h-4 w-4"/>{p.verification_status==="verified"?"GoNest project record verified":"Source-linked record · details need confirmation"}</div>
+                <div className="mt-4 flex flex-wrap items-center gap-2 text-xs"><span className={"inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-semibold " + (p.verification_status==="verified" ? "bg-blue-50 text-blue-800" : "bg-slate-100 text-slate-600")}><ShieldCheck className="h-3.5 w-3.5"/>{p.verification_status==="verified"?"Project record verified":"Source-linked project record"}</span><span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-600">{p.rera_number ? "RERA reference recorded" : "RERA reference not recorded"}</span></div>
                 <div className="mt-5 flex gap-2">
-                  <button onClick={()=>router.push(`/projects/${p.id}`)} className="flex-1 rounded-xl bg-blue-700 px-3 py-3 text-sm font-bold text-white hover:bg-blue-800">View details & enquire <ArrowRight className="ml-1 inline h-4 w-4"/></button>
+                  <button onClick={()=>router.push(`/projects/${p.id}`)} className="flex-1 rounded-xl bg-slate-950 px-3 py-3 text-sm font-bold text-white hover:bg-blue-800">Explore project & enquire <ArrowRight className="ml-1 inline h-4 w-4"/></button>
                   {p.official_project_url && <a href={p.official_project_url} target="_blank" rel="noreferrer" aria-label="Open official developer project page" className="flex items-center justify-center rounded-xl border border-slate-200 px-3 text-slate-700 hover:bg-slate-50"><ExternalLink className="h-4 w-4"/></a>}
                 </div>
               </div>
