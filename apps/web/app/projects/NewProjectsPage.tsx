@@ -165,7 +165,7 @@ export default function NewProjectsPage() {
   const verifiedInventory = !!selected && selected.verification_status === "verified" && selected.inventory_status === "verified_available" && isFresh(selected.inventory_verified_at);
   const publishedConfigurations = Array.isArray(selected?.configurations) ? selected.configurations.filter((item: any) => {
     const label = typeof item === "string" ? item : item?.label || item?.configuration || item?.name || "";
-    return typeof label === "string" && /\b(BHK|bed|duplex|villa|penthouse|studio|plot)\b/i.test(label);
+    return typeof label === "string" && ["bhk","bed","duplex","villa","penthouse","studio","plot"].some(term => label.toLowerCase().includes(term));
   }).map((item: any) => typeof item === "string" ? { label: item } : item) : [];
 
 
