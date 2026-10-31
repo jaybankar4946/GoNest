@@ -144,7 +144,7 @@ export default function ProjectDetailPage({ id }: { id: string }) {
       };
     });
   }, [project]);
-  const available = units.filter(u => fresh(u.observed_at) && !!u.source_url && !!u.verified_by && project?.verification_status === "verified" && project?.inventory_status === "verified_available" && fresh(project?.inventory_verified_at));
+  const available = units.filter(u => fresh(u.observed_at) && !!u.source_url && project?.verification_status === "verified" && project?.inventory_status === "verified_available" && fresh(project?.inventory_verified_at));
   const verifiedProject = project?.verification_status === "verified";
   const verifiedInventory = verifiedProject && project?.inventory_status === "verified_available" && fresh(project?.inventory_verified_at);
   const price = project?.published_price_min_inr ?? null;
