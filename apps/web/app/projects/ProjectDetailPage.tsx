@@ -173,10 +173,10 @@ export default function ProjectDetailPage({ id }: { id: string }) {
       <section aria-label="Project photo gallery" className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-1.5">
         {galleryItems.length ? <div className="grid h-[300px] grid-cols-2 gap-1.5 md:h-[470px] md:grid-cols-4">
           <button type="button" onClick={() => setActiveImage(0)} className="group relative col-span-2 row-span-2 overflow-hidden rounded-l-xl bg-slate-100 text-left">
-            <img src={galleryItems[0].src} alt={galleryItems[0].alt} className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.025]"/>
+            <img src={galleryItems[activeImage]?.src || galleryItems[0].src} alt={galleryItems[activeImage]?.alt || galleryItems[0].alt} className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.025]"/>
             <span className="absolute bottom-3 left-3 rounded-full bg-white/95 px-3 py-1.5 text-xs font-bold text-slate-800">Main project photo</span>
           </button>
-          {Array.from({length:3}).map((_,slot)=>{const item=galleryItems[slot+1];return <button key={item?.src || "empty-"+slot} type="button" disabled={!item} onClick={()=>item&&setActiveImage(slot+1)} className={"group relative overflow-hidden bg-slate-100 text-left "+(slot===1?"rounded-tr-xl":"")+(slot===2?"rounded-br-xl":"")}>
+          {Array.from({length:3}).map((_,slot)=>{const item=galleryItems[slot+1];return <button key={item?.src || "empty-"+slot} type="button" disabled={!item} onClick={()=>item&&setActiveImage(slot+1)} className={"group relative overflow-hidden bg-slate-100 text-left "+(slot===1?"rounded-tr-xl":"")+(slot===2?"rounded-br-xl":"")+(activeImage===slot+1?" ring-2 ring-inset ring-blue-700":"") }>
             {item ? <><img src={item.src} alt={item.alt} className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.025]"/><span className="absolute bottom-2 left-2 rounded-full bg-white/95 px-2 py-1 text-[11px] font-semibold text-slate-800">{item.label}</span></> : <span className="flex h-full items-center justify-center px-3 text-center text-xs text-slate-400">Additional project photos pending</span>}
           </button>;})}
         </div> : <div className="flex min-h-[300px] flex-col items-center justify-center gap-3 rounded-xl bg-slate-100 text-slate-500 md:min-h-[470px]"><Building2 className="h-12 w-12 text-slate-300"/><p className="font-semibold">Official project photos pending</p><p className="text-sm">We do not use unrelated property images.</p></div>}
@@ -186,7 +186,7 @@ export default function ProjectDetailPage({ id }: { id: string }) {
         </div>
       </section>
       {galleryItems.length>0 && <div className="mt-3 flex gap-2 overflow-x-auto pb-2">{galleryItems.map((item,index)=><button key={item.src} type="button" onClick={()=>setActiveImage(index)} className={"w-24 shrink-0 overflow-hidden rounded-lg border text-left "+(activeImage===index?"border-blue-700 ring-2 ring-blue-100":"border-slate-200")}><img src={item.src} alt={item.alt} className="h-16 w-full object-cover"/><span className="block truncate px-2 py-1 text-[10px] font-semibold text-slate-600">{item.label}</span></button>)}</div>}
-      {galleryItems.length>0 && <div className="mt-2 overflow-hidden rounded-xl border border-slate-200 bg-white"><img src={galleryItems[activeImage]?.src || galleryItems[0].src} alt={galleryItems[activeImage]?.alt || project.official_name} className="max-h-[1px] w-full opacity-0" aria-hidden="true"/></div>}
+
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]"><div className="min-w-0">
         <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-3">{sections.map(s => <button key={s} onClick={() => { setTab(s); document.getElementById(s.toLowerCase().replaceAll(" & ", "-").replaceAll(" ", "-"))?.scrollIntoView({ behavior: "smooth", block: "start" }); }} className={"rounded-full px-3 py-2 text-sm font-semibold " + (tab === s ? "bg-blue-700 text-white" : "bg-white text-slate-700 ring-1 ring-slate-200 hover:bg-slate-100")}>{s}</button>)}</div>
