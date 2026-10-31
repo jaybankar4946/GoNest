@@ -67,11 +67,11 @@ export default function ProjectDetailPage({ id }: { id: string }) {
       if (projectError || !data) { setError("We couldn't load this project. It may have been removed or is not published."); setProject(null); setLoading(false); return; }
       const p = data as unknown as Project; setProject(p);
       const { data: observed, error: unitsError } = await supabase.from("project_inventory_observations")
-        .select("id,unit_reference,tower_name,floor_number,configuration,carpet_area_sqft,asking_price_inr,additional_charges_inr,availability_status,observed_at,source_url,verified_by")
+        .select("id,unit_reference,tower_name,floor_number,configuration,carpet_area_sqft,asking_price_inr,additional_charges_inr,availability_status,observed_at,source_url")
         .eq("project_id", p.id).eq("is_sample", false).eq("availability_status", "available")
         .not("source_url", "is", null).gte("observed_at", new Date(Date.now() - 14 * 86400000).toISOString()).order("asking_price_inr");
       const { data: history } = await supabase.from("project_inventory_observations")
-        .select("id,unit_reference,tower_name,floor_number,configuration,carpet_area_sqft,asking_price_inr,additional_charges_inr,availability_status,observed_at,source_url,verified_by")
+        .select("id,unit_reference,tower_name,floor_number,configuration,carpet_area_sqft,asking_price_inr,additional_charges_inr,availability_status,observed_at,source_url")
         .eq("project_id", p.id).eq("is_sample", false).not("source_url", "is", null)
         .not("asking_price_inr", "is", null).order("observed_at", { ascending: false }).limit(12);
       if (live) {
