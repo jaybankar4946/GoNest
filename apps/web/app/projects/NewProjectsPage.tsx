@@ -23,7 +23,7 @@ type Unit = { id: string; unit_reference: string | null; tower_name: string | nu
 const MAHARERA = "https://maharera.maharashtra.gov.in/";
 const money = (n: number | null | undefined) => n == null ? "Ask for current pricing" : n >= 10000000 ? `₹${(n / 10000000).toFixed(2).replace(/0+$/,"").replace(/\.$/,"")} Cr` : n >= 100000 ? `₹${(n / 100000).toFixed(1).replace(/\.0$/,"")} L` : `₹${n.toLocaleString("en-IN")}`;
 const dateLabel = (s: string | null | undefined) => s ? new Date(s).toLocaleDateString("en-IN",{month:"short",year:"numeric"}) : "Not provided";
-const isFresh = (s: string | null | undefined) => !!s && Date.now() >= new Date(s).getTime() && Date.now() >= new Date(s).getTime() && Date.now() - new Date(s).getTime() <= 14 * 86400000;
+const isFresh = (s: string | null | undefined) => !!s && Date.now() >= new Date(s).getTime() && Date.now() - new Date(s).getTime() <= 14 * 86400000;
 const projectConfigLabels = (p: Project) => Array.isArray(p.configurations)
   ? p.configurations.map((x: any) => typeof x === "string" ? x : x?.label || x?.configuration || x?.name).filter((v: any): v is string => typeof v === "string" && v.trim().length > 0)
   : [];
@@ -34,7 +34,7 @@ const matchesConfiguration = (p: Project, filter: string) => {
   if (filter === "Plot") return /plot/.test(labels);
   if (filter === "Studio") return /studio/.test(labels);
   const beds = Number(filter.match(/\d+/)?.[0] ?? 0);
-  return beds > 0 && new RegExp("(?:^|\\D)" + beds + "\\s*bhk|\\b" + beds + "\\s*bed", "i").test(labels);
+  return beds > 0 && new RegExp("(?:^|\\D)" + beds + "\\s*bhk|\b" + beds + "\\s*bed", "i").test(labels);
 };
 
 export default function NewProjectsPage() {
@@ -146,7 +146,7 @@ export default function NewProjectsPage() {
   const verifiedInventory = !!selected && selected.verification_status === "verified" && selected.inventory_status === "verified_available" && isFresh(selected.inventory_verified_at);
   const publishedConfigurations = Array.isArray(selected?.configurations) ? selected.configurations.filter((item: any) => {
     const label = typeof item === "string" ? item : item?.label || item?.configuration || item?.name || "";
-    return typeof label === "string" && /\\b(BHK|bed|duplex|villa|penthouse|studio|plot)\\b/i.test(label);
+    return typeof label === "string" && /\b(BHK|bed|duplex|villa|penthouse|studio|plot)\b/i.test(label);
   }).map((item: any) => typeof item === "string" ? { label: item } : item) : [];
 
 
@@ -192,7 +192,7 @@ export default function NewProjectsPage() {
               : p.cover_image_url;
             const projectStatusLabel = p.construction_status === "completed" ? "Ready to move" : p.construction_status === "under_construction" ? "Under construction" : "Ready to move";
             const location = [p.locality?.name,p.city?.name].filter(Boolean).join(", ") || p.public_address || "Location details pending";
-            const configurations = Array.isArray(p.configurations) ? p.configurations.map((x:any)=>typeof x==="string"?x:x?.label||x?.configuration).filter((label:any)=>typeof label==="string" && /\\b(BHK|bed|duplex|villa|plot|studio)\\b/i.test(label)).join(" · ") : "";
+            const configurations = Array.isArray(p.configurations) ? p.configurations.map((x:any)=>typeof x==="string"?x:x?.label||x?.configuration).filter((label:any)=>typeof label==="string" && /\b(BHK|bed|duplex|villa|plot|studio)\b/i.test(label)).join(" · ") : "";
             return <article key={p.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
               <div className="relative h-52 overflow-hidden bg-gradient-to-br from-slate-100 via-blue-50 to-slate-200">
                 {coverImage ? <img src={coverImage} alt={p.official_name + " official project image"} loading="lazy" className="h-full w-full object-cover transition duration-300 hover:scale-[1.02]"/> : <div className="flex h-full items-center justify-center"><Building2 className="h-12 w-12 text-slate-300"/></div>}
