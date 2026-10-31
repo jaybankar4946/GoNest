@@ -163,7 +163,7 @@ export default function NewProjectsPage() {
     } finally { setSending(false); }
   }
 
-  const availableUnits = units.filter(u => u.availability_status === "available" && isFresh(u.observed_at) && !!u.source_url && !!u.verified_by && !!selected && selected.verification_status === "verified" && selected.inventory_status === "verified_available" && isFresh(selected.inventory_verified_at));
+  const availableUnits = units.filter(u => u.availability_status === "available" && isFresh(u.observed_at) && !!u.source_url && !!selected && selected.verification_status === "verified" && selected.inventory_status === "verified_available" && isFresh(selected.inventory_verified_at));
   const verifiedInventory = !!selected && selected.verification_status === "verified" && selected.inventory_status === "verified_available" && isFresh(selected.inventory_verified_at);
   const publishedConfigurations = Array.isArray(selected?.configurations) ? selected.configurations.filter((item: any) => {
     const label = typeof item === "string" ? item : item?.label || item?.configuration || item?.name || "";
