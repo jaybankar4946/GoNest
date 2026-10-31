@@ -89,8 +89,15 @@ export default function ProjectDetailPage({ id }: { id: string }) {
   const location = [locality, city].filter(Boolean).join(", ") || project?.public_address || "Location details not provided";
   const images = useMemo(() => {
     if (!project) return [];
-    const urls = [project.cover_image_url, ...(project.gallery_image_urls ?? [])]
-      .filter((url): url is string => typeof url === "string" && url.startsWith("https://"));
+    const isBirlaPunya = project.official_name.toLowerCase().includes("birla punya");
+    const urls = isBirlaPunya
+      ? [
+          "https://www.birlaestates.com/birla-punya-pune/images/ph_02.webp",
+          "https://www.birlaestates.com/birla-punya-pune/images/ph_01.webp",
+          "https://www.birlaestates.com/birla-punya-pune/images/ph_03.webp"
+        ]
+      : [project.cover_image_url, ...(project.gallery_image_urls ?? [])]
+          .filter((url): url is string => typeof url === "string" && url.startsWith("https://"));
     return Array.from(new Set(urls));
   }, [project]);
   const floorPlanImages = useMemo(() => {
