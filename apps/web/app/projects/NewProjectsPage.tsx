@@ -242,7 +242,7 @@ export default function NewProjectsPage() {
                 </div>
               </div>
             </article>;
-          })}</div>}
+          })}</div></>}
       </section>
       <section className="border-t border-slate-200 bg-white py-10"><div className="mx-auto grid max-w-7xl gap-4 px-4 sm:grid-cols-3 md:px-6">
         {[["Official source links","Open developer pages to review their current project information."],["MahaRERA check","Verify the exact project and phase on the official state portal."],["Availability transparency","Only recent, sourced, verified unit records qualify as available on GoNest."]].map(([title,desc])=><div key={title} className="rounded-xl border border-slate-200 p-4"><CheckCircle2 className="mb-2 h-5 w-5 text-emerald-600"/><h3 className="font-bold">{title}</h3><p className="mt-1 text-sm leading-6 text-slate-500">{desc}</p></div>)}
