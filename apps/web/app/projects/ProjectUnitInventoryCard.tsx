@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, CheckCircle2, ExternalLink, Home, MapPin } from "lucide-react";
+import { CalendarDays, CheckCircle2, ExternalLink, Home } from "lucide-react";
 
 export type ProjectUnitInventory = {
   id: string;
