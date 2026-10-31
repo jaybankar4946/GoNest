@@ -314,6 +314,13 @@ export async function adminReviewSubmission(kind: 'project' | 'brokerage', id: s
   if (error) throw error;
 }
 
+export async function adminReviewProjectUnit(id: string, decision: 'approved' | 'rejected', notes?: string) {
+  const { error } = await supabase.rpc('admin_review_project_unit', {
+    p_unit_id: id, p_decision: decision, p_notes: notes?.trim() || null,
+  });
+  if (error) throw error;
+}
+
 // --- Backward-compatible aliases (older names used by admin/page.tsx) ---
 export const adminGetPending = adminGetPendingListings;
 export const adminGetLeads   = adminGetAllLeads;

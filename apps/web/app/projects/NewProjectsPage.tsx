@@ -2,13 +2,17 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+
 import { Nav } from "@/components/layout/Nav";
+import { ProjectUnitInventoryCard } from "./ProjectUnitInventoryCard";
+import { ProjectImage } from "./ProjectImage";
 import { Footer } from "@/components/layout/Footer";
 import { supabase } from "@/lib/supabase";
-import { ArrowRight, Building2, CalendarDays, CheckCircle2, ExternalLink, Filter, MapPin, Search, ShieldCheck, X } from "lucide-react";
+import { ArrowRight, Building2, CalendarDays, CheckCircle2, ExternalLink, Filter, GitCompare, Heart, MapPin, Search, ShieldCheck, SlidersHorizontal, X } from "lucide-react";
+
 
 type Project = {
-  id: string; official_name: string; public_address: string | null; landmark: string | null; neighbourhood: string | null; pincode: string | null; rera_number: string | null;
+  id: string; official_name: string; latitude: number | string | null; longitude: number | string | null; public_address: string | null; landmark: string | null; neighbourhood: string | null; pincode: string | null; rera_number: string | null;
   project_category: string; construction_status: string; launch_date: string | null; expected_possession_date: string | null;
   total_units: number | null; configurations: unknown; published_price_min_inr: number | null; published_price_max_inr: number | null;
   price_observed_at: string | null; official_project_url: string | null; brochure_url: string | null;
@@ -17,12 +21,24 @@ type Project = {
   developer?: { operating_brand?: string | null; website_url?: string | null } | null;
   city?: { name?: string } | null; locality?: { name?: string } | null;
 };
-type Unit = { id: string; unit_reference: string | null; tower_name: string | null; floor_number: number | null; configuration: string | null; carpet_area_sqft: number | null; asking_price_inr: number | null; additional_charges_inr: number | null; availability_status: string; observed_at: string; source_url: string | null; verified_by: string | null };
+type Unit = { id: string; tower_name: string | null; floor_number: number | null; configuration: string | null; carpet_area_sqft: number | null; asking_price_inr: number | null; additional_charges_inr: number | null; availability_status: string; observed_at: string; source_url: string | null };
 
 const MAHARERA = "https://maharera.maharashtra.gov.in/";
 const money = (n: number | null | undefined) => n == null ? "Ask for current pricing" : n >= 10000000 ? `₹${(n / 10000000).toFixed(2).replace(/0+$/,"").replace(/\.$/,"")} Cr` : n >= 100000 ? `₹${(n / 100000).toFixed(1).replace(/\.0$/,"")} L` : `₹${n.toLocaleString("en-IN")}`;
 const dateLabel = (s: string | null | undefined) => s ? new Date(s).toLocaleDateString("en-IN",{month:"short",year:"numeric"}) : "Not provided";
-const isFresh = (s: string | null | undefined) => !!s && Date.now() - new Date(s).getTime() <= 14 * 86400000;
+const isFresh = (s: string | null | undefined) => !!s && Date.now() >= new Date(s).getTime() && Date.now() - new Date(s).getTime() <= 14 * 86400000;
+const projectConfigLabels = (p: Project) => Array.isArray(p.configurations)
+  ? p.configurations.map((x: any) => typeof x === "string" ? x : x?.label || x?.configuration || x?.name).filter((v: any): v is string => typeof v === "string" && v.trim().length > 0)
+  : [];
+const matchesConfiguration = (p: Project, filter: string) => {
+  if (filter === "Any configuration") return true;
+  const labels = projectConfigLabels(p).join(" ").toLowerCase();
+  if (filter === "Villa") return ["villa","bungalow","row house"].some(term => labels.includes(term));
+  if (filter === "Plot") return labels.includes("plot");
+  if (filter === "Studio") return labels.includes("studio");
+  const beds = Number(filter.split(" ")[0].replace("+", ""));
+  return beds > 0 && (labels.includes(beds + " bhk") || labels.includes(beds + "bhk") || labels.includes(beds + " bed"));
+};
 
 export default function NewProjectsPage() {
   const router = useRouter();
@@ -33,6 +49,14 @@ export default function NewProjectsPage() {
   const [city, setCity] = useState("All Cities");
   const [registration, setRegistration] = useState("All projects");
   const [builder, setBuilder] = useState("All builders");
+  const [sortBy, setSortBy] = useState("recommended");
+  const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const [configurationFilter, setConfigurationFilter] = useState("Any configuration");
+  const [budgetFilter, setBudgetFilter] = useState("Any budget");
+  const [shortlistIds, setShortlistIds] = useState<string[]>([]);
+  const [shortlistLoaded, setShortlistLoaded] = useState(false);
+  const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [showCompare, setShowCompare] = useState(false);
   const [selected, setSelected] = useState<Project | null>(null);
   const [units, setUnits] = useState<Unit[]>([]);
   const [unitsLoading, setUnitsLoading] = useState(false);
@@ -42,11 +66,27 @@ export default function NewProjectsPage() {
   const [feedback, setFeedback] = useState("");
 
   useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem("gonest:project-shortlist:v1");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) setShortlistIds(parsed.filter((id): id is string => typeof id === "string"));
+      }
+    } catch {}
+    setShortlistLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (!shortlistLoaded) return;
+    try { window.localStorage.setItem("gonest:project-shortlist:v1", JSON.stringify(shortlistIds)); } catch {}
+  }, [shortlistIds, shortlistLoaded]);
+
+  useEffect(() => {
     let live = true;
     (async () => {
       setLoading(true); setLoadError("");
       const { data, error } = await supabase.from("real_estate_projects")
-        .select("id,official_name,public_address,landmark,neighbourhood,pincode,rera_number,project_category,construction_status,launch_date,expected_possession_date,total_units,configurations,published_price_min_inr,published_price_max_inr,price_observed_at,official_project_url,brochure_url,cover_image_url,gallery_image_urls,image_source_url,inventory_status,inventory_verified_at,verification_status,is_sample,developer:developers(operating_brand,website_url),city:cities(name),locality:localities(name)")
+        .select("id,official_name,latitude,longitude,public_address,landmark,neighbourhood,pincode,rera_number,project_category,construction_status,launch_date,expected_possession_date,total_units,configurations,published_price_min_inr,published_price_max_inr,price_observed_at,official_project_url,brochure_url,cover_image_url,gallery_image_urls,image_source_url,inventory_status,inventory_verified_at,verification_status,is_sample,developer:developers(operating_brand,website_url),city:cities(name),locality:localities(name)")
         .eq("is_sample", false).in("verification_status", ["pending","verified"]).not("official_project_url","is",null)
         .order("official_name");
       if (!live) return;
@@ -71,7 +111,7 @@ export default function NewProjectsPage() {
     setUnitsLoading(true); setFeedback("");
     (async () => {
       const { data, error } = await supabase.from("project_inventory_observations")
-        .select("id,unit_reference,tower_name,floor_number,configuration,carpet_area_sqft,asking_price_inr,additional_charges_inr,availability_status,observed_at,source_url,verified_by")
+        .select("id,tower_name,floor_number,configuration,carpet_area_sqft,asking_price_inr,additional_charges_inr,availability_status,observed_at,source_url")
         .eq("project_id", selected.id).eq("is_sample", false).eq("availability_status","available")
         .not("source_url","is",null).gte("observed_at",new Date(Date.now()-14*86400000).toISOString()).order("asking_price_inr");
       if (!live) return;
@@ -86,11 +126,21 @@ export default function NewProjectsPage() {
   const builders = useMemo(() => ["All builders", ...Array.from(new Set(projects.map(p => p.developer?.operating_brand).filter(Boolean) as string[])).sort()], [projects]);
   const filtered = useMemo(() => projects.filter(p => {
     const haystack = [p.official_name,p.developer?.operating_brand,p.city?.name,p.locality?.name,p.public_address,p.landmark,p.neighbourhood,p.pincode,p.rera_number].filter(Boolean).join(" ").toLowerCase();
-    const matchCity = city === "All Cities" || p.city?.name === city || (city === "Mumbai" && /thane|navi mumbai|mumbai/i.test(haystack));
+    const matchCity = city === "All Cities" || p.city?.name === city || (city === "Mumbai" && ["thane","navi mumbai","mumbai"].some(term => haystack.includes(term)));
     const matchRegistration = registration === "All projects" || (registration === "Registration listed" ? !!p.rera_number : !p.rera_number);
     const matchBuilder = builder === "All builders" || p.developer?.operating_brand === builder;
-    return matchCity && matchRegistration && matchBuilder && haystack.includes(query.trim().toLowerCase());
-  }), [projects, city, registration, builder, query]);
+    const matchVerified = !verifiedOnly || (p.verification_status === "verified" && p.inventory_status === "verified_available" && isFresh(p.inventory_verified_at));
+    const matchConfiguration = matchesConfiguration(p, configurationFilter);
+    const budget = budgetFilter === "Any budget" ? null : Number(budgetFilter);
+    const matchBudget = budget == null || (p.published_price_min_inr != null && p.published_price_min_inr <= budget);
+    return matchCity && matchRegistration && matchBuilder && matchVerified && matchConfiguration && matchBudget && haystack.includes(query.trim().toLowerCase());
+  }).sort((a,b) => {
+    if (sortBy === "price_low") return (a.published_price_min_inr ?? Number.MAX_SAFE_INTEGER) - (b.published_price_min_inr ?? Number.MAX_SAFE_INTEGER);
+    if (sortBy === "price_high") return (b.published_price_min_inr ?? -1) - (a.published_price_min_inr ?? -1);
+    if (sortBy === "possession") return (a.expected_possession_date ?? "9999").localeCompare(b.expected_possession_date ?? "9999");
+    if (sortBy === "name") return a.official_name.localeCompare(b.official_name);
+    return Number(b.verification_status === "verified") - Number(a.verification_status === "verified") || a.official_name.localeCompare(b.official_name);
+  }), [projects, city, registration, builder, query, sortBy, verifiedOnly, configurationFilter, budgetFilter]);
 
   async function submitRequest(e: React.FormEvent) {
     e.preventDefault();
@@ -112,8 +162,13 @@ export default function NewProjectsPage() {
     } finally { setSending(false); }
   }
 
-  const availableUnits = units.filter(u => u.availability_status === "available" && isFresh(u.observed_at) && !!u.source_url && !!u.verified_by);
+  const availableUnits = units.filter(u => u.availability_status === "available" && isFresh(u.observed_at) && !!u.source_url && !!selected && selected.verification_status === "verified" && selected.inventory_status === "verified_available" && isFresh(selected.inventory_verified_at));
   const verifiedInventory = !!selected && selected.verification_status === "verified" && selected.inventory_status === "verified_available" && isFresh(selected.inventory_verified_at);
+  const publishedConfigurations = Array.isArray(selected?.configurations) ? selected.configurations.filter((item: any) => {
+    const label = typeof item === "string" ? item : item?.label || item?.configuration || item?.name || "";
+    return typeof label === "string" && ["bhk","bed","duplex","villa","penthouse","studio","plot"].some(term => label.toLowerCase().includes(term));
+  }).map((item: any) => typeof item === "string" ? { label: item } : item) : [];
+
 
   return <>
     <Nav />
@@ -129,6 +184,12 @@ export default function NewProjectsPage() {
             <select value={registration} onChange={e=>setRegistration(e.target.value)} className="rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm"><option>All projects</option><option>Registration listed</option><option>Registration not listed</option></select>
             <select value={builder} onChange={e=>setBuilder(e.target.value)} className="rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm">{builders.map(b=><option key={b}>{b}</option>)}</select>
           </div>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_auto]">
+            <label className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600"><SlidersHorizontal className="h-4 w-4 text-slate-400"/>Configuration<select value={configurationFilter} onChange={e=>setConfigurationFilter(e.target.value)} className="min-w-0 flex-1 bg-transparent py-1 text-sm text-slate-900 outline-none"><option>Any configuration</option>{["Studio","1 BHK","2 BHK","3 BHK","4 BHK","5+ BHK","Villa","Plot"].map(v=><option key={v}>{v}</option>)}</select></label>
+            <label className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600">Maximum starting price<select value={budgetFilter} onChange={e=>setBudgetFilter(e.target.value)} className="min-w-0 flex-1 bg-transparent py-1 text-sm text-slate-900 outline-none"><option>Any budget</option><option value="5000000">₹50 L</option><option value="10000000">₹1 Cr</option><option value="20000000">₹2 Cr</option><option value="50000000">₹5 Cr</option><option value="100000000">₹10 Cr</option></select></label>
+            <button type="button" onClick={()=>{setCity("All Cities");setRegistration("All projects");setBuilder("All builders");setQuery("");setVerifiedOnly(false);setSortBy("recommended");setConfigurationFilter("Any configuration");setBudgetFilter("Any budget");}} className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50">Reset all filters</button>
+          </div>
+          <div className="mt-4 flex flex-wrap items-center gap-2"><button type="button" aria-pressed={verifiedOnly} onClick={()=>setVerifiedOnly(v=>!v)} className={"rounded-full border px-4 py-2 text-xs font-bold transition " + (verifiedOnly ? "border-emerald-700 bg-emerald-50 text-emerald-800" : "border-slate-200 bg-white text-slate-700 hover:border-slate-400")}>{verifiedOnly ? "✓ Recent verified inventory" : "Show recent verified inventory"}</button><label className="ml-auto flex items-center gap-2 text-xs font-semibold text-slate-600">Sort by<select value={sortBy} onChange={e=>setSortBy(e.target.value)} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm"><option value="recommended">Recommended</option><option value="price_low">Price: low to high</option><option value="price_high">Price: high to low</option><option value="possession">Possession date</option><option value="name">Project name</option></select></label></div>
           <div className="mt-5 flex flex-wrap gap-3 text-sm text-slate-500">
             <span className="rounded-full bg-slate-100 px-3 py-1.5">{projects.length} listed project records</span>
             <span className="rounded-full bg-slate-100 px-3 py-1.5">{builders.length - 1} developers</span>
@@ -141,19 +202,23 @@ export default function NewProjectsPage() {
       <section className="mx-auto max-w-7xl px-4 py-8 md:px-6">
         {loading ? <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center text-slate-500">Loading live project data…</div>
         : loadError ? <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-amber-900">{loadError}</div>
-        : filtered.length === 0 ? <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center"><Building2 className="mx-auto mb-3 h-10 w-10 text-slate-300"/><h2 className="font-bold">No projects match these filters</h2><p className="mt-1 text-sm text-slate-500">Try a broader search or choose all cities.</p><button onClick={()=>{setCity("All Cities");setRegistration("All projects");setBuilder("All builders");setQuery("");}} className="mt-4 font-semibold text-blue-700">Clear filters</button></div>
-        : <><div className="mb-4 flex items-center justify-between"><p className="text-sm text-slate-600"><strong>{filtered.length}</strong> projects found</p><p className="text-xs text-slate-500">Project records are not a guarantee of current inventory</p></div>
+        : filtered.length === 0 ? <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center"><Building2 className="mx-auto mb-3 h-10 w-10 text-slate-300"/><h2 className="font-bold">No projects match these filters</h2><p className="mt-1 text-sm text-slate-500">Try a broader search or choose all cities.</p><button onClick={()=>{setCity("All Cities");setRegistration("All projects");setBuilder("All builders");setQuery("");setVerifiedOnly(false);setSortBy("recommended");setConfigurationFilter("Any configuration");setBudgetFilter("Any budget");}} className="mt-4 font-semibold text-blue-700">Clear filters</button></div>
+        : <div><div className="mb-4 flex flex-wrap items-center justify-between gap-2"><p className="text-sm text-slate-600"><strong>{filtered.length}</strong> projects found <span className="text-slate-400">·</span> {verifiedOnly ? "Showing recent verified inventory only" : "Browse projects and compare key facts"}</p><p className="text-xs text-slate-500">Availability is shown only with recent source-linked evidence</p></div>
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{filtered.map(p=>{
             const verified = p.verification_status==="verified" && p.inventory_status==="verified_available" && isFresh(p.inventory_verified_at);
             const developer = p.developer?.operating_brand || "Developer details pending";
+            const projectImages = [p.cover_image_url, ...(p.gallery_image_urls ?? [])];
+            const projectStatusLabel = p.construction_status === "completed" ? "Ready to move" : p.construction_status === "under_construction" ? "Under construction" : null;
             const location = [p.locality?.name,p.city?.name].filter(Boolean).join(", ") || p.public_address || "Location details pending";
-            const configurations = Array.isArray(p.configurations) ? p.configurations.map((x:any)=>typeof x==="string"?x:x?.label||x?.configuration).filter(Boolean).join(" · ") : "";
-            return <article key={p.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
-              <div className="relative h-52 overflow-hidden bg-gradient-to-br from-slate-100 via-blue-50 to-slate-200">
-                {p.cover_image_url ? <img src={p.cover_image_url} alt={p.official_name + " official project image"} loading="lazy" className="h-full w-full object-cover transition duration-300 hover:scale-[1.02]"/> : <div className="flex h-full items-center justify-center"><Building2 className="h-12 w-12 text-slate-300"/></div>}
-                <span className="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-[11px] font-bold text-slate-700">{p.cover_image_url ? "PROJECT GALLERY" : "IMAGE PENDING"}</span>
+            const configurations = Array.isArray(p.configurations) ? p.configurations.map((x:any)=>typeof x==="string"?x:x?.label||x?.configuration).filter((label:any)=>typeof label==="string" && ["bhk","bed","duplex","villa","plot","studio"].some(term=>label.toLowerCase().includes(term))).join(" · ") : "";
+            return (<article key={p.id} className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
+              <div className="relative">
+                <ProjectImage sources={projectImages} alt={p.official_name + " project photograph"} className="h-52 w-full" imageClassName="h-full w-full object-cover transition duration-300 hover:scale-[1.02]" />
+                {!projectImages.some(Boolean) && <span className="absolute bottom-3 left-3 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-semibold text-slate-600">Photo pending</span>}
+                
+                <div className="absolute inset-x-3 top-3 flex items-start justify-between gap-2">{projectStatusLabel && <span className="rounded-full bg-white/95 px-3 py-1 text-[11px] font-bold text-slate-800 shadow-sm">{projectStatusLabel}</span>}{verified && <span className="inline-flex items-center gap-1 rounded-full bg-emerald-700 px-3 py-1 text-[11px] font-bold text-white shadow-sm"><ShieldCheck className="h-3 w-3"/>Recent inventory</span>}</div>
               </div>
-              <div className="p-5">
+              <div className="flex flex-1 flex-col p-5">
                 <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">{developer}</p>
                 <h2 className="mt-1 text-lg font-extrabold leading-snug">{p.official_name}</h2>
                 <p className="mt-2 flex items-start gap-2 text-sm text-slate-500"><MapPin className="mt-0.5 h-4 w-4 shrink-0"/>{location}</p>
@@ -163,14 +228,18 @@ export default function NewProjectsPage() {
                   <div className="rounded-xl bg-slate-50 p-3"><p className="text-xs text-slate-500">Configurations</p><p className="mt-1 text-sm font-bold">{configurations || "Confirm with developer"}</p></div>
                   <div className="rounded-xl bg-slate-50 p-3"><p className="text-xs text-slate-500">MahaRERA reference</p><p className="mt-1 break-words text-sm font-bold">{p.rera_number || "Tower-specific check required"}</p></div>
                 </div>
-                <div className="mt-4 flex items-center gap-2 text-xs text-slate-500"><ShieldCheck className="h-4 w-4"/>{p.verification_status==="verified"?"GoNest project record verified":"Source-linked record · details need confirmation"}</div>
-                <div className="mt-5 flex gap-2">
-                  <button onClick={()=>router.push(`/projects/${p.id}`)} className="flex-1 rounded-xl bg-blue-700 px-3 py-3 text-sm font-bold text-white hover:bg-blue-800">View details & enquire <ArrowRight className="ml-1 inline h-4 w-4"/></button>
+                <div className="mt-4 flex flex-wrap items-center gap-2 text-xs"><span className={"inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-semibold " + (p.verification_status==="verified" ? "bg-blue-50 text-blue-800" : "bg-slate-100 text-slate-600")}><ShieldCheck className="h-3.5 w-3.5"/>{p.verification_status==="verified"?"Project record verified":"Source-linked project record"}</span><span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-600">{p.rera_number ? "RERA reference recorded" : "RERA reference not recorded"}</span></div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <button type="button" aria-pressed={shortlistIds.includes(p.id)} onClick={()=>setShortlistIds(ids=>ids.includes(p.id)?ids.filter(id=>id!==p.id):[...ids,p.id])} className={"inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-bold " + (shortlistIds.includes(p.id) ? "border-rose-200 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-600 hover:bg-slate-50")}><Heart className={"h-3.5 w-3.5 " + (shortlistIds.includes(p.id) ? "fill-current" : "")}/>{shortlistIds.includes(p.id) ? "Saved on this device" : "Save project"}</button>
+                  <button type="button" disabled={!compareIds.includes(p.id) && compareIds.length>=3} aria-pressed={compareIds.includes(p.id)} onClick={()=>setCompareIds(ids=>ids.includes(p.id)?ids.filter(id=>id!==p.id):[...ids,p.id])} className={"inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-bold disabled:cursor-not-allowed disabled:opacity-40 " + (compareIds.includes(p.id) ? "border-blue-200 bg-blue-50 text-blue-800" : "border-slate-200 text-slate-600 hover:bg-slate-50")}><GitCompare className="h-3.5 w-3.5"/>{compareIds.includes(p.id) ? "Added to compare" : "Compare"}</button>
+                </div>
+                <div className="mt-auto flex gap-2 pt-5">
+                  <button onClick={()=>router.push(`/projects/${p.id}`)} className="flex-1 rounded-xl bg-slate-950 px-3 py-3 text-sm font-bold text-white hover:bg-blue-800">Explore project & enquire <ArrowRight className="ml-1 inline h-4 w-4"/></button>
                   {p.official_project_url && <a href={p.official_project_url} target="_blank" rel="noreferrer" aria-label="Open official developer project page" className="flex items-center justify-center rounded-xl border border-slate-200 px-3 text-slate-700 hover:bg-slate-50"><ExternalLink className="h-4 w-4"/></a>}
                 </div>
               </div>
-            </article>;
-          })}</div></>}
+            </article>);
+          })}</div></div>}
       </section>
       <section className="border-t border-slate-200 bg-white py-10"><div className="mx-auto grid max-w-7xl gap-4 px-4 sm:grid-cols-3 md:px-6">
         {[["Official source links","Open developer pages to review their current project information."],["MahaRERA check","Verify the exact project and phase on the official state portal."],["Availability transparency","Only recent, sourced, verified unit records qualify as available on GoNest."]].map(([title,desc])=><div key={title} className="rounded-xl border border-slate-200 p-4"><CheckCircle2 className="mb-2 h-5 w-5 text-emerald-600"/><h3 className="font-bold">{title}</h3><p className="mt-1 text-sm leading-6 text-slate-500">{desc}</p></div>)}
@@ -178,15 +247,67 @@ export default function NewProjectsPage() {
       </div></section>
     </main>
     <Footer />
+    {compareIds.length > 0 && <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 p-3 shadow-2xl backdrop-blur"><div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3"><p className="text-sm font-bold text-slate-900">{compareIds.length} of 3 projects selected <span className="font-normal text-slate-500">· Compare prices, possession, configurations and trust details</span></p><div className="flex items-center gap-2"><button type="button" onClick={()=>setCompareIds([])} className="rounded-lg px-3 py-2 text-xs font-bold text-slate-500 hover:bg-slate-100">Clear</button><button type="button" disabled={compareIds.length<2} onClick={()=>setShowCompare(true)} className="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-bold text-white disabled:opacity-40">Compare projects</button></div></div></div>}
+    {showCompare && <div className="fixed inset-0 z-[70] flex items-end justify-center bg-slate-950/60 p-2 sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label="Compare projects"><div className="max-h-[90vh] w-full max-w-6xl overflow-hidden rounded-2xl bg-white shadow-2xl"><div className="flex items-center justify-between border-b border-slate-200 px-5 py-4"><div><p className="text-xs font-bold uppercase tracking-wider text-blue-700">GoNest comparison</p><h2 className="mt-1 text-xl font-extrabold">Compare selected projects</h2></div><button type="button" onClick={()=>setShowCompare(false)} aria-label="Close comparison" className="rounded-lg p-2 hover:bg-slate-100"><X className="h-5 w-5"/></button></div><div className="overflow-x-auto p-4"><table className="w-full min-w-[760px] border-collapse text-left text-sm"><thead><tr><th className="w-40 border-b border-slate-200 p-3 text-xs uppercase tracking-wide text-slate-500">Project facts</th>{projects.filter(p=>compareIds.includes(p.id)).map(p=><th key={p.id} className="border-b border-slate-200 p-3 align-top"><div className="flex items-start justify-between gap-2"><div><p className="text-xs font-semibold text-blue-700">{p.developer?.operating_brand || "Developer not recorded"}</p><p className="mt-1 font-extrabold text-slate-900">{p.official_name}</p></div><button type="button" onClick={()=>setCompareIds(ids=>ids.filter(id=>id!==p.id))} aria-label={"Remove "+p.official_name} className="rounded-md p-1 text-slate-400 hover:bg-slate-100"><X className="h-4 w-4"/></button></div></th>)}</tr></thead><tbody>{([
+["Location",(p:Project)=>[p.locality?.name,p.city?.name].filter(Boolean).join(", ") || p.public_address || "Not recorded"],
+["Published price",(p:Project)=>p.published_price_min_inr==null&&p.published_price_max_inr==null?"Request current quote":p.published_price_min_inr!=null&&p.published_price_max_inr!=null?money(p.published_price_min_inr)+" – "+money(p.published_price_max_inr):p.published_price_min_inr!=null?"From "+money(p.published_price_min_inr):"Up to "+money(p.published_price_max_inr)],
+["Configurations",(p:Project)=>projectConfigLabels(p).join(" · ") || "Confirm with developer"],
+["Possession",(p:Project)=>dateLabel(p.expected_possession_date)],
+["Construction status",(p:Project)=>p.construction_status==="completed"?"Ready to move":p.construction_status==="under_construction"?"Under construction":"Status not provided"],
+["Project size",(p:Project)=>p.total_units!=null?p.total_units.toLocaleString("en-IN")+" units":"Not recorded"],
+["MahaRERA",(p:Project)=>p.rera_number || "Not recorded"],
+["Project verification",(p:Project)=>p.verification_status==="verified"?"GoNest project record verified":"Source-linked record · needs confirmation"],
+["Current unit stock",(p:Project)=>p.verification_status==="verified"&&p.inventory_status==="verified_available"&&isFresh(p.inventory_verified_at)?"Recent stock record · confirm unit-level details":"No recent verified unit stock"]
+] as Array<[string,(p:Project)=>string]>).map(([label,value])=><tr key={label}><th className="border-b border-slate-100 p-3 text-xs font-semibold text-slate-500">{label}</th>{projects.filter(p=>compareIds.includes(p.id)).map(p=><td key={p.id} className="border-b border-slate-100 p-3 font-semibold text-slate-800">{value(p)}</td>)}</tr>)}</tbody></table></div><div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-slate-50 px-5 py-4"><p className="text-xs text-slate-500">Compare published project information. Unit availability and prices must be reconfirmed with the source.</p><button type="button" onClick={()=>setShowCompare(false)} className="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-bold text-white">Done</button></div></div></div>}
     {selected && <div className="fixed inset-0 z-50 flex justify-end">
       <button aria-label="Close project details" onClick={()=>setSelected(null)} className="absolute inset-0 bg-slate-950/50"/>
       <section role="dialog" aria-modal="true" aria-labelledby="project-detail-title" className="relative h-full w-full max-w-2xl overflow-y-auto bg-white shadow-2xl">
         <header className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white p-5"><div><p className="text-xs font-bold uppercase tracking-wide text-blue-700">{selected.developer?.operating_brand || "Project details"}</p><h2 id="project-detail-title" className="mt-1 text-xl font-extrabold">{selected.official_name}</h2></div><button onClick={()=>setSelected(null)} className="rounded-full bg-slate-100 p-2" aria-label="Close"><X className="h-5 w-5"/></button></header>
         <div className="space-y-5 p-5 md:p-6">
+          <section aria-label="Project gallery and key facts">
+            <ProjectImage sources={[selected.cover_image_url, ...(selected.gallery_image_urls ?? [])]} alt={selected.official_name + " project exterior"} className="h-56 w-full rounded-2xl" imageClassName="h-full w-full object-cover" />
+            {Array.isArray(selected.gallery_image_urls) && selected.gallery_image_urls.filter(Boolean).length > 0 && <div className="mt-2 grid grid-cols-3 gap-2">{selected.gallery_image_urls.filter(Boolean).slice(0,3).map((url:string,index:number)=><a key={url} href={url} target="_blank" rel="noreferrer" className="overflow-hidden rounded-lg border border-slate-200"><img src={url} alt={selected.official_name + " gallery " + (index+1)} className="h-20 w-full object-cover" loading="lazy"/></a>)}</div>}
+            <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+              <div className="rounded-xl border border-slate-200 p-3"><p className="text-[11px] text-slate-500">Construction status</p><p className="mt-1 text-sm font-bold">{selected.construction_status === "completed" ? "Ready to move" : selected.construction_status === "under_construction" ? "Under construction" : "Status not provided"}</p></div>
+              <div className="rounded-xl border border-slate-200 p-3"><p className="text-[11px] text-slate-500">Price range</p><p className="mt-1 text-sm font-bold">{selected.published_price_min_inr == null && selected.published_price_max_inr == null ? "Request current quote" : selected.published_price_min_inr != null && selected.published_price_max_inr != null ? money(selected.published_price_min_inr) + " – " + money(selected.published_price_max_inr) : selected.published_price_min_inr != null ? "From " + money(selected.published_price_min_inr) : "Up to " + money(selected.published_price_max_inr)}</p></div>
+              <div className="rounded-xl border border-slate-200 p-3"><p className="text-[11px] text-slate-500">Possession</p><p className="mt-1 text-sm font-bold">{dateLabel(selected.expected_possession_date)}</p></div>
+              <div className="rounded-xl border border-slate-200 p-3"><p className="text-[11px] text-slate-500">Project units</p><p className="mt-1 text-sm font-bold">{selected.total_units?.toLocaleString("en-IN") ?? "Not recorded"}</p></div>
+              <div className="rounded-xl border border-slate-200 p-3"><p className="text-[11px] text-slate-500">MahaRERA reference</p><p className="mt-1 break-words text-sm font-bold">{selected.rera_number || "Not recorded"}</p></div>
+              <div className="rounded-xl border border-slate-200 p-3"><p className="text-[11px] text-slate-500">Price last observed</p><p className="mt-1 text-sm font-bold">{dateLabel(selected.price_observed_at)}</p></div>
+            </div>
+          </section>
           <div className="rounded-2xl bg-slate-50 p-4"><p className="flex items-center gap-2 font-bold"><MapPin className="h-4 w-4"/>{[selected.locality?.name,selected.city?.name].filter(Boolean).join(", ") || selected.public_address || "Location to be confirmed"}</p><p className="mt-2 text-sm text-slate-600">Project data shown here is limited to recorded source information. Ask the developer to confirm the exact phase, live unit inventory, full price sheet and possession terms.</p>
             <div className="mt-3 flex flex-wrap gap-2">{selected.official_project_url&&<a className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold" href={selected.official_project_url} target="_blank" rel="noreferrer">Official project page <ExternalLink className="ml-1 inline h-3.5 w-3.5"/></a>}<a className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold" href={MAHARERA} target="_blank" rel="noreferrer">MahaRERA search <ExternalLink className="ml-1 inline h-3.5 w-3.5"/></a>{selected.brochure_url&&<a className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold" href={selected.brochure_url} target="_blank" rel="noreferrer">Brochure <ExternalLink className="ml-1 inline h-3.5 w-3.5"/></a>}</div>
           </div>
-          <section><h3 className="text-lg font-extrabold">Available units</h3>{unitsLoading?<p className="mt-2 text-sm text-slate-500">Checking latest unit observations…</p>:availableUnits.length===0?null:<div className="mt-3 space-y-3">{availableUnits.map(u=><div key={u.id} className="rounded-xl border border-emerald-200 p-4"><div className="flex items-center justify-between gap-3"><p className="font-bold">{u.unit_reference || u.configuration || "Available unit"}{u.tower_name? ` · ${u.tower_name}`:""}</p><span className="rounded-full bg-emerald-50 px-2 py-1 text-xs font-bold text-emerald-800">Available · source checked</span></div><p className="mt-2 text-sm text-slate-600">{[u.configuration,u.floor_number? `Floor ${u.floor_number}`:null,u.carpet_area_sqft?`${u.carpet_area_sqft} sq ft carpet`:null].filter(Boolean).join(" · ") || "Details not supplied"}</p><p className="mt-2 text-lg font-extrabold">{money(u.asking_price_inr)}{u.additional_charges_inr? <span className="text-xs font-medium text-slate-500"> + {money(u.additional_charges_inr)} charges</span>:null}</p><p className="mt-1 text-xs text-slate-500">Observed {new Date(u.observed_at).toLocaleString("en-IN")} · <a href={u.source_url||"#"} target="_blank" rel="noreferrer" className="underline">Source</a></p></div>)}</div>}</section>
+          <section>
+            <div className="flex flex-wrap items-center justify-between gap-2"><h3 className="text-lg font-extrabold">Published home configurations</h3><span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-600">Not live availability</span></div>
+            <p className="mt-1 text-sm text-slate-500">These are configurations and plan details recorded from project sources. A configuration is not an available apartment; confirm the selected tower, approved carpet area and current quote with the builder.</p>
+            {publishedConfigurations.length ? <div className="mt-3 grid gap-3">{publishedConfigurations.map((item:any,index:number)=>{
+              const label = item.label || item.configuration || item.name || "Published configuration";
+              const tower = item.tower || item.tower_name || null;
+              const rera = item.rera_number || null;
+              const areas = item.rera_carpet_area_sqft ?? item.floor_plan_carpet_area_sqft ?? item.carpet_area_sqft ?? item.developer_published_area_sqft ?? item.developer_published_unit_plan_size_sqft ?? null;
+              const areaLabel = item.rera_carpet_area_sqft != null ? "RERA carpet area" : item.floor_plan_carpet_area_sqft != null ? "Floor-plan area (basis per source)" : item.carpet_area_sqft != null ? "Recorded carpet area" : areas != null ? "Developer-published area (basis to confirm)" : null;
+              const areaValues = Array.isArray(areas) ? areas : areas == null ? [] : [areas];
+              const source = item.floor_plan_source || item.source_url || item.source || null;
+              const note = item.area_note || item.source_note || item.price_note || item.note || null;
+              const priceFrom = item.price_from_inr || null;
+              return <article key={label+"-"+index} className="rounded-xl border border-slate-200 bg-white p-4">
+                <div className="flex flex-wrap items-center justify-between gap-2"><p className="font-bold text-slate-900">{label}</p>{tower && <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">{tower}</span>}</div>
+                {areaValues.length>0 && areaLabel && <p className="mt-2 text-sm text-slate-700"><span className="font-semibold">{areaLabel}:</span> {areaValues.join(" – ")} sq ft</p>}
+                {item.unit_types && Array.isArray(item.unit_types) && <p className="mt-2 text-sm text-slate-600">Types: {item.unit_types.join(", ")}</p>}
+                {rera && <p className="mt-2 text-xs text-slate-500">MahaRERA / phase: {rera}</p>}
+                {priceFrom && <p className="mt-2 text-sm font-semibold">Recorded indicative price: {money(priceFrom)} <span className="font-normal text-slate-500">· confirm current written offer</span></p>}
+                {note && <p className="mt-2 text-sm leading-6 text-amber-800">{note}</p>}
+                {item.image_url && typeof item.image_url === "string" && item.image_url.startsWith("https://") && <a href={item.image_url} target="_blank" rel="noreferrer" className="mt-3 block overflow-hidden rounded-lg border border-slate-200 bg-slate-50"><img src={item.image_url} alt={item.image_alt || label+" floor plan"} loading="lazy" className="max-h-64 w-full object-contain"/><span className="block border-t border-slate-200 px-3 py-2 text-xs font-semibold text-blue-700">Open plan / image ↗</span></a>}
+                {source && typeof source === "string" && source.startsWith("https://") && <a href={source} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-blue-700 underline">View source / floor plan <ExternalLink className="h-3 w-3"/></a>}
+              </article>;
+            })}</div> : <div className="mt-3 rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500">Configuration and unit-plan details have not yet been sourced for this project.</div>}
+          </section>
+          <section>
+            <div className="flex flex-wrap items-center justify-between gap-2"><h3 className="text-lg font-extrabold">Current individual units</h3><span className="rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-bold text-amber-800">Confirmation pending</span></div>
+            {unitsLoading ? <p className="mt-2 text-sm text-slate-500">Checking latest unit observations…</p> : availableUnits.length===0 ? <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50/50 p-4"><p className="text-sm font-semibold text-slate-800">No builder-confirmed current units are recorded in GoNest for this project.</p><p className="mt-1 text-sm leading-6 text-slate-600">We will only publish a unit after its tower, unit reference, RERA carpet area, price, evidence source, verification and observation date are recorded. Project-level configurations above do not imply current availability.</p><button type="button" onClick={()=>{setRequestType("enquiry");setForm(v=>({...v,message:"Please share the latest builder-issued tower-wise unit inventory, approved floor plans, RERA carpet areas, unit-wise complete cost sheet and current availability for "+selected.official_name+"."}));}} className="mt-3 rounded-lg bg-blue-700 px-4 py-2.5 text-sm font-bold text-white">Request latest builder inventory</button></div> : <div className="mt-3 space-y-3">{availableUnits.map(u=><ProjectUnitInventoryCard key={u.id} unit={u} projectName={selected.official_name} projectImage={selected.cover_image_url} onEnquire={(unit)=>{setRequestType("enquiry");setForm(v=>({...v,message:"Please confirm current availability and share the complete cost sheet for "+(unit.configuration || "this unit")+(unit.tower_name ? ", "+unit.tower_name : "")+" in "+selected.official_name+"."}));}} />)}</div>}
+          </section>
           <section><h3 className="text-lg font-extrabold">Enquire or request a site visit</h3><p className="mt-1 text-sm text-slate-500">Your request is recorded in GoNest and is pending confirmation; a visit is not booked until the project team confirms the slot.</p>
             <div className="mt-3 grid grid-cols-2 gap-2"><button onClick={()=>setRequestType("enquiry")} className={`rounded-xl px-3 py-2.5 text-sm font-bold ${requestType==="enquiry"?"bg-blue-700 text-white":"bg-slate-100 text-slate-700"}`}>Project enquiry</button><button onClick={()=>setRequestType("site_visit")} className={`rounded-xl px-3 py-2.5 text-sm font-bold ${requestType==="site_visit"?"bg-blue-700 text-white":"bg-slate-100 text-slate-700"}`}><CalendarDays className="mr-1 inline h-4 w-4"/>Request a visit</button></div>
             <form onSubmit={submitRequest} className="mt-4 space-y-3">
