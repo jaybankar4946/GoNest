@@ -63,11 +63,11 @@ export function ProjectUnitInventoryCard({
         </div>
         <div className="flex min-w-0 flex-col p-4 md:p-5">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-800"><CheckCircle2 className="h-3.5 w-3.5" />Recently verified availability</span>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-800"><CheckCircle2 className="h-3.5 w-3.5" />Recent source-linked observation</span>
             <span className="text-[11px] text-slate-500">Source updated {observedLabel}</span>
           </div>
           <h3 className="mt-3 text-xl font-extrabold text-slate-950">{unit.configuration || "Configuration not supplied"}</h3>
-          <p className="mt-1 text-sm text-slate-600">{unit.unit_reference ? "Unit " + unit.unit_reference : "Unit reference not supplied"}{unit.tower_name ? " · " + unit.tower_name : ""}</p>
+          <p className="mt-1 text-sm text-slate-600">{unit.tower_name || "Tower not provided"}{unit.floor_number != null ? " · Floor " + unit.floor_number : ""}</p>
           <div className="mt-4 rounded-xl bg-slate-950 p-4 text-white"><p className="text-[10px] font-bold uppercase tracking-[.14em] text-slate-300">Asking price</p><p className="mt-1 text-2xl font-extrabold tracking-tight">{money(unit.asking_price_inr)}</p>{unit.additional_charges_inr != null && unit.additional_charges_inr > 0 && <div className="mt-3 flex items-center justify-between border-t border-white/15 pt-3 text-xs"><span className="text-slate-300">Price + disclosed charges</span><strong className="text-sm">{money(disclosedTotal)}</strong></div>}<p className="mt-2 text-[10px] leading-4 text-slate-300">Disclosed subtotal only; taxes, stamp duty, registration, parking and other charges may be extra.</p></div>
           {pricePerSqft != null && <p className="mt-2 text-xs font-semibold text-slate-600">Approx. {money(pricePerSqft)} / sq ft of recorded carpet area</p>}
           <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -77,7 +77,7 @@ export function ProjectUnitInventoryCard({
             <a href={unit.source_url || "#"} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 underline underline-offset-2">Evidence source <ExternalLink className="h-3 w-3" /></a>
             {onEnquire && <button type="button" onClick={() => onEnquire(unit)} className="inline-flex items-center gap-2 rounded-lg bg-blue-700 px-4 py-2.5 text-sm font-bold text-white hover:bg-blue-800"><CalendarDays className="h-4 w-4" /> Enquire about this unit</button>}
           </div>
-          <p className="mt-3 border-t border-slate-100 pt-2 text-[10px] leading-4 text-slate-500">Availability is a dated observation, not a reservation. Confirm the unit, complete cost sheet and booking terms directly with the developer. Verification recorded by {unit.verified_by || "GoNest review"}.</p>
+          <p className="mt-3 border-t border-slate-100 pt-2 text-[10px] leading-4 text-slate-500">Availability is a dated observation, not a reservation. Confirm the unit, complete cost sheet and booking terms directly with the developer. The observation is source-linked and time-stamped. Confirm current availability and final terms with the developer.</p>
         </div>
       </div>
     </article>
