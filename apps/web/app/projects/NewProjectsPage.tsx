@@ -2,8 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import dynamic from "next/dynamic";
-import type { ProjectMapItem } from "./ProjectMapView";
 
 import { Nav } from "@/components/layout/Nav";
 import { ProjectUnitInventoryCard } from "./ProjectUnitInventoryCard";
@@ -11,7 +9,6 @@ import { Footer } from "@/components/layout/Footer";
 import { supabase } from "@/lib/supabase";
 import { ArrowRight, Building2, CalendarDays, CheckCircle2, ExternalLink, Filter, GitCompare, Heart, MapPin, Search, ShieldCheck, SlidersHorizontal, X } from "lucide-react";
 
-const ProjectMap = dynamic(() => import("./ProjectMapView"), { ssr: false, loading: () => <div className="flex h-[620px] items-center justify-center rounded-2xl border border-slate-200 bg-white text-sm text-slate-500">Loading project map…</div> });
 
 type Project = {
   id: string; official_name: string; latitude: number | string | null; longitude: number | string | null; public_address: string | null; landmark: string | null; neighbourhood: string | null; pincode: string | null; rera_number: string | null;
@@ -35,11 +32,11 @@ const projectConfigLabels = (p: Project) => Array.isArray(p.configurations)
 const matchesConfiguration = (p: Project, filter: string) => {
   if (filter === "Any configuration") return true;
   const labels = projectConfigLabels(p).join(" ").toLowerCase();
-  if (filter === "Villa") return /villa|bungalow|row house/.test(labels);
-  if (filter === "Plot") return /plot/.test(labels);
-  if (filter === "Studio") return /studio/.test(labels);
-  const beds = Number(filter.match(/\d+/)?.[0] ?? 0);
-  return beds > 0 && new RegExp("(?:^|\\D)" + beds + "\\s*bhk|\\b" + beds + "\\s*bed", "i").test(labels);
+  if (filter === "Villa") return ["villa","bungalow","row house"].some(term => labels.includes(term));
+  if (filter === "Plot") return labels.includes("plot");
+  if (filter === "Studio") return labels.includes("studio");
+  const beds = Number(filter.split(" ")[0].replace("+", ""));
+  return beds > 0 && (labels.includes(beds + " bhk") || labels.includes(beds + "bhk") || labels.includes(beds + " bed"));
 };
 
 export default function NewProjectsPage() {
@@ -52,7 +49,6 @@ export default function NewProjectsPage() {
   const [registration, setRegistration] = useState("All projects");
   const [builder, setBuilder] = useState("All builders");
   const [sortBy, setSortBy] = useState("recommended");
-  const [projectView, setProjectView] = useState<"grid" | "map">("grid");
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [configurationFilter, setConfigurationFilter] = useState("Any configuration");
   const [budgetFilter, setBudgetFilter] = useState("Any budget");
@@ -129,7 +125,7 @@ export default function NewProjectsPage() {
   const builders = useMemo(() => ["All builders", ...Array.from(new Set(projects.map(p => p.developer?.operating_brand).filter(Boolean) as string[])).sort()], [projects]);
   const filtered = useMemo(() => projects.filter(p => {
     const haystack = [p.official_name,p.developer?.operating_brand,p.city?.name,p.locality?.name,p.public_address,p.landmark,p.neighbourhood,p.pincode,p.rera_number].filter(Boolean).join(" ").toLowerCase();
-    const matchCity = city === "All Cities" || p.city?.name === city || (city === "Mumbai" && /thane|navi mumbai|mumbai/i.test(haystack));
+    const matchCity = city === "All Cities" || p.city?.name === city || (city === "Mumbai" && ["thane","navi mumbai","mumbai"].some(term => haystack.includes(term)));
     const matchRegistration = registration === "All projects" || (registration === "Registration listed" ? !!p.rera_number : !p.rera_number);
     const matchBuilder = builder === "All builders" || p.developer?.operating_brand === builder;
     const matchVerified = !verifiedOnly || (p.verification_status === "verified" && p.inventory_status === "verified_available" && isFresh(p.inventory_verified_at));
@@ -207,8 +203,7 @@ export default function NewProjectsPage() {
         : loadError ? <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-amber-900">{loadError}</div>
         : filtered.length === 0 ? <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center"><Building2 className="mx-auto mb-3 h-10 w-10 text-slate-300"/><h2 className="font-bold">No projects match these filters</h2><p className="mt-1 text-sm text-slate-500">Try a broader search or choose all cities.</p><button onClick={()=>{setCity("All Cities");setRegistration("All projects");setBuilder("All builders");setQuery("");setVerifiedOnly(false);setSortBy("recommended");setConfigurationFilter("Any configuration");setBudgetFilter("Any budget");}} className="mt-4 font-semibold text-blue-700">Clear filters</button></div>
         : <div><div className="mb-4 flex flex-wrap items-center justify-between gap-2"><p className="text-sm text-slate-600"><strong>{filtered.length}</strong> projects found <span className="text-slate-400">·</span> {verifiedOnly ? "Showing recent verified inventory only" : "Browse projects and compare key facts"}</p><p className="text-xs text-slate-500">Availability is shown only with recent source-linked evidence</p></div>
-          <div className="mb-4 flex items-center justify-between gap-3"><p className="text-sm text-slate-600">{filtered.length} matching projects</p><div className="inline-flex rounded-xl border border-slate-200 bg-white p-1"><button type="button" aria-pressed={projectView==="grid"} onClick={()=>setProjectView("grid")} className={"rounded-lg px-3 py-2 text-xs font-bold "+(projectView==="grid"?"bg-slate-950 text-white":"text-slate-600")}>Cards</button><button type="button" aria-pressed={projectView==="map"} onClick={()=>setProjectView("map")} className={"rounded-lg px-3 py-2 text-xs font-bold "+(projectView==="map"?"bg-slate-950 text-white":"text-slate-600")}>Map</button></div></div>
-          {projectView==="map" ? <ProjectMap projects={filtered as ProjectMapItem[]} onOpen={id=>router.push(`/projects/${id}`)} /> : <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{filtered.map(p=>{
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{filtered.map(p=>{
             const verified = p.verification_status==="verified" && p.inventory_status==="verified_available" && isFresh(p.inventory_verified_at);
             const developer = p.developer?.operating_brand || "Developer details pending";
             const coverImage = p.official_name.toLowerCase().includes("birla punya")
