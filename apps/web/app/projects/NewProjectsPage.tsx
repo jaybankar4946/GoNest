@@ -6,7 +6,7 @@ import { Nav } from "@/components/layout/Nav";
 import { ProjectUnitInventoryCard } from "./ProjectUnitInventoryCard";
 import { Footer } from "@/components/layout/Footer";
 import { supabase } from "@/lib/supabase";
-import { ArrowRight, Building2, CalendarDays, CheckCircle2, ExternalLink, Filter, MapPin, Search, ShieldCheck, X } from "lucide-react";
+import { ArrowRight, Building2, CalendarDays, CheckCircle2, ExternalLink, Filter, GitCompare, Heart, MapPin, Search, ShieldCheck, SlidersHorizontal, X } from "lucide-react";
 
 type Project = {
   id: string; official_name: string; public_address: string | null; landmark: string | null; neighbourhood: string | null; pincode: string | null; rera_number: string | null;
@@ -24,6 +24,18 @@ const MAHARERA = "https://maharera.maharashtra.gov.in/";
 const money = (n: number | null | undefined) => n == null ? "Ask for current pricing" : n >= 10000000 ? `₹${(n / 10000000).toFixed(2).replace(/0+$/,"").replace(/\.$/,"")} Cr` : n >= 100000 ? `₹${(n / 100000).toFixed(1).replace(/\.0$/,"")} L` : `₹${n.toLocaleString("en-IN")}`;
 const dateLabel = (s: string | null | undefined) => s ? new Date(s).toLocaleDateString("en-IN",{month:"short",year:"numeric"}) : "Not provided";
 const isFresh = (s: string | null | undefined) => !!s && Date.now() - new Date(s).getTime() <= 14 * 86400000;
+const projectConfigLabels = (p: Project) => Array.isArray(p.configurations)
+  ? p.configurations.map((x: any) => typeof x === "string" ? x : x?.label || x?.configuration || x?.name).filter((v: any): v is string => typeof v === "string" && v.trim().length > 0)
+  : [];
+const matchesConfiguration = (p: Project, filter: string) => {
+  if (filter === "Any configuration") return true;
+  const labels = projectConfigLabels(p).join(" ").toLowerCase();
+  if (filter === "Villa") return /villa|bungalow|row house/.test(labels);
+  if (filter === "Plot") return /plot/.test(labels);
+  if (filter === "Studio") return /studio/.test(labels);
+  const beds = Number(filter.match(/\d+/)?.[0] ?? 0);
+  return beds > 0 && new RegExp("(?:^|\\D)" + beds + "\\s*bhk|\\b" + beds + "\\s*bed", "i").test(labels);
+};
 
 export default function NewProjectsPage() {
   const router = useRouter();
@@ -36,6 +48,11 @@ export default function NewProjectsPage() {
   const [builder, setBuilder] = useState("All builders");
   const [sortBy, setSortBy] = useState("recommended");
   const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const [configurationFilter, setConfigurationFilter] = useState("Any configuration");
+  const [budgetFilter, setBudgetFilter] = useState("Any budget");
+  const [shortlistIds, setShortlistIds] = useState<string[]>([]);
+  const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [showCompare, setShowCompare] = useState(false);
   const [selected, setSelected] = useState<Project | null>(null);
   const [units, setUnits] = useState<Unit[]>([]);
   const [unitsLoading, setUnitsLoading] = useState(false);
@@ -93,14 +110,17 @@ export default function NewProjectsPage() {
     const matchRegistration = registration === "All projects" || (registration === "Registration listed" ? !!p.rera_number : !p.rera_number);
     const matchBuilder = builder === "All builders" || p.developer?.operating_brand === builder;
     const matchVerified = !verifiedOnly || (p.verification_status === "verified" && p.inventory_status === "verified_available" && isFresh(p.inventory_verified_at));
-    return matchCity && matchRegistration && matchBuilder && matchVerified && haystack.includes(query.trim().toLowerCase());
+    const matchConfiguration = matchesConfiguration(p, configurationFilter);
+    const budget = budgetFilter === "Any budget" ? null : Number(budgetFilter);
+    const matchBudget = budget == null || (p.published_price_min_inr != null && p.published_price_min_inr <= budget);
+    return matchCity && matchRegistration && matchBuilder && matchVerified && matchConfiguration && matchBudget && haystack.includes(query.trim().toLowerCase());
   }).sort((a,b) => {
     if (sortBy === "price_low") return (a.published_price_min_inr ?? Number.MAX_SAFE_INTEGER) - (b.published_price_min_inr ?? Number.MAX_SAFE_INTEGER);
     if (sortBy === "price_high") return (b.published_price_min_inr ?? -1) - (a.published_price_min_inr ?? -1);
     if (sortBy === "possession") return (a.expected_possession_date ?? "9999").localeCompare(b.expected_possession_date ?? "9999");
     if (sortBy === "name") return a.official_name.localeCompare(b.official_name);
     return Number(b.verification_status === "verified") - Number(a.verification_status === "verified") || a.official_name.localeCompare(b.official_name);
-  }), [projects, city, registration, builder, query, sortBy, verifiedOnly]);
+  }), [projects, city, registration, builder, query, sortBy, verifiedOnly, configurationFilter, budgetFilter]);
 
   async function submitRequest(e: React.FormEvent) {
     e.preventDefault();
@@ -144,6 +164,11 @@ export default function NewProjectsPage() {
             <select value={registration} onChange={e=>setRegistration(e.target.value)} className="rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm"><option>All projects</option><option>Registration listed</option><option>Registration not listed</option></select>
             <select value={builder} onChange={e=>setBuilder(e.target.value)} className="rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm">{builders.map(b=><option key={b}>{b}</option>)}</select>
           </div>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_auto]">
+            <label className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600"><SlidersHorizontal className="h-4 w-4 text-slate-400"/>Configuration<select value={configurationFilter} onChange={e=>setConfigurationFilter(e.target.value)} className="min-w-0 flex-1 bg-transparent py-1 text-sm text-slate-900 outline-none"><option>Any configuration</option>{["Studio","1 BHK","2 BHK","3 BHK","4 BHK","5+ BHK","Villa","Plot"].map(v=><option key={v}>{v}</option>)}</select></label>
+            <label className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600">Maximum starting price<select value={budgetFilter} onChange={e=>setBudgetFilter(e.target.value)} className="min-w-0 flex-1 bg-transparent py-1 text-sm text-slate-900 outline-none"><option>Any budget</option><option value="5000000">₹50 L</option><option value="10000000">₹1 Cr</option><option value="20000000">₹2 Cr</option><option value="50000000">₹5 Cr</option><option value="100000000">₹10 Cr</option></select></label>
+            <button type="button" onClick={()=>{setCity("All Cities");setRegistration("All projects");setBuilder("All builders");setQuery("");setVerifiedOnly(false);setSortBy("recommended");setConfigurationFilter("Any configuration");setBudgetFilter("Any budget");}} className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50">Reset all filters</button>
+          </div>
           <div className="mt-4 flex flex-wrap items-center gap-2"><button type="button" aria-pressed={verifiedOnly} onClick={()=>setVerifiedOnly(v=>!v)} className={"rounded-full border px-4 py-2 text-xs font-bold transition " + (verifiedOnly ? "border-emerald-700 bg-emerald-50 text-emerald-800" : "border-slate-200 bg-white text-slate-700 hover:border-slate-400")}>{verifiedOnly ? "✓ Recent verified inventory" : "Show recent verified inventory"}</button><label className="ml-auto flex items-center gap-2 text-xs font-semibold text-slate-600">Sort by<select value={sortBy} onChange={e=>setSortBy(e.target.value)} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm"><option value="recommended">Recommended</option><option value="price_low">Price: low to high</option><option value="price_high">Price: high to low</option><option value="possession">Possession date</option><option value="name">Project name</option></select></label></div>
           <div className="mt-5 flex flex-wrap gap-3 text-sm text-slate-500">
             <span className="rounded-full bg-slate-100 px-3 py-1.5">{projects.length} listed project records</span>
@@ -157,7 +182,7 @@ export default function NewProjectsPage() {
       <section className="mx-auto max-w-7xl px-4 py-8 md:px-6">
         {loading ? <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center text-slate-500">Loading live project data…</div>
         : loadError ? <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-amber-900">{loadError}</div>
-        : filtered.length === 0 ? <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center"><Building2 className="mx-auto mb-3 h-10 w-10 text-slate-300"/><h2 className="font-bold">No projects match these filters</h2><p className="mt-1 text-sm text-slate-500">Try a broader search or choose all cities.</p><button onClick={()=>{setCity("All Cities");setRegistration("All projects");setBuilder("All builders");setQuery("");setVerifiedOnly(false);setSortBy("recommended");}} className="mt-4 font-semibold text-blue-700">Clear filters</button></div>
+        : filtered.length === 0 ? <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center"><Building2 className="mx-auto mb-3 h-10 w-10 text-slate-300"/><h2 className="font-bold">No projects match these filters</h2><p className="mt-1 text-sm text-slate-500">Try a broader search or choose all cities.</p><button onClick={()=>{setCity("All Cities");setRegistration("All projects");setBuilder("All builders");setQuery("");setVerifiedOnly(false);setSortBy("recommended");setConfigurationFilter("Any configuration");setBudgetFilter("Any budget");}} className="mt-4 font-semibold text-blue-700">Clear filters</button></div>
         : <><div className="mb-4 flex flex-wrap items-center justify-between gap-2"><p className="text-sm text-slate-600"><strong>{filtered.length}</strong> projects found <span className="text-slate-400">·</span> {verifiedOnly ? "Showing recent verified inventory only" : "Browse projects and compare key facts"}</p><p className="text-xs text-slate-500">Availability is shown only with recent source-linked evidence</p></div>
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{filtered.map(p=>{
             const verified = p.verification_status==="verified" && p.inventory_status==="verified_available" && isFresh(p.inventory_verified_at);
@@ -185,6 +210,10 @@ export default function NewProjectsPage() {
                   <div className="rounded-xl bg-slate-50 p-3"><p className="text-xs text-slate-500">MahaRERA reference</p><p className="mt-1 break-words text-sm font-bold">{p.rera_number || "Tower-specific check required"}</p></div>
                 </div>
                 <div className="mt-4 flex flex-wrap items-center gap-2 text-xs"><span className={"inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-semibold " + (p.verification_status==="verified" ? "bg-blue-50 text-blue-800" : "bg-slate-100 text-slate-600")}><ShieldCheck className="h-3.5 w-3.5"/>{p.verification_status==="verified"?"Project record verified":"Source-linked project record"}</span><span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-600">{p.rera_number ? "RERA reference recorded" : "RERA reference not recorded"}</span></div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <button type="button" aria-pressed={shortlistIds.includes(p.id)} onClick={()=>setShortlistIds(ids=>ids.includes(p.id)?ids.filter(id=>id!==p.id):[...ids,p.id])} className={"inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-bold " + (shortlistIds.includes(p.id) ? "border-rose-200 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-600 hover:bg-slate-50")}><Heart className={"h-3.5 w-3.5 " + (shortlistIds.includes(p.id) ? "fill-current" : "")}/>{shortlistIds.includes(p.id) ? "Shortlisted" : "Save project"}</button>
+                  <button type="button" disabled={!compareIds.includes(p.id) && compareIds.length>=3} aria-pressed={compareIds.includes(p.id)} onClick={()=>setCompareIds(ids=>ids.includes(p.id)?ids.filter(id=>id!==p.id):[...ids,p.id])} className={"inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-bold disabled:cursor-not-allowed disabled:opacity-40 " + (compareIds.includes(p.id) ? "border-blue-200 bg-blue-50 text-blue-800" : "border-slate-200 text-slate-600 hover:bg-slate-50")}><GitCompare className="h-3.5 w-3.5"/>{compareIds.includes(p.id) ? "Added to compare" : "Compare"}</button>
+                </div>
                 <div className="mt-5 flex gap-2">
                   <button onClick={()=>router.push(`/projects/${p.id}`)} className="flex-1 rounded-xl bg-slate-950 px-3 py-3 text-sm font-bold text-white hover:bg-blue-800">Explore project & enquire <ArrowRight className="ml-1 inline h-4 w-4"/></button>
                   {p.official_project_url && <a href={p.official_project_url} target="_blank" rel="noreferrer" aria-label="Open official developer project page" className="flex items-center justify-center rounded-xl border border-slate-200 px-3 text-slate-700 hover:bg-slate-50"><ExternalLink className="h-4 w-4"/></a>}
@@ -199,6 +228,18 @@ export default function NewProjectsPage() {
       </div></section>
     </main>
     <Footer />
+    {compareIds.length > 0 && <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 p-3 shadow-2xl backdrop-blur"><div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3"><p className="text-sm font-bold text-slate-900">{compareIds.length} of 3 projects selected <span className="font-normal text-slate-500">· Compare prices, possession, configurations and trust details</span></p><div className="flex items-center gap-2"><button type="button" onClick={()=>setCompareIds([])} className="rounded-lg px-3 py-2 text-xs font-bold text-slate-500 hover:bg-slate-100">Clear</button><button type="button" disabled={compareIds.length<2} onClick={()=>setShowCompare(true)} className="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-bold text-white disabled:opacity-40">Compare projects</button></div></div></div>}
+    {showCompare && <div className="fixed inset-0 z-[70] flex items-end justify-center bg-slate-950/60 p-2 sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label="Compare projects"><div className="max-h-[90vh] w-full max-w-6xl overflow-hidden rounded-2xl bg-white shadow-2xl"><div className="flex items-center justify-between border-b border-slate-200 px-5 py-4"><div><p className="text-xs font-bold uppercase tracking-wider text-blue-700">GoNest comparison</p><h2 className="mt-1 text-xl font-extrabold">Compare selected projects</h2></div><button type="button" onClick={()=>setShowCompare(false)} aria-label="Close comparison" className="rounded-lg p-2 hover:bg-slate-100"><X className="h-5 w-5"/></button></div><div className="overflow-x-auto p-4"><table className="w-full min-w-[760px] border-collapse text-left text-sm"><thead><tr><th className="w-40 border-b border-slate-200 p-3 text-xs uppercase tracking-wide text-slate-500">Project facts</th>{projects.filter(p=>compareIds.includes(p.id)).map(p=><th key={p.id} className="border-b border-slate-200 p-3 align-top"><div className="flex items-start justify-between gap-2"><div><p className="text-xs font-semibold text-blue-700">{p.developer?.operating_brand || "Developer not recorded"}</p><p className="mt-1 font-extrabold text-slate-900">{p.official_name}</p></div><button type="button" onClick={()=>setCompareIds(ids=>ids.filter(id=>id!==p.id))} aria-label={"Remove "+p.official_name} className="rounded-md p-1 text-slate-400 hover:bg-slate-100"><X className="h-4 w-4"/></button></div></th>)}</tr></thead><tbody>{[
+["Location",(p:Project)=>[p.locality?.name,p.city?.name].filter(Boolean).join(", ") || p.public_address || "Not recorded"],
+["Published price",(p:Project)=>p.published_price_min_inr==null&&p.published_price_max_inr==null?"Request current quote":p.published_price_min_inr!=null&&p.published_price_max_inr!=null?money(p.published_price_min_inr)+" – "+money(p.published_price_max_inr):p.published_price_min_inr!=null?"From "+money(p.published_price_min_inr):"Up to "+money(p.published_price_max_inr)],
+["Configurations",(p:Project)=>projectConfigLabels(p).join(" · ") || "Confirm with developer"],
+["Possession",(p:Project)=>dateLabel(p.expected_possession_date)],
+["Construction status",(p:Project)=>p.construction_status==="completed"?"Ready to move":p.construction_status==="under_construction"?"Under construction":"Ready to move"],
+["Project size",(p:Project)=>p.total_units!=null?p.total_units.toLocaleString("en-IN")+" units":"Not recorded"],
+["MahaRERA",(p:Project)=>p.rera_number || "Not recorded"],
+["Project verification",(p:Project)=>p.verification_status==="verified"?"GoNest project record verified":"Source-linked record · needs confirmation"],
+["Current unit stock",(p:Project)=>p.verification_status==="verified"&&p.inventory_status==="verified_available"&&isFresh(p.inventory_verified_at)?"Recent stock record · confirm unit-level details":"No recent verified unit stock"]
+] as [string,(p:Project)=>string][] .map(([label,value])=><tr key={label}><th className="border-b border-slate-100 p-3 text-xs font-semibold text-slate-500">{label}</th>{projects.filter(p=>compareIds.includes(p.id)).map(p=><td key={p.id} className="border-b border-slate-100 p-3 font-semibold text-slate-800">{value(p)}</td>)}</tr>)}</tbody></table></div><div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-slate-50 px-5 py-4"><p className="text-xs text-slate-500">Compare published project information. Unit availability and prices must be reconfirmed with the source.</p><button type="button" onClick={()=>setShowCompare(false)} className="rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-bold text-white">Done</button></div></div></div>}
     {selected && <div className="fixed inset-0 z-50 flex justify-end">
       <button aria-label="Close project details" onClick={()=>setSelected(null)} className="absolute inset-0 bg-slate-950/50"/>
       <section role="dialog" aria-modal="true" aria-labelledby="project-detail-title" className="relative h-full w-full max-w-2xl overflow-y-auto bg-white shadow-2xl">
