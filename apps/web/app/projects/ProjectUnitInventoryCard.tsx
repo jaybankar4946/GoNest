@@ -19,8 +19,8 @@ export type ProjectUnitInventory = {
 
 const money = (value: number | null | undefined) => {
   if (value == null) return "Request current price";
-  if (value >= 10000000) return "₹" + (value / 10000000).toFixed(2).replace(/0+$/, "").replace(/\\.$/, "") + " Cr";
-  if (value >= 100000) return "₹" + (value / 100000).toFixed(1).replace(/\\.0$/, "") + " L";
+  if (value >= 10000000) return "₹" + (value / 10000000).toFixed(2).replace(/0+$/, "").replace(/\.$/, "") + " Cr";
+  if (value >= 100000) return "₹" + (value / 100000).toFixed(1).replace(/\.0$/, "") + " L";
   return "₹" + value.toLocaleString("en-IN");
 };
 
