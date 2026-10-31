@@ -101,6 +101,26 @@ begin
       verified_by = case when p_decision = 'approved' then v_admin::text else null end
   where id = p_unit_id;
 
+  if p_decision = 'approved' then
+    update public.real_estate_projects
+    set inventory_status = 'verified_available', inventory_verified_at = now()
+    where id = v_unit.project_id and is_sample = false and verification_status = 'verified';
+  elsif not exists (
+    select 1 from public.project_inventory_observations other
+    where other.project_id = v_unit.project_id
+      and other.id <> p_unit_id
+      and other.is_sample = false
+      and other.review_status = 'approved'
+      and other.availability_status = 'available'
+      and other.source_url is not null
+      and other.observed_at >= now() - interval '14 days'
+  ) then
+    update public.real_estate_projects
+    set inventory_status = case when verification_status = 'verified' then 'advertised_unverified' else 'unknown' end,
+        inventory_verified_at = null
+    where id = v_unit.project_id and is_sample = false;
+  end if;
+
   insert into public.project_unit_review_events(unit_observation_id, reviewed_by, decision, notes)
   values (p_unit_id, v_admin, p_decision, nullif(trim(coalesce(p_notes,'')), ''));
 
