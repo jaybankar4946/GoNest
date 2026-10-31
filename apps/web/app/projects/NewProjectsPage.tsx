@@ -2,6 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
+import type { ProjectMapItem } from "./ProjectMapView";
+const ProjectMap = dynamic(() => import("./ProjectMapView"), { ssr: false, loading: () => <div className="flex h-[620px] items-center justify-center rounded-2xl border border-slate-200 bg-white text-sm text-slate-500">Loading project map…</div> });
 import { Nav } from "@/components/layout/Nav";
 import { ProjectUnitInventoryCard } from "./ProjectUnitInventoryCard";
 import { Footer } from "@/components/layout/Footer";
@@ -9,7 +12,7 @@ import { supabase } from "@/lib/supabase";
 import { ArrowRight, Building2, CalendarDays, CheckCircle2, ExternalLink, Filter, GitCompare, Heart, MapPin, Search, ShieldCheck, SlidersHorizontal, X } from "lucide-react";
 
 type Project = {
-  id: string; official_name: string; public_address: string | null; landmark: string | null; neighbourhood: string | null; pincode: string | null; rera_number: string | null;
+  id: string; official_name: string; latitude: number | string | null; longitude: number | string | null; public_address: string | null; landmark: string | null; neighbourhood: string | null; pincode: string | null; rera_number: string | null;
   project_category: string; construction_status: string; launch_date: string | null; expected_possession_date: string | null;
   total_units: number | null; configurations: unknown; published_price_min_inr: number | null; published_price_max_inr: number | null;
   price_observed_at: string | null; official_project_url: string | null; brochure_url: string | null;
@@ -47,6 +50,7 @@ export default function NewProjectsPage() {
   const [registration, setRegistration] = useState("All projects");
   const [builder, setBuilder] = useState("All builders");
   const [sortBy, setSortBy] = useState("recommended");
+  const [projectView, setProjectView] = useState<"grid" | "map">("grid");
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [configurationFilter, setConfigurationFilter] = useState("Any configuration");
   const [budgetFilter, setBudgetFilter] = useState("Any budget");
@@ -83,7 +87,7 @@ export default function NewProjectsPage() {
     (async () => {
       setLoading(true); setLoadError("");
       const { data, error } = await supabase.from("real_estate_projects")
-        .select("id,official_name,public_address,landmark,neighbourhood,pincode,rera_number,project_category,construction_status,launch_date,expected_possession_date,total_units,configurations,published_price_min_inr,published_price_max_inr,price_observed_at,official_project_url,brochure_url,cover_image_url,gallery_image_urls,image_source_url,inventory_status,inventory_verified_at,verification_status,is_sample,developer:developers(operating_brand,website_url),city:cities(name),locality:localities(name)")
+        .select("id,official_name,latitude,longitude,public_address,landmark,neighbourhood,pincode,rera_number,project_category,construction_status,launch_date,expected_possession_date,total_units,configurations,published_price_min_inr,published_price_max_inr,price_observed_at,official_project_url,brochure_url,cover_image_url,gallery_image_urls,image_source_url,inventory_status,inventory_verified_at,verification_status,is_sample,developer:developers(operating_brand,website_url),city:cities(name),locality:localities(name)")
         .eq("is_sample", false).in("verification_status", ["pending","verified"]).not("official_project_url","is",null)
         .order("official_name");
       if (!live) return;
@@ -201,20 +205,21 @@ export default function NewProjectsPage() {
         : loadError ? <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-amber-900">{loadError}</div>
         : filtered.length === 0 ? <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center"><Building2 className="mx-auto mb-3 h-10 w-10 text-slate-300"/><h2 className="font-bold">No projects match these filters</h2><p className="mt-1 text-sm text-slate-500">Try a broader search or choose all cities.</p><button onClick={()=>{setCity("All Cities");setRegistration("All projects");setBuilder("All builders");setQuery("");setVerifiedOnly(false);setSortBy("recommended");setConfigurationFilter("Any configuration");setBudgetFilter("Any budget");}} className="mt-4 font-semibold text-blue-700">Clear filters</button></div>
         : <><div className="mb-4 flex flex-wrap items-center justify-between gap-2"><p className="text-sm text-slate-600"><strong>{filtered.length}</strong> projects found <span className="text-slate-400">·</span> {verifiedOnly ? "Showing recent verified inventory only" : "Browse projects and compare key facts"}</p><p className="text-xs text-slate-500">Availability is shown only with recent source-linked evidence</p></div>
-          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{filtered.map(p=>{
+          <div className="mb-4 flex items-center justify-between gap-3"><p className="text-sm text-slate-600">{filtered.length} matching projects</p><div className="inline-flex rounded-xl border border-slate-200 bg-white p-1"><button type="button" aria-pressed={projectView==="grid"} onClick={()=>setProjectView("grid")} className={"rounded-lg px-3 py-2 text-xs font-bold "+(projectView==="grid"?"bg-slate-950 text-white":"text-slate-600")}>Cards</button><button type="button" aria-pressed={projectView==="map"} onClick={()=>setProjectView("map")} className={"rounded-lg px-3 py-2 text-xs font-bold "+(projectView==="map"?"bg-slate-950 text-white":"text-slate-600")}>Map</button></div></div>
+          {projectView==="map" ? <ProjectMap projects={filtered as ProjectMapItem[]} onOpen={id=>router.push(`/projects/${id}`)} /> : <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{filtered.map(p=>{}
             const verified = p.verification_status==="verified" && p.inventory_status==="verified_available" && isFresh(p.inventory_verified_at);
             const developer = p.developer?.operating_brand || "Developer details pending";
             const coverImage = p.official_name.toLowerCase().includes("birla punya")
               ? "https://www.birlaestates.com/birla-punya-pune/images/ph_02.webp"
               : p.cover_image_url;
-            const projectStatusLabel = p.construction_status === "completed" ? "Ready to move" : p.construction_status === "under_construction" ? "Under construction" : "Ready to move";
+            const projectStatusLabel = p.construction_status === "completed" ? "Ready to move" : p.construction_status === "under_construction" ? "Under construction" : null;
             const location = [p.locality?.name,p.city?.name].filter(Boolean).join(", ") || p.public_address || "Location details pending";
             const configurations = Array.isArray(p.configurations) ? p.configurations.map((x:any)=>typeof x==="string"?x:x?.label||x?.configuration).filter((label:any)=>typeof label==="string" && /\b(BHK|bed|duplex|villa|plot|studio)\b/i.test(label)).join(" · ") : "";
             return <article key={p.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
               <div className="relative h-52 overflow-hidden bg-gradient-to-br from-slate-100 via-blue-50 to-slate-200">
                 {coverImage ? <img src={coverImage} alt={p.official_name + " official project image"} loading="lazy" className="h-full w-full object-cover transition duration-300 hover:scale-[1.02]"/> : <div className="flex h-full items-center justify-center"><Building2 className="h-12 w-12 text-slate-300"/></div>}
                 
-                <div className="absolute inset-x-3 top-3 flex items-start justify-between gap-2"><span className="rounded-full bg-white/95 px-3 py-1 text-[11px] font-bold text-slate-800 shadow-sm">{projectStatusLabel}</span>{verified && <span className="inline-flex items-center gap-1 rounded-full bg-emerald-700 px-3 py-1 text-[11px] font-bold text-white shadow-sm"><ShieldCheck className="h-3 w-3"/>Recent inventory</span>}</div>
+                <div className="absolute inset-x-3 top-3 flex items-start justify-between gap-2">{projectStatusLabel && <span className="rounded-full bg-white/95 px-3 py-1 text-[11px] font-bold text-slate-800 shadow-sm">{projectStatusLabel}</span>}{verified && <span className="inline-flex items-center gap-1 rounded-full bg-emerald-700 px-3 py-1 text-[11px] font-bold text-white shadow-sm"><ShieldCheck className="h-3 w-3"/>Recent inventory</span>}</div>
               </div>
               <div className="p-5">
                 <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">{developer}</p>
@@ -237,7 +242,7 @@ export default function NewProjectsPage() {
                 </div>
               </div>
             </article>;
-          })}</div></>}
+          })}</div>}
       </section>
       <section className="border-t border-slate-200 bg-white py-10"><div className="mx-auto grid max-w-7xl gap-4 px-4 sm:grid-cols-3 md:px-6">
         {[["Official source links","Open developer pages to review their current project information."],["MahaRERA check","Verify the exact project and phase on the official state portal."],["Availability transparency","Only recent, sourced, verified unit records qualify as available on GoNest."]].map(([title,desc])=><div key={title} className="rounded-xl border border-slate-200 p-4"><CheckCircle2 className="mb-2 h-5 w-5 text-emerald-600"/><h3 className="font-bold">{title}</h3><p className="mt-1 text-sm leading-6 text-slate-500">{desc}</p></div>)}
