@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Home } from 'lucide-react';
 const COLS = [
   { t: 'Platform', l: [['Buy property', '/buy'], ['Rent property', '/rent'], ['New projects', '/projects'], ['Find agents', '/agents'], ['About GoNest', '/about'], ['List with GoNest', '/list-with-gonest'], ['EMI calculator', '/emi']] },
-  { t: 'Legal', l: [['Privacy Policy', '/privacy'], ['Terms of Use', '/terms']] },
+  { t: 'Legal', l: [['Privacy Policy', '/privacy'], ['Terms of Use', '/terms'], ['Contact Us', 'mailto:info@gonest.in']] },
   { t: 'Account', l: [['Sign in', '/auth'], ['Saved homes', '/saved'], ['Dashboard', '/dashboard']] },
 ];
 export function Footer() {
@@ -24,7 +24,7 @@ export function Footer() {
             </div>
           ))}
         </div>
-        <div className="border-t border-white/5 pt-6 text-sm">© 2026 GoNest · India</div>
+        <div className="border-t border-white/5 pt-6 text-sm flex flex-wrap items-center justify-between gap-3"><span>© 2020 GoNest · India</span><a href="mailto:info@gonest.in" className="hover:text-white transition-colors">info@gonest.in</a></div>
       </div>
     </footer>
   );
