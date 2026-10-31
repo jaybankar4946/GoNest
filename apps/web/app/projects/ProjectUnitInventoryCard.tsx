@@ -14,7 +14,6 @@ export type ProjectUnitInventory = {
   availability_status: string;
   observed_at: string;
   source_url: string | null;
-  verified_by: string | null;
 };
 
 const money = (value: number | null | undefined) => {
