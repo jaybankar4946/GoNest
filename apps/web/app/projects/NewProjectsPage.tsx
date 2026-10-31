@@ -37,7 +37,7 @@ const matchesConfiguration = (p: Project, filter: string) => {
   if (filter === "Plot") return /plot/.test(labels);
   if (filter === "Studio") return /studio/.test(labels);
   const beds = Number(filter.match(/\d+/)?.[0] ?? 0);
-  return beds > 0 && new RegExp("(?:^|\\D)" + beds + "\\s*bhk|\b" + beds + "\\s*bed", "i").test(labels);
+  return beds > 0 && new RegExp("(?:^|\\D)" + beds + "\\s*bhk|\\b" + beds + "\\s*bed", "i").test(labels);
 };
 
 export default function NewProjectsPage() {
@@ -256,7 +256,7 @@ export default function NewProjectsPage() {
 ["Published price",(p:Project)=>p.published_price_min_inr==null&&p.published_price_max_inr==null?"Request current quote":p.published_price_min_inr!=null&&p.published_price_max_inr!=null?money(p.published_price_min_inr)+" – "+money(p.published_price_max_inr):p.published_price_min_inr!=null?"From "+money(p.published_price_min_inr):"Up to "+money(p.published_price_max_inr)],
 ["Configurations",(p:Project)=>projectConfigLabels(p).join(" · ") || "Confirm with developer"],
 ["Possession",(p:Project)=>dateLabel(p.expected_possession_date)],
-["Construction status",(p:Project)=>p.construction_status==="completed"?"Ready to move":p.construction_status==="under_construction"?"Under construction":"Ready to move"],
+["Construction status",(p:Project)=>p.construction_status==="completed"?"Ready to move":p.construction_status==="under_construction"?"Under construction":"Status not provided"],
 ["Project size",(p:Project)=>p.total_units!=null?p.total_units.toLocaleString("en-IN")+" units":"Not recorded"],
 ["MahaRERA",(p:Project)=>p.rera_number || "Not recorded"],
 ["Project verification",(p:Project)=>p.verification_status==="verified"?"GoNest project record verified":"Source-linked record · needs confirmation"],
