@@ -51,6 +51,7 @@ export default function NewProjectsPage() {
   const [configurationFilter, setConfigurationFilter] = useState("Any configuration");
   const [budgetFilter, setBudgetFilter] = useState("Any budget");
   const [shortlistIds, setShortlistIds] = useState<string[]>([]);
+  const [shortlistLoaded, setShortlistLoaded] = useState(false);
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const [showCompare, setShowCompare] = useState(false);
   const [selected, setSelected] = useState<Project | null>(null);
@@ -60,6 +61,22 @@ export default function NewProjectsPage() {
   const [form, setForm] = useState({ name:"", phone:"", email:"", date:"", time:"", message:"", consent:false });
   const [sending, setSending] = useState(false);
   const [feedback, setFeedback] = useState("");
+
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem("gonest:project-shortlist:v1");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) setShortlistIds(parsed.filter((id): id is string => typeof id === "string"));
+      }
+    } catch {}
+    setShortlistLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (!shortlistLoaded) return;
+    try { window.localStorage.setItem("gonest:project-shortlist:v1", JSON.stringify(shortlistIds)); } catch {}
+  }, [shortlistIds, shortlistLoaded]);
 
   useEffect(() => {
     let live = true;
@@ -211,7 +228,7 @@ export default function NewProjectsPage() {
                 </div>
                 <div className="mt-4 flex flex-wrap items-center gap-2 text-xs"><span className={"inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-semibold " + (p.verification_status==="verified" ? "bg-blue-50 text-blue-800" : "bg-slate-100 text-slate-600")}><ShieldCheck className="h-3.5 w-3.5"/>{p.verification_status==="verified"?"Project record verified":"Source-linked project record"}</span><span className="rounded-full bg-slate-100 px-2.5 py-1 text-slate-600">{p.rera_number ? "RERA reference recorded" : "RERA reference not recorded"}</span></div>
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <button type="button" aria-pressed={shortlistIds.includes(p.id)} onClick={()=>setShortlistIds(ids=>ids.includes(p.id)?ids.filter(id=>id!==p.id):[...ids,p.id])} className={"inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-bold " + (shortlistIds.includes(p.id) ? "border-rose-200 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-600 hover:bg-slate-50")}><Heart className={"h-3.5 w-3.5 " + (shortlistIds.includes(p.id) ? "fill-current" : "")}/>{shortlistIds.includes(p.id) ? "Shortlisted" : "Save project"}</button>
+                  <button type="button" aria-pressed={shortlistIds.includes(p.id)} onClick={()=>setShortlistIds(ids=>ids.includes(p.id)?ids.filter(id=>id!==p.id):[...ids,p.id])} className={"inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-bold " + (shortlistIds.includes(p.id) ? "border-rose-200 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-600 hover:bg-slate-50")}><Heart className={"h-3.5 w-3.5 " + (shortlistIds.includes(p.id) ? "fill-current" : "")}/>{shortlistIds.includes(p.id) ? "Saved on this device" : "Save project"}</button>
                   <button type="button" disabled={!compareIds.includes(p.id) && compareIds.length>=3} aria-pressed={compareIds.includes(p.id)} onClick={()=>setCompareIds(ids=>ids.includes(p.id)?ids.filter(id=>id!==p.id):[...ids,p.id])} className={"inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-bold disabled:cursor-not-allowed disabled:opacity-40 " + (compareIds.includes(p.id) ? "border-blue-200 bg-blue-50 text-blue-800" : "border-slate-200 text-slate-600 hover:bg-slate-50")}><GitCompare className="h-3.5 w-3.5"/>{compareIds.includes(p.id) ? "Added to compare" : "Compare"}</button>
                 </div>
                 <div className="mt-5 flex gap-2">
