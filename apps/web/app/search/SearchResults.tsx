@@ -7,7 +7,7 @@ import { track } from '@/lib/track';
 import { PropertyCardSkeleton } from '@/components/ui/Skeleton';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { ListingQuickView } from '@/components/property/ListingQuickView';
-import { searchListings, getSavedIds, toggleSaved, saveSearch, getLocalities } from '@/lib/api';
+import { searchListings, getSavedIds, toggleSaved, saveSearch, getLocalities, adminGetSampleArchive, imgUrl } from '@/lib/api';
 import { useAuth } from '@/components/layout/AuthProvider';
 import { formatPrice } from '@/lib/format';
 import { parseQuery } from '@/lib/parseQuery';
@@ -18,7 +18,11 @@ const MapView = dynamic(() => import('@/components/property/MapView').then(m => 
 const sel: React.CSSProperties = {padding:'10px 16px',borderRadius:12,fontSize:13,color:'#111827',border:'1px solid #E5E7EB',background:'#F9FAFB',cursor:'pointer',fontWeight:500};
 
 export function SearchResults({ cities, init }: { cities: City[]; init: Record<string,string> }) {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const [showSampleArchive, setShowSampleArchive] = useState(false);
+  const [sampleArchive, setSampleArchive] = useState<ListingFull[]>([]);
+  const [sampleArchiveLoading, setSampleArchiveLoading] = useState(false);
+  const [sampleArchiveError, setSampleArchiveError] = useState<string | null>(null);
   const [text, setText] = useState(init.q ?? '');
   const runText = () => { const t = parseQuery(text); setF(p => ({ ...p, q: t.q, purpose: t.purpose ?? p.purpose, beds: t.beds ?? '', type: t.type ?? '', max: t.maxPrice ? String(t.maxPrice) : '', min: t.minPrice ? String(t.minPrice) : '' })); };
   const [saved, setSaved] = useState<Set<string>>(new Set());
@@ -112,6 +116,16 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
   };
 
   const hasMore = results.length < total;
+
+  const openSampleArchive = async () => {
+    setShowSampleArchive(true);
+    if (sampleArchive.length || sampleArchiveLoading) return;
+    setSampleArchiveLoading(true);
+    try { setSampleArchive(await adminGetSampleArchive()); setSampleArchiveError(null); }
+    catch (error) { setSampleArchiveError((error as {message?:string})?.message ?? 'Could not load archived samples.'); }
+    finally { setSampleArchiveLoading(false); }
+  };
+  const archivedForPage = sampleArchive.filter(l => !f.purpose || l.purpose === f.purpose);
 
   const viewBtn = (v: typeof view, Icon: any, label: string) => (
     <button onClick={()=>setView(v)}
@@ -236,6 +250,46 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
         </div>
       )}
 
+      {profile?.role === 'admin' && f.purpose && (
+        <section style={{marginTop:30,padding:18,background:'#fff',border:'1px solid #E5E7EB',borderRadius:18}}>
+          <div style={{display:'flex',justifyContent:'space-between',gap:12,alignItems:'center',flexWrap:'wrap'}}>
+            <div>
+              <p style={{fontSize:14,fontWeight:750,color:'#111827'}}>Archived sample {f.purpose==='rent'?'rental':'for-sale'} listings</p>
+              <p style={{fontSize:12,color:'#6B7280',marginTop:4}}>Admin-only QA view · never shown as live inventory to visitors</p>
+            </div>
+            <div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}>
+              <Link href="/admin/sample-archive" style={{fontSize:12,color:'#1D4ED8',textDecoration:'underline'}}>Open full archive</Link>
+              <button type="button" onClick={()=>showSampleArchive?setShowSampleArchive(false):void openSampleArchive()} style={{padding:'8px 12px',border:'1px solid #D1D5DB',borderRadius:9,background:'#fff',fontSize:12,fontWeight:650,cursor:'pointer'}}>{showSampleArchive?'Hide archived samples':'Show archived samples'}</button>
+            </div>
+          </div>
+          {showSampleArchive && (
+            <div style={{marginTop:16}}>
+              {sampleArchiveLoading&&<p style={{fontSize:13,color:'#666'}}>Loading archived sample listings…</p>}
+              {sampleArchiveError&&<p role="alert" style={{fontSize:13,color:'#B91C1C'}}>{sampleArchiveError}</p>}
+              {!sampleArchiveLoading&&!sampleArchiveError&&archivedForPage.length===0&&<p style={{fontSize:13,color:'#666'}}>No archived sample listings for this category.</p>}
+              <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(220px,1fr))',gap:12}}>
+                {archivedForPage.map(l=>{
+                  const photos=[...(l.listing_images??[])].sort((a:any,b:any)=>a.sort_order-b.sort_order);
+                  return <article key={l.id} style={{border:'1px solid #E5E7EB',borderRadius:12,overflow:'hidden'}}>
+                    {photos.length>0 ? <div style={{display:'grid',gridTemplateColumns:photos.length>1?'repeat(2,minmax(0,1fr))':'1fr',gap:2}}>
+                      {photos.slice(0,4).map((photo:any,i:number)=><a key={photo.id} href={imgUrl(photo.storage_path)} target="_blank" rel="noreferrer" style={{height:photos.length===1?145:90,display:'block',overflow:'hidden',background:'#F3F4F6'}}>
+                        <img src={imgUrl(photo.storage_path)} alt={l.title+' photo '+(i+1)} loading="lazy" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
+                      </a>)}
+                    </div> : <div style={{height:90,display:'grid',placeItems:'center',background:'#F9FAFB',fontSize:11,color:'#777'}}>No uploaded photos</div>}
+                    <div style={{padding:11}}>
+                      <span style={{fontSize:10,fontWeight:750,color:'#9A3412'}}>SAMPLE · ARCHIVED</span>
+                      <p style={{fontSize:13,fontWeight:700,color:'#111',marginTop:5}}>{l.title}</p>
+                      <p style={{fontSize:11,color:'#666',marginTop:3}}>{[l.locality?.name,l.city?.name].filter(Boolean).join(', ')}</p>
+                      <p style={{fontSize:13,fontWeight:750,marginTop:7}}>{formatPrice(l.price,l.purpose)}</p>
+                      <p style={{fontSize:11,color:'#666',marginTop:5}}>{l.bedrooms} BHK · {l.bathrooms} bath · {l.carpet_area??l.sqft??'—'} sq ft · {photos.length} photos</p>
+                    </div>
+                  </article>;
+                })}
+              </div>
+            </div>
+          )}
+        </section>
+      )}
       {quickViewId && <ListingQuickView listingId={quickViewId} onClose={()=>setQuickViewId(null)} />}
     </main>
     </div>
