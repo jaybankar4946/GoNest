@@ -156,7 +156,7 @@ export function AgentDirectory({ agents }: Props) {
               <article key={broker.name} className="group w-[82vw] max-w-[320px] shrink-0 snap-start overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg md:w-auto md:max-w-none">
                 <div className="relative flex h-44 items-center justify-center overflow-hidden bg-gradient-to-br from-slate-50 via-white to-blue-50">
                   {broker.profileImageUrl ? (
-                    <img src={broker.profileImageUrl} alt={`${broker.name} business profile image`} loading="lazy" referrerPolicy="no-referrer" title="Illustrative portrait, not a verified staff photograph" className="h-28 w-28 rounded-full border-4 border-white object-cover shadow-md" />
+                    <img src={broker.profileImageUrl} alt="Illustrative real-estate professional portrait" loading="lazy" referrerPolicy="no-referrer" title="Illustrative portrait only; not a verified staff photograph" className="h-28 w-28 rounded-full border-4 border-white object-cover shadow-md" />
                   ) : (
                     <div aria-label={`${broker.name} logo placeholder`} className="flex h-24 w-24 items-center justify-center rounded-2xl border border-slate-200 bg-white text-3xl font-extrabold text-slate-500 shadow-sm">
                       {broker.name.split(/\\s+/).map((part) => part[0]).slice(0, 2).join("").toUpperCase()}
@@ -173,8 +173,8 @@ export function AgentDirectory({ agents }: Props) {
                   <div className="mt-3 flex flex-wrap gap-1.5">{broker.services.map(service => <span key={service} className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">{service}</span>)}</div>
                   <p className="mt-3 line-clamp-2 min-h-10 text-xs leading-5 text-slate-500">{broker.address}</p>
                   <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4">
-                    <Link href={`/agents/business/${broker.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`} className="text-sm font-bold text-blue-700 hover:text-blue-900">Contact · Message</Link>
-                    <Link href={`/agents/business/${broker.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}#available-homes`} className="text-sm font-semibold text-slate-600 hover:text-slate-950">Schedule visit</Link>
+                    <Link href={`/agents/business/${broker.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`} className="text-sm font-bold text-blue-700 hover:text-blue-900">View public profile</Link>
+                    <span className="text-xs font-medium text-slate-500">Bookings after verified claim</span>
                   </div>
                 </div>
               </article>
