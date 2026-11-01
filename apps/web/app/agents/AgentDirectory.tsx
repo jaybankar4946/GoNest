@@ -52,7 +52,7 @@ function AgentCard({ agent, top = false }: { agent: Profile; top?: boolean }) {
                   <div className="grid grid-cols-3 gap-2">
                     {agent.phone ? <a href={telHref(agent.phone)} className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-2 py-2.5 text-sm font-bold text-white hover:bg-blue-700">Call</a> : <span className="inline-flex items-center justify-center rounded-xl bg-slate-100 px-2 py-2.5 text-sm font-semibold text-slate-400">Call</span>}
                     {agent.phone ? <a href={waHref(agent.phone, `Hi ${agent.full_name ?? ''}, I found your profile on GoNest and would like to enquire.`)} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-2 py-2.5 text-sm font-bold text-slate-700 hover:border-emerald-300 hover:bg-emerald-50">Message</a> : <Link href={`/agents/${agent.id}`} className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-2 py-2.5 text-sm font-bold text-slate-700">Message</Link>}
-                    <Link href={`/agents/${agent.id}`} className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-2 py-2.5 text-sm font-bold text-slate-700 hover:border-blue-300 hover:bg-blue-50">Contact · Message</Link>
+                    <Link href={`/agents/${agent.id}`} className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-2 py-2.5 text-sm font-bold text-slate-700 hover:border-blue-300 hover:bg-blue-50">Schedule visit</Link>
                   </div>
                 </div>
               </article>
@@ -156,7 +156,7 @@ export function AgentDirectory({ agents }: Props) {
               <article key={broker.name} className="group w-[82vw] max-w-[320px] shrink-0 snap-start overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg md:w-auto md:max-w-none">
                 <div className="relative flex h-44 items-center justify-center overflow-hidden bg-gradient-to-br from-slate-50 via-white to-blue-50">
                   {broker.profileImageUrl ? (
-                    <img src={broker.profileImageUrl} alt={`${broker.name} business profile image`} loading="lazy" referrerPolicy="no-referrer" className="h-24 w-24 rounded-2xl border border-slate-200 bg-white p-2 object-contain shadow-sm" />
+                    <img src={broker.profileImageUrl} alt={`${broker.name} business profile image`} loading="lazy" referrerPolicy="no-referrer" title="Illustrative portrait, not a verified staff photograph" className="h-28 w-28 rounded-full border-4 border-white object-cover shadow-md" />
                   ) : (
                     <div aria-label={`${broker.name} logo placeholder`} className="flex h-24 w-24 items-center justify-center rounded-2xl border border-slate-200 bg-white text-3xl font-extrabold text-slate-500 shadow-sm">
                       {broker.name.split(/\\s+/).map((part) => part[0]).slice(0, 2).join("").toUpperCase()}
@@ -180,7 +180,7 @@ export function AgentDirectory({ agents }: Props) {
               </article>
             ))}
           </div>
-          <p className="mt-3 text-xs leading-5 text-slate-500">Public business-directory ratings are snapshots and may change. They are not GoNest reviews or endorsements. Images are business identity marks where sourced; otherwise a neutral initials placeholder is shown until a matching public team photo can be verified.</p>
+          <p className="mt-3 text-xs leading-5 text-slate-500">Public business-directory ratings are snapshots and may change. They are not GoNest reviews or endorsements. Portraits marked illustrative are representative visuals, not verified photographs of the listed business or its staff.</p>
         </div>
       </section>
 
