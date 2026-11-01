@@ -39,17 +39,17 @@ export default async function PublicBusinessProfile({ params }: Props) {
           <div className="mt-3 flex items-center gap-2"><span className="text-amber-500">★</span><strong className="text-sm text-slate-950">{broker.rating.toFixed(1)}</strong><span className="text-sm text-slate-500">({broker.reviews.toLocaleString('en-IN')} public reviews)</span></div>
           <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-600">{broker.note}. Services shown: {broker.services.join(', ')}.</p>
           <p className="mt-4 text-sm leading-6 text-slate-500">{broker.address}</p>
-          <div id="contact" className="mt-6 flex flex-wrap gap-3">
-            <a href="#available-homes" className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700">Contact</a>
-            <a href="#available-homes" className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-800 hover:border-blue-400">Message</a>\n            <a href="#available-homes" className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-800 hover:border-blue-400">Schedule visit</a>
+          <div id="contact" className="mt-6">
+            <span className="rounded-xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-500">Direct contact not connected</span>
           </div>
-          <p className="mt-4 text-xs leading-5 text-slate-500">This is a public business-directory profile, not a claimed GoNest agent account. Ratings and business details are external snapshots, not GoNest reviews or verification. Contact and message actions take you to available GoNest property enquiries; visit requests are sent to the relevant listing poster.</p>
+          <p className="mt-4 text-xs leading-5 text-slate-500">This is a public business-directory profile, not a claimed GoNest agent account. Ratings and business details are external snapshots, not GoNest reviews or verification. Direct contact and booking are unavailable until this business claims and verifies its GoNest profile.</p>
         </div>
       </div>
     </section>
-    <section id="available-homes" className="mt-12">
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-widest text-blue-700">Explore by service area</p><h2 className="mt-2 text-2xl font-extrabold text-slate-950 md:text-3xl">Available GoNest homes near {locality}</h2><p className="mt-2 text-sm text-slate-600">These are independent active listings in the area, not inventory claimed by {broker.name}.</p></div><span className="text-sm font-semibold text-slate-500">{listings.length} listings found</span></div>
-      {listings.length ? <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{listings.map((listing) => <article key={listing.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"><PropertyCard listing={listing}/><details className="border-t border-slate-100"><summary className="cursor-pointer px-5 py-4 text-sm font-extrabold text-blue-700 hover:bg-blue-50">Schedule visit · View booking window</summary><div className="border-t border-slate-100 bg-slate-50"><p className="px-4 pt-4 text-xs leading-5 text-slate-600">Select an available date and time. The request is pending until the listing poster confirms it.</p><ScheduleVisit listingId={listing.id} prefill={{name:'',phone:'',email:''}}/></div></details></article>)}</div> : <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-10 text-center"><h3 className="font-bold text-slate-900">No matching active GoNest homes yet</h3><p className="mt-2 text-sm text-slate-600">Browse the directory or search all available homes in Thane.</p><Link href="/search?q=Thane" className="mt-4 inline-flex rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white">Search Thane homes</Link></div>}
+    <section className="mt-8 rounded-2xl border border-amber-200 bg-amber-50 p-5">
+      <h2 className="text-base font-bold text-slate-900">GoNest inventory connection unavailable</h2>
+      <p className="mt-2 text-sm leading-6 text-slate-700">This is an independent public business-directory profile and is not currently connected to a claimed GoNest agent account. We therefore do not show property recommendations, enquiries or visit-booking windows here. Listings will appear on this profile only after the business or its authorised agent is verified and explicitly connected to that inventory.</p>
+      <Link href="/agents" className="mt-4 inline-flex rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-800 hover:border-blue-400">Back to Agent Directory</Link>
     </section>
   </main><Footer/></>;
 }
