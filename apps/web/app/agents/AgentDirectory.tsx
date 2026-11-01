@@ -146,7 +146,7 @@ export function AgentDirectory({ agents }: Props) {
           <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="mb-2 text-xs font-bold uppercase tracking-widest text-blue-700">Explore by location</p>
-              <h2 className="text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">Real estate agents near you</h2>
+              <h2 className="text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">Agents For You</h2>
               <p className="mt-2 max-w-2xl text-sm text-slate-600 sm:text-base">Compare local agencies and agent profiles. Public directory information is clearly distinguished from GoNest verification.</p>
             </div>
             <span className="shrink-0 text-sm font-semibold text-slate-600">{THANE_TOP_AGENTS.length} local businesses</span>
@@ -173,7 +173,7 @@ export function AgentDirectory({ agents }: Props) {
                   <div className="mt-3 flex flex-wrap gap-1.5">{broker.services.map(service => <span key={service} className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">{service}</span>)}</div>
                   <p className="mt-3 line-clamp-2 min-h-10 text-xs leading-5 text-slate-500">{broker.address}</p>
                   <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4">
-                    <a href={businessMapsUrl(broker)} target="_blank" rel="noreferrer" className="text-sm font-bold text-blue-700 hover:text-blue-900">Explore agent →</a>
+                    <Link href={`/agents/business/${broker.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`} className="text-sm font-bold text-blue-700 hover:text-blue-900">Explore agent →</Link>
                     <a href={`https://www.google.com/search?q=${encodeURIComponent(broker.name + " Thane reviews")}`} target="_blank" rel="noreferrer" className="text-sm font-semibold text-slate-600 hover:text-slate-950">Read reviews ↗</a>
                   </div>
                 </div>
