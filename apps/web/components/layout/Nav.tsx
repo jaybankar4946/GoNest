@@ -11,7 +11,6 @@ const LINKS = [
   { href: '/rent', label: 'Rent' },
   { href: '/projects', label: 'New Projects' },
   { href: '/agents', label: 'Agents' },
-  { href: '/decision-centre', label: 'Decision Tools' },
 ];
 
 export function Nav() {
@@ -43,25 +42,13 @@ export function Nav() {
   return (
     <header style={{ position: 'sticky', top: 0, zIndex: 50, background: '#fff', borderBottom: '1px solid var(--border)', backdropFilter: 'blur(12px)' }}>
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 20px', display: 'flex', alignItems: 'center', height: 68, gap: 8 }}>
-        {/* Logo */}
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, order: 2 }}>
           <span style={{ width: 34, height: 34, borderRadius: 12, background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}><Home size={17} color="#fff" /><span style={{ position: 'absolute', top: -3, right: -3, width: 11, height: 11, borderRadius: '50%', background: '#34D399', border: '2px solid #fff' }} /></span>
           <span style={{ fontFamily: 'var(--font-manrope), var(--font-display)', fontWeight: 800, fontSize: 21, letterSpacing: '-0.03em', color: '#111827' }}>GoNest</span>
         </Link>
-
-        {/* Desktop nav */}
         <nav style={{ gap: 2, flex: 1, order: 1 }} className="hidden md:flex">
           {LINKS.map(l => (
-            <Link key={l.href} href={l.href}
-              style={{
-                padding: '8px 14px', borderRadius: 9999, fontSize: 14,
-                fontWeight: active(l.href) ? 600 : 400,
-                color: active(l.href) ? 'var(--primary)' : '#3a3a3a',
-                background: active(l.href) ? 'var(--gray-1)' : 'transparent',
-                transition: 'background .15s,color .15s',
-              }}>
-              {l.label}
-            </Link>
+            <Link key={l.href} href={l.href} style={{ padding: '8px 14px', borderRadius: 9999, fontSize: 14, fontWeight: active(l.href) ? 600 : 400, color: active(l.href) ? 'var(--primary)' : '#3a3a3a', background: active(l.href) ? 'var(--gray-1)' : 'transparent', transition: 'background .15s,color .15s' }}>{l.label}</Link>
           ))}
           {roleDashboard && (
             <Link href={roleDashboard.href} style={{ padding: '8px 14px', borderRadius: 9999, fontSize: 14, fontWeight: active(roleDashboard.href) ? 600 : 400, color: active(roleDashboard.href) ? 'var(--primary)' : '#3a3a3a', background: active(roleDashboard.href) ? 'var(--gray-1)' : 'transparent', display: 'flex', alignItems: 'center', gap: 5 }}>
@@ -69,89 +56,38 @@ export function Nav() {
             </Link>
           )}
         </nav>
-
-        {/* Desktop right side */}
         <div style={{ alignItems: 'center', gap: 6, flex: 1, order: 3, justifyContent: 'flex-end' }} className="hidden md:flex">
           <Link href="/list-with-gonest" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 12, fontSize: 13, fontWeight: 600, color: '#fff', background: 'var(--primary)', marginRight: 4, whiteSpace: 'nowrap' }}><Plus size={14} /> List with GoNest</Link>
           <NotificationBell />
-          <Link href="/saved" style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: '50%' }}
-            onMouseOver={e => (e.currentTarget.style.background = 'var(--gray-1)')}
-            onMouseOut={e => (e.currentTarget.style.background = 'transparent')}>
-            <Heart size={18} color="#3a3a3a" />
-          </Link>
-
+          <Link href="/saved" style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: '50%' }} onMouseOver={e => (e.currentTarget.style.background = 'var(--gray-1)')} onMouseOut={e => (e.currentTarget.style.background = 'transparent')}><Heart size={18} color="#3a3a3a" /></Link>
           {user ? (
             <div style={{ position: 'relative' }}>
-              <button onClick={() => setMenuOpen(o => !o)}
-                style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px 6px 6px', borderRadius: 9999, border: '1px solid var(--border)', background: '#fff' }}>
-                <span style={{ width: 26, height: 26, borderRadius: '50%', background: 'var(--gray-1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: 'var(--primary)' }}>
-                  {(profile?.full_name ?? user.email ?? '?').charAt(0).toUpperCase()}
-                </span>
-                <span style={{ fontSize: 13, fontWeight: 500, color: '#111', maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {profile?.full_name?.split(' ')[0] ?? 'Account'}
-                </span>
+              <button onClick={() => setMenuOpen(o => !o)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px 6px 6px', borderRadius: 9999, border: '1px solid var(--border)', background: '#fff' }}>
+                <span style={{ width: 26, height: 26, borderRadius: '50%', background: 'var(--gray-1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: 'var(--primary)' }}>{(profile?.full_name ?? user.email ?? '?').charAt(0).toUpperCase()}</span>
+                <span style={{ fontSize: 13, fontWeight: 500, color: '#111', maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{profile?.full_name?.split(' ')[0] ?? 'Account'}</span>
               </button>
-              {menuOpen && (
-                <>
-                  <div onClick={() => setMenuOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 40 }} />
-                  <div style={{ position: 'absolute', right: 0, top: 44, width: 200, background: '#fff', borderRadius: 12, border: '1px solid var(--border)', boxShadow: 'var(--shadow-lg)', padding: 6, zIndex: 50 }}>
-                    <Link href="/dashboard" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 10px', borderRadius: 8, fontSize: 13, color: '#111' }}>
-                      <LayoutDashboard size={14} /> Dashboard
-                    </Link>
-                    <Link href="/enquiries" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 10px', borderRadius: 8, fontSize: 13, color: '#111' }}>
-                      <MessageSquare size={14} /> My enquiries
-                    </Link>
-                    <Link href="/saved-searches" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 10px', borderRadius: 8, fontSize: 13, color: '#111' }}>Saved searches</Link>
-                    <Link href="/notifications" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 10px', borderRadius: 8, fontSize: 13, color: '#111' }}>Notifications</Link>
-                    <Link href="/list-with-gonest" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 10px', borderRadius: 8, fontSize: 13, color: '#111' }}>
-                      <Plus size={14} /> Post a property
-                    </Link>
-                    <div style={{ height: 1, background: 'var(--border)', margin: '4px 0' }} />
-                    <button onClick={doSignOut} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 10px', borderRadius: 8, fontSize: 13, color: 'var(--err)', width: '100%', textAlign: 'left' }}>
-                      <LogOut size={14} /> Sign out
-                    </button>
-                  </div>
-                </>
-              )}
+              {menuOpen && <><div onClick={() => setMenuOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 40 }} /><div style={{ position: 'absolute', right: 0, top: 44, width: 200, background: '#fff', borderRadius: 12, border: '1px solid var(--border)', boxShadow: 'var(--shadow-lg)', padding: 6, zIndex: 50 }}>
+                <Link href="/dashboard" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 10px', borderRadius: 8, fontSize: 13, color: '#111' }}><LayoutDashboard size={14} /> Dashboard</Link>
+                <Link href="/enquiries" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 10px', borderRadius: 8, fontSize: 13, color: '#111' }}><MessageSquare size={14} /> My enquiries</Link>
+                <Link href="/saved-searches" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 10px', borderRadius: 8, fontSize: 13, color: '#111' }}>Saved searches</Link>
+                <Link href="/notifications" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 10px', borderRadius: 8, fontSize: 13, color: '#111' }}>Notifications</Link>
+                <Link href="/list-with-gonest" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 10px', borderRadius: 8, fontSize: 13, color: '#111' }}><Plus size={14} /> Post a property</Link>
+                <div style={{ height: 1, background: 'var(--border)', margin: '4px 0' }} />
+                <button onClick={doSignOut} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 10px', borderRadius: 8, fontSize: 13, color: 'var(--err)', width: '100%', textAlign: 'left' }}><LogOut size={14} /> Sign out</button>
+              </div></>}
             </div>
-          ) : (
-            <Link href="/auth" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 9999, fontSize: 13, fontWeight: 600, color: '#111827' }}>
-              <User size={14} /> Sign in
-            </Link>
-          )}
+          ) : <Link href="/auth" style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 9999, fontSize: 13, fontWeight: 600, color: '#111827' }}><User size={14} /> Sign in</Link>}
         </div>
-
-        {/* Mobile hamburger */}
-        <button className="md:hidden" onClick={() => setMobileOpen(o => !o)} style={{ padding: 8, marginLeft: 'auto', order: 4 }}>
-          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
+        <button className="md:hidden" onClick={() => setMobileOpen(o => !o)} style={{ padding: 8, marginLeft: 'auto', order: 4 }}>{mobileOpen ? <X size={20} /> : <Menu size={20} />}</button>
       </div>
-
-      {/* Mobile dropdown */}
-      {mobileOpen && (
-        <div className="md:hidden" style={{ borderTop: '1px solid var(--border)', padding: '12px 20px 20px', display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {LINKS.map(l => (
-            <Link key={l.href} href={l.href} onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, fontWeight: active(l.href) ? 600 : 400, color: active(l.href) ? 'var(--primary)' : '#111' }}>
-              {l.label}
-            </Link>
-          ))}
-          {roleDashboard && <Link href={roleDashboard.href} onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>{roleDashboard.label}</Link>}
-          <div style={{ height: 1, background: 'var(--border)', margin: '10px 0' }} />
-          <Link href="/saved" onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>Saved homes</Link>
-          <Link href="/list-with-gonest" onClick={() => setMobileOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6, padding: '11px 12px', borderRadius: 12, fontSize: 14, fontWeight: 600, color: '#fff', background: 'var(--primary)' }}><Plus size={15} /> List with GoNest</Link>
-          {user ? (
-            <>
-              <Link href="/dashboard" onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>Dashboard</Link>
-              <Link href="/enquiries" onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>My enquiries</Link>
-              <Link href="/saved-searches" onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>Saved searches</Link>
-              <Link href="/notifications" onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>Notifications</Link>
-              <button onClick={doSignOut} style={{ padding: '11px 4px', fontSize: 14, color: 'var(--err)', textAlign: 'left' }}>Sign out</button>
-            </>
-          ) : (
-            <Link href="/auth" onClick={() => setMobileOpen(false)} style={{ marginTop: 6, padding: '11px 4px', borderRadius: 9999, fontSize: 14, fontWeight: 600, color: '#fff', background: 'var(--primary)', textAlign: 'center' }}>Sign in</Link>
-          )}
-        </div>
-      )}
+      {mobileOpen && <div className="md:hidden" style={{ borderTop: '1px solid var(--border)', padding: '12px 20px 20px', display: 'flex', flexDirection: 'column', gap: 2 }}>
+        {LINKS.map(l => <Link key={l.href} href={l.href} onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, fontWeight: active(l.href) ? 600 : 400, color: active(l.href) ? 'var(--primary)' : '#111' }}>{l.label}</Link>)}
+        {roleDashboard && <Link href={roleDashboard.href} onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>{roleDashboard.label}</Link>}
+        <div style={{ height: 1, background: 'var(--border)', margin: '10px 0' }} />
+        <Link href="/saved" onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>Saved homes</Link>
+        <Link href="/list-with-gonest" onClick={() => setMobileOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6, padding: '11px 12px', borderRadius: 12, fontSize: 14, fontWeight: 600, color: '#fff', background: 'var(--primary)' }}><Plus size={15} /> List with GoNest</Link>
+        {user ? <><Link href="/dashboard" onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>Dashboard</Link><Link href="/enquiries" onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>My enquiries</Link><Link href="/saved-searches" onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>Saved searches</Link><Link href="/notifications" onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>Notifications</Link><button onClick={doSignOut} style={{ padding: '11px 4px', fontSize: 14, color: 'var(--err)', textAlign: 'left' }}>Sign out</button></> : <Link href="/auth" onClick={() => setMobileOpen(false)} style={{ marginTop: 6, padding: '11px 4px', borderRadius: 9999, fontSize: 14, fontWeight: 600, color: '#fff', background: 'var(--primary)', textAlign: 'center' }}>Sign in</Link>}
+      </div>}
     </header>
   );
 }
