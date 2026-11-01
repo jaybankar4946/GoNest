@@ -43,10 +43,10 @@ export function ListingDecisionPanel(p:Props) {
   const finance=useMemo(()=>{
     const principal=price*(1-down/100), emi=emiFor(principal,rate,years);
     const monthlyIncome=val(income), obligations=val(commitments);
-    const ratio=monthlyIncome>0?(emi+obligations)/monthlyIncome*100:null;
+    const ratio=monthlyIncome>0?(emi+obligations+(rent?0:Math.max(0,p.maintenance ?? 0)))/monthlyIncome*100:null;
     const totalCharges=val(stamp)+val(registration)+val(brokerage)+val(other);
     return {principal,emi,ratio,totalCharges,initialCash:price-principal+totalCharges,total:price+totalCharges,remaining:monthlyIncome?monthlyIncome-obligations-emi:null};
-  },[price,down,rate,years,income,commitments,stamp,registration,brokerage,other]);
+  },[price,down,rate,years,income,commitments,stamp,registration,brokerage,other,p.maintenance,rent]);
   const rentMath=useMemo(()=>{
     const m=val(monthlyRent), d=val(deposit), maint=val(monthlyMaintenance);
     const moveIn=m+maint+d+val(brokerage)+val(registration)+val(other);
@@ -63,7 +63,7 @@ export function ListingDecisionPanel(p:Props) {
     : finance.ratio===null?'Add household income to estimate affordability':finance.ratio<=35?'Estimated obligations are within a 35% planning range':finance.ratio<=45?'Review other commitments and lender eligibility':'Estimated monthly obligations may be stretched';
   const Field=({label,value,onChange,suffix='₹'}:{label:string;value:string;onChange:(v:string)=>void;suffix?:string})=><label className="block"><span className="mb-1 block text-xs font-semibold text-slate-600">{label}</span><span className="flex items-center rounded-xl border border-slate-200 bg-white px-3"><input type="number" min="0" value={value} onChange={e=>onChange(e.target.value)} className="min-w-0 w-full py-2.5 text-sm outline-none"/><span className="text-xs text-slate-400">{suffix}</span></span></label>;
   return <section id="decision-intelligence" className="my-8 scroll-mt-28 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-    <div className="bg-slate-950 px-5 py-5 text-white sm:px-7"><div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-blue-200"><BrainCircuit size={16}/> GoNest Home Finder Intelligence</div><h2 className="mt-2 text-xl font-extrabold sm:text-2xl">Make a confident decision about this {rent?'rental':project?'project':'home'}</h2><p className="mt-1 text-sm leading-6 text-slate-300">Calculations start with this listing's published price and recorded facts. Change assumptions to model your situation.</p></div>
+    <div className="bg-slate-950 px-5 py-5 text-white sm:px-7"><div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-blue-200"><BrainCircuit size={16}/> GoNest Home Finder Intelligence</div><h2 className="mt-2 text-xl font-extrabold sm:text-2xl">Make a confident decision about {p.title || (rent?'this rental':project?'this project':'this home')}</h2><p className="mt-1 text-sm leading-6 text-slate-300">Calculations start with this listing's published price and recorded facts. Change assumptions to model your situation.</p></div>
     <div className="grid gap-6 p-5 sm:p-7 lg:grid-cols-[1.15fr_.85fr]">
       <div>
         <div className="flex items-center gap-2 text-sm font-extrabold text-slate-900"><Calculator size={17} className="text-blue-700"/> {rent?'Rental affordability & move-in cost':project?'Project total-cost & loan planner':'Purchase affordability & loan planner'}</div>
@@ -91,8 +91,9 @@ export function ListingDecisionPanel(p:Props) {
         <div className="rounded-xl border border-slate-200 p-3"><p className="text-xs text-slate-500">Comparable asking rates</p><p className="mt-1 font-extrabold">{medianRate===null?'Not enough comparable data':inr(medianRate)+'/ sq ft'}</p><p className="mt-1 text-xs text-slate-500">{comparableRates.length ? comparableRates.length+' matching published listings; indicative, not a valuation.' : 'No comparable records with usable area and price.'}</p></div>
         <div className="rounded-xl border border-slate-200 p-3"><p className="text-xs text-slate-500">Listing verification</p><p className="mt-1 font-extrabold">{p.verified?'Verified record':'Verification not confirmed'}</p><p className="mt-1 text-xs text-slate-500">Does not guarantee title or legal due diligence.</p></div>
         <div className="rounded-xl border border-slate-200 p-3"><p className="text-xs text-slate-500">Availability</p><p className="mt-1 font-extrabold">{p.availabilityVerified?'Recently confirmed':'Ask poster to reconfirm'}</p><p className="mt-1 text-xs text-slate-500">Confirm price and possession / move-in date.</p></div>
-        <div className="rounded-xl border border-slate-200 p-3"><p className="text-xs text-slate-500">{project?'Possession':'Home configuration'}</p><p className="mt-1 font-extrabold">{project?(p.possessionDate||'Not provided'):(p.bedrooms? p.bedrooms+' BHK':'Not recorded')}</p><p className="mt-1 text-xs text-slate-500">{project?(p.projectStatus||'Confirm current construction status'):'Check room sizes and actual usable area.'}</p></div>
+        <div className="rounded-xl border border-slate-200 p-3"><p className="text-xs text-slate-500">{project?'Possession':'Home configuration'}</p><p className="mt-1 font-extrabold">{project?(p.possessionDate||'Not provided'):(p.bedrooms? p.bedrooms+' BHK':'Not recorded')}</p><p className="mt-1 text-xs text-slate-500">{project?[(p.projectStatus||'Construction status not recorded'),p.unitCount ? p.unitCount.toLocaleString('en-IN')+' total project units' : null].filter(Boolean).join(' · '):'Check room sizes and actual usable area.'}</p></div>
       </div>
+      {project && <p className="mt-4 text-xs text-slate-500">Price last observed: {p.observedAt ? new Date(p.observedAt).toLocaleDateString('en-IN') : 'Not recorded'}{p.sourceUrl ? <> · <a href={p.sourceUrl} target="_blank" rel="noreferrer" className="font-semibold text-blue-700 underline">Open developer source ↗</a></> : ''}</p>}
       <p className="mt-4 flex items-start gap-2 text-xs leading-5 text-slate-500"><Info size={14} className="mt-0.5 shrink-0"/> This is decision support, not a property valuation, legal opinion, credit approval or confirmation of availability. Charges and assumptions are editable; verify them with the owner, developer, lender and relevant authorities.</p>
     </div>
   </section>;
