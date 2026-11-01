@@ -26,7 +26,7 @@ function AgentCard({ agent, top = false }: { agent: Profile; top?: boolean }) {
                 <div className="p-5">
                   <div className="flex items-start gap-3">
                     <Link href={`/agents/${agent.id}`} aria-label={`View ${agent.full_name ?? 'agent'} profile`} className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-100 bg-slate-100 text-xl font-extrabold text-slate-500">
-                      {agent.avatar_url ? <img src={agent.avatar_url || portraitFor(agent.id)} alt="" className="h-full w-full object-cover" /> : (agent.full_name ?? 'G').charAt(0).toUpperCase()}
+                      <img src={agent.avatar_url || portraitFor(agent.id)} alt={agent.avatar_url ? (agent.full_name ?? 'Agent') + ' profile photo' : 'Illustrative real-estate agent portrait'} title={agent.avatar_url ? undefined : 'Illustrative portrait; replace with the agent’s verified profile photo'} className="h-full w-full object-cover" />
                     </Link>
                     <div className="min-w-0 flex-1">
                       <Link href={`/agents/${agent.id}`} className="block text-lg font-extrabold leading-tight text-slate-950 hover:text-blue-700">{agent.full_name ?? 'GoNest agent'}</Link>
@@ -50,7 +50,7 @@ function AgentCard({ agent, top = false }: { agent: Profile; top?: boolean }) {
                 <div className="mt-auto p-4">
                   {agent.bio && <p className="mb-3 line-clamp-2 text-sm leading-6 text-slate-600">{agent.bio}</p>}
                   <div className="grid grid-cols-3 gap-2">
-                    {agent.phone ? <a href={telHref(agent.phone)} className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-2 py-2.5 text-sm font-bold text-white hover:bg-blue-700">Contact</a> : <Link href={`/agents/${agent.id}#contact`} className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-2 py-2.5 text-sm font-bold text-white">Contact</Link>}
+                    {agent.phone ? <a href={telHref(agent.phone)} className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-2 py-2.5 text-sm font-bold text-white hover:bg-blue-700">Call</a> : <Link href={`/agents/${agent.id}#contact`} className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-2 py-2.5 text-sm font-bold text-white">View contact</Link>}
                     {agent.phone ? <a href={waHref(agent.phone, `Hi ${agent.full_name ?? ''}, I found your profile on GoNest and would like to enquire.`)} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-2 py-2.5 text-sm font-bold text-slate-700 hover:border-emerald-300 hover:bg-emerald-50">Message</a> : <Link href={`/agents/${agent.id}#contact`} className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-2 py-2.5 text-sm font-bold text-slate-700">Message</Link>}
                     <Link href={`/agents/${agent.id}#listings`} className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-2 py-2.5 text-sm font-bold text-slate-700 hover:border-blue-300 hover:bg-blue-50">Schedule visit</Link>
                   </div>
