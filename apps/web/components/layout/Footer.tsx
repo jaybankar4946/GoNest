@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Home } from 'lucide-react';
 const COLS = [
-  { t: 'Platform', l: [['Buy property', '/buy'], ['Rent property', '/rent'], ['New projects', '/projects'], ['Find agents', '/agents'], ['Decision tools', '/decision-centre'], ['About GoNest', '/about'], ['List with GoNest', '/list-with-gonest'], ['EMI calculator', '/emi']] },
+  { t: 'Platform', l: [['Buy property', '/buy'], ['Rent property', '/rent'], ['New projects', '/projects'], ['Find agents', '/agents'], ['Decision Tools', '/decision-centre'], ['Home Finder Intelligence', '/home-finder'], ['About GoNest', '/about'], ['List with GoNest', '/list-with-gonest'], ['EMI calculator', '/emi']] },
   { t: 'Legal', l: [['Privacy Policy', '/privacy'], ['Terms of Use', '/terms'], ['Contact Us', '/contact']] },
   { t: 'Account', l: [['Sign in', '/auth'], ['Saved homes', '/saved'], ['Dashboard', '/dashboard']] },
 ];
