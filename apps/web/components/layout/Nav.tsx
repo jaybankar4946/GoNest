@@ -67,6 +67,7 @@ export function Nav() {
               {isAdmin ? <ShieldCheck size={14} /> : <LayoutDashboard size={14} />} {roleDashboard.label}
             </Link>
           )}
+          {isAdmin && <Link href="/admin/sample-archive" style={{ padding: '8px 14px', borderRadius: 9999, fontSize: 14, fontWeight: active('/admin/sample-archive') ? 600 : 400, color: active('/admin/sample-archive') ? 'var(--primary)' : '#3a3a3a', background: active('/admin/sample-archive') ? 'var(--gray-1)' : 'transparent' }}>Sample Archive</Link>}
         </nav>
 
         {/* Desktop right side */}
@@ -135,6 +136,7 @@ export function Nav() {
             </Link>
           ))}
           {roleDashboard && <Link href={roleDashboard.href} onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>{roleDashboard.label}</Link>}
+          {isAdmin && <Link href="/admin/sample-archive" onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>Sample Archive</Link>}
           <div style={{ height: 1, background: 'var(--border)', margin: '10px 0' }} />
           <Link href="/saved" onClick={() => setMobileOpen(false)} style={{ padding: '11px 4px', fontSize: 14, color: '#111' }}>Saved homes</Link>
           <Link href="/list-with-gonest" onClick={() => setMobileOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 6, padding: '11px 12px', borderRadius: 12, fontSize: 14, fontWeight: 600, color: '#fff', background: 'var(--primary)' }}><Plus size={15} /> List with GoNest</Link>
