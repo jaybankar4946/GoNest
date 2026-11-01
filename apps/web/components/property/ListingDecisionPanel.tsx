@@ -57,7 +57,7 @@ export function ListingDecisionPanel(p:Props) {
     const total=price+charges;
     const paid=val(booking);
     const principal=total*(1-down/100);
-    return {charges,total,paid,balance:Math.max(0,total-paid),emi:emiFor(principal,rate,years),initial:total*down/100+charges};
+    return {charges,total,paid,balance:Math.max(0,total-paid),emi:emiFor(principal,rate,years),initial:price*down/100+charges};
   },[price,builderCharges,gst,stamp,registration,other,booking,down,rate,years]);
   const signal=rent ? (rentMath.rentRatio===null?'Add household income to estimate budget fit':rentMath.rentRatio<=30?'Rent is within the common 30% income planning guide':rentMath.rentRatio<=40?'Rent may stretch the monthly budget':'Rent is a high share of stated household income')
     : finance.ratio===null?'Add household income to estimate affordability':finance.ratio<=35?'Estimated obligations are within a 35% planning range':finance.ratio<=45?'Review other commitments and lender eligibility':'Estimated monthly obligations may be stretched';
