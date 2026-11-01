@@ -41,17 +41,17 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ i
                 {agent.rating != null && <span className="rounded-full bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-900">★ {agent.rating.toFixed(1)} · {agent.review_count} reviews</span>}
               </div>
               {agent.bio && <p className="mt-5 max-w-3xl whitespace-pre-line text-sm leading-7 text-slate-600">{agent.bio}</p>}
-              <div className="mt-6 flex flex-wrap gap-3">
+              <div id="contact" className="mt-6 flex flex-wrap gap-3">
                 {agent.phone && <a href={telHref(agent.phone)} className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700">Contact</a>}
                 {agent.phone && <a href={waHref(agent.phone, `Hi ${agent.full_name ?? ''}, I found your profile on GoNest and would like to enquire about your properties.`)} target="_blank" rel="noreferrer" className="rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white hover:bg-emerald-700">Message</a>}
-                {listings.length > 0 && <a href={`/property/${listings[0].id}`} className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-800 hover:border-blue-400">Schedule a property visit ↓</a>}
+                {listings.length > 0 && <a href={`/property/${listings[0].id}`} className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-800 hover:border-blue-400">Schedule visit</a>}
               </div>
               {!agent.phone && <p className="mt-4 text-xs text-slate-500">Direct contact details have not been published for this profile. Open a listing below to use its available enquiry or visit-request options.</p>}
             </div>
           </div>
         </section>
 
-        <section className="mt-10">
+        <section id="listings" className="mt-10">
           <div className="mb-5 flex flex-col gap-2 border-b border-slate-200 pb-5 sm:flex-row sm:items-end sm:justify-between">
             <div><p className="text-sm font-bold uppercase tracking-widest text-blue-700">Current inventory</p><h2 className="mt-2 text-2xl font-extrabold text-slate-950 md:text-3xl">Properties listed by {agent.full_name ?? 'this professional'}</h2></div>
             <p className="text-sm text-slate-500">{listings.length} active listing{listings.length === 1 ? '' : 's'}</p>
