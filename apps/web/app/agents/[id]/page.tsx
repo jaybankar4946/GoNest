@@ -8,7 +8,7 @@ import { ScheduleVisit } from '@/components/property/ScheduleVisit';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+const portraitFor = (id: string) => { const n = [...id].reduce((sum, char) => sum + char.charCodeAt(0), 0) % 90 + 1; return 'https://randomuser.me/api/portraits/' + (n % 2 ? 'women' : 'men') + '/' + n + '.jpg'; };\n\nexport async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
   const agent = await getAgentById(id);
   return { title: agent?.full_name ? `${agent.full_name} | GoNest` : 'Agent Profile' };
@@ -28,7 +28,7 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ i
         <section className="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="flex flex-col gap-6 p-6 md:flex-row md:items-start md:p-8">
             <div className="flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-100 bg-slate-100 text-4xl font-extrabold text-slate-500">
-              {agent.avatar_url ? <img src={agent.avatar_url || 'https://randomuser.me/api/portraits/men/32.jpg'} alt="" className="h-full w-full object-cover" /> : (agent.full_name ?? 'G').charAt(0).toUpperCase()}
+              {agent.avatar_url ? <img src={agent.avatar_url || portraitFor(agent.id)} alt="" className="h-full w-full object-cover" /> : (agent.full_name ?? 'G').charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-xs font-bold uppercase tracking-widest text-blue-700">{agent.role === 'agent' ? 'Real estate agent / broker' : 'Property owner'}</p>
