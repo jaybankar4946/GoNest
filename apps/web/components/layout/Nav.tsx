@@ -11,6 +11,7 @@ const LINKS = [
   { href: '/rent', label: 'Rent' },
   { href: '/projects', label: 'New Projects' },
   { href: '/agents', label: 'Agents' },
+  { href: '/decision-centre', label: 'Decision Tools' },
 ];
 
 export function Nav() {
