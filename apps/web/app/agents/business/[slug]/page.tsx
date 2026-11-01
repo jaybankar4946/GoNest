@@ -41,7 +41,7 @@ export default async function PublicBusinessProfile({ params }: Props) {
           <p className="mt-4 text-sm leading-6 text-slate-500">{broker.address}</p>
           <div id="contact" className="mt-6 flex flex-wrap gap-3">
             <a href="#available-homes" className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700">Contact</a>
-            <a href="#available-homes" className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-800 hover:border-blue-400">Message</a>
+            <a href="#available-homes" className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-800 hover:border-blue-400">Message</a>\n            <a href="#available-homes" className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-800 hover:border-blue-400">Schedule visit</a>
           </div>
           <p className="mt-4 text-xs leading-5 text-slate-500">This is a public business-directory profile, not a claimed GoNest agent account. Ratings and business details are external snapshots, not GoNest reviews or verification. Contact and message actions take you to available GoNest property enquiries; visit requests are sent to the relevant listing poster.</p>
         </div>
