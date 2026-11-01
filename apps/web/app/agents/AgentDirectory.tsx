@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import type { Profile } from '@/lib/types';
-import { THANE_TOP_AGENTS, businessMapsUrl } from '@/lib/thane-agents';
+import { THANE_TOP_AGENTS } from '@/lib/thane-agents';
 import { telHref, waHref } from '@/lib/contact';
 
 type Props = { agents: Profile[] };
@@ -52,7 +52,7 @@ function AgentCard({ agent, top = false }: { agent: Profile; top?: boolean }) {
                   <div className="grid grid-cols-3 gap-2">
                     {agent.phone ? <a href={telHref(agent.phone)} className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-2 py-2.5 text-sm font-bold text-white hover:bg-blue-700">Call</a> : <span className="inline-flex items-center justify-center rounded-xl bg-slate-100 px-2 py-2.5 text-sm font-semibold text-slate-400">Call</span>}
                     {agent.phone ? <a href={waHref(agent.phone, `Hi ${agent.full_name ?? ''}, I found your profile on GoNest and would like to enquire.`)} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-2 py-2.5 text-sm font-bold text-slate-700 hover:border-emerald-300 hover:bg-emerald-50">Message</a> : <Link href={`/agents/${agent.id}`} className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-2 py-2.5 text-sm font-bold text-slate-700">Message</Link>}
-                    <Link href={`/agents/${agent.id}`} className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-2 py-2.5 text-sm font-bold text-slate-700 hover:border-blue-300 hover:bg-blue-50">Explore agent →</Link>
+                    <Link href={`/agents/${agent.id}`} className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-2 py-2.5 text-sm font-bold text-slate-700 hover:border-blue-300 hover:bg-blue-50">Contact · Message</Link>
                   </div>
                 </div>
               </article>
@@ -163,7 +163,7 @@ export function AgentDirectory({ agents }: Props) {
                     </div>
                   )}
                   <span className="absolute left-3 top-3 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-slate-800">#{index + 1} · Thane</span>
-                  <span className="absolute bottom-3 left-3 rounded-md bg-slate-950/75 px-2.5 py-1 text-[10px] font-semibold text-white">{broker.imageSourceLabel ?? "Business identity pending"}</span>
+                  <span className="absolute bottom-3 left-3 rounded-md bg-slate-950/75 px-2.5 py-1 text-[10px] font-semibold text-white">{broker.imageSourceLabel ?? "Illustrative professional portrait"}</span>
                 </div>
                 <div className="p-5">
                   <h3 className="line-clamp-2 min-h-12 text-lg font-extrabold text-slate-950">{broker.name}</h3>
@@ -174,7 +174,7 @@ export function AgentDirectory({ agents }: Props) {
                   <p className="mt-3 line-clamp-2 min-h-10 text-xs leading-5 text-slate-500">{broker.address}</p>
                   <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4">
                     <Link href={`/agents/business/${broker.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`} className="text-sm font-bold text-blue-700 hover:text-blue-900">Explore agent →</Link>
-                    <a href={`https://www.google.com/search?q=${encodeURIComponent(broker.name + " Thane reviews")}`} target="_blank" rel="noreferrer" className="text-sm font-semibold text-slate-600 hover:text-slate-950">Read reviews ↗</a>
+                    <a href={`#available-homes`} target="_blank" rel="noreferrer" className="text-sm font-semibold text-slate-600 hover:text-slate-950">Schedule visit</a>
                   </div>
                 </div>
               </article>
