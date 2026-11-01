@@ -616,3 +616,15 @@ export async function uploadProfileImage(userId: string, file: File): Promise<st
   const { data } = supabase.storage.from('listing-images').getPublicUrl(path);
   return data.publicUrl;
 }
+
+/** Admin-only sample archive. Archived demo records are never mixed with live search results. */
+export async function adminGetSampleArchive(): Promise<ListingFull[]> {
+  const { data, error } = await supabase.from('listings')
+    .select(`${FULL},poster:profiles!posted_by(full_name,role,agency_name,rera_number,avatar_url)`)
+    .eq('is_sample', true)
+    .eq('status', 'archived')
+    .order('purpose', { ascending: true })
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as unknown as ListingFull[];
+}
