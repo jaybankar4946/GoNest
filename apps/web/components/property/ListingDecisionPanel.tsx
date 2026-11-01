@@ -20,6 +20,7 @@ type Props = {
   projectStatus?: string | null;
   unitCount?: number;
   projectCharges?: number | null;
+  comparables?: { price: number; areaSqft: number | null }[];
 };
 const inr = (n:number) => '₹' + Math.round(Number.isFinite(n) ? n : 0).toLocaleString('en-IN');
 const val = (n:string) => Math.max(0, Number(n) || 0);
@@ -36,6 +37,8 @@ export function ListingDecisionPanel(p:Props) {
   const [leaseMonths,setLeaseMonths]=useState(11);
   const [booking,setBooking]=useState('0'), [builderCharges,setBuilderCharges]=useState(String(p.projectCharges ?? 0)), [gst,setGst]=useState('0');
   const price=p.price ?? 0, area=p.areaSqft ?? 0;
+  const comparableRates=(p.comparables ?? []).filter(x=>x.price>0 && (x.areaSqft ?? 0)>0).map(x=>x.price/(x.areaSqft as number)).sort((a,b)=>a-b);
+  const medianRate=comparableRates.length ? (comparableRates.length%2 ? comparableRates[(comparableRates.length-1)/2] : (comparableRates[comparableRates.length/2-1]+comparableRates[comparableRates.length/2])/2) : null;
   const finance=useMemo(()=>{
     const principal=price*(1-down/100), emi=emiFor(principal,rate,years);
     const monthlyIncome=val(income), obligations=val(commitments);
@@ -72,7 +75,7 @@ export function ListingDecisionPanel(p:Props) {
       </div>
       <aside className="h-fit rounded-2xl bg-slate-50 p-5">
         <p className="text-xs font-bold uppercase tracking-wide text-slate-500">{rent?'Move-in cash required':project?'Estimated project cost':'Estimated acquisition cost'}</p>
-        <p className="mt-2 text-3xl font-extrabold text-blue-800">{inr(rent?rentMath.moveIn:project?projectMath.total:finance.total)}</p>
+        <p className="mt-2 text-3xl font-extrabold text-blue-800">{!p.price?'Price not published':inr(rent?rentMath.moveIn:project?projectMath.total:finance.total)}</p>
         <div className="mt-4 space-y-3 border-t border-slate-200 pt-4 text-sm">
           {rent?<><div className="flex justify-between gap-2"><span className="text-slate-500">Monthly rent + maintenance</span><b>{inr(rentMath.monthly)}</b></div><div className="flex justify-between gap-2"><span className="text-slate-500">Deposit (refundable subject to agreement)</span><b>{inr(val(deposit))}</b></div><div className="flex justify-between gap-2"><span className="text-slate-500">Total lease cash outlay</span><b>{inr(rentMath.lease)}</b></div><div className="flex justify-between gap-2"><span className="text-slate-500">Rent / income</span><b>{rentMath.rentRatio===null?'Add income':rentMath.rentRatio.toFixed(1)+'%'}</b></div></>
           :<><div className="flex justify-between gap-2"><span className="text-slate-500">Estimated monthly EMI</span><b>{inr(project?projectMath.emi:finance.emi)}</b></div><div className="flex justify-between gap-2"><span className="text-slate-500">Initial own contribution</span><b>{inr(project?projectMath.initial:finance.initialCash)}</b></div><div className="flex justify-between gap-2"><span className="text-slate-500">Loan principal</span><b>{inr(project?projectMath.total*(1-down/100):finance.principal)}</b></div>{project&&<div className="flex justify-between gap-2"><span className="text-slate-500">Balance after booking amount</span><b>{inr(projectMath.balance)}</b></div>}<div className="flex justify-between gap-2"><span className="text-slate-500">Debt obligations / income</span><b>{finance.ratio===null?'Add income':finance.ratio.toFixed(1)+'%'}</b></div></>}
@@ -84,6 +87,7 @@ export function ListingDecisionPanel(p:Props) {
       <div className="flex items-center gap-2 text-sm font-extrabold text-slate-900"><ShieldCheck size={17} className="text-emerald-700"/> Home Finder decision signals</div>
       <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-xl border border-slate-200 p-3"><p className="text-xs text-slate-500">Price per sq ft</p><p className="mt-1 font-extrabold">{price&&area?inr(price/area):'Area not recorded'}</p><p className="mt-1 text-xs text-slate-500">Uses listing area; confirm carpet vs built-up basis.</p></div>
+        <div className="rounded-xl border border-slate-200 p-3"><p className="text-xs text-slate-500">Comparable asking rates</p><p className="mt-1 font-extrabold">{medianRate===null?'Not enough comparable data':inr(medianRate)+'/ sq ft'}</p><p className="mt-1 text-xs text-slate-500">{comparableRates.length ? comparableRates.length+' matching published listings; indicative, not a valuation.' : 'No comparable records with usable area and price.'}</p></div>
         <div className="rounded-xl border border-slate-200 p-3"><p className="text-xs text-slate-500">Listing verification</p><p className="mt-1 font-extrabold">{p.verified?'Verified record':'Verification not confirmed'}</p><p className="mt-1 text-xs text-slate-500">Does not guarantee title or legal due diligence.</p></div>
         <div className="rounded-xl border border-slate-200 p-3"><p className="text-xs text-slate-500">Availability</p><p className="mt-1 font-extrabold">{p.availabilityVerified?'Recently confirmed':'Ask poster to reconfirm'}</p><p className="mt-1 text-xs text-slate-500">Confirm price and possession / move-in date.</p></div>
         <div className="rounded-xl border border-slate-200 p-3"><p className="text-xs text-slate-500">{project?'Possession':'Home configuration'}</p><p className="mt-1 font-extrabold">{project?(p.possessionDate||'Not provided'):(p.bedrooms? p.bedrooms+' BHK':'Not recorded')}</p><p className="mt-1 text-xs text-slate-500">{project?(p.projectStatus||'Confirm current construction status'):'Check room sizes and actual usable area.'}</p></div>
