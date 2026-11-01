@@ -145,7 +145,7 @@ export function AgentDirectory({ agents }: Props) {
         <div className="mx-auto max-w-7xl px-5 sm:px-6 md:px-8">
           <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="mb-2 text-xs font-bold uppercase tracking-widest text-blue-700">Explore by location</p>
+              <p className="mb-2 text-xs font-bold uppercase tracking-widest text-blue-700">Featured collection · Thane</p>
               <h2 className="text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">Agents For You</h2>
               <p className="mt-2 max-w-2xl text-sm text-slate-600 sm:text-base">Compare local agencies and agent profiles. Public directory information is clearly distinguished from GoNest verification.</p>
             </div>
