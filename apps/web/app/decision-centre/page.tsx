@@ -1,12 +1,15 @@
+import type { Metadata } from 'next';
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
+import { AdminOnlyFeatureGate } from '@/components/layout/AdminOnlyFeatureGate';
 import { DecisionTools } from './DecisionTools';
 
-export const metadata = {
-  title: 'Property Decision Workspace',
-  description: 'Compare homes and estimate rental, resale and new-project costs with GoNest.',
+export const metadata: Metadata = {
+  title: 'Admin Decision Tools',
+  description: 'Restricted GoNest administrator decision workspace.',
+  robots: { index: false, follow: false, noarchive: true },
 };
 
 export default function DecisionCentrePage() {
-  return <><Nav /><DecisionTools /><Footer /></>;
+  return <><Nav /><AdminOnlyFeatureGate><DecisionTools /></AdminOnlyFeatureGate><Footer /></>;
 }
