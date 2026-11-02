@@ -68,6 +68,18 @@ export default function AdminPage() {
       <Nav/>
       <main style={{maxWidth:1100,margin:'0 auto',padding:'40px 24px 80px'}}>
         <h1 style={{fontSize:22,fontWeight:700,color:'#111',marginBottom:24}}>Admin Panel</h1>
+        <section style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(230px,1fr))',gap:10,marginBottom:24}}>
+          <a href="/home-finder" style={{display:'block',padding:16,border:'1px solid #DCE5F3',borderRadius:12,background:'#F8FAFC',textDecoration:'none',color:'#111'}}>
+            <p style={{fontSize:11,fontWeight:700,color:'#2563EB',textTransform:'uppercase',letterSpacing:'.08em'}}>Admin-only workspace</p>
+            <p style={{fontSize:15,fontWeight:750,marginTop:5}}>Home Finder Intelligence</p>
+            <p style={{fontSize:12,color:'#666',marginTop:4}}>Open the internal home-discovery journey overview.</p>
+          </a>
+          <a href="/decision-centre" style={{display:'block',padding:16,border:'1px solid #DCE5F3',borderRadius:12,background:'#F8FAFC',textDecoration:'none',color:'#111'}}>
+            <p style={{fontSize:11,fontWeight:700,color:'#2563EB',textTransform:'uppercase',letterSpacing:'.08em'}}>Admin-only workspace</p>
+            <p style={{fontSize:15,fontWeight:750,marginTop:5}}>Decision Tools</p>
+            <p style={{fontSize:12,color:'#666',marginTop:4}}>Open the internal buy, rent, project and comparison calculators.</p>
+          </a>
+        </section>
         {stats&&<div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(140px,1fr))',gap:10,marginBottom:28}}>
           {[{l:'Total listings',v:stats.totalListings},{l:'Pending review',v:stats.pendingReview,warn:true},{l:'Total leads',v:stats.totalLeads},{l:'Total visits',v:stats.totalVisits},{l:'Total users',v:stats.totalUsers}].map(s=>(
             <div key={s.l} style={{background:s.warn&&s.v>0?'#FEF2F2':'#F7F7F7',borderRadius:12,padding:'14px 16px'}}><div style={{fontSize:22,fontWeight:700,color:s.warn&&s.v>0?'#DC2626':'#111'}}>{s.v}</div><div style={{fontSize:12,color:'#6B6B6B',marginTop:2}}>{s.l}</div></div>
