@@ -172,9 +172,9 @@ export function AgentDirectory({ agents }: Props) {
                   <p className="mt-3 min-h-10 text-sm leading-5 text-slate-600">{broker.note}</p>
                   <div className="mt-3 flex flex-wrap gap-1.5">{broker.services.map(service => <span key={service} className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">{service}</span>)}</div>
                   <p className="mt-3 line-clamp-2 min-h-10 text-xs leading-5 text-slate-500">{broker.address}</p>
-                  <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4">
-                    <Link href={`/agents/business/${broker.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`} className="text-sm font-bold text-blue-700 hover:text-blue-900">Explore agent →</Link>
-                    <a href={`https://www.google.com/search?q=${encodeURIComponent(broker.name + " Thane reviews")}`} target="_blank" rel="noreferrer" className="text-sm font-semibold text-slate-600 hover:text-slate-950">Read reviews ↗</a>
+                  <div className="mt-4 grid grid-cols-2 gap-2 border-t border-slate-100 pt-4">
+                    <Link href={`/agents/business/${broker.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}#contact-agent`} className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-3 py-2.5 text-xs font-bold text-white hover:bg-blue-700">Contact Agent</Link>
+                    <Link href={`/agents/business/${broker.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}#available-homes`} className="inline-flex items-center justify-center rounded-xl border border-blue-200 px-3 py-2.5 text-xs font-bold text-blue-700 hover:bg-blue-50">Schedule Visit</Link>
                   </div>
                 </div>
               </article>
