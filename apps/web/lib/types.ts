@@ -10,7 +10,7 @@ export type Profile = {
   id: string; full_name: string | null; phone: string | null;
   phone_verified: boolean; role: Role; agency_name: string | null;
   rera_number: string | null; agent_verified: boolean;
-  avatar_url: string | null; email: string | null; bio: string | null;
+  avatar_url: string | null; is_sample?: boolean; email: string | null; bio: string | null;
   service_localities?: string[]; service_pincodes?: string[];
   total_listings: number; rating: number | null; review_count: number; created_at: string;
 };
