@@ -20,17 +20,27 @@ const cities = ['All Cities', 'Mumbai', 'Pune', 'Thane', 'Navi Mumbai'];
 const specializations = ['All Specializations', 'Residential', 'Commercial', 'Luxury', 'Rentals', 'Investment', 'New Projects'];
 const languages = ['Any Language', 'English', 'Hindi', 'Marathi', 'Gujarati', 'Malayalam'];
 
+function agentPortrait(agent: Profile) {
+  if (agent.avatar_url) return agent.avatar_url;
+  if (!agent.is_sample) return null;
+  return agent.id === 'f3bd0880-ff40-4bab-b2eb-b1fe9d483125'
+    ? 'https://randomuser.me/api/portraits/men/32.jpg'
+    : 'https://randomuser.me/api/portraits/men/46.jpg';
+}
+
 function AgentCard({ agent, top = false }: { agent: Profile; top?: boolean }) {
+  const portrait = agentPortrait(agent);
   return (
     <article className={`flex h-full flex-col overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg ${top ? 'border-blue-300 ring-2 ring-blue-100' : 'border-slate-200 hover:border-blue-200'}`}>
                 <div className="p-5">
                   <div className="flex items-start gap-3">
-                    <Link href={`/agents/${agent.id}`} aria-label={`View ${agent.full_name ?? 'agent'} profile`} className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-100 bg-slate-100 text-xl font-extrabold text-slate-500">
-                      {agent.avatar_url ? <img src={agent.avatar_url} alt="" className="h-full w-full object-cover" /> : (agent.full_name ?? 'G').charAt(0).toUpperCase()}
+                    <Link href={`/agents/${agent.id}`} aria-label={`View ${agent.full_name ?? 'agent'} profile`} className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-slate-100 text-xl font-extrabold text-slate-500 shadow-sm">
+                      {portrait ? <img src={portrait} alt={agent.is_sample ? 'Illustrative sample agent portrait' : agent.full_name ?? 'Agent portrait'} className="h-full w-full object-cover" /> : (agent.full_name ?? 'G').charAt(0).toUpperCase()}
                     </Link>
                     <div className="min-w-0 flex-1">
                       <Link href={`/agents/${agent.id}`} className="block text-lg font-extrabold leading-tight text-slate-950 hover:text-blue-700">{agent.full_name ?? 'GoNest agent'}</Link>
                       <p className="mt-1 text-sm text-slate-500">{agent.agency_name ?? 'Independent agent'}</p>
+                      {agent.is_sample && <p className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">Illustrative sample portrait</p>}
                       <div className="mt-2 flex flex-wrap items-center gap-1.5">
                         {top && <span className="rounded-full bg-blue-600 px-2.5 py-1 text-xs font-bold text-white">Top Agent</span>}
                         <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-800">MahaRERA details on file</span>
@@ -154,16 +164,16 @@ export function AgentDirectory({ agents }: Props) {
           <div className="-mx-5 flex snap-x snap-mandatory gap-5 overflow-x-auto px-5 pb-4 sm:-mx-6 sm:px-6 md:mx-0 md:grid md:grid-cols-2 md:overflow-visible md:px-0 lg:grid-cols-3 xl:grid-cols-4">
             {THANE_TOP_AGENTS.map((broker, index) => (
               <article key={broker.name} className="group w-[82vw] max-w-[320px] shrink-0 snap-start overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg md:w-auto md:max-w-none">
-                <div className="relative flex h-44 items-center justify-center overflow-hidden bg-gradient-to-br from-slate-50 via-white to-blue-50">
+                <div className="relative flex h-52 items-center justify-center overflow-hidden bg-slate-100">
                   {broker.profileImageUrl ? (
-                    <img src={broker.profileImageUrl} alt={`${broker.name} business profile image`} loading="lazy" referrerPolicy="no-referrer" className="h-24 w-24 rounded-2xl border border-slate-200 bg-white p-2 object-contain shadow-sm" />
+                    <img src={broker.profileImageUrl} alt="Representative real-estate professional portrait" loading="lazy" referrerPolicy="no-referrer" className="absolute inset-0 h-full w-full object-cover object-center" />
                   ) : (
                     <div aria-label={`${broker.name} logo placeholder`} className="flex h-24 w-24 items-center justify-center rounded-2xl border border-slate-200 bg-white text-3xl font-extrabold text-slate-500 shadow-sm">
                       {broker.name.split(/\\s+/).map((part) => part[0]).slice(0, 2).join("").toUpperCase()}
                     </div>
                   )}
                   <span className="absolute left-3 top-3 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-slate-800">#{index + 1} · Thane</span>
-                  <span className="absolute bottom-3 left-3 rounded-md bg-slate-950/75 px-2.5 py-1 text-[10px] font-semibold text-white">{broker.imageSourceLabel ?? "Business identity pending"}</span>
+                  <span className="absolute bottom-3 left-3 rounded-md bg-slate-950/75 px-2.5 py-1 text-[10px] font-semibold text-white">{broker.imageSourceLabel ?? "Representative portrait · not actual staff"}</span>
                 </div>
                 <div className="p-5">
                   <h3 className="line-clamp-2 min-h-12 text-lg font-extrabold text-slate-950">{broker.name}</h3>

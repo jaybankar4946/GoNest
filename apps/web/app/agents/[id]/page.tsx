@@ -19,6 +19,11 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ i
   const agent = await getAgentById(id);
   if (!agent) notFound();
   const listings = await getAgentListings(id);
+  const profilePortrait = agent.avatar_url ?? (agent.is_sample
+    ? agent.id === 'f3bd0880-ff40-4bab-b2eb-b1fe9d483125'
+      ? 'https://randomuser.me/api/portraits/men/32.jpg'
+      : 'https://randomuser.me/api/portraits/men/46.jpg'
+    : null);
 
   return (
     <>
@@ -27,13 +32,14 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ i
         <Link href="/agents" className="text-sm font-semibold text-blue-700 hover:underline">← All agents & owners</Link>
         <section className="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="flex flex-col gap-6 p-6 md:flex-row md:items-start md:p-8">
-            <div className="flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-100 bg-slate-100 text-4xl font-extrabold text-slate-500">
-              {agent.avatar_url ? <img src={agent.avatar_url} alt="" className="h-full w-full object-cover" /> : (agent.full_name ?? 'G').charAt(0).toUpperCase()}
+            <div className="flex h-32 w-32 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-slate-100 text-4xl font-extrabold text-slate-500 shadow-sm">
+              {profilePortrait ? <img src={profilePortrait} alt={agent.is_sample ? 'Illustrative sample agent portrait' : agent.full_name ?? 'Agent portrait'} className="h-full w-full object-cover" /> : (agent.full_name ?? 'G').charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-xs font-bold uppercase tracking-widest text-blue-700">{agent.role === 'agent' ? 'Real estate agent / broker' : 'Property owner'}</p>
               <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-950 md:text-4xl">{agent.full_name ?? 'GoNest member'}</h1>
               <p className="mt-2 text-base text-slate-600">{agent.agency_name ?? 'Independent professional'}</p>
+              {agent.is_sample && <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-400">Illustrative sample portrait — not the actual person</p>}
               <div className="mt-4 flex flex-wrap gap-2">
                 {agent.agent_verified && <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800">✓ GoNest verified</span>}
                 {agent.phone_verified && <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800">✓ Phone verified</span>}
