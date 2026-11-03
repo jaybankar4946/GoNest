@@ -211,13 +211,12 @@ export default async function HomePage() {
                 <article key={broker.name} className="w-[78vw] max-w-[300px] shrink-0 snap-start overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg sm:w-[270px]">
                   <div className="relative h-40 overflow-hidden bg-slate-100">
                     <img src={["https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600607687644-c7171b42498f?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600566752355-35792bedcfea?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=800&h=480&fit=crop&auto=format"][index]} alt={`Illustrative property photography for ${broker.name}`} loading="lazy" className="h-full w-full object-cover transition duration-500 hover:scale-105" />
-                    <span className="absolute left-3 top-3 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-gray-800">#{index + 1} · Thane</span>
+                    <span className="absolute left-3 top-3 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-gray-800">{broker.city} · {broker.area}</span>
                   </div>
                   <div className="p-4 sm:p-5">
                     <h3 className="line-clamp-2 min-h-10 text-base font-extrabold text-gray-950">{broker.name}</h3>
                     <p className="mt-1 line-clamp-2 min-h-8 text-sm text-gray-600">{broker.area}</p>
-                    <p className="mt-2 text-sm font-bold text-amber-700">★ {broker.rating.toFixed(1)} <span className="font-normal text-gray-500">({broker.reviews.toLocaleString("en-IN")} public reviews)</span></p>
-                    <p className="mt-2 line-clamp-2 min-h-10 text-sm leading-5 text-gray-600">{broker.note}</p>
+                    <p className="mt-2 line-clamp-2 min-h-10 text-sm leading-5 text-gray-600">{broker.address}</p>
                     <Link href="/agents" className="mt-4 inline-flex w-full items-center justify-center rounded-xl border border-gray-200 px-3 py-2.5 text-sm font-bold text-blue-700 hover:bg-blue-50">Explore agent →</Link>
                   </div>
                 </article>
