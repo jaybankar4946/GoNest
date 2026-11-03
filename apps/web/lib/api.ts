@@ -264,7 +264,7 @@ export async function adminGetBusinessEnquiries() {
   return data ?? [];
 }
 
-export async function adminUpdateBusinessEnquiry(id: string, status: 'contacted' | 'routed' | 'closed' | 'spam', notes?: string) {
+export async function adminUpdateBusinessEnquiry(id: string, status: 'contacted' | 'closed' | 'spam', notes?: string) {
   const { error } = await supabase.from('business_enquiries')
     .update({ status, admin_notes: notes?.trim() || null, updated_at: new Date().toISOString() }).eq('id', id);
   if (error) throw error;
