@@ -11,7 +11,7 @@ type Method = 'password' | 'link' | 'phone';
 type Msg = { type: 'ok' | 'err'; text: string };
 
 // Social / phone methods are switched on with env vars once configured in Supabase (see .env.local.example)
-const PROVIDERS = (process.env.NEXT_PUBLIC_AUTH_PROVIDERS ?? '').split(',').map(s => s.trim()).filter(Boolean) as Provider[];
+const PROVIDERS = [...new Set((process.env.NEXT_PUBLIC_AUTH_PROVIDERS ?? 'google').split(',').map(s => s.trim()).filter(Boolean))] as Provider[];
 const LABEL: Record<string, string> = { google: 'Google', apple: 'Apple', facebook: 'Facebook', azure: 'Microsoft' };
 
 const field = 'w-full px-4 py-3.5 border border-gray-300 rounded-xl text-sm text-gray-900 placeholder-gray-400 bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100';
