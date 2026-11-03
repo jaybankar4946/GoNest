@@ -129,8 +129,8 @@ function AgencyForm({ cities, onDone }: { cities: City[]; onDone: () => void }) 
   );
 }
 
-type Unit = { configuration: string; unit_reference: string; carpet: string; price: string; source: string; availability: string };
-const emptyUnit = (): Unit => ({ configuration: '', unit_reference: '', carpet: '', price: '', source: '', availability: 'unknown' });
+type Unit = { configuration: string; unit_reference: string; tower: string; floor: string; carpet: string; price: string; extraCharges: string; source: string; notes: string; availability: string };
+const emptyUnit = (): Unit => ({ configuration: '', unit_reference: '', tower: '', floor: '', carpet: '', price: '', extraCharges: '', source: '', notes: '', availability: 'unknown' });
 
 function ProjectForm({ cities, userId, onDone }: { cities: City[]; userId: string; onDone: () => void }) {
   const [f, setF] = useState({ registeredName: '', brand: '', websiteUrl: '', developerRera: '', projectName: '', cityId: '', localityId: '', address: '', projectRera: '', status: 'under_construction', category: 'residential', officialUrl: '' });
@@ -163,8 +163,10 @@ function ProjectForm({ cities, userId, onDone }: { cities: City[]; userId: strin
       await submitBuilderProject({
         ...f, inventory: filled.map((u) => ({
           configuration: u.configuration.trim(), unit_reference: u.unit_reference.trim() || null,
+          tower_name: u.tower.trim() || null, floor_number: u.floor ? Number(u.floor) : null,
           carpet_area_sqft: u.carpet ? Number(u.carpet) : null, asking_price_inr: u.price ? Number(u.price) : null,
-          source_url: u.source.trim(), availability_status: u.availability, market_type: 'primary',
+          additional_charges_inr: u.extraCharges ? Number(u.extraCharges) : null,
+          evidence_notes: u.notes.trim() || null, source_url: u.source.trim(), availability_status: u.availability, market_type: 'primary',
         })), mediaPaths: uploaded,
       });
       track('supply_project_submitted', undefined, { photos: files.length, units: filled.length });
@@ -198,9 +200,13 @@ function ProjectForm({ cities, userId, onDone }: { cities: City[]; userId: strin
       {units.map((u, i) => (
         <div key={i} style={{ ...grid2, padding: 14, border: '1px solid #F3F4F6', borderRadius: 14, marginBottom: 10 }}>
           <Field label="Configuration"><input style={inp} placeholder="e.g. 2 BHK" value={u.configuration} onChange={(e) => setUnit(i, 'configuration', e.target.value)} maxLength={40} /></Field>
-          <Field label="Unit / tower reference"><input style={inp} value={u.unit_reference} onChange={(e) => setUnit(i, 'unit_reference', e.target.value)} maxLength={60} /></Field>
-          <Field label="Carpet area (sq ft)"><input style={inp} type="number" min={0} value={u.carpet} onChange={(e) => setUnit(i, 'carpet', e.target.value)} /></Field>
-          <Field label="Asking price (₹)"><input style={inp} type="number" min={0} value={u.price} onChange={(e) => setUnit(i, 'price', e.target.value)} /></Field>
+          <Field label="Unit reference (private)"><input style={inp} value={u.unit_reference} onChange={(e) => setUnit(i, 'unit_reference', e.target.value)} maxLength={60} /></Field>
+          <Field label="Tower / wing"><input style={inp} placeholder="e.g. Tower C" value={u.tower} onChange={(e) => setUnit(i, 'tower', e.target.value)} maxLength={60} /></Field>
+          <Field label="Floor"><input style={inp} type="number" min={0} value={u.floor} onChange={(e) => setUnit(i, 'floor', e.target.value)} /></Field>
+          <Field label="RERA carpet area (sq ft)"><input style={inp} type="number" min={0} value={u.carpet} onChange={(e) => setUnit(i, 'carpet', e.target.value)} /></Field>
+          <Field label="Basic asking price (₹)"><input style={inp} type="number" min={0} value={u.price} onChange={(e) => setUnit(i, 'price', e.target.value)} /></Field>
+          <Field label="Additional charges (₹)"><input style={inp} type="number" min={0} value={u.extraCharges} onChange={(e) => setUnit(i, 'extraCharges', e.target.value)} /></Field>
+          <Field label="Evidence / cost notes"><input style={inp} placeholder="e.g. parking, floor rise, taxes excluded" value={u.notes} onChange={(e) => setUnit(i, 'notes', e.target.value)} maxLength={500} /></Field>
           <Field label="Availability"><select style={inp} value={u.availability} onChange={(e) => setUnit(i, 'availability', e.target.value)}>{['available', 'on_hold', 'booked', 'sold', 'unknown'].map((a) => <option key={a} value={a}>{a.replace('_', ' ')}</option>)}</select></Field>
           <Field label="Source link *"><input style={inp} placeholder="https://" value={u.source} onChange={(e) => setUnit(i, 'source', e.target.value)} /></Field>
           <button type="button" onClick={() => setUnits((p) => p.filter((_, j) => j !== i))} style={{ alignSelf: 'end', fontSize: 13, color: '#B91C1C', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}>Remove unit</button>

@@ -4,8 +4,9 @@ import { useRouter } from 'next/navigation';
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
 import { useAuth } from '@/components/layout/AuthProvider';
-import { adminGetPendingBrokerages, adminGetSupplyFunnel, type SupplyFunnel, adminGetPendingListings, adminGetAllListings, adminGetBrokers, adminGetAllLeads, adminGetAllVisits, adminGetStats, adminModerate, adminToggleFeatured, adminVerifyAgent, adminSetRole, adminGetReports, adminResolveReport, adminGetAuditLog, adminGetFunnel, adminGetLaunchInventoryDashboard, adminGetPendingProjects, adminGetAllProjects, adminReviewSubmission } from '@/lib/api';
+import { adminGetPendingBrokerages, adminGetSupplyFunnel, type SupplyFunnel, adminGetPendingListings, adminGetAllListings, adminGetBrokers, adminGetAllLeads, adminGetAllVisits, adminGetStats, adminModerate, adminToggleFeatured, adminVerifyAgent, adminSetRole, adminGetReports, adminResolveReport, adminGetAuditLog, adminGetFunnel, adminGetLaunchInventoryDashboard, adminGetPendingProjects, adminGetAllProjects, adminReviewSubmission, adminReviewProjectUnit } from '@/lib/api';
 import { imgUrl } from '@/lib/api';
+import { supabase } from '@/lib/supabase';
 import { formatPrice, timeAgo } from '@/lib/format';
 const TABS=['queue','projects','agencies','listings','supply','brokers','leads','visits','reports','audit','funnel'] as const;
 type Tab=typeof TABS[number];
@@ -36,6 +37,9 @@ export default function AdminPage() {
   const[rnote,setRnote]=useState<Record<string,string>>({});
   const[stats,setStats]=useState<any>(null);
   const[launchInventory,setLaunchInventory]=useState<any>(null);
+  const[unitEvidence,setUnitEvidence]=useState<any[]>([]);
+  const[unitEvidenceError,setUnitEvidenceError]=useState<string|null>(null);
+  const[unitReviewNotes,setUnitReviewNotes]=useState<Record<string,string>>({});
   const[reason,setReason]=useState<Record<string,string>>({});
   const[busy,setBusy]=useState(false);
   useEffect(()=>{if(!loading && profile && profile.role!=='admin') router.replace('/dashboard');},[loading,profile,router]);
@@ -52,6 +56,7 @@ export default function AdminPage() {
     adminGetAuditLog().then(setAudit);
     adminGetStats().then(setStats);
     adminGetLaunchInventoryDashboard().then(setLaunchInventory);
+    supabase.from('project_inventory_observations').select('id,project_id,unit_reference,tower_name,floor_number,configuration,carpet_area_sqft,asking_price_inr,additional_charges_inr,availability_status,market_type,source_url,observed_at,verified_by,evidence_notes,confidence_score,review_status,reviewed_by,reviewed_at,review_notes,real_estate_projects!inner(official_name,verification_status,inventory_status,is_sample)').eq('is_sample',false).order('observed_at',{ascending:false}).limit(250).then(({data,error})=>{if(error){setUnitEvidenceError(error.message);setUnitEvidence([]);}else{setUnitEvidenceError(null);setUnitEvidence(data??[]);}});
   },[]);
   useEffect(()=>{adminGetFunnel(fdays).then(setFunnel);adminGetSupplyFunnel(fdays).then(setSupplyFunnel);},[fdays]);
   const moderate=async(id:string,status:string,vl:string,rej?:string)=>{setBusy(true);try{await adminModerate(id,status,vl,rej);setQueue(p=>p.filter(l=>l.id!==id));setListings(p=>p.map(l=>l.id===id?{...l,status,verification_level:vl}:l));}catch(e){alert((e as {message?:string})?.message??'Could not update this listing. Check permissions and try again.');}finally{setBusy(false);}};
@@ -258,6 +263,44 @@ export default function AdminPage() {
                 </div>
               </article>
             ))}
+            <div style={{padding:16,border:'1px solid #E5E5E5',borderRadius:12,marginTop:10}}>
+              <div style={{display:'flex',justifyContent:'space-between',gap:10,alignItems:'center',flexWrap:'wrap'}}>
+                <div><h3 style={{fontSize:15,fontWeight:700}}>Individual apartment inventory evidence</h3><p style={{fontSize:12,color:'#666',marginTop:4}}>Review each builder-submitted unit separately from project-level approval. Approving requires current source-linked evidence; every decision is recorded in the admin audit trail.</p></div>
+                <span style={SB('#2563EB')}>{unitEvidence.length} observations</span>
+              </div>
+              {unitEvidenceError&&<p role="alert" style={{fontSize:12,color:'#B91C1C',marginTop:10}}>Could not load unit evidence: {unitEvidenceError}</p>}
+              {!unitEvidenceError&&unitEvidence.length===0&&<p style={{fontSize:13,color:'#666',marginTop:12}}>No unit-level inventory observations have been submitted yet.</p>}
+              <div style={{display:'grid',gap:10,marginTop:12}}>
+                {unitEvidence.map((u:any)=>{
+                  const project=Array.isArray(u.real_estate_projects)?u.real_estate_projects[0]:u.real_estate_projects;
+                  const observed=Date.parse(u.observed_at);
+                  const fresh=Number.isFinite(observed)&&observed<=Date.now()&&Date.now()-observed<=14*86400000;
+                  const fmt=(v:any)=>v==null?'Not provided':Number(v).toLocaleString('en-IN');
+                  return <article key={u.id} style={{border:'1px solid #E5E7EB',borderRadius:12,padding:13,display:'grid',gap:8}}>
+                    <div style={{display:'flex',justifyContent:'space-between',gap:10,flexWrap:'wrap'}}>
+                      <div><p style={{fontSize:14,fontWeight:700}}>{project?.official_name||'Project record unavailable'}</p><p style={{fontSize:12,color:'#666',marginTop:3}}>{u.configuration||'Configuration not provided'} · {u.tower_name||'Tower not provided'} · {u.unit_reference||'Unit reference not provided'}</p></div>
+                      <span style={SB(u.review_status==='approved'?'#16A34A':u.review_status==='rejected'?'#DC2626':fresh&&u.source_url?'#D97706':'#DC2626')}>{u.review_status==='approved'?'Admin approved':u.review_status==='rejected'?'Rejected':fresh&&u.source_url?'Fresh evidence · pending review':'Stale or missing source'}</span>
+                    </div>
+                    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(120px,1fr))',gap:8,fontSize:12}}>
+                      <div><span style={{color:'#777'}}>Carpet area</span><p style={{fontWeight:700}}>{fmt(u.carpet_area_sqft)} sq ft</p></div>
+                      <div><span style={{color:'#777'}}>Asking price</span><p style={{fontWeight:700}}>{u.asking_price_inr==null?'Not provided':'₹'+fmt(u.asking_price_inr)}</p></div>
+                      <div><span style={{color:'#777'}}>Additional charges</span><p style={{fontWeight:700}}>{u.additional_charges_inr==null?'Not provided':'₹'+fmt(u.additional_charges_inr)}</p></div>
+                      <div><span style={{color:'#777'}}>Availability submitted</span><p style={{fontWeight:700}}>{u.availability_status}</p></div>
+                      <div><span style={{color:'#777'}}>Observed</span><p style={{fontWeight:700}}>{u.observed_at?new Date(u.observed_at).toLocaleString('en-IN'):'Not dated'}</p></div>
+                      <div><span style={{color:'#777'}}>Project review</span><p style={{fontWeight:700}}>{project?.verification_status||'Unknown'} · {project?.inventory_status||'Unknown'}</p></div>
+                    </div>
+                    {u.evidence_notes&&<p style={{fontSize:12,color:'#555'}}>Evidence notes: {u.evidence_notes}</p>}
+                    {u.source_url&&<a href={u.source_url} target="_blank" rel="noopener noreferrer nofollow" style={{fontSize:12,color:'#2563EB',textDecoration:'underline'}}>Open submitted evidence source ↗</a>}
+                    <p style={{fontSize:11,color:'#777'}}>Submitted verifier label: {u.verified_by||'Not provided'} · Confidence: {u.confidence_score??'Not provided'} · Review status: {u.review_status||'pending'}{u.reviewed_at?' · Reviewed '+new Date(u.reviewed_at).toLocaleString('en-IN'):''}</p>
+                    <textarea aria-label={'Admin review notes for '+(project?.official_name||'unit')} placeholder="Evidence checked / reason for rejection (saved to audit history)" value={unitReviewNotes[u.id]??u.review_notes??''} onChange={e=>setUnitReviewNotes(old=>({...old,[u.id]:e.target.value}))} rows={2} style={{...INP,width:'100%',resize:'vertical'}}/>
+                    <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+                      <button disabled={busy||!fresh||!u.source_url||u.availability_status!=='available'||u.review_status==='approved'} onClick={async()=>{setBusy(true);try{await adminReviewProjectUnit(u.id,'approved',unitReviewNotes[u.id]??'');setUnitEvidence(old=>old.map(x=>x.id===u.id?{...x,review_status:'approved',reviewed_at:new Date().toISOString(),review_notes:unitReviewNotes[u.id]??null}:x));}catch(e){alert((e as {message?:string})?.message??'Could not approve unit evidence.');}finally{setBusy(false);}}} style={{...BTN('#16A34A'),opacity:busy||!fresh||!u.source_url||u.availability_status!=='available'||u.review_status==='approved'?0.45:1}}>Approve unit evidence</button>
+                      <button disabled={busy||u.review_status==='rejected'||!(unitReviewNotes[u.id]??'').trim()} onClick={async()=>{setBusy(true);try{await adminReviewProjectUnit(u.id,'rejected',unitReviewNotes[u.id]);setUnitEvidence(old=>old.map(x=>x.id===u.id?{...x,review_status:'rejected',reviewed_at:new Date().toISOString(),review_notes:unitReviewNotes[u.id]}:x));}catch(e){alert((e as {message?:string})?.message??'Could not reject unit evidence.');}finally{setBusy(false);}}} style={{...BTN('#DC2626'),opacity:busy||u.review_status==='rejected'||!(unitReviewNotes[u.id]??'').trim()?0.45:1}}>Reject with reason</button>
+                    </div>
+                  </article>;
+                })}
+              </div>
+            </div>
             <div style={{padding:16,border:'1px solid #E5E5E5',borderRadius:12,marginTop:10}}>
               <h3 style={{fontSize:15,fontWeight:700,marginBottom:8}}>All non-sample projects</h3>
               {allProjects.filter((p:any)=>p.verification_status!=='pending').length===0&&<p style={{fontSize:13,color:'#6B6B6B'}}>No previously reviewed real projects.</p>}
