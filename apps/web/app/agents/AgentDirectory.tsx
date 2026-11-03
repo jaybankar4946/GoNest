@@ -79,11 +79,11 @@ export function AgentDirectory({ agents }: Props) {
       const nameMatch = !agentName.trim() || [agent.full_name, agent.agency_name].filter(Boolean).join(' ').toLowerCase().includes(agentName.trim().toLowerCase());
       const placeMatch = includesText(agent, location.trim());
       const cityMatch = city === 'All markets' || includesText(agent, city);
-      const specialtyMatch = specialty === 'All specialties' || includesText(agent, specialty);
-      const languageMatch = language === 'Any language' || includesText(agent, language);
+      const specialtyMatch = true; // Agent specialties are not yet part of the public profile schema.
+      const languageMatch = true; // Agent languages are not yet part of the public profile schema.
       // The current public profile schema does not yet store agent-level transaction specialties,
       // language capabilities or team price ranges. Do not manufacture those attributes.
-      const budgetMatch = budget === 'Any price range';
+      const budgetMatch = true; // Price bands become filterable once agent transaction ranges are stored.
       return nameMatch && placeMatch && cityMatch && specialtyMatch && languageMatch && budgetMatch;
     });
     return result.sort((a, b) => {
@@ -118,7 +118,7 @@ export function AgentDirectory({ agents }: Props) {
               <label className="block"><span className="mb-1.5 block text-xs font-bold text-slate-700">Price range</span><select value={budget} onChange={e => setBudget(e.target.value)} className="min-h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm">{budgetOptions.map(x => <option key={x}>{x}</option>)}</select></label>
             </div>
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-              <p className="text-xs text-slate-500">Filters will become fully data-driven as agent expertise, language and transaction history are captured in profiles.</p>
+              <p className="text-xs text-slate-500">Location and name filters use profile data. Specialty, language, price and transaction preferences are shown as the next data fields to connect.</p>
               <button type="button" onClick={reset} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">Clear filters</button>
             </div>
           </div>
