@@ -160,8 +160,9 @@ export async function toggleSaved(userId: string, listingId: string, isSaved: bo
   if (r.error) throw r.error;
 }
 export async function setMyListingStatus(id: string, status: 'archived' | 'pending_review' | 'sold' | 'rented') {
-  const { error } = await supabase.from('listings').update({ status }).eq('id', id);
+  const { data, error } = await supabase.from('listings').update({ status }).eq('id', id).select('id').maybeSingle();
   if (error) throw error;
+  if (!data) throw new Error('Listing was not updated. Check that you own this listing and try again.');
 }
 export async function getSavedListings(userId: string): Promise<ListingFull[]> {
   const { data } = await supabase.from('saved_listings')
@@ -180,7 +181,9 @@ export async function getMyLeads(userId: string) {
   return data ?? [];
 }
 export async function updateLeadStatus(leadId: string, status: string, notes?: string) {
-  await supabase.from('leads').update({ status, notes: notes ?? null }).eq('id', leadId);
+  const { data, error } = await supabase.from('leads').update({ status, notes: notes ?? null }).eq('id', leadId).select('id').maybeSingle();
+  if (error) throw error;
+  if (!data) throw new Error('Enquiry was not updated. It may no longer belong to one of your listings.');
 }
 
 export async function submitVisit(input: { consent_at?: string; consent_version?: string; listing_id: string; requested_by: string | null; requester_name: string; requester_phone: string; slot_date: string; slot_time: string; notes?: string }) {
@@ -194,11 +197,13 @@ export async function getMyVisits(userId: string) {
   return data ?? [];
 }
 export async function updateVisitStatus(visitId: string, status: string, confirmedBy?: string) {
-  await supabase.from('visits').update({
+  const { data, error } = await supabase.from('visits').update({
     status, confirmed_by: confirmedBy ?? null,
     confirmed_at: status === 'confirmed' ? new Date().toISOString() : null,
     completed_at: status === 'completed' ? new Date().toISOString() : null,
-  }).eq('id', visitId);
+  }).eq('id', visitId).select('id').maybeSingle();
+  if (error) throw error;
+  if (!data) throw new Error('Visit was not updated. Check that you own this listing and try again.');
 }
 
 export async function getMyListings(userId: string): Promise<ListingFull[]> {
@@ -287,7 +292,8 @@ export async function adminGetStats() {
   };
 }
 export async function adminModerate(listingId: string, status: string, verification: string, reason?: string) {
-  await supabase.rpc('admin_moderate_listing', { p_listing_id: listingId, p_new_status: status, p_new_verification: verification, p_reason: reason ?? null });
+  const { error } = await supabase.rpc('admin_moderate_listing', { p_listing_id: listingId, p_new_status: status, p_new_verification: verification, p_reason: reason ?? null });
+  if (error) throw error;
 }
 export async function adminToggleFeatured(listingId: string, featured: boolean) {
   const { error } = await supabase.from('listings').update({ featured }).eq('id', listingId);
@@ -404,8 +410,9 @@ export async function getListingForEdit(id: string): Promise<ListingFull | null>
 }
 
 export async function updateListing(id: string, input: Record<string, unknown>) {
-  const { error } = await supabase.from('listings').update(input).eq('id', id);
+  const { data, error } = await supabase.from('listings').update(input).eq('id', id).select('id').maybeSingle();
   if (error) throw error;
+  if (!data) throw new Error('Listing was not saved. Check that you own this listing and try again.');
 }
 
 export async function deleteListing(id: string) {
