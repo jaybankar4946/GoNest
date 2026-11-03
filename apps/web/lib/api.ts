@@ -15,7 +15,7 @@ const CARD = `id,title,price,purpose,property_type,bedrooms,bathrooms,sqft,pinco
 const FULL = `*,city:cities(id,name,slug,state),locality:localities(id,name,slug,latitude,longitude),
   listing_images(id,storage_path,sort_order,is_cover)`;
 
-const PUBLIC_PROFILE = 'id,full_name,role,agency_name,rera_number,agent_verified,avatar_url,bio,total_listings,rating,review_count,created_at,service_localities,service_pincodes';
+const PUBLIC_PROFILE = 'id,full_name,role,agency_name,rera_number,agent_verified,avatar_url,bio,total_listings,rating,review_count,created_at,service_localities,service_pincodes,is_sample';
 
 export type SearchParams = {
   q?: string; purpose?: string; cityId?: string; localityId?: string; pincode?: string; landmark?: string;
@@ -292,7 +292,7 @@ export async function adminSetRole(userId: string, role: string) {
 
 export async function adminGetPendingProjects() {
   const { data, error } = await supabase.from('real_estate_projects')
-    .select('id,official_name,public_address,rera_number,construction_status,inventory_status,verification_status,official_project_url,updated_at,developer:developers(operating_brand),city:cities(name),locality:localities(name)')
+    .select('id,official_name,public_address,rera_number,rera_source_url,rera_checked_at,construction_status,inventory_status,verification_status,official_project_url,brochure_url,cover_image_url,gallery_image_urls,image_source_url,image_checked_at,configurations,published_price_min_inr,published_price_max_inr,price_observed_at,total_units,expected_possession_date,updated_at,developer:developers(operating_brand),city:cities(name),locality:localities(name)')
     .eq('is_sample', false).eq('verification_status', 'pending')
     .order('updated_at', { ascending: true });
   if (error) throw error;
@@ -300,7 +300,7 @@ export async function adminGetPendingProjects() {
 }
 export async function adminGetAllProjects() {
   const { data, error } = await supabase.from('real_estate_projects')
-    .select('id,official_name,public_address,rera_number,construction_status,inventory_status,verification_status,official_project_url,updated_at,is_sample,developer:developers(operating_brand),city:cities(name),locality:localities(name)')
+    .select('id,official_name,public_address,rera_number,rera_source_url,rera_checked_at,construction_status,inventory_status,verification_status,official_project_url,brochure_url,cover_image_url,gallery_image_urls,image_source_url,image_checked_at,configurations,published_price_min_inr,published_price_max_inr,price_observed_at,total_units,expected_possession_date,updated_at,is_sample,developer:developers(operating_brand),city:cities(name),locality:localities(name)')
     .eq('is_sample', false)
     .order('updated_at', { ascending: false });
   if (error) throw error;
@@ -333,9 +333,20 @@ export async function getPublicBrokerages() {
 }
 
 export async function getAgents(): Promise<Profile[]> {
-  const { data } = await supabase.from('profiles').select(PUBLIC_PROFILE)
-    .in('role', ['agent','owner']).order('created_at', { ascending: false });
-  return (data ?? []) as Profile[];
+  const { data, error } = await supabase.from('profiles').select(PUBLIC_PROFILE)
+    .eq('is_sample', false).eq('role', 'agent').order('created_at', { ascending: false });
+  if (error || !data?.length) return [];
+  const ids = data.map((profile: any) => profile.id);
+  const { data: listings } = await supabase.from('listings')
+    .select('posted_by,listing_images(storage_path,sort_order,is_cover)')
+    .in('posted_by', ids).eq('status', 'active').eq('is_sample', false)
+    .order('created_at', { ascending: false });
+  const coverByAgent = new Map<string, string>();
+  for (const listing of listings ?? []) {
+    const images = [...(listing.listing_images ?? [])].sort((x: any, y: any) => Number(Boolean(y.is_cover)) - Number(Boolean(x.is_cover)) || (x.sort_order ?? 0) - (y.sort_order ?? 0));
+    if (!coverByAgent.has(listing.posted_by) && images[0]?.storage_path) coverByAgent.set(listing.posted_by, imgUrl(images[0].storage_path));
+  }
+  return data.map((profile: any) => ({ ...profile, property_cover_url: coverByAgent.get(profile.id) ?? null })) as Profile[];
 }
 export async function getAgentById(id: string): Promise<Profile | null> {
   const { data } = await supabase.from('profiles').select(PUBLIC_PROFILE).eq('id', id).maybeSingle();

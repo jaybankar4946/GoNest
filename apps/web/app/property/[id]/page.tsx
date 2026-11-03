@@ -16,6 +16,7 @@ import Link from 'next/link';
 import { ImageCarousel } from '@/components/property/ImageCarousel';
 import { ContactForms } from './ContactForms';
 import { EMICalculator } from '@/components/transaction/EMICalculator';
+import { RentalCostCalculator } from '@/components/transaction/RentalCostCalculator';
 import { DocumentChecklist } from '@/components/transaction/DocumentChecklist';
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
@@ -117,6 +118,7 @@ export default async function PropertyPage({ params }: { params: Promise<{id:str
             <ListingFacts l={l}/>
             <PriceHistory rows={history} purpose={l.purpose} sqft={l.sqft}/>
             {l.purpose==='sale'&&<div id="payment" style={{scrollMarginTop:130}}><EMICalculator price={l.price}/></div>}
+            {l.purpose==='rent'&&<div id="payment" style={{scrollMarginTop:130}}><RentalCostCalculator rent={l.price} deposit={l.security_deposit} maintenance={l.maintenance_monthly} brokerage={l.brokerage}/></div>}
 
             {/* LAYER 3: Checklist */}
             <DocumentChecklist purpose={l.purpose}/>
