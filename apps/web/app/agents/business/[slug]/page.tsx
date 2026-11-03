@@ -32,8 +32,17 @@ export default async function PublicBusinessProfile({ params }: Props) {
     <Link href="/agents" className="text-sm font-semibold text-blue-700 hover:underline">← Agent directory</Link>
     <section className="mt-5 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
       <div className="grid gap-0 md:grid-cols-[.8fr_1.2fr]">
-        <div className="flex min-h-64 items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 p-8">
-          {broker.profileImageUrl ? <img src={broker.profileImageUrl} alt={broker.name + ' public business identity'} referrerPolicy="no-referrer" className="h-28 w-28 rounded-2xl border border-slate-200 bg-white p-3 object-contain shadow-sm" /> : <div className="flex h-28 w-28 items-center justify-center rounded-2xl border border-slate-200 bg-white text-3xl font-extrabold text-slate-500 shadow-sm">{initials}</div>}
+        <div className="flex min-h-64 items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 p-5">
+          {broker.teamMembers?.length ? (
+            <div className="grid w-full max-w-md grid-cols-3 gap-2">
+              {broker.teamMembers.map((member) => (
+                <a key={member.name} href={member.sourceUrl} target="_blank" rel="noreferrer" title={`${member.name} · official team profile`} className="overflow-hidden rounded-xl border border-white bg-white shadow-sm">
+                  <img src={member.photoUrl} alt={`${member.name}, ${broker.name}`} loading="lazy" referrerPolicy="no-referrer" className="aspect-[4/5] w-full object-cover" />
+                  <span className="block truncate px-1.5 py-1 text-center text-[10px] font-bold text-slate-700">{member.name}</span>
+                </a>
+              ))}
+            </div>
+          ) : broker.profileImageUrl ? <img src={broker.profileImageUrl} alt={broker.name + ' public business identity'} referrerPolicy="no-referrer" className="h-28 w-28 rounded-2xl border border-slate-200 bg-white p-3 object-contain shadow-sm" /> : <div className="flex h-28 w-28 items-center justify-center rounded-2xl border border-slate-200 bg-white text-3xl font-extrabold text-slate-500 shadow-sm">{initials}</div>}
         </div>
         <div className="p-6 md:p-9">
           <p className="text-xs font-bold uppercase tracking-widest text-blue-700">Public business listing · Thane</p>
