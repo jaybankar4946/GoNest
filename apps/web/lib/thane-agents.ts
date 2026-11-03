@@ -9,6 +9,8 @@ export type ThaneBroker = {
   mapQuery: string;
   ratingSource: string;
   websiteUrl?: string;
+  profileImageUrl?: string;
+  imageSourceLabel?: string;
   teamMembers?: Array<{ name: string; role: string; photoUrl: string; sourceUrl: string }>;
 };
 
