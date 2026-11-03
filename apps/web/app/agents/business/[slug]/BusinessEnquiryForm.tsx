@@ -40,11 +40,12 @@ export function BusinessEnquiryForm({ agency }: Props) {
         consent_at: new Date().toISOString(),
       });
       if (error) throw error;
-      setFeedback({ ok: true, text: `Your enquiry has been received by GoNest. Reference: ${reference}. Our team will review it and follow up. This public agency has not yet claimed its GoNest profile, so your details have not been sent directly to the agency.` });
+      setFeedback({ ok: true, text: `Your enquiry has been saved in GoNest. Reference: ${reference}. GoNest administrators can now review it. This public agency has not yet claimed its GoNest profile, so your details have not been sent directly to the agency.` });
       setName(''); setPhone(''); setEmail(''); setMessage('');
       setConsent(false);
     } catch (error) {
-      setFeedback({ ok: false, text: error instanceof Error ? error.message : 'We could not save your enquiry. Please try again.' });
+      console.error('Business enquiry submission failed', error);
+      setFeedback({ ok: false, text: 'We could not save your enquiry. Please check your details and try again.' });
     } finally {
       setSending(false);
     }
