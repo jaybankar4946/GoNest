@@ -255,6 +255,20 @@ export async function adminGetAllLeads() {
   const { data } = await supabase.from('leads').select('*, listing:listings(id,title,city:cities(name))').order('created_at', { ascending: false });
   return data ?? [];
 }
+
+export async function adminGetBusinessEnquiries() {
+  const { data, error } = await supabase.from('business_enquiries')
+    .select('id,reference,agency_slug,agency_name,requester_name,requester_phone,requester_email,requirement,message,status,consent_at,admin_notes,created_at')
+    .order('created_at', { ascending: false }).limit(300);
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function adminUpdateBusinessEnquiry(id: string, status: 'contacted' | 'closed' | 'spam', notes?: string) {
+  const { error } = await supabase.from('business_enquiries')
+    .update({ status, admin_notes: notes?.trim() || null, updated_at: new Date().toISOString() }).eq('id', id);
+  if (error) throw error;
+}
 export async function adminGetAllVisits() {
   const { data } = await supabase.from('visits').select('*, listing:listings(id,title,city:cities(name))').order('slot_date', { ascending: true });
   return data ?? [];
