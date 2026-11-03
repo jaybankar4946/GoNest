@@ -384,11 +384,15 @@ export default function AdminPage() {
                 </div>
                 {e.requester_email&&<p style={{fontSize:12,color:'#555',marginTop:7}}>Email: {e.requester_email}</p>}
                 <p style={{fontSize:13,color:'#333',marginTop:8,whiteSpace:'pre-wrap'}}>{e.message}</p>
-                <p style={{fontSize:11,color:'#777',marginTop:7}}>Public profile · not claimed/verified · admin-only routing</p>
+                <p style={{fontSize:11,color:'#777',marginTop:7}}>Public profile · not claimed/verified · GoNest admin follow-up only</p>
                 {e.admin_notes&&<p style={{fontSize:12,color:'#666',marginTop:6}}>Admin note: {e.admin_notes}</p>}
+                <div style={{display:'flex',gap:7,flexWrap:'wrap',alignItems:'center',marginTop:10}}>
+                  <a href={`tel:${String(e.requester_phone).replace(/[^+0-9]/g,'')}`} style={{...BTN('#0F766E'),textDecoration:'none'}}>Call requester</a>
+                  {e.requester_email&&<a href={`mailto:${encodeURIComponent(e.requester_email)}?subject=${encodeURIComponent(`GoNest enquiry ${e.reference}`)}`} style={{...BTN('#0F766E'),textDecoration:'none'}}>Email requester</a>}
+                </div>
                 {e.status!=='closed'&&e.status!=='spam'&&<div style={{display:'flex',gap:7,flexWrap:'wrap',alignItems:'center',marginTop:10}}>
                   <input aria-label="Business enquiry admin note" placeholder="Internal note (optional)" value={businessEnquiryNotes[e.id]??e.admin_notes??''} onChange={ev=>setBusinessEnquiryNotes(p=>({...p,[e.id]:ev.target.value}))} style={{...INP,width:240}}/>
-                  {(['contacted','routed','closed','spam'] as const).map(status=><button key={status} disabled={busy} style={BTN(status==='spam'?'#B91C1C':status==='closed'?'#64748B':'#2563EB')} onClick={async()=>{setBusy(true);try{await adminUpdateBusinessEnquiry(e.id,status,businessEnquiryNotes[e.id]??e.admin_notes??'');setBusinessEnquiries(await adminGetBusinessEnquiries());}catch(err){alert((err as {message?:string})?.message??'Could not update enquiry.');}finally{setBusy(false);}}}>{status==='routed'?'Mark routed':status.charAt(0).toUpperCase()+status.slice(1)}</button>)}
+                  {(['contacted','closed','spam'] as const).map(status=><button key={status} disabled={busy} style={BTN(status==='spam'?'#B91C1C':status==='closed'?'#64748B':'#2563EB')} onClick={async()=>{setBusy(true);try{await adminUpdateBusinessEnquiry(e.id,status,businessEnquiryNotes[e.id]??e.admin_notes??'');setBusinessEnquiries(await adminGetBusinessEnquiries());}catch(err){alert((err as {message?:string})?.message??'Could not update enquiry.');}finally{setBusy(false);}}}>{status==='contacted'?'Mark contacted':status.charAt(0).toUpperCase()+status.slice(1)}</button>)}
                 </div>}
               </article>
             ))}
