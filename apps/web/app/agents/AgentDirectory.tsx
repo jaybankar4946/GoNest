@@ -49,10 +49,9 @@ function AgentCard({ agent, top = false }: { agent: Profile; top?: boolean }) {
                 </div>
                 <div className="mt-auto p-4">
                   {agent.bio && <p className="mb-3 line-clamp-2 text-sm leading-6 text-slate-600">{agent.bio}</p>}
-                  <div className="grid grid-cols-3 gap-2">
-                    {agent.phone ? <a href={telHref(agent.phone)} className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-2 py-2.5 text-sm font-bold text-white hover:bg-blue-700">Call</a> : <span className="inline-flex items-center justify-center rounded-xl bg-slate-100 px-2 py-2.5 text-sm font-semibold text-slate-400">Call</span>}
-                    {agent.phone ? <a href={waHref(agent.phone, `Hi ${agent.full_name ?? ''}, I found your profile on GoNest and would like to enquire.`)} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-2 py-2.5 text-sm font-bold text-slate-700 hover:border-emerald-300 hover:bg-emerald-50">Message</a> : <Link href={`/agents/${agent.id}`} className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-2 py-2.5 text-sm font-bold text-slate-700">Message</Link>}
-                    <Link href={`/agents/${agent.id}`} className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-2 py-2.5 text-sm font-bold text-slate-700 hover:border-blue-300 hover:bg-blue-50">Contact · Message</Link>
+                  <div className="grid grid-cols-2 gap-2">
+                    {agent.phone ? <a href={telHref(agent.phone)} className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-3 py-2.5 text-sm font-bold text-white hover:bg-blue-700">Call agent</a> : <span className="inline-flex items-center justify-center rounded-xl bg-slate-100 px-3 py-2.5 text-sm font-semibold text-slate-400">Call unavailable</span>}
+                    <Link href={`/agents/${agent.id}`} className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-bold text-slate-700 hover:border-blue-300 hover:bg-blue-50">Contact</Link>
                   </div>
                 </div>
               </article>
@@ -151,9 +150,9 @@ export function AgentDirectory({ agents }: Props) {
             </div>
             <span className="shrink-0 text-sm font-semibold text-slate-600">{THANE_TOP_AGENTS.length} local businesses</span>
           </div>
-          <div className="-mx-5 flex snap-x snap-mandatory gap-5 overflow-x-auto px-5 pb-4 sm:-mx-6 sm:px-6 md:mx-0 md:grid md:grid-cols-2 md:overflow-visible md:px-0 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
             {THANE_TOP_AGENTS.map((broker, index) => (
-              <article key={broker.name} className="group w-[82vw] max-w-[320px] shrink-0 snap-start overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg md:w-auto md:max-w-none">
+              <article key={broker.name} className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
                 <div className="relative flex h-44 items-center justify-center overflow-hidden bg-gradient-to-br from-slate-50 via-white to-blue-50">
                   {broker.profileImageUrl ? (
                     <img src={broker.profileImageUrl} alt={`${broker.name} business profile image`} loading="lazy" referrerPolicy="no-referrer" className="h-24 w-24 rounded-2xl border border-slate-200 bg-white p-2 object-contain shadow-sm" />
@@ -172,9 +171,9 @@ export function AgentDirectory({ agents }: Props) {
                   <p className="mt-3 min-h-10 text-sm leading-5 text-slate-600">{broker.note}</p>
                   <div className="mt-3 flex flex-wrap gap-1.5">{broker.services.map(service => <span key={service} className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">{service}</span>)}</div>
                   <p className="mt-3 line-clamp-2 min-h-10 text-xs leading-5 text-slate-500">{broker.address}</p>
-                  <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4">
-                    <Link href={`/agents/business/${broker.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`} className="text-sm font-bold text-blue-700 hover:text-blue-900">Explore agent →</Link>
-                    <a href={`#available-homes`} target="_blank" rel="noreferrer" className="text-sm font-semibold text-slate-600 hover:text-slate-950">Schedule visit</a>
+                  <div className="mt-auto grid grid-cols-2 gap-2 border-t border-slate-100 pt-4">
+                    <Link href={`/agents/business/${broker.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`} className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-bold text-slate-700 hover:border-blue-300 hover:bg-blue-50">View profile</Link>
+                    <Link href={`/agents/business/${broker.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`} className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-3 py-2.5 text-sm font-bold text-white hover:bg-blue-700">Contact</Link>
                   </div>
                 </div>
               </article>
@@ -188,7 +187,7 @@ export function AgentDirectory({ agents }: Props) {
         <section className="mx-auto max-w-7xl px-5 pt-10 md:px-8">
           <h2 className="text-xl font-extrabold text-slate-950">Top agents</h2>
           <p className="mb-5 mt-1 text-sm text-slate-600">Ranked by customer rating and number of reviews. Placement is never sold.</p>
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">{topAgents.map((agent) => <AgentCard key={agent.id} agent={agent} top />)}</div>
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">{topAgents.map((agent) => <AgentCard key={agent.id} agent={agent} top />)}</div>
         </section>
       )}
 
