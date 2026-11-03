@@ -21,11 +21,9 @@ const specializations = ['All Specializations', 'Residential', 'Commercial', 'Lu
 const languages = ['Any Language', 'English', 'Hindi', 'Marathi', 'Gujarati', 'Malayalam'];
 
 function agentPortrait(agent: Profile) {
-  if (agent.avatar_url) return agent.avatar_url;
-  if (!agent.is_sample) return null;
-  return agent.id === 'f3bd0880-ff40-4bab-b2eb-b1fe9d483125'
-    ? 'https://randomuser.me/api/portraits/men/32.jpg'
-    : 'https://randomuser.me/api/portraits/men/46.jpg';
+  // Only show a photo uploaded to the agent's own GoNest profile.
+  // Never assign stock or unrelated portraits to real people.
+  return agent.avatar_url || null;
 }
 
 function AgentCard({ agent, top = false }: { agent: Profile; top?: boolean }) {
@@ -35,7 +33,7 @@ function AgentCard({ agent, top = false }: { agent: Profile; top?: boolean }) {
                 <div className="p-5">
                   <div className="flex items-start gap-3">
                     <Link href={`/agents/${agent.id}`} aria-label={`View ${agent.full_name ?? 'agent'} profile`} className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-slate-100 text-xl font-extrabold text-slate-500 shadow-sm">
-                      {portrait ? <img src={portrait} alt={agent.is_sample ? 'Illustrative sample agent portrait' : agent.full_name ?? 'Agent portrait'} className="h-full w-full object-cover" /> : (agent.full_name ?? 'G').charAt(0).toUpperCase()}
+                      {portrait ? <img src={portrait} alt={`${agent.full_name ?? 'Agent'} profile photo`} className="h-full w-full object-cover" /> : <span className="text-center"><span className="block">{(agent.full_name ?? 'G').charAt(0).toUpperCase()}</span><span className="mt-1 block text-[9px] font-semibold text-slate-400">Photo pending</span></span>}
                     </Link>
                     <div className="min-w-0 flex-1">
                       <Link href={`/agents/${agent.id}`} className="block text-lg font-extrabold leading-tight text-slate-950 hover:text-blue-700">{agent.full_name ?? 'GoNest agent'}</Link>
@@ -165,15 +163,22 @@ export function AgentDirectory({ agents }: Props) {
             {THANE_TOP_AGENTS.map((broker, index) => (
               <article key={broker.name} className="group w-[82vw] max-w-[320px] shrink-0 snap-start overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg md:w-auto md:max-w-none">
                 <div className="relative flex h-52 items-center justify-center overflow-hidden bg-slate-100">
-                  {broker.profileImageUrl ? (
-                    <img src={broker.profileImageUrl} alt="Representative real-estate professional portrait" loading="lazy" referrerPolicy="no-referrer" className="absolute inset-0 h-full w-full object-cover object-center" />
+                  {broker.teamMembers?.length ? (
+                    <div className={`grid h-full w-full gap-1 p-2 ${broker.teamMembers.length > 4 ? 'grid-cols-3 grid-rows-2' : 'grid-cols-2 grid-rows-2'}`}>
+                      {broker.teamMembers.map((member) => (
+                        <a key={member.name} href={member.sourceUrl} target="_blank" rel="noreferrer" title={`${member.name} · ${member.role} · official team profile`} className="relative min-h-0 overflow-hidden rounded-lg bg-slate-200">
+                          <img src={member.photoUrl} alt={`${member.name}, ${broker.name}`} loading="lazy" referrerPolicy="no-referrer" className="h-full w-full object-cover object-center" />
+                          <span className="absolute inset-x-0 bottom-0 truncate bg-slate-950/70 px-1.5 py-1 text-center text-[10px] font-bold text-white">{member.name}</span>
+                        </a>
+                      ))}
+                    </div>
                   ) : (
-                    <div aria-label={`${broker.name} logo placeholder`} className="flex h-24 w-24 items-center justify-center rounded-2xl border border-slate-200 bg-white text-3xl font-extrabold text-slate-500 shadow-sm">
+                    <div aria-label={`${broker.name} photo pending`} className="flex h-24 w-24 items-center justify-center rounded-2xl border border-slate-200 bg-white text-3xl font-extrabold text-slate-500 shadow-sm">
                       {broker.name.split(/\\s+/).map((part) => part[0]).slice(0, 2).join("").toUpperCase()}
                     </div>
                   )}
                   <span className="absolute left-3 top-3 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-slate-800">#{index + 1} · Thane</span>
-                  <span className="absolute bottom-3 left-3 rounded-md bg-slate-950/75 px-2.5 py-1 text-[10px] font-semibold text-white">{broker.imageSourceLabel ?? "Representative portrait · not actual staff"}</span>
+                  <span className="absolute bottom-3 left-3 rounded-md bg-slate-950/75 px-2.5 py-1 text-[10px] font-semibold text-white">{broker.teamMembers?.length ? 'Official staff photos' : 'Actual staff photo pending'}</span>
                 </div>
                 <div className="p-5">
                   <h3 className="line-clamp-2 min-h-12 text-lg font-extrabold text-slate-950">{broker.name}</h3>
@@ -190,7 +195,7 @@ export function AgentDirectory({ agents }: Props) {
               </article>
             ))}
           </div>
-          <p className="mt-3 text-xs leading-5 text-slate-500">Public business-directory ratings are snapshots and may change. They are not GoNest reviews or endorsements. Images are business identity marks where sourced; otherwise a neutral initials placeholder is shown until a matching public team photo can be verified.</p>
+          <p className="mt-3 text-xs leading-5 text-slate-500">Public business-directory ratings are snapshots and are not GoNest reviews or endorsements. Staff portraits are shown only when the business publishes named team photos on its own website. Other businesses use initials until a matching photo is supplied or verified; no stock or AI-generated faces are used.</p>
         </div>
       </section>
 
