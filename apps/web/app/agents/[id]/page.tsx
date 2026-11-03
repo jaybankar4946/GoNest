@@ -6,6 +6,7 @@ import { getAgentById, getAgentListings } from '@/lib/api';
 import { telHref, waHref } from '@/lib/contact';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import { AgentContactForm } from './AgentContactForm';
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
@@ -63,6 +64,7 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ i
             </>
           )}
         </section>
+        <AgentContactForm agentName={agent.full_name ?? 'this professional'} phone={agent.phone ?? null} />
       </main>
       <Footer />
     </>
