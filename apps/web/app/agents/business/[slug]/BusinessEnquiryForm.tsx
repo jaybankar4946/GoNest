@@ -37,6 +37,7 @@ export function BusinessEnquiryForm({ agency }: Props) {
         requester_email: email.trim() || null,
         requirement,
         message: message.trim(),
+        consent_at: new Date().toISOString(),
       });
       if (error) throw error;
       setFeedback({ ok: true, text: `Your enquiry has been received by GoNest. Reference: ${reference}. Our team will review it and follow up. This public agency has not yet claimed its GoNest profile, so your details have not been sent directly to the agency.` });
