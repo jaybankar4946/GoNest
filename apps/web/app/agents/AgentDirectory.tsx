@@ -7,6 +7,7 @@ import { THANE_TOP_AGENTS } from '@/lib/thane-agents';
 
 type Props = { agents: Profile[] };
 const cities = ['All Cities', 'Thane', 'Mumbai', 'Pune'];
+const serviceFilters = ['All Services', 'Buy', 'Sell', 'Rent'];
 const agencySlug = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
 function AgentListingCard({ agent }: { agent: Profile }) {
@@ -55,7 +56,12 @@ function PublicAgencyListingCard({ agency }: { agency: (typeof THANE_TOP_AGENTS)
 export function AgentDirectory({ agents }: Props) {
   const [search, setSearch] = useState('');
   const [city, setCity] = useState('All Cities');
-  const publicAgencies = useMemo(() => THANE_TOP_AGENTS.filter(a => (city === 'All Cities' || a.city === city) && (a.name + ' ' + a.city + ' ' + a.area + ' ' + a.address).toLowerCase().includes(search.toLowerCase().trim())), [city, search]);
+  const publicAgencies = useMemo(() => THANE_TOP_AGENTS.filter(a =>
+    (city === 'All Cities' || a.city === city) &&
+    (service === 'All Services' || (a.services ?? []).includes(service)) &&
+    (minRating === 'Any rating' || (a.rating ?? 0) >= Number(minRating)) &&
+    (a.name + ' ' + a.city + ' ' + a.area + ' ' + a.address + ' ' + (a.services ?? []).join(' ') + ' ' + (a.businessType ?? '')).toLowerCase().includes(search.toLowerCase().trim())
+  ), [city, service, minRating, search]);
   const registeredAgents = useMemo(() => agents.filter(a => a.role === 'agent' && a.agent_verified && Boolean(a.rera_number) && (city === 'All Cities' || [...(a.service_localities ?? []), ...(a.service_pincodes ?? [])].join(' ').toLowerCase().includes(city.toLowerCase())) && (!search.trim() || [a.full_name, a.agency_name, a.bio, a.rera_number, ...(a.service_localities ?? [])].filter(Boolean).join(' ').toLowerCase().includes(search.toLowerCase().trim()))), [agents, city, search]);
 
   return <>
@@ -64,7 +70,7 @@ export function AgentDirectory({ agents }: Props) {
         <p className="text-xs font-bold uppercase tracking-widest text-blue-700">GoNest Agent Directory</p>
         <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-950 md:text-4xl">Find real estate agents in Thane, Mumbai and Pune</h1>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">Discover property professionals using the same visual listing experience as Buy and Rent. GoNest-verified agents and public business profiles are clearly distinguished.</p>
-        <div className="mt-6 grid gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:grid-cols-[minmax(0,1fr)_220px]">
+        <div className="mt-6 grid gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:grid-cols-2 lg:grid-cols-4">
           <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search agent, agency, RERA or locality" className="min-h-12 rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none focus:border-blue-500"/>
           <select value={city} onChange={e=>setCity(e.target.value)} className="min-h-12 rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-semibold text-slate-700">{cities.map(c=><option key={c}>{c}</option>)}</select>
         </div>
