@@ -23,7 +23,7 @@ export function BusinessEnquiryForm({ agencyName, agencySlug, onClose }: Props) 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError('');
-    const digits = phone.replace(/\\D/g, '');
+    const digits = phone.replace(/\D/g, '');
     if (digits.length < 10 || digits.length > 15) {
       setError('Enter a valid phone number with 10 to 15 digits.');
       return;
