@@ -8,7 +8,7 @@ import { adminGetPendingBrokerages, adminGetSupplyFunnel, type SupplyFunnel, adm
 import { imgUrl } from '@/lib/api';
 import { supabase } from '@/lib/supabase';
 import { formatPrice, timeAgo } from '@/lib/format';
-const TABS=['queue','projects','agencies','listings','supply','brokers','leads','visits','reports','audit','funnel'] as const;
+const TABS=['queue','projects','agencies','listings','supply','brokers','leads','visits','business','reports','audit','funnel'] as const;
 type Tab=typeof TABS[number];
 const SC: Record<string,string>={active:'#16A34A',pending_review:'#D97706',rejected:'#DC2626',draft:'#6B6B6B',archived:'#6B6B6B',new:'#2563EB',contacted:'#D97706',closed:'#16A34A',confirmed:'#16A34A',requested:'#D97706',completed:'#6B6B6B'};
 const SB=(c:string): React.CSSProperties=>({fontSize:11,fontWeight:500,padding:'3px 10px',borderRadius:9999,background:c+'18',color:c});
@@ -29,6 +29,8 @@ export default function AdminPage() {
   const[brokers,setBrokers]=useState<any[]>([]);
   const[leads,setLeads]=useState<any[]>([]);
   const[visits,setVisits]=useState<any[]>([]);
+  const[businessEnquiries,setBusinessEnquiries]=useState<any[]>([]);
+  const[businessEnquiryError,setBusinessEnquiryError]=useState<string|null>(null);
   const[reports,setReports]=useState<any[]>([]);
   const[audit,setAudit]=useState<any[]>([]);
   const[funnel,setFunnel]=useState<{name:string;events:number;sessions:number}[]>([]);
@@ -52,6 +54,7 @@ export default function AdminPage() {
     adminGetBrokers().then(setBrokers);
     adminGetAllLeads().then(setLeads);
     adminGetAllVisits().then(setVisits);
+    supabase.from('business_enquiries').select('id,reference,agency_slug,agency_name,requester_name,requester_phone,requester_email,requirement,message,status,created_at,admin_notes').order('created_at',{ascending:false}).limit(250).then(({data,error})=>{if(error){setBusinessEnquiryError(error.message);setBusinessEnquiries([]);}else{setBusinessEnquiryError(null);setBusinessEnquiries(data??[]);}});
     adminGetReports().then(setReports);
     adminGetAuditLog().then(setAudit);
     adminGetStats().then(setStats);
@@ -74,7 +77,7 @@ export default function AdminPage() {
           ))}
         </div>}
         <div style={{display:'flex',gap:4,marginBottom:28,flexWrap:'wrap'}}>
-          {TABS.map(t=><button key={t} onClick={()=>setTab(t)} style={TS(t)}>{t==='queue'?`Review queue (${queue.length})`:t==='reports'?`Reports (${reports.filter(r=>r.status==='open').length})`:t==='audit'?'Audit log':t==='supply'?'Launch inventory':t.charAt(0).toUpperCase()+t.slice(1)}</button>)}
+          {TABS.map(t=><button key={t} onClick={()=>setTab(t)} style={TS(t)}>{t==='queue'?`Review queue (${queue.length})`:t==='reports'?`Reports (${reports.filter(r=>r.status==='open').length})`:t==='audit'?'Audit log':t==='supply'?'Launch inventory':t==='business'?`Business enquiries (${businessEnquiries.filter(x=>x.status==='new').length})`:t.charAt(0).toUpperCase()+t.slice(1)}</button>)}
         </div>
         {tab==='supply'&&(
           <section style={{display:'flex',flexDirection:'column',gap:18}}>
@@ -378,6 +381,41 @@ export default function AdminPage() {
               </div>
             ))}
           </div>
+        )}
+        {tab==='business'&&(
+          <section style={{display:'flex',flexDirection:'column',gap:10}}>
+            <div style={{padding:14,border:'1px solid #E5E5E5',borderRadius:12,background:'#FAFAFA'}}>
+              <h2 style={{fontSize:17,fontWeight:700}}>Public business enquiries</h2>
+              <p style={{fontSize:12,color:'#666',marginTop:4}}>Enquiries submitted through public agency profiles. Contact details are visible only to administrators. Follow up with the requester; a public business listing is not a claimed GoNest account.</p>
+            </div>
+            {businessEnquiryError&&<p role="alert" style={{fontSize:12,color:'#DC2626'}}>Could not load business enquiries: {businessEnquiryError}</p>}
+            {!businessEnquiryError&&businessEnquiries.length===0&&<p style={{fontSize:14,color:'#6B7280'}}>No business enquiries recorded yet.</p>}
+            {businessEnquiries.map((e:any)=>(
+              <article key={e.id} style={{padding:16,border:'1px solid #E5E5E5',borderRadius:12}}>
+                <div style={{display:'flex',justifyContent:'space-between',gap:12,flexWrap:'wrap'}}>
+                  <div><p style={{fontSize:14,fontWeight:700,color:'#111'}}>{e.agency_name}</p><p style={{fontSize:11,color:'#777',marginTop:2}}>{e.reference} · {timeAgo(e.created_at)}</p></div>
+                  <span style={SB(SC[e.status]??'#6B7280')}>{e.status}</span>
+                </div>
+                <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))',gap:8,marginTop:12}}>
+                  <p style={{fontSize:12}}><b>Requester:</b> {e.requester_name}</p>
+                  <p style={{fontSize:12}}><b>Phone:</b> <a href={'tel:'+e.requester_phone} style={{textDecoration:'underline'}}>{e.requester_phone}</a></p>
+                  <p style={{fontSize:12}}><b>Email:</b> {e.requester_email||'—'}</p>
+                  <p style={{fontSize:12}}><b>Need:</b> {e.requirement}</p>
+                </div>
+                <p style={{fontSize:13,color:'#444',lineHeight:1.6,marginTop:8,whiteSpace:'pre-wrap'}}>{e.message}</p>
+                <div style={{display:'flex',gap:8,flexWrap:'wrap',alignItems:'center',marginTop:12}}>
+                  <input aria-label="Admin follow-up notes" placeholder="Follow-up notes" defaultValue={e.admin_notes??''} id={'biz-note-'+e.id} style={{...INP,width:260}}/>
+                  {(['contacted','routed','closed','spam'] as const).map(status=><button key={status} disabled={busy} onClick={async()=>{
+                    const note=(document.getElementById('biz-note-'+e.id) as HTMLInputElement|null)?.value??'';
+                    setBusy(true);
+                    const {error}=await supabase.from('business_enquiries').update({status,admin_notes:note||null}).eq('id',e.id);
+                    if(error){alert('Could not update enquiry: '+error.message);}else{setBusinessEnquiries(items=>items.map(item=>item.id===e.id?{...item,status,admin_notes:note||null}:item));}
+                    setBusy(false);
+                  }} style={BTN(status==='closed'?'#16A34A':status==='spam'?'#DC2626':status==='contacted'?'#2563EB':'#6B7280')}>{status==='contacted'?'Mark contacted':status==='routed'?'Route':status==='closed'?'Close':'Spam'}</button>)}
+                </div>
+              </article>
+            ))}
+          </section>
         )}
         {tab==='reports'&&(
           <div style={{display:'flex',flexDirection:'column',gap:10}}>
