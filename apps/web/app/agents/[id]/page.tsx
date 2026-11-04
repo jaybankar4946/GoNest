@@ -63,7 +63,6 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ i
               <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{listings.map((listing) => (
                 <article key={listing.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
                   <PropertyCard listing={listing} />
-        </details>
                 </article>
               ))}</div>
             </>
