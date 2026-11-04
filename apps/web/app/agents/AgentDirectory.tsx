@@ -91,9 +91,13 @@ export function AgentDirectory({ agents }: Props) {
 
     <section className="border-t border-slate-200 bg-slate-50">
       <div className="mx-auto max-w-7xl px-5 py-10 md:px-8">
-        <div className="mb-6 flex flex-wrap items-end justify-between gap-3"><div><h2 className="text-2xl font-extrabold text-slate-950">GoNest-verified agent profiles</h2><p className="mt-1 text-sm text-slate-600">Profiles with verification details recorded by GoNest.</p></div><span className="text-sm font-semibold text-slate-500">{registeredAgents.length} agents</span></div>
-        {registeredAgents.length ? <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">{registeredAgents.map(a=><RegisteredAgentCard key={a.id} agent={a}/>)}</div> : <p className="rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-600">No GoNest-verified agent profiles match these filters yet.</p>}
-        <div className="mt-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-blue-50 p-5"><div><h3 className="font-extrabold text-slate-950">Are you a property professional?</h3><p className="mt-1 text-sm text-slate-600">Create a GoNest profile and submit your details for review.</p></div><Link href="/dashboard" className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white">Create GoNest profile</Link></div>
+        <div className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-8">
+          <div>
+            <h2 className="text-xl font-extrabold text-slate-950">Are you a property professional?</h2>
+            <p className="mt-1 text-sm leading-6 text-slate-600">Create a GoNest profile and submit your details for review.</p>
+          </div>
+          <Link href="https://gonest.in/dashboard" className="inline-flex shrink-0 items-center justify-center rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700">Create GoNest profile</Link>
+        </div>
       </div>
     </section>
     {selectedAgency && <ContactForm agency={selectedAgency} onClose={()=>setSelectedAgency(null)}/>}
