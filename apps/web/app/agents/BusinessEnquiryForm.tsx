@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { submitBusinessEnquiry } from '@/lib/api';
+import { supabase } from '@/lib/supabase';
 
 type Props = {
   agencyName: string;
@@ -34,7 +34,7 @@ export function BusinessEnquiryForm({ agencyName, agencySlug, onClose }: Props) 
     }
     setBusy(true);
     try {
-      await submitBusinessEnquiry({
+      const { error: submitError } = await supabase.from('business_enquiries').insert({
         agency_slug: agencySlug,
         agency_name: agencyName,
         requester_name: name.trim(),
@@ -44,6 +44,7 @@ export function BusinessEnquiryForm({ agencyName, agencySlug, onClose }: Props) 
         message: message.trim(),
         consent_at: new Date().toISOString(),
       });
+      if (submitError) throw submitError;
       setSent(true);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'We could not submit your enquiry. Please try again.');
