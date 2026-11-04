@@ -15,7 +15,7 @@ export function AgentContactForm({ agentName, phone }: { agentName: string; phon
       setError('This agent has not published a WhatsApp contact number yet.');
       return;
     }
-    const digits = phone.replace(/\\D/g, '');
+    const digits = phone.replace(/\D/g, '');
     if (!digits) {
       setError('The agent contact number is unavailable.');
       return;
@@ -28,7 +28,7 @@ export function AgentContactForm({ agentName, phone }: { agentName: string; phon
       email ? `My email: ${email}` : '',
       '',
       message,
-    ].filter(Boolean).join('\\n');
+    ].filter(Boolean).join('\n');
     window.open(`https://wa.me/${digits}?text=${encodeURIComponent(body)}`, '_blank', 'noopener,noreferrer');
   }
 
