@@ -7,8 +7,11 @@ import { telHref, waHref } from '@/lib/contact';
 import { ScheduleVisit } from '@/components/property/ScheduleVisit';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import { AgentContactForm } from './AgentContactForm';
 
-const portraitFor = (id: string) => { const n = [...id].reduce((sum, char) => sum + char.charCodeAt(0), 0) % 90 + 1; return 'https://randomuser.me/api/portraits/' + (n % 2 ? 'women' : 'men') + '/' + n + '.jpg'; };\n\nexport async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+const portraitFor = (id: string) => { const n = [...id].reduce((sum, char) => sum + char.charCodeAt(0), 0) % 90 + 1; return 'https://randomuser.me/api/portraits/' + (n % 2 ? 'women' : 'men') + '/' + n + '.jpg'; };
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
   const agent = await getAgentById(id);
   return { title: agent?.full_name ? `${agent.full_name} | GoNest` : 'Agent Profile' };
@@ -43,10 +46,9 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ i
               {agent.bio && <p className="mt-5 max-w-3xl whitespace-pre-line text-sm leading-7 text-slate-600">{agent.bio}</p>}
               <div id="contact" className="mt-6 flex flex-wrap gap-3">
                 {agent.phone && <a href={telHref(agent.phone)} className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700">Call</a>}
-                {agent.phone && <a href={waHref(agent.phone, `Hi ${agent.full_name ?? ''}, I found your profile on GoNest and would like to enquire about your properties.`)} target="_blank" rel="noreferrer" className="rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white hover:bg-emerald-700">Message</a>}
-                {listings.length > 0 && <a href="#listings" className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-800 hover:border-blue-400">Schedule visit</a>}
+                <a href="#contact-agent" className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-800 hover:border-blue-400">Contact</a>
+                {listings.length > 0 && <a href="#listings" className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-800 hover:border-blue-400">View active listings</a>}
               </div>
-              {!agent.phone && <p className="mt-4 text-xs text-slate-500">Call and WhatsApp are unavailable because this agent has not published a phone number. You can still request a visit from an active listing below.</p>}
             </div>
           </div>
         </section>
@@ -78,6 +80,7 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ i
             </>
           )}
         </section>
+        <AgentContactForm agentName={agent.full_name ?? 'this professional'} phone={agent.phone ?? null} />
       </main>
       <Footer />
     </>
