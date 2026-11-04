@@ -46,7 +46,11 @@ function PublicAgencyListingCard({ agency }: { agency: (typeof THANE_TOP_AGENTS)
     </div>
     <div className="flex flex-1 flex-col p-4 sm:p-5">
       <h3 className="text-lg font-extrabold text-slate-950">{agency.name}</h3>
-      <p className="mt-2 line-clamp-2 min-h-10 text-sm leading-5 text-slate-600">{agency.address}</p>
+      <p className="mt-2 text-sm leading-5 text-slate-600">{agency.address}</p>
+      {agency.rating != null && <p className="mt-2 text-sm font-bold text-slate-900">★ {agency.rating.toFixed(1)} <span className="font-normal text-slate-500">({agency.publicReviewCount?.toLocaleString('en-IN')} public reviews)</span></p>}
+      {agency.businessType && <p className="mt-3 text-sm font-medium text-slate-700">{agency.businessType}</p>}
+      {agency.services?.length ? <div className="mt-3 flex flex-wrap gap-2">{agency.services.map(item=><span key={item} className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-800">{item}</span>)}</div> : null}
+      {agency.rating != null && <p className="mt-3 text-xs leading-5 text-slate-500">Public rating and review count; these are not GoNest reviews or an independent GoNest endorsement.</p>}
       <p className="mt-3 text-xs leading-5 text-slate-500">Public directory information. Not claimed or verified by GoNest.</p>
       <div className="mt-auto pt-5"><Link href={`/agents/business/${agencySlug(agency.name)}`} className="inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-sm font-bold text-white hover:bg-blue-700">View business profile</Link></div>
     </div>
@@ -56,6 +60,8 @@ function PublicAgencyListingCard({ agency }: { agency: (typeof THANE_TOP_AGENTS)
 export function AgentDirectory({ agents }: Props) {
   const [search, setSearch] = useState('');
   const [city, setCity] = useState('All Cities');
+  const [service, setService] = useState('All Services');
+  const [minRating, setMinRating] = useState('Any rating');
   const publicAgencies = useMemo(() => THANE_TOP_AGENTS.filter(a =>
     (city === 'All Cities' || a.city === city) &&
     (service === 'All Services' || (a.services ?? []).includes(service)) &&
@@ -73,6 +79,8 @@ export function AgentDirectory({ agents }: Props) {
         <div className="mt-6 grid gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:grid-cols-2 lg:grid-cols-4">
           <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search agent, agency, RERA or locality" className="min-h-12 rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none focus:border-blue-500"/>
           <select value={city} onChange={e=>setCity(e.target.value)} className="min-h-12 rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-semibold text-slate-700">{cities.map(c=><option key={c}>{c}</option>)}</select>
+          <select value={service} onChange={e=>setService(e.target.value)} className="min-h-12 rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-semibold text-slate-700">{serviceFilters.map(s=><option key={s}>{s}</option>)}</select>
+          <select value={minRating} onChange={e=>setMinRating(e.target.value)} className="min-h-12 rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-semibold text-slate-700"><option>Any rating</option><option value="4">4.0+ public rating</option><option value="4.5">4.5+ public rating</option></select>
         </div>
       </div>
     </section>
