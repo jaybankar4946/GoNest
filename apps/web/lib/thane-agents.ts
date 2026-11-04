@@ -5,6 +5,10 @@ export type ThaneBroker = {
   address: string;
   mapQuery: string;
   websiteUrl?: string;
+  rating?: number;
+  publicReviewCount?: number;
+  services?: string[];
+  businessType?: string;
 };
 
 export const THANE_TOP_AGENTS: ThaneBroker[] = [
@@ -19,7 +23,7 @@ export const THANE_TOP_AGENTS: ThaneBroker[] = [
   { name: 'Richa Realtors', city: 'Pune', area: 'Paud Road', address: 'Office 4, Landmark Commercial Complex, Paud Road, Pune 411038', mapQuery: 'Richa Realtors Paud Road Pune', websiteUrl: 'https://richaindia.com/real-estate-builders-in-mumbai-and-pune/contact-us.html' },
   { name: 'Riya Estate Consultants', city: 'Mumbai', area: 'Vile Parle East', address: 'Shop 1, Tejmanjul Building, Tejpal Road and Hanuman Road junction, Vile Parle East, Mumbai 400057', mapQuery: 'Riya Estate Consultants Vile Parle East Mumbai' },
   { name: 'Stanley Estate Consultants', city: 'Mumbai', area: 'Marol · Andheri East', address: 'Twin Arcade Premises, Military Road, Marol, Andheri East, Mumbai, Maharashtra 400059', mapQuery: 'Stanley Estate Consultants Andheri East Mumbai' },
-  { name: 'R.B Estate Agency', city: 'Thane', area: 'Kasarvadavali · Ghodbunder Road', address: 'Shop No 4, Mayuresh Apartment, Ghodbunder Road, opposite Hyper City, Kasarvadavali, Thane West 400615', mapQuery: 'R.B Estate Agency Kasarvadavali Thane' },
+  { name: 'R.B Estate Agency', city: 'Thane', area: 'Kasarvadavali · Ghodbunder Road', address: 'Shop No 4, Mayuresh Apartment, Ghodbunder Road, opposite Hyper City, Kasarvadavali, Thane West 400615', mapQuery: 'R.B Estate Agency Kasarvadavali Thane', rating: 4.9, publicReviewCount: 1635, services: ['Buy', 'Sell', 'Rent'], businessType: 'Residential and commercial brokerage' },
   { name: 'Kanhaiya Properties', city: 'Thane', area: 'Hiranandani Estate · Ghodbunder Road', address: 'Arcadia Building, 512-A, Ghodbunder Road, Hiranandani Estate, Thane West 400607', mapQuery: 'Kanhaiya Properties Hiranandani Estate Thane' },
   { name: 'Krishna Housing', city: 'Thane', area: 'Panch Pakhdi · Bhakti Mandir', address: 'Shop No 5, Gagangiri Cooperative Housing Society, opposite Malvan Restaurant, Bhakti Mandir, Panch Pakhdi, Thane West 400602', mapQuery: 'Krishna Housing Panch Pakhdi Thane' },
   { name: 'Shivam Properties', city: 'Thane', area: 'Manpada · Dhokali', address: 'Shop No 14, Runwal Estate, behind R Mall, Dhokali, Thane West 400607', mapQuery: 'Shivam Properties Runwal Estate Thane' },

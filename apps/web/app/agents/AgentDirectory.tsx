@@ -7,53 +7,67 @@ import { THANE_TOP_AGENTS } from '@/lib/thane-agents';
 
 type Props = { agents: Profile[] };
 const cities = ['All Cities', 'Thane', 'Mumbai', 'Pune'];
+const serviceFilters = ['All Services', 'Buy', 'Sell', 'Rent'];
+const agencySlug = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
-function ContactForm({ agency, onClose }: { agency: string; onClose: () => void }) {
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('I would like to enquire about your real estate services.');
-  const [error, setError] = useState('');
-  function submit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!name.trim() || !phone.trim() || !message.trim()) {
-      setError('Please enter your name, phone number and message.');
-      return;
-    }
-    const subject = encodeURIComponent('GoNest enquiry for ' + agency);
-    const body = encodeURIComponent('Agency: ' + agency + '\nName: ' + name + '\nPhone: ' + phone + '\nEmail: ' + email + '\n\nMessage: ' + message);
-    window.location.href = 'mailto:info@gonest.in?subject=' + subject + '&body=' + body;
-  }
-  return <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/50 p-4" role="dialog" aria-modal="true" aria-label={'Contact ' + agency} onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-    <form onSubmit={submit} className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
-      <div className="flex items-start justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-wider text-blue-700">Contact agency</p><h2 className="mt-1 text-xl font-extrabold text-slate-950">{agency}</h2></div><button type="button" onClick={onClose} aria-label="Close" className="rounded-lg px-3 py-1 text-xl text-slate-500 hover:bg-slate-100">×</button></div>
-      <div className="mt-5 grid gap-3 sm:grid-cols-2">
-        <label className="text-sm font-semibold text-slate-700">Your name<input required value={name} onChange={e=>setName(e.target.value)} className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2.5 font-normal" placeholder="Full name"/></label>
-        <label className="text-sm font-semibold text-slate-700">Phone number<input required type="tel" value={phone} onChange={e=>setPhone(e.target.value)} className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2.5 font-normal" placeholder="Mobile number"/></label>
-        <label className="text-sm font-semibold text-slate-700 sm:col-span-2">Email (optional)<input type="email" value={email} onChange={e=>setEmail(e.target.value)} className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2.5 font-normal" placeholder="you@example.com"/></label>
-        <label className="text-sm font-semibold text-slate-700 sm:col-span-2">Your message<textarea required rows={4} value={message} onChange={e=>setMessage(e.target.value)} className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2.5 font-normal"/></label>
+function AgentListingCard({ agent }: { agent: Profile }) {
+  const name = agent.full_name ?? 'GoNest agent';
+  return <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+    <Link href={'/agents/' + agent.id} className="relative block aspect-[4/3] overflow-hidden bg-slate-100">
+      {agent.avatar_url ? <img src={agent.avatar_url} alt={name + ' profile'} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"/> : <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 text-slate-500"><span className="text-5xl font-semibold">{name.charAt(0).toUpperCase()}</span><span className="mt-2 text-xs font-semibold uppercase tracking-widest">Profile photo not added</span></div>}
+      <span className="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-bold text-emerald-800 shadow-sm">GoNest verified</span>
+      <span className="absolute bottom-3 left-3 rounded-lg bg-white/95 px-3 py-1.5 text-xs font-bold text-slate-900 shadow-sm">{agent.total_listings} active listing{agent.total_listings === 1 ? '' : 's'}</span>
+    </Link>
+    <div className="flex flex-1 flex-col p-4 sm:p-5">
+      <div className="min-w-0">
+        <h3 className="truncate text-lg font-extrabold text-slate-950">{name}</h3>
+        <p className="mt-1 truncate text-sm font-medium text-slate-600">{agent.agency_name ?? 'Independent agent'}</p>
       </div>
-      {error && <p role="alert" className="mt-3 text-sm text-red-600">{error}</p>}
-      <p className="mt-3 text-xs leading-5 text-slate-500">Send opens your default email app with this enquiry addressed to GoNest. It is not submitted to the agency directly.</p>
-      <div className="mt-5 flex justify-end gap-2"><button type="button" onClick={onClose} className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-bold text-slate-700">Cancel</button><button type="submit" className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-blue-700">Send enquiry</button></div>
-    </form>
-  </div>;
+      <div className="mt-3 flex flex-wrap gap-2">
+        {agent.phone_verified && <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-800">Phone verified</span>}
+        {agent.rera_number && <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700">RERA details on file</span>}
+      </div>
+      {agent.bio && <p className="mt-3 line-clamp-2 min-h-10 text-sm leading-5 text-slate-600">{agent.bio}</p>}
+      {!agent.bio && <p className="mt-3 min-h-10 text-sm leading-5 text-slate-500">{(agent.service_localities ?? []).slice(0,3).join(' · ') || 'Local property professional'}</p>}
+      <div className="mt-auto grid grid-cols-2 gap-2 pt-5">
+        <Link href={'/agents/' + agent.id} className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-3 py-3 text-sm font-bold text-slate-800 hover:border-slate-400">View profile</Link>
+        <Link href={'/agents/' + agent.id + '#contact-agent'} className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-3 py-3 text-sm font-bold text-white hover:bg-blue-700">Contact</Link>
+      </div>
+    </div>
+  </article>;
 }
 
-function RegisteredAgentCard({ agent }: { agent: Profile }) {
-  return <article className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-    <div className="flex items-center gap-3"><div className="h-14 w-14 overflow-hidden rounded-full bg-slate-100">{agent.avatar_url ? <img src={agent.avatar_url} alt="" className="h-full w-full object-cover"/> : <div className="flex h-full items-center justify-center text-xl font-bold text-slate-500">{(agent.full_name ?? 'A').charAt(0)}</div>}</div><div className="min-w-0"><h3 className="font-extrabold text-slate-950">{agent.full_name ?? 'GoNest agent'}</h3><p className="text-sm text-slate-500">{agent.agency_name ?? 'Independent agent'}</p></div></div>
-    {agent.bio && <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-600">{agent.bio}</p>}
-    <p className="mt-3 text-xs text-slate-500">MahaRERA details on file: {agent.rera_number}</p>
-    <Link href={'/agents/' + agent.id} className="mt-4 inline-flex justify-center rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white">View agent profile</Link>
+function PublicAgencyListingCard({ agency }: { agency: (typeof THANE_TOP_AGENTS)[number] }) {
+  return <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+    <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200">
+      <div className="flex h-24 w-24 items-center justify-center rounded-3xl border border-white/80 bg-white text-3xl font-extrabold text-slate-600 shadow-sm">{agency.name.split(/\\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase()}</div>
+      <span className="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-bold text-slate-700 shadow-sm">Public business listing</span>
+      <span className="absolute bottom-3 left-3 rounded-lg bg-white/95 px-3 py-1.5 text-xs font-bold text-slate-900 shadow-sm">{agency.city} · {agency.area}</span>
+    </div>
+    <div className="flex flex-1 flex-col p-4 sm:p-5">
+      <h3 className="text-lg font-extrabold text-slate-950">{agency.name}</h3>
+      <p className="mt-2 text-sm leading-5 text-slate-600">{agency.address}</p>
+      {agency.rating != null && <p className="mt-2 text-sm font-bold text-slate-900">★ {agency.rating.toFixed(1)} <span className="font-normal text-slate-500">({agency.publicReviewCount?.toLocaleString('en-IN')} public reviews)</span></p>}
+      {agency.businessType && <p className="mt-3 text-sm font-medium text-slate-700">{agency.businessType}</p>}
+      {agency.services?.length ? <div className="mt-3 flex flex-wrap gap-2">{agency.services.map(item=><span key={item} className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-800">{item}</span>)}</div> : null}
+      {agency.rating != null && <p className="mt-3 text-xs leading-5 text-slate-500">Public rating and review count; these are not GoNest reviews or an independent GoNest endorsement.</p>}
+      <p className="mt-3 text-xs leading-5 text-slate-500">Public directory information. Not claimed or verified by GoNest.</p>
+      <div className="mt-auto pt-5"><Link href={`/agents/business/${agencySlug(agency.name)}`} className="inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-sm font-bold text-white hover:bg-blue-700">View business profile</Link></div>
+    </div>
   </article>;
 }
 
 export function AgentDirectory({ agents }: Props) {
   const [search, setSearch] = useState('');
   const [city, setCity] = useState('All Cities');
-  const [selectedAgency, setSelectedAgency] = useState<string | null>(null);
-  const publicAgencies = useMemo(() => THANE_TOP_AGENTS.filter(a => (city === 'All Cities' || a.city === city) && (a.name + ' ' + a.city + ' ' + a.area + ' ' + a.address).toLowerCase().includes(search.toLowerCase().trim())), [city, search]);
+  const [service, setService] = useState('All Services');
+  const [minRating, setMinRating] = useState('Any rating');
+  const publicAgencies = useMemo(() => THANE_TOP_AGENTS.filter(a =>
+    (city === 'All Cities' || a.city === city) &&
+    (service === 'All Services' || (a.services ?? []).includes(service)) &&
+    (minRating === 'Any rating' || (a.rating ?? 0) >= Number(minRating)) &&
+    (a.name + ' ' + a.city + ' ' + a.area + ' ' + a.address + ' ' + (a.services ?? []).join(' ') + ' ' + (a.businessType ?? '')).toLowerCase().includes(search.toLowerCase().trim())
+  ), [city, service, minRating, search]);
   const registeredAgents = useMemo(() => agents.filter(a => a.role === 'agent' && a.agent_verified && Boolean(a.rera_number) && (city === 'All Cities' || [...(a.service_localities ?? []), ...(a.service_pincodes ?? [])].join(' ').toLowerCase().includes(city.toLowerCase())) && (!search.trim() || [a.full_name, a.agency_name, a.bio, a.rera_number, ...(a.service_localities ?? [])].filter(Boolean).join(' ').toLowerCase().includes(search.toLowerCase().trim()))), [agents, city, search]);
 
   return <>
@@ -61,31 +75,27 @@ export function AgentDirectory({ agents }: Props) {
       <div className="mx-auto max-w-7xl px-5 py-10 md:px-8">
         <p className="text-xs font-bold uppercase tracking-widest text-blue-700">GoNest Agent Directory</p>
         <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-950 md:text-4xl">Find real estate agents in Thane, Mumbai and Pune</h1>
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">Browse local agencies and GoNest agent profiles. Public business listings are separate from GoNest-verified professionals.</p>
-        <div className="mt-6 grid gap-3 sm:grid-cols-[1fr_220px]">
-          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search agency, agent or locality" className="min-h-12 rounded-xl border border-slate-300 bg-white px-4 text-sm outline-none focus:border-blue-500"/>
-          <select value={city} onChange={e=>setCity(e.target.value)} className="min-h-12 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700">{cities.map(c=><option key={c}>{c}</option>)}</select>
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">Discover property professionals using the same visual listing experience as Buy and Rent. GoNest-verified agents and public business profiles are clearly distinguished.</p>
+        <div className="mt-6 grid gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:grid-cols-2 lg:grid-cols-4">
+          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search agent, agency, RERA or locality" className="min-h-12 rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none focus:border-blue-500"/>
+          <select value={city} onChange={e=>setCity(e.target.value)} className="min-h-12 rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-semibold text-slate-700">{cities.map(c=><option key={c}>{c}</option>)}</select>
+          <select value={service} onChange={e=>setService(e.target.value)} className="min-h-12 rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-semibold text-slate-700">{serviceFilters.map(s=><option key={s}>{s}</option>)}</select>
+          <select value={minRating} onChange={e=>setMinRating(e.target.value)} className="min-h-12 rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-semibold text-slate-700"><option>Any rating</option><option value="4">4.0+ public rating</option><option value="4.5">4.5+ public rating</option></select>
         </div>
       </div>
     </section>
 
-    <section className="mx-auto max-w-7xl px-5 py-10 md:px-8">
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-3"><div><h2 className="text-2xl font-extrabold text-slate-950">Local real estate agencies</h2><p className="mt-1 text-sm text-slate-600">Business information for Thane, Mumbai and Pune.</p></div><span className="text-sm font-semibold text-slate-500">{publicAgencies.length} agencies</span></div>
-      {publicAgencies.length ? <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">{publicAgencies.map((agency) => <article key={agency.name} className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-        <div className="flex items-start gap-3"><div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-sm font-extrabold text-slate-600">{agency.name.split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase()}</div><div className="min-w-0"><h3 className="text-lg font-extrabold leading-6 text-slate-950">{agency.name}</h3><p className="mt-1 text-sm font-semibold text-blue-700">{agency.city} · {agency.area}</p></div></div>
-        <p className="mt-4 text-sm leading-6 text-slate-600">{agency.address}</p>
-        <div className="mt-auto pt-5"><button type="button" onClick={()=>setSelectedAgency(agency.name)} className="inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-sm font-bold text-white hover:bg-blue-700">Contact</button></div>
-      </article>)}</div> : <p className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">No agencies match this search.</p>}
-      <p className="mt-4 text-xs text-slate-500">Public business listings are not claimed GoNest accounts and are not GoNest-verified.</p>
+    <section className="mx-auto max-w-7xl px-5 py-9 md:px-8">
+      <div className="mb-5 flex flex-wrap items-end justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-widest text-blue-700">GoNest professionals</p><h2 className="mt-1 text-2xl font-extrabold text-slate-950">Verified agent profiles</h2><p className="mt-1 text-sm text-slate-600">Agent cards use the same image-led, responsive listing layout as property search.</p></div><span className="text-sm font-semibold text-slate-500">{registeredAgents.length} results</span></div>
+      {registeredAgents.length ? <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">{registeredAgents.map(a=><AgentListingCard key={a.id} agent={a}/>)}</div> : <p className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-600">No GoNest-verified agent profiles match these filters yet.</p>}
     </section>
 
     <section className="border-t border-slate-200 bg-slate-50">
-      <div className="mx-auto max-w-7xl px-5 py-10 md:px-8">
-        <div className="mb-6 flex flex-wrap items-end justify-between gap-3"><div><h2 className="text-2xl font-extrabold text-slate-950">GoNest-verified agent profiles</h2><p className="mt-1 text-sm text-slate-600">Profiles with verification details recorded by GoNest.</p></div><span className="text-sm font-semibold text-slate-500">{registeredAgents.length} agents</span></div>
-        {registeredAgents.length ? <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">{registeredAgents.map(a=><RegisteredAgentCard key={a.id} agent={a}/>)}</div> : <p className="rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-600">No GoNest-verified agent profiles match these filters yet.</p>}
+      <div className="mx-auto max-w-7xl px-5 py-9 md:px-8">
+        <div className="mb-5 flex flex-wrap items-end justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-widest text-slate-500">Local discovery</p><h2 className="mt-1 text-2xl font-extrabold text-slate-950">Public real estate businesses</h2><p className="mt-1 text-sm text-slate-600">Public directory profiles are not claimed GoNest accounts or verified agents.</p></div><span className="text-sm font-semibold text-slate-500">{publicAgencies.length} results</span></div>
+        {publicAgencies.length ? <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">{publicAgencies.map(agency=><PublicAgencyListingCard key={agency.name} agency={agency}/>)}</div> : <p className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-600">No public businesses match these filters.</p>}
         <div className="mt-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-blue-50 p-5"><div><h3 className="font-extrabold text-slate-950">Are you a property professional?</h3><p className="mt-1 text-sm text-slate-600">Create a GoNest profile and submit your details for review.</p></div><Link href="/dashboard" className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white">Create GoNest profile</Link></div>
       </div>
     </section>
-    {selectedAgency && <ContactForm agency={selectedAgency} onClose={()=>setSelectedAgency(null)}/>}
   </>;
 }

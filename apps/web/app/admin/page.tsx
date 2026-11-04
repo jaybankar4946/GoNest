@@ -4,11 +4,11 @@ import { useRouter } from 'next/navigation';
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
 import { useAuth } from '@/components/layout/AuthProvider';
-import { adminGetPendingBrokerages, adminGetSupplyFunnel, type SupplyFunnel, adminGetPendingListings, adminGetAllListings, adminGetBrokers, adminGetAllLeads, adminGetAllVisits, adminGetStats, adminModerate, adminToggleFeatured, adminVerifyAgent, adminSetRole, adminGetReports, adminResolveReport, adminGetAuditLog, adminGetFunnel, adminGetLaunchInventoryDashboard, adminGetPendingProjects, adminGetAllProjects, adminReviewSubmission, adminReviewProjectUnit } from '@/lib/api';
+import { adminGetPendingBrokerages, adminGetSupplyFunnel, type SupplyFunnel, adminGetPendingListings, adminGetAllListings, adminGetBrokers, adminGetAllLeads, adminGetAllVisits, adminGetStats, adminModerate, adminToggleFeatured, adminVerifyAgent, adminSetRole, adminGetReports, adminResolveReport, adminGetAuditLog, adminGetFunnel, adminGetLaunchInventoryDashboard, adminGetPendingProjects, adminGetAllProjects, adminReviewSubmission, adminReviewProjectUnit, adminGetBusinessEnquiries, adminUpdateBusinessEnquiry } from '@/lib/api';
 import { imgUrl } from '@/lib/api';
 import { supabase } from '@/lib/supabase';
 import { formatPrice, timeAgo } from '@/lib/format';
-const TABS=['queue','projects','agencies','listings','supply','brokers','leads','visits','reports','audit','funnel'] as const;
+const TABS=['queue','projects','agencies','listings','supply','brokers','leads','business-enquiries','visits','reports','audit','funnel'] as const;
 type Tab=typeof TABS[number];
 const SC: Record<string,string>={active:'#16A34A',pending_review:'#D97706',rejected:'#DC2626',draft:'#6B6B6B',archived:'#6B6B6B',new:'#2563EB',contacted:'#D97706',closed:'#16A34A',confirmed:'#16A34A',requested:'#D97706',completed:'#6B6B6B'};
 const SB=(c:string): React.CSSProperties=>({fontSize:11,fontWeight:500,padding:'3px 10px',borderRadius:9999,background:c+'18',color:c});
@@ -28,6 +28,8 @@ export default function AdminPage() {
   const[listings,setListings]=useState<any[]>([]);
   const[brokers,setBrokers]=useState<any[]>([]);
   const[leads,setLeads]=useState<any[]>([]);
+  const[businessEnquiries,setBusinessEnquiries]=useState<any[]>([]);
+  const[businessEnquiryNotes,setBusinessEnquiryNotes]=useState<Record<string,string>>({});
   const[visits,setVisits]=useState<any[]>([]);
   const[reports,setReports]=useState<any[]>([]);
   const[audit,setAudit]=useState<any[]>([]);
@@ -51,6 +53,7 @@ export default function AdminPage() {
     adminGetAllListings().then(setListings);
     adminGetBrokers().then(setBrokers);
     adminGetAllLeads().then(setLeads);
+    adminGetBusinessEnquiries().then(setBusinessEnquiries).catch(()=>setBusinessEnquiries([]));
     adminGetAllVisits().then(setVisits);
     adminGetReports().then(setReports);
     adminGetAuditLog().then(setAudit);
@@ -74,7 +77,7 @@ export default function AdminPage() {
           ))}
         </div>}
         <div style={{display:'flex',gap:4,marginBottom:28,flexWrap:'wrap'}}>
-          {TABS.map(t=><button key={t} onClick={()=>setTab(t)} style={TS(t)}>{t==='queue'?`Review queue (${queue.length})`:t==='reports'?`Reports (${reports.filter(r=>r.status==='open').length})`:t==='audit'?'Audit log':t==='supply'?'Launch inventory':t.charAt(0).toUpperCase()+t.slice(1)}</button>)}
+          {TABS.map(t=><button key={t} onClick={()=>setTab(t)} style={TS(t)}>{t==='queue'?`Review queue (${queue.length})`:t==='reports'?`Reports (${reports.filter(r=>r.status==='open').length})`:t==='audit'?'Audit log':t==='supply'?'Launch inventory':t==='business-enquiries'? `Business enquiries (${businessEnquiries.filter(e=>e.status==='new').length})`:t.charAt(0).toUpperCase()+t.slice(1)}</button>)}
         </div>
         {tab==='supply'&&(
           <section style={{display:'flex',flexDirection:'column',gap:18}}>
@@ -364,6 +367,34 @@ export default function AdminPage() {
                 {l.message&&<p style={{fontSize:12,color:'#3D3D3D'}}>{l.message}</p>}
                 <p style={{fontSize:11,color:'#9B9B9B',marginTop:4}}>{l.listing?.title} · {l.listing?.city?.name}</p>
               </div>
+            ))}
+          </div>
+        )}
+        {tab==='business-enquiries'&&(
+          <div style={{display:'flex',flexDirection:'column',gap:10}}>
+            {businessEnquiries.length===0&&<p style={{fontSize:14,color:'#6B6B6B'}}>No public business enquiries received yet.</p>}
+            {businessEnquiries.map((e:any)=>(
+              <article key={e.id} style={{padding:14,border:'1px solid #E5E5E5',borderRadius:12}}>
+                <div style={{display:'flex',justifyContent:'space-between',gap:12,flexWrap:'wrap'}}>
+                  <div><p style={{fontSize:14,fontWeight:700,color:'#111'}}>{e.requester_name} · {e.requester_phone}</p>
+                    <p style={{fontSize:12,color:'#555',marginTop:3}}>{e.agency_name} · {e.requirement}</p>
+                    <p style={{fontSize:11,color:'#888',marginTop:3}}>Ref: {e.reference} · {timeAgo(e.created_at)}</p>
+                  </div>
+                  <span style={SB(SC[e.status]??'#2563EB')}>{e.status}</span>
+                </div>
+                {e.requester_email&&<p style={{fontSize:12,color:'#555',marginTop:7}}>Email: {e.requester_email}</p>}
+                <p style={{fontSize:13,color:'#333',marginTop:8,whiteSpace:'pre-wrap'}}>{e.message}</p>
+                <p style={{fontSize:11,color:'#777',marginTop:7}}>Public profile · not claimed/verified · GoNest admin follow-up only</p>
+                {e.admin_notes&&<p style={{fontSize:12,color:'#666',marginTop:6}}>Admin note: {e.admin_notes}</p>}
+                <div style={{display:'flex',gap:7,flexWrap:'wrap',alignItems:'center',marginTop:10}}>
+                  <a href={`tel:${String(e.requester_phone).replace(/[^+0-9]/g,'')}`} style={{...BTN('#0F766E'),textDecoration:'none'}}>Call requester</a>
+                  {e.requester_email&&<a href={`mailto:${encodeURIComponent(e.requester_email)}?subject=${encodeURIComponent(`GoNest enquiry ${e.reference}`)}`} style={{...BTN('#0F766E'),textDecoration:'none'}}>Email requester</a>}
+                </div>
+                {e.status!=='closed'&&e.status!=='spam'&&<div style={{display:'flex',gap:7,flexWrap:'wrap',alignItems:'center',marginTop:10}}>
+                  <input aria-label="Business enquiry admin note" placeholder="Internal note (optional)" value={businessEnquiryNotes[e.id]??e.admin_notes??''} onChange={ev=>setBusinessEnquiryNotes(p=>({...p,[e.id]:ev.target.value}))} style={{...INP,width:240}}/>
+                  {(['contacted','closed','spam'] as const).map(status=><button key={status} disabled={busy} style={BTN(status==='spam'?'#B91C1C':status==='closed'?'#64748B':'#2563EB')} onClick={async()=>{setBusy(true);try{await adminUpdateBusinessEnquiry(e.id,status,businessEnquiryNotes[e.id]??e.admin_notes??'');setBusinessEnquiries(await adminGetBusinessEnquiries());}catch(err){alert((err as {message?:string})?.message??'Could not update enquiry.');}finally{setBusy(false);}}}>{status==='contacted'?'Mark contacted':status.charAt(0).toUpperCase()+status.slice(1)}</button>)}
+                </div>}
+              </article>
             ))}
           </div>
         )}

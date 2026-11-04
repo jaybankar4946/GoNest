@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
 import { THANE_TOP_AGENTS } from '@/lib/thane-agents';
+import { BusinessEnquiryForm } from './BusinessEnquiryForm';
 
 const slugify = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 type Props = { params: Promise<{ slug: string }> };
@@ -28,15 +29,7 @@ export default async function PublicBusinessProfile({ params }: Props) {
       <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-950 md:text-4xl">{agency.name}</h1>
       <p className="mt-2 text-sm font-semibold text-slate-600">{agency.area}, {agency.city}</p>
       <p className="mt-5 text-sm leading-7 text-slate-700">{agency.address}</p>
-      <form action="mailto:info@gonest.in" method="get" encType="text/plain" className="mt-7 grid gap-3 sm:grid-cols-2">
-        <input type="hidden" name="subject" value={`GoNest enquiry for ${agency.name}`}/>
-        <label className="text-sm font-semibold text-slate-700">Your name<input required name="name" className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2.5 font-normal" placeholder="Full name"/></label>
-        <label className="text-sm font-semibold text-slate-700">Phone number<input required name="phone" type="tel" className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2.5 font-normal" placeholder="Mobile number"/></label>
-        <label className="text-sm font-semibold text-slate-700 sm:col-span-2">Email<input name="email" type="email" className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2.5 font-normal" placeholder="you@example.com"/></label>
-        <label className="text-sm font-semibold text-slate-700 sm:col-span-2">Message<textarea required name="body" rows={4} defaultValue={`I would like to enquire about ${agency.name}.`} className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2.5 font-normal"/></label>
-        <button type="submit" className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700 sm:col-span-2">Contact via GoNest</button>
-      </form>
-      <p className="mt-4 text-xs leading-5 text-slate-500">This is a public business listing, not a claimed GoNest agent account. The contact form opens your default email app and sends the enquiry to GoNest; it does not directly message the agency.</p>
+      <BusinessEnquiryForm agency={{ name: agency.name, slug }} />
     </article>
   </main><Footer/></>;
 }
