@@ -4,9 +4,11 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import type { Profile } from '@/lib/types';
 import { THANE_TOP_AGENTS } from '@/lib/thane-agents';
-import { telHref, waHref } from '@/lib/contact';
+import { telHref } from '@/lib/contact';
 
-type Props = { agents: Profile[] };\n\nconst portraitFor = (id: string) => { const n = [...id].reduce((sum, char) => sum + char.charCodeAt(0), 0) % 90 + 1; return 'https://randomuser.me/api/portraits/' + (n % 2 ? 'women' : 'men') + '/' + n + '.jpg'; };
+type Props = { agents: Profile[] };
+
+const portraitFor = (id: string) => { const n = [...id].reduce((sum, char) => sum + char.charCodeAt(0), 0) % 90 + 1; return 'https://randomuser.me/api/portraits/' + (n % 2 ? 'women' : 'men') + '/' + n + '.jpg'; };
 
 const FAQ = [
   { q: 'How do I verify an agent’s MahaRERA registration?', a: 'Use the official MahaRERA portal to check the registration number and current status. A number displayed on GoNest should always be checked against the official register.' },
@@ -49,10 +51,9 @@ function AgentCard({ agent, top = false }: { agent: Profile; top?: boolean }) {
                 </div>
                 <div className="mt-auto p-4">
                   {agent.bio && <p className="mb-3 line-clamp-2 text-sm leading-6 text-slate-600">{agent.bio}</p>}
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 gap-2">
                     {agent.phone ? <a href={telHref(agent.phone)} className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-2 py-2.5 text-sm font-bold text-white hover:bg-blue-700">Call</a> : <Link href={`/agents/${agent.id}#contact`} className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-2 py-2.5 text-sm font-bold text-white">View contact</Link>}
-                    {agent.phone ? <a href={waHref(agent.phone, `Hi ${agent.full_name ?? ''}, I found your profile on GoNest and would like to enquire.`)} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-2 py-2.5 text-sm font-bold text-slate-700 hover:border-emerald-300 hover:bg-emerald-50">Message</a> : <Link href={`/agents/${agent.id}#contact`} className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-2 py-2.5 text-sm font-bold text-slate-700">Message</Link>}
-                    {(agent.total_listings ?? 0) > 0 ? <Link href={`/agents/${agent.id}#listings`} className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-2 py-2.5 text-sm font-bold text-slate-700 hover:border-blue-300 hover:bg-blue-50">Schedule visit</Link> : <span className="inline-flex items-center justify-center rounded-xl border border-slate-100 px-2 py-2.5 text-center text-xs font-medium text-slate-400">No active listings</span>}
+                    <Link href={`/agents/${agent.id}#contact-agent`} className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-2 py-2.5 text-sm font-bold text-slate-700 hover:border-blue-300 hover:bg-blue-50">Contact</Link>
                   </div>
                 </div>
               </article>
