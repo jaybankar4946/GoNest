@@ -4,43 +4,21 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import type { Profile } from '@/lib/types';
 import { THANE_TOP_AGENTS } from '@/lib/thane-agents';
+import { BusinessEnquiryForm } from './BusinessEnquiryForm';
 
 type Props = { agents: Profile[] };
 const cities = ['All Cities', 'Thane', 'Mumbai', 'Pune'];
 const serviceFilters = ['All Services', 'Buy', 'Sell', 'Rent'];
 
 function ContactForm({ agency, onClose }: { agency: string; onClose: () => void }) {
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('I would like to enquire about your real estate services.');
-  const [error, setError] = useState('');
-  function submit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!name.trim() || !phone.trim() || !message.trim()) {
-      setError('Please enter your name, phone number and message.');
-      return;
-    }
-    const subject = encodeURIComponent('GoNest enquiry for ' + agency);
-    const body = encodeURIComponent('Agency: ' + agency + '\nName: ' + name + '\nPhone: ' + phone + '\nEmail: ' + email + '\n\nMessage: ' + message);
-    window.location.href = 'mailto:info@gonest.in?subject=' + subject + '&body=' + body;
-  }
-  return <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/50 p-4" role="dialog" aria-modal="true" aria-label={'Contact ' + agency} onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-    <form onSubmit={submit} className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
-      <div className="flex items-start justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-wider text-blue-700">Contact agency</p><h2 className="mt-1 text-xl font-extrabold text-slate-950">{agency}</h2></div><button type="button" onClick={onClose} aria-label="Close" className="rounded-lg px-3 py-1 text-xl text-slate-500 hover:bg-slate-100">×</button></div>
-      <div className="mt-5 grid gap-3 sm:grid-cols-2">
-        <label className="text-sm font-semibold text-slate-700">Your name<input required value={name} onChange={e=>setName(e.target.value)} className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2.5 font-normal" placeholder="Full name"/></label>
-        <label className="text-sm font-semibold text-slate-700">Phone number<input required type="tel" value={phone} onChange={e=>setPhone(e.target.value)} className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2.5 font-normal" placeholder="Mobile number"/></label>
-        <label className="text-sm font-semibold text-slate-700 sm:col-span-2">Email (optional)<input type="email" value={email} onChange={e=>setEmail(e.target.value)} className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2.5 font-normal" placeholder="you@example.com"/></label>
-        <label className="text-sm font-semibold text-slate-700 sm:col-span-2">Your message<textarea required rows={4} value={message} onChange={e=>setMessage(e.target.value)} className="mt-1 w-full rounded-xl border border-slate-300 px-3 py-2.5 font-normal"/></label>
-      </div>
-      {error && <p role="alert" className="mt-3 text-sm text-red-600">{error}</p>}
-      <p className="mt-3 text-xs leading-5 text-slate-500">Send opens your default email app with this enquiry addressed to GoNest. It is not submitted to the agency directly.</p>
-      <div className="mt-5 flex justify-end gap-2"><button type="button" onClick={onClose} className="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-bold text-slate-700">Cancel</button><button type="submit" className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-blue-700">Send enquiry</button></div>
-    </form>
+  const slug = agency.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  return <div className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-slate-950/50 p-4" role="dialog" aria-modal="true" aria-label={'Contact ' + agency} onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+    <div className="my-auto w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
+      <div className="mb-4 flex justify-end"><button type="button" onClick={onClose} aria-label="Close" className="rounded-lg px-3 py-1 text-xl text-slate-500 hover:bg-slate-100">×</button></div>
+      <BusinessEnquiryForm agencyName={agency} agencySlug={slug} onClose={onClose} />
+    </div>
   </div>;
 }
-
 function RegisteredAgentCard({ agent }: { agent: Profile }) {
   return <article className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
     <div className="flex items-center gap-3"><div className="h-14 w-14 overflow-hidden rounded-full bg-slate-100">{agent.avatar_url ? <img src={agent.avatar_url} alt="" className="h-full w-full object-cover"/> : <div className="flex h-full items-center justify-center text-xl font-bold text-slate-500">{(agent.full_name ?? 'A').charAt(0)}</div>}</div><div className="min-w-0"><h3 className="font-extrabold text-slate-950">{agent.full_name ?? 'GoNest agent'}</h3><p className="text-sm text-slate-500">{agent.agency_name ?? 'Independent agent'}</p></div></div>
