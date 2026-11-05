@@ -79,6 +79,19 @@ function AuthInner() {
     }
   };
 
+  const resendCode = async () => {
+    clearMessage();
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.signInWithOtp({ email: email.trim().toLowerCase(), options: { shouldCreateUser: true } });
+      setMsg(error ? { type: 'err', text: messageFor(error) } : { type: 'ok', text: 'A new verification code has been sent. Check your inbox.' });
+    } catch {
+      setMsg({ type: 'err', text: 'We could not resend your code. Please try again.' });
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const verifyCode = async (event: React.FormEvent) => {
     event.preventDefault();
     clearMessage();
@@ -215,7 +228,7 @@ function AuthInner() {
             <button disabled={busy || code.replace(/\\D/g, '').length < 6} className={primary}>{busy ? 'Verifying…' : 'Verify and continue'}</button>
             <div className="flex items-center justify-between text-xs">
               <button type="button" onClick={backToEmail} className="font-semibold text-gray-600 hover:text-gray-900">Change email</button>
-              <button type="button" disabled={busy} onClick={sendCode as unknown as React.MouseEventHandler<HTMLButtonElement>} className="font-semibold text-blue-600 hover:underline disabled:opacity-50">Resend code</button>
+              <button type="button" disabled={busy} onClick={resendCode} className="font-semibold text-blue-600 hover:underline disabled:opacity-50">Resend code</button>
             </div>
           </form>
         )}
