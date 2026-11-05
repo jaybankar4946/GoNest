@@ -40,7 +40,7 @@ function AgentListingCard({ agent }: { agent: Profile }) {
 function PublicAgencyListingCard({ agency }: { agency: (typeof THANE_TOP_AGENTS)[number] }) {
   return <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
     <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200">
-      <div className="flex h-24 w-24 items-center justify-center rounded-3xl border border-white/80 bg-white text-3xl font-extrabold text-slate-600 shadow-sm">{agency.name.split(/\\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase()}</div>
+      {agency.imageUrl ? <img src={agency.imageUrl} alt={agency.name + ' business profile'} className="h-full w-full object-contain bg-white p-8"/> : <div className="flex h-24 w-24 items-center justify-center rounded-3xl border border-white/80 bg-white text-3xl font-extrabold text-slate-600 shadow-sm">{agency.name.split(/\\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase()}</div>}
       <span className="absolute bottom-3 left-3 rounded-lg bg-white/95 px-3 py-1.5 text-xs font-bold text-slate-900 shadow-sm">{agency.city} · {agency.area}</span>
     </div>
     <div className="flex flex-1 flex-col p-4 sm:p-5">
