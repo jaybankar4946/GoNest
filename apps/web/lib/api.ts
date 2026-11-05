@@ -1,5 +1,4 @@
 import { supabase } from './supabase';
-import { demoOnClient } from './demo';
 import type { ListingFull, City, Locality, Profile, Lead, Visit } from './types';
 
 export const imgUrl = (path: string) =>
@@ -26,7 +25,7 @@ export type SearchParams = {
 export async function searchListings(p: SearchParams = {}) {
   const page = p.page ?? 1;
   let q = supabase.from('listings').select(CARD, { count: 'exact' }).eq('status', 'active');
-  if (!demoOnClient()) q = q.eq('is_sample', false);
+  q = q.eq('is_sample', false);
   if (p.q) {
     // Search every meaningful token across property title, locality, city, landmark, address and PIN.
     // Applying each token as an OR group lets a query such as "Hiranandani Estate Thane 400607"
@@ -107,7 +106,7 @@ export async function getListingById(id: string, demo = false): Promise<ListingF
   if (!UUID_RE.test(id)) return null;
 
   let lq = supabase.from('listings').select(FULL).eq('id', id).eq('status', 'active');
-  if (!demo) lq = lq.eq('is_sample', false);
+  lq = lq.eq('is_sample', false);
   const { data, error } = await lq.maybeSingle();
   if (error) throw error;
   if (!data) return null;
@@ -127,7 +126,7 @@ export async function getSimilarListings(l: ListingFull, limit = 3, demo = false
     .eq('status', 'active').eq('city_id', l.city_id)
     .eq('purpose', l.purpose).eq('property_type', l.property_type)
     .neq('id', l.id);
-  if (!demo) sq = sq.eq('is_sample', false);
+  sq = sq.eq('is_sample', false);
   const { data } = await sq.limit(limit);
   return (data ?? []) as unknown as ListingFull[];
 }
@@ -341,11 +340,11 @@ export async function getPublicBrokerages() {
 
 export async function getAgents(): Promise<Profile[]> {
   const { data } = await supabase.from('profiles').select(PUBLIC_PROFILE)
-    .in('role', ['agent','owner']).order('created_at', { ascending: false });
+    .in('role', ['agent','owner']).eq('is_sample', false).order('created_at', { ascending: false });
   return (data ?? []) as Profile[];
 }
 export async function getAgentById(id: string): Promise<Profile | null> {
-  const { data } = await supabase.from('profiles').select(PUBLIC_PROFILE).eq('id', id).maybeSingle();
+  const { data } = await supabase.from('profiles').select(PUBLIC_PROFILE).eq('id', id).eq('is_sample', false).maybeSingle();
   return data as Profile | null;
 }
 export async function getAgentListings(agentId: string, limit = 24): Promise<ListingFull[]> {
@@ -426,7 +425,7 @@ export async function getHomeStats() {
   const [listings, verified, people, cities] = await Promise.all([
     n(supabase.from('listings').select('id', { count: 'exact', head: true }).eq('status', 'active').eq('is_sample', false)),
     n(supabase.from('listings').select('id', { count: 'exact', head: true }).eq('status', 'active').eq('is_sample', false).neq('verification_level', 'unverified')),
-    n(supabase.from('profiles').select('id', { count: 'exact', head: true }).in('role', ['agent', 'owner'])),
+    n(supabase.from('profiles').select('id', { count: 'exact', head: true }).in('role', ['agent', 'owner']).eq('is_sample', false)),
     n(supabase.from('cities').select('id', { count: 'exact', head: true }).eq('is_active', true)),
   ]);
   return { listings, verified, people, cities };
