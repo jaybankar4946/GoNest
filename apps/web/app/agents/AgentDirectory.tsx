@@ -76,6 +76,13 @@ export function AgentDirectory({ agents }: Props) {
           <select value={service} onChange={e=>setService(e.target.value)} className="min-h-12 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700">{serviceFilters.map(s=><option key={s}>{s}</option>)}</select>
           <select value={minRating} onChange={e=>setMinRating(e.target.value)} className="min-h-12 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700"><option>Any rating</option><option value="4">4.0+ public rating</option><option value="4.5">4.5+ public rating</option></select>
         </div>
+        <div className="mt-6 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
+          <div>
+            <h2 className="text-lg font-extrabold text-slate-950">Are you a property professional?</h2>
+            <p className="mt-1 text-sm leading-6 text-slate-600">Create a GoNest profile and submit your details for review.</p>
+          </div>
+          <Link href="https://gonest-l7x7j1a67-jackfink9663-hues-projects.vercel.app/dashboard" className="inline-flex shrink-0 items-center justify-center rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700">Create GoNest profile</Link>
+        </div>
       </div>
     </section>
 
@@ -89,17 +96,6 @@ export function AgentDirectory({ agents }: Props) {
       <p className="mt-4 text-xs text-slate-500">Public business listings are not claimed GoNest accounts and are not GoNest-verified.</p>
     </section>
 
-    <section className="border-t border-slate-200 bg-slate-50">
-      <div className="mx-auto max-w-7xl px-5 py-10 md:px-8">
-        <div className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-8">
-          <div>
-            <h2 className="text-xl font-extrabold text-slate-950">Are you a property professional?</h2>
-            <p className="mt-1 text-sm leading-6 text-slate-600">Create a GoNest profile and submit your details for review.</p>
-          </div>
-          <Link href="https://gonest.in/dashboard" className="inline-flex shrink-0 items-center justify-center rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700">Create GoNest profile</Link>
-        </div>
-      </div>
-    </section>
     {selectedAgency && <ContactForm agency={selectedAgency} onClose={()=>setSelectedAgency(null)}/>}
   </>;
 }
