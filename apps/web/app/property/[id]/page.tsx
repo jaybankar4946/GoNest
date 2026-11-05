@@ -17,6 +17,7 @@ import { ImageCarousel } from '@/components/property/ImageCarousel';
 import { ContactForms } from './ContactForms';
 import { EMICalculator } from '@/components/transaction/EMICalculator';
 import { DocumentChecklist } from '@/components/transaction/DocumentChecklist';
+import { ListingDecisionPanel } from '@/components/property/ListingDecisionPanel';
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { DEMO_COOKIE } from '@/lib/demo';
@@ -80,6 +81,20 @@ export default async function PropertyPage({ params }: { params: Promise<{id:str
             </div>
             <p style={{fontSize:12,color:'#6B7280',marginBottom:18}}>Listed {timeAgo(l.published_at??l.created_at)} · {l.view_count} views · {l.saved_count??0} saves · Updated {timeAgo(l.updated_at)}{emiEst?<> · *Estimate with 20% down, 8.5% for 20 years. Adjust in the payment calculator.</>:null}</p>
             <DecisionSummary l={l} emi={emiEst}/>
+            <ListingDecisionPanel
+              kind={l.purpose === 'rent' ? 'rent' : 'sale'}
+              title={l.title}
+              price={l.price}
+              areaSqft={l.carpet_area ?? l.sqft}
+              bedrooms={l.bedrooms}
+              maintenance={l.maintenance_monthly}
+              deposit={l.security_deposit}
+              brokerage={l.brokerage}
+              verified={l.verification_level === 'verified' || l.verification_level === 'platform_verified'}
+              availabilityVerified={false}
+              observedAt={l.updated_at}
+              comparables={similar.map(item => ({ price: item.price, areaSqft: item.carpet_area ?? item.sqft }))}
+            />
             {/* Specs */}
             {specs.length>0&&(
               <div style={{display:'flex',flexWrap:'wrap',gap:8,paddingBottom:20,borderBottom:'1px solid #E5E7EB',marginBottom:20}}>

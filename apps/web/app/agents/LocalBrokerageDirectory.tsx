@@ -31,9 +31,9 @@ export function LocalBrokerageDirectory({ brokerages }: { brokerages: PublicBrok
               {b.public_business_address && <p className="mt-3 text-sm leading-5 text-slate-600">{b.public_business_address}</p>}
               <div className="mt-4 flex flex-wrap gap-2">
                 {b.public_business_phone && <a href={'tel:' + b.public_business_phone.replace(/[^\d+]/g, '')} className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-bold text-white hover:bg-blue-700">Call business</a>}
-                {b.public_enquiry_url && <a href={b.public_enquiry_url} target="_blank" rel="noreferrer" className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-bold text-slate-800 hover:border-blue-400">View source ↗</a>}
+                {b.public_enquiry_url && <a href={b.public_enquiry_url} target="_blank" rel="noreferrer" className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-bold text-slate-800 hover:border-blue-400">Message</a>}
               </div>
-              {b.source_url && <p className="mt-3 text-xs text-slate-500">Source: <a className="underline" href={b.source_url} target="_blank" rel="noreferrer">public business listing</a></p>}
+              
             </article>
           ))}
         </div>
