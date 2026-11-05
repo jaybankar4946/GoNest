@@ -15,6 +15,7 @@ const hhmm = (t: string) => String(t ?? '').slice(0, 5);
 
 export function Overview({ role, profile, listings, leads, visits, busy, onGo, onLeadStatus, onVisitStatus }: Props) {
   const isAgent = role === 'agent';
+  const isOwner = role === 'owner';
   const active = listings.filter(l => l.status === 'active');
   const pending = listings.filter(l => l.status === 'pending_review');
   const rejected = listings.filter(l => l.status === 'rejected');
@@ -45,6 +46,14 @@ export function Overview({ role, profile, listings, leads, visits, busy, onGo, o
 
   const checks: [string, boolean][] = [['Add your full name', !!profile?.full_name], ['Add your phone number', !!profile?.phone], ['Add your agency name', !!profile?.agency_name], ['Add your RERA number', !!profile?.rera_number], ['GoNest verification', !!profile?.agent_verified]];
   const done = checks.filter(c => c[1]).length;
+  const ownerChecks: [string, boolean][] = [
+    ['Add your full name', !!profile?.full_name],
+    ['Add your phone number', !!profile?.phone],
+    ['Create your first property listing', listings.length > 0],
+    ['Publish at least one property', active.length > 0],
+    ['Add photos to a property', listings.some(l => (l.listing_images ?? []).length > 0)],
+  ];
+  const ownerDone = ownerChecks.filter(c => c[1]).length;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
@@ -130,6 +139,14 @@ export function Overview({ role, profile, listings, leads, visits, busy, onGo, o
           {checks.map(([t, ok]) => (<div key={t} style={{ fontSize: 13, color: ok ? '#065F46' : '#6B7280', padding: '3px 0' }}>{ok ? '✓' : '○'} {t}</div>))}
           <p style={{ fontSize: 12, color: '#6B7280', marginTop: 8 }}>A complete profile with a RERA number builds buyer trust.</p>
         </section></>)}
+      {isOwner && (
+        <section style={{ ...card, padding: 18 }}>
+          <h2 style={h2}>Your owner profile · {ownerDone}/{ownerChecks.length}</h2>
+          <div style={{ background: '#F3F4F6', borderRadius: 6, height: 8, overflow: 'hidden', marginBottom: 12 }}><div style={{ width: `${(ownerDone / ownerChecks.length) * 100}%`, height: '100%', background: '#16A34A' }} /></div>
+          {ownerChecks.map(([t, ok]) => (<div key={t} style={{ fontSize: 13, color: ok ? '#065F46' : '#6B7280', padding: '3px 0' }}>{ok ? '✓' : '○'} {t}</div>))}
+          <p style={{ fontSize: 12, color: '#6B7280', marginTop: 8 }}>Complete your owner details and keep property information and photos current so customers can make informed enquiries.</p>
+        </section>
+      )}
     </div>
   );
 }

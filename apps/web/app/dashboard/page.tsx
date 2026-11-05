@@ -47,7 +47,7 @@ export default function DashboardPage() {
       <Nav/>
       <main style={{maxWidth:1000,margin:'0 auto',padding:'40px 24px 80px'}}>
         <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:32}}>
-          <div><h1 style={{fontSize:22,fontWeight:700,color:'#111',letterSpacing:'-0.02em',marginBottom:4}}>Account</h1><p style={{fontSize:13,color:'#6B6B6B'}}>{user?.email} · {profile?.role??'buyer'}</p></div>
+          <div><h1 style={{fontSize:22,fontWeight:700,color:'#111',letterSpacing:'-0.02em',marginBottom:4}}>{profile?.role==='agent'?'Agent workspace':profile?.role==='owner'?'Owner dashboard':profile?.role==='builder'?'Builder workspace':'Account'}</h1><p style={{fontSize:13,color:'#6B6B6B'}}>{user?.email} · {profile?.role??'buyer'}</p></div>
           <div style={{display:'flex',gap:8}}>
             {canPost&&<Link href="/dashboard/new" style={{padding:'8px 18px',borderRadius:9999,fontSize:13,fontWeight:600,color:'#fff',background:'var(--primary)',display:'inline-flex',alignItems:'center',gap:6}}>+ New listing</Link>}
             {(profile?.role==='builder'||profile?.role==='agent')&&<Link href="/dashboard/supply" style={{padding:'8px 18px',borderRadius:9999,fontSize:13,fontWeight:600,color:'#fff',background:'#111',display:'inline-flex',alignItems:'center'}}>{profile?.role==='builder'?'Submit a project':'Agency profile'}</Link>}{profile?.role==='builder'&&<Link href="/dashboard/project-enquiries" style={{padding:'8px 18px',borderRadius:9999,fontSize:13,fontWeight:600,color:'#1D4ED8',border:'1px solid #BFDBFE',background:'#EFF6FF',display:'inline-flex',alignItems:'center'}}>Project enquiries</Link>}
