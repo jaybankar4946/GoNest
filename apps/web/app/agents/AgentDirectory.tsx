@@ -41,7 +41,6 @@ function PublicAgencyListingCard({ agency }: { agency: (typeof THANE_TOP_AGENTS)
   return <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
     <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200">
       <div className="flex h-24 w-24 items-center justify-center rounded-3xl border border-white/80 bg-white text-3xl font-extrabold text-slate-600 shadow-sm">{agency.name.split(/\\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase()}</div>
-      <span className="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-bold text-slate-700 shadow-sm">Public business listing</span>
       <span className="absolute bottom-3 left-3 rounded-lg bg-white/95 px-3 py-1.5 text-xs font-bold text-slate-900 shadow-sm">{agency.city} · {agency.area}</span>
     </div>
     <div className="flex flex-1 flex-col p-4 sm:p-5">
@@ -49,7 +48,10 @@ function PublicAgencyListingCard({ agency }: { agency: (typeof THANE_TOP_AGENTS)
       <p className="mt-2 text-sm leading-5 text-slate-600">{agency.address}</p>
       {agency.rating != null && <p className="mt-2 text-sm font-bold text-slate-900">★{agency.rating.toFixed(1)} <span className="font-normal text-slate-500">({agency.publicReviewCount?.toLocaleString('en-IN')} public reviews)</span></p>}
       {agency.businessType && <p className="mt-3 text-sm font-medium text-slate-700">{agency.businessType}</p>}
-      {agency.services?.length ? <div className="mt-3 flex flex-wrap gap-2">{agency.services.map(item=><span key={item} className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-800">{item}</span>)}</div> : null}
+      {agency.services?.length ? <p className="mt-3 text-sm font-bold text-slate-900">{agency.services.join(' · ')}</p> : null}
+      {agency.phone && <a href={'tel:' + agency.phone.replace(/[^+\\d]/g, '')} className="mt-3 inline-flex text-sm font-semibold text-blue-700 hover:underline">Call {agency.phone}</a>}
+      {agency.websiteUrl && <a href={agency.websiteUrl} target="_blank" rel="noreferrer" className="mt-2 inline-flex text-sm font-semibold text-blue-700 hover:underline">Official website</a>}
+      <a href={'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(agency.mapQuery)} target="_blank" rel="noreferrer" className="mt-2 inline-flex text-sm font-semibold text-slate-600 hover:underline">Directions & business details</a>
       <div className="mt-auto pt-5"><Link href={`/agents/business/${agencySlug(agency.name)}`} className="inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-sm font-bold text-white hover:bg-blue-700">View business profile</Link></div>
     </div>
   </article>;
