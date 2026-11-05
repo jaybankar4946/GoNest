@@ -7,7 +7,7 @@ import type { Provider } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 
 type Tab = 'signin' | 'signup';
-type Method = 'password' | 'link' | 'google';
+type Method = 'password' | 'otp' | 'google';
 type Msg = { type: 'ok' | 'err'; text: string };
 
 // Social / phone methods are switched on with env vars once configured in Supabase (see .env.local.example)
@@ -42,6 +42,8 @@ function AuthInner() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [pass, setPass] = useState('');
+  const [otp, setOtp] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<Msg | null>(null);
@@ -50,7 +52,7 @@ function AuthInner() {
   useEffect(() => { supabase.auth.getSession().then(({ data }) => { if (data.session) router.replace(next); }); }, [router, next]);
 
   const origin = () => window.location.origin;
-  const reset = () => { setMsg(null); setNeedsConfirm(false); };
+  const reset = () => { setMsg(null); setNeedsConfirm(false); setOtp(''); setOtpSent(false); };
   const fail = (err: { message?: string; status?: number } | null) => setMsg({ type: 'err', text: explain(err) });
 
   const submitPassword = async (e: React.FormEvent) => {
@@ -81,11 +83,31 @@ function AuthInner() {
     setMsg(error ? { type: 'err', text: explain(error) } : { type: 'ok', text: 'Confirmation email sent again. Check your inbox and spam folder.' });
   };
 
-  const sendLink = async (e: React.FormEvent) => {
-    e.preventDefault(); reset(); setBusy(true);
-    const { error } = await supabase.auth.signInWithOtp({ email: email.trim(), options: { emailRedirectTo: origin() + next, shouldCreateUser: true, data: name.trim() ? { full_name: name.trim() } : undefined } });
-    setBusy(false);
-    if (error) fail(error); else setMsg({ type: 'ok', text: `We emailed a sign-in link to ${email.trim()}. It works on this device or any other.` });
+  const sendOtp = async (e: React.FormEvent) => {
+    e.preventDefault(); reset();
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail) return setMsg({ type: 'err', text: 'Enter your email address first.' });
+    if (tab === 'signup' && name.trim().length < 2) return setMsg({ type: 'err', text: 'Please enter your full name.' });
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email: normalizedEmail,
+        options: { shouldCreateUser: tab === 'signup', data: tab === 'signup' ? { full_name: name.trim() } : undefined },
+      });
+      if (error) fail(error);
+      else { setOtpSent(true); setMsg({ type: 'ok', text: `A 6-digit verification code has been sent to ${normalizedEmail}.` }); }
+    } finally { setBusy(false); }
+  };
+
+  const verifyEmailOtp = async (e: React.FormEvent) => {
+    e.preventDefault(); setMsg(null);
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!/^\\d{6}$/.test(otp.trim())) return setMsg({ type: 'err', text: 'Enter the 6-digit code from your email.' });
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.verifyOtp({ email: normalizedEmail, token: otp.trim(), type: 'email' });
+      if (error) fail(error); else router.replace(next);
+    } finally { setBusy(false); }
   };
 
   const oauth = async (provider: Provider) => {
@@ -123,7 +145,7 @@ function AuthInner() {
     }
   };
 
-  const methods: { id: Method; label: string }[] = [{ id: 'password', label: 'Email + password' }, { id: 'link', label: 'Email link' }, { id: 'google', label: 'Google' }];
+  const methods: { id: Method; label: string }[] = [{ id: 'otp', label: 'Email OTP' }, { id: 'password', label: 'Email + password' }, { id: 'google', label: 'Google' }];
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
@@ -157,12 +179,14 @@ function AuthInner() {
           </form>
         )}
 
-        {method === 'link' && (
-          <form onSubmit={sendLink} className="flex flex-col gap-3">
-            {tab === 'signup' && <input autoComplete="name" aria-label="Full name" placeholder="Full name (optional)" value={name} onChange={e => setName(e.target.value)} className={field} />}
-            <input required type="email" autoComplete="email" aria-label="Email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className={field} />
-            <button disabled={busy} className={primary}>{busy ? 'Sending…' : 'Email me a sign-in link'}</button>
-            <p className="text-xs text-gray-500">No password needed. We email you a secure one-time link. You can use it to sign in or create an account.</p>
+        {method === 'otp' && (
+          <form onSubmit={otpSent ? verifyEmailOtp : sendOtp} className="flex flex-col gap-3">
+            {tab === 'signup' && !otpSent && <input required autoComplete="name" aria-label="Full name" placeholder="Full name" value={name} onChange={e => setName(e.target.value)} className={field} />}
+            <input required type="email" autoComplete="email" aria-label="Email" placeholder="Email address" value={email} onChange={e => setEmail(e.target.value)} disabled={otpSent} className={field} />
+            {otpSent && <input required inputMode="numeric" autoComplete="one-time-code" aria-label="Email verification code" placeholder="6-digit code" value={otp} onChange={e => setOtp(e.target.value.replace(/\\D/g, '').slice(0, 6))} maxLength={6} className={field + ' text-center tracking-[0.35em] text-lg font-bold'} />}
+            <button disabled={busy} className={primary}>{busy ? 'Please wait…' : otpSent ? 'Verify code & continue' : 'Send email code'}</button>
+            {otpSent && <button type="button" disabled={busy} onClick={() => { setOtpSent(false); setOtp(''); setMsg(null); }} className="text-xs font-semibold text-blue-600 hover:underline">Use a different email</button>}
+            <p className="text-xs text-gray-500">{otpSent ? 'Enter the one-time code sent to your inbox.' : 'We’ll email you a one-time verification code. No password needed.'}</p>
           </form>
         )}
 
