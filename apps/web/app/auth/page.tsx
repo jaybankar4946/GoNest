@@ -44,6 +44,7 @@ function AuthInner() {
   const [pass, setPass] = useState('');
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
+  const [signupCode, setSignupCode] = useState('');
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<Msg | null>(null);
@@ -52,7 +53,7 @@ function AuthInner() {
   useEffect(() => { supabase.auth.getSession().then(({ data }) => { if (data.session) router.replace(next); }); }, [router, next]);
 
   const origin = () => window.location.origin;
-  const reset = () => { setMsg(null); setNeedsConfirm(false); setOtp(''); setOtpSent(false); };
+  const reset = () => { setMsg(null); setNeedsConfirm(false); setOtp(''); setOtpSent(false); setSignupCode(''); };
   const fail = (err: { message?: string; status?: number } | null) => setMsg({ type: 'err', text: explain(err) });
 
   const submitPassword = async (e: React.FormEvent) => {
@@ -71,8 +72,18 @@ function AuthInner() {
         if (error) fail(error);
         else if (data.session) router.replace(next);
         else if (data.user && (data.user.identities?.length ?? 0) === 0) setMsg({ type: 'err', text: 'An account with this email already exists. Try signing in, or reset your password.' });
-        else { setNeedsConfirm(true); setMsg({ type: 'ok', text: `We sent a confirmation link to ${email.trim()}. Open it to finish creating your account.` }); }
+        else { setNeedsConfirm(true); setMsg({ type: 'ok', text: `We sent a verification code to ${email.trim()}. Enter the code below to finish creating your account.` }); }
       }
+    } finally { setBusy(false); }
+  };
+
+  const verifySignupCode = async (e: React.FormEvent) => {
+    e.preventDefault(); setMsg(null);
+    if (!/^\\d{6}$/.test(signupCode.trim())) return setMsg({ type: 'err', text: 'Enter the 6-digit code from your email.' });
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.verifyOtp({ email: email.trim().toLowerCase(), token: signupCode.trim(), type: 'signup' });
+      if (error) fail(error); else router.replace(next);
     } finally { setBusy(false); }
   };
 
@@ -166,7 +177,14 @@ function AuthInner() {
           ))}
         </div>
 
-        {method === 'password' && (
+        {method === 'password' && tab === 'signup' && needsConfirm ? (
+          <form onSubmit={verifySignupCode} className="flex flex-col gap-3">
+            <input required type="email" autoComplete="email" aria-label="Email" value={email} disabled className={field} />
+            <input required inputMode="numeric" autoComplete="one-time-code" aria-label="Email verification code" placeholder="6-digit email code" value={signupCode} onChange={e => setSignupCode(e.target.value.replace(/\\D/g, '').slice(0, 6))} maxLength={6} className={field + ' text-center tracking-[0.35em] text-lg font-bold'} />
+            <button disabled={busy} className={primary}>{busy ? 'Verifying…' : 'Verify email & create account'}</button>
+            <button type="button" onClick={resend} disabled={busy} className="text-xs font-semibold text-blue-600 hover:underline">Resend verification code</button>
+          </form>
+        ) : method === 'password' && (
           <form onSubmit={submitPassword} className="flex flex-col gap-3">
             {tab === 'signup' && <input required autoComplete="name" aria-label="Full name" placeholder="Full name" value={name} onChange={e => setName(e.target.value)} className={field} />}
             <input required type="email" autoComplete="email" aria-label="Email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className={field} />
@@ -193,7 +211,7 @@ function AuthInner() {
 
         <div aria-live="polite">
           {msg && <div className={`mt-4 text-sm px-4 py-3 rounded-xl ${msg.type === 'ok' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>{msg.text}</div>}
-          {needsConfirm && email && <button onClick={resend} disabled={busy} className="mt-3 text-xs font-semibold text-blue-600 hover:underline disabled:opacity-60">Resend confirmation email</button>}
+
         </div>
 
         <p className="text-xs text-gray-400 mt-6 leading-relaxed">By continuing you agree to GoNest&apos;s <Link href="/terms" className="underline">Terms of Use</Link> and <Link href="/privacy" className="underline">Privacy Policy</Link>.</p>
