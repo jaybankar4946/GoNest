@@ -4,7 +4,6 @@ import { Footer } from '@/components/layout/Footer';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { getAgentById, getAgentListings } from '@/lib/api';
 import { telHref, waHref } from '@/lib/contact';
-import { ScheduleVisit } from '@/components/property/ScheduleVisit';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { AgentContactForm } from './AgentContactForm';
@@ -64,15 +63,6 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ i
               <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{listings.map((listing) => (
                 <article key={listing.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
                   <PropertyCard listing={listing} />
-                  <details className="border-t border-slate-100">
-                    <summary className="cursor-pointer list-none px-5 py-4 text-sm font-extrabold text-blue-700 hover:bg-blue-50">
-                      Schedule visit · Check booking window <span className="float-right" aria-hidden="true">＋</span>
-                    </summary>
-                    <div className="border-t border-slate-100 bg-slate-50">
-                      <div className="px-4 pt-4 text-xs leading-5 text-slate-600">Choose an available date and time for this property. Your request remains pending until the agent confirms it. Slots already requested or confirmed are unavailable.</div>
-                      <ScheduleVisit listingId={listing.id} prefill={{ name: '', phone: '', email: '' }} />
-                    </div>
-                  </details>
                 </article>
               ))}</div>
             </>
