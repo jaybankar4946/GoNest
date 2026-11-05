@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
+import { AdminOnlyContent } from '@/components/layout/AdminOnlyContent';
 import { BrainCircuit, Home, KeyRound, Building2, ArrowRight, Calculator, ShieldCheck } from 'lucide-react';
 
 const journeys = [
@@ -15,7 +16,7 @@ export const metadata = {
 };
 
 export default function HomeFinderPage() {
-  return <><Nav /><main className="min-h-screen bg-slate-50">
+  return <><Nav /><AdminOnlyContent><main className="min-h-screen bg-slate-50">
     <section className="bg-slate-950 px-5 py-16 text-white sm:py-20"><div className="mx-auto max-w-6xl">
       <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-blue-200"><BrainCircuit size={18}/> GoNest Home Finder Intelligence</div>
       <h1 className="mt-4 max-w-3xl text-4xl font-extrabold tracking-tight sm:text-5xl">Find a home. Understand the real cost. Decide with confidence.</h1>
@@ -27,5 +28,5 @@ export default function HomeFinderPage() {
       <div className="grid gap-5 md:grid-cols-3">{journeys.map(({title,href,description,Icon})=><Link key={href} href={href} className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-blue-300 hover:shadow-md"><span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-700"><Icon size={22}/></span><h3 className="mt-5 text-lg font-extrabold text-slate-950">{title}</h3><p className="mt-2 min-h-20 text-sm leading-6 text-slate-600">{description}</p><span className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-blue-700">Explore listings <ArrowRight size={16}/></span></Link>)}</div>
       <div className="mt-8 grid gap-4 rounded-2xl border border-slate-200 bg-white p-6 sm:grid-cols-2"><div className="flex gap-3"><ShieldCheck className="mt-1 shrink-0 text-emerald-700" size={20}/><div><h3 className="font-bold text-slate-900">Transparent listing signals</h3><p className="mt-1 text-sm leading-6 text-slate-600">Verification and availability are shown only when supported by recorded GoNest information. Always reconfirm details with the listing poster.</p></div></div><div className="flex gap-3"><Calculator className="mt-1 shrink-0 text-blue-700" size={20}/><div><h3 className="font-bold text-slate-900">Editable decision assumptions</h3><p className="mt-1 text-sm leading-6 text-slate-600">Model costs using your own price, loan, deposit and fee assumptions. Estimates are planning aids, not valuations or financial approvals.</p></div></div></div>
     </section>
-  </main><Footer /></>;
+  </main></AdminOnlyContent><Footer /></>;
 }
