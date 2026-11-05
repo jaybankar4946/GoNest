@@ -1,7 +1,6 @@
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
-import { getAgents, getPublicBrokerages } from '@/lib/api';
-import { LocalBrokerageDirectory } from './LocalBrokerageDirectory';
+import { getAgents } from '@/lib/api';
 import { AgentDirectory } from './AgentDirectory';
 import type { Metadata } from 'next';
 
@@ -12,14 +11,13 @@ export const metadata: Metadata = {
 };
 
 export default async function AgentsPage() {
-  const [agents, brokerages] = await Promise.all([getAgents(), getPublicBrokerages()]);
+  const agents = await getAgents();
 
   return (
     <>
       <Nav />
       <main>
         <AgentDirectory agents={agents} />
-        <LocalBrokerageDirectory brokerages={brokerages} />
       </main>
       <Footer />
     </>
