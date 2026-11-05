@@ -31,8 +31,7 @@ export async function generateMetadata({ params }: { params: Promise<{id:string}
 
 export default async function PropertyPage({ params }: { params: Promise<{id:string}> }) {
   const{id}=await params;
-  const demo=(await cookies()).get(DEMO_COOKIE)?.value==='1';
-  const l=await getListingById(id,demo);
+  const l=await getListingById(id,false);
   if(!l)notFound();
   const [similar,history]=await Promise.all([getSimilarListings(l,3,false),getPriceHistory(l.id)]);
   const ppsf=l.purpose==='sale'&&l.sqft?Math.round(l.price/l.sqft):null;
