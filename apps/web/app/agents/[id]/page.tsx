@@ -68,7 +68,7 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ i
             </>
           )}
         </section>
-        <AgentContactForm agentName={agent.full_name ?? 'this professional'} phone={agent.phone ?? null} />
+        <AgentContactForm agentName={agent.full_name ?? 'this professional'} agentSlug={id} agencyName={agent.agency_name ?? null} />
       </main>
       <Footer />
     </>
