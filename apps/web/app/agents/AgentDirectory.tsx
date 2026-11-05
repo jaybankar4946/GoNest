@@ -47,11 +47,9 @@ function PublicAgencyListingCard({ agency }: { agency: (typeof THANE_TOP_AGENTS)
     <div className="flex flex-1 flex-col p-4 sm:p-5">
       <h3 className="text-lg font-extrabold text-slate-950">{agency.name}</h3>
       <p className="mt-2 text-sm leading-5 text-slate-600">{agency.address}</p>
-      {agency.rating != null && <p className="mt-2 text-sm font-bold text-slate-900">★ {agency.rating.toFixed(1)} <span className="font-normal text-slate-500">({agency.publicReviewCount?.toLocaleString('en-IN')} public reviews)</span></p>}
+      {agency.rating != null && <p className="mt-2 text-sm font-bold text-slate-900">★{agency.rating.toFixed(1)} <span className="font-normal text-slate-500">({agency.publicReviewCount?.toLocaleString('en-IN')} public reviews)</span></p>}
       {agency.businessType && <p className="mt-3 text-sm font-medium text-slate-700">{agency.businessType}</p>}
       {agency.services?.length ? <div className="mt-3 flex flex-wrap gap-2">{agency.services.map(item=><span key={item} className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-800">{item}</span>)}</div> : null}
-      {agency.rating != null && <p className="mt-3 text-xs leading-5 text-slate-500">Public rating and review count; these are not GoNest reviews or an independent GoNest endorsement.</p>}
-      <p className="mt-3 text-xs leading-5 text-slate-500">Public directory information. Not claimed or verified by GoNest.</p>
       <div className="mt-auto pt-5"><Link href={`/agents/business/${agencySlug(agency.name)}`} className="inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-sm font-bold text-white hover:bg-blue-700">View business profile</Link></div>
     </div>
   </article>;
@@ -65,7 +63,7 @@ export function AgentDirectory({ agents }: Props) {
   const publicAgencies = useMemo(() => THANE_TOP_AGENTS.filter(a =>
     (city === 'All Cities' || a.city === city) &&
     (service === 'All Services' || (a.services ?? []).includes(service)) &&
-    (minRating === 'Any rating' || (a.rating ?? 0) >= Number(minRating)) &&
+    (minRating === 'Any rating' || (a.rating != null && a.rating >= Number(minRating))) &&
     (a.name + ' ' + a.city + ' ' + a.area + ' ' + a.address + ' ' + (a.services ?? []).join(' ') + ' ' + (a.businessType ?? '')).toLowerCase().includes(search.toLowerCase().trim())
   ), [city, service, minRating, search]);
   const registeredAgents = useMemo(() => agents.filter(a => a.role === 'agent' && a.agent_verified && Boolean(a.rera_number) && (city === 'All Cities' || [...(a.service_localities ?? []), ...(a.service_pincodes ?? [])].join(' ').toLowerCase().includes(city.toLowerCase())) && (!search.trim() || [a.full_name, a.agency_name, a.bio, a.rera_number, ...(a.service_localities ?? [])].filter(Boolean).join(' ').toLowerCase().includes(search.toLowerCase().trim()))), [agents, city, search]);
