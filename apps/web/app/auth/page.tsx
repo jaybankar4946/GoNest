@@ -2,7 +2,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft, Mail, Phone, Chrome, ArrowLeft } from 'lucide-react';
+import { ChevronLeft, Mail, Phone, ArrowLeft } from 'lucide-react';
 import type { Provider } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 
@@ -163,7 +163,7 @@ function AuthInner() {
             onClick={() => void oauth()}
             className="w-full flex items-center justify-center gap-3 py-3.5 rounded-xl border border-gray-300 bg-white text-sm font-semibold text-gray-800 hover:bg-gray-50 disabled:opacity-60 transition-colors"
           >
-            <Chrome size={18} /> Continue with Google
+            <span className="font-bold text-base leading-none">G</span> Continue with Google
           </button>
 
           <div className="grid grid-cols-2 gap-2">
