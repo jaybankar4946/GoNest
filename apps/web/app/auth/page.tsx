@@ -79,7 +79,7 @@ function AuthInner() {
 
   const verifySignupCode = async (e: React.FormEvent) => {
     e.preventDefault(); setMsg(null);
-    if (!/^\\d{6}$/.test(signupCode.trim())) return setMsg({ type: 'err', text: 'Enter the 6-digit code from your email.' });
+    if (!/^\d{6}$/.test(signupCode.trim())) return setMsg({ type: 'err', text: 'Enter the 6-digit code from your email.' });
     setBusy(true);
     try {
       const { error } = await supabase.auth.verifyOtp({ email: email.trim().toLowerCase(), token: signupCode.trim(), type: 'signup' });
@@ -113,7 +113,7 @@ function AuthInner() {
   const verifyEmailOtp = async (e: React.FormEvent) => {
     e.preventDefault(); setMsg(null);
     const normalizedEmail = email.trim().toLowerCase();
-    if (!/^\\d{6}$/.test(otp.trim())) return setMsg({ type: 'err', text: 'Enter the 6-digit code from your email.' });
+    if (!/^\d{6}$/.test(otp.trim())) return setMsg({ type: 'err', text: 'Enter the 6-digit code from your email.' });
     setBusy(true);
     try {
       const { error } = await supabase.auth.verifyOtp({ email: normalizedEmail, token: otp.trim(), type: 'email' });
@@ -180,7 +180,7 @@ function AuthInner() {
         {method === 'password' && tab === 'signup' && needsConfirm ? (
           <form onSubmit={verifySignupCode} className="flex flex-col gap-3">
             <input required type="email" autoComplete="email" aria-label="Email" value={email} disabled className={field} />
-            <input required inputMode="numeric" autoComplete="one-time-code" aria-label="Email verification code" placeholder="6-digit email code" value={signupCode} onChange={e => setSignupCode(e.target.value.replace(/\\D/g, '').slice(0, 6))} maxLength={6} className={field + ' text-center tracking-[0.35em] text-lg font-bold'} />
+            <input required inputMode="numeric" autoComplete="one-time-code" aria-label="Email verification code" placeholder="6-digit email code" value={signupCode} onChange={e => setSignupCode(e.target.value.replace(/\D/g, '').slice(0, 6))} maxLength={6} className={field + ' text-center tracking-[0.35em] text-lg font-bold'} />
             <button disabled={busy} className={primary}>{busy ? 'Verifying…' : 'Verify email & create account'}</button>
             <button type="button" onClick={resend} disabled={busy} className="text-xs font-semibold text-blue-600 hover:underline">Resend verification code</button>
           </form>
@@ -201,7 +201,7 @@ function AuthInner() {
           <form onSubmit={otpSent ? verifyEmailOtp : sendOtp} className="flex flex-col gap-3">
             {tab === 'signup' && !otpSent && <input required autoComplete="name" aria-label="Full name" placeholder="Full name" value={name} onChange={e => setName(e.target.value)} className={field} />}
             <input required type="email" autoComplete="email" aria-label="Email" placeholder="Email address" value={email} onChange={e => setEmail(e.target.value)} disabled={otpSent} className={field} />
-            {otpSent && <input required inputMode="numeric" autoComplete="one-time-code" aria-label="Email verification code" placeholder="6-digit code" value={otp} onChange={e => setOtp(e.target.value.replace(/\\D/g, '').slice(0, 6))} maxLength={6} className={field + ' text-center tracking-[0.35em] text-lg font-bold'} />}
+            {otpSent && <input required inputMode="numeric" autoComplete="one-time-code" aria-label="Email verification code" placeholder="6-digit code" value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))} maxLength={6} className={field + ' text-center tracking-[0.35em] text-lg font-bold'} />}
             <button disabled={busy} className={primary}>{busy ? 'Please wait…' : otpSent ? 'Verify code & continue' : 'Send email code'}</button>
             {otpSent && <button type="button" disabled={busy} onClick={() => { setOtpSent(false); setOtp(''); setMsg(null); }} className="text-xs font-semibold text-blue-600 hover:underline">Use a different email</button>}
             <p className="text-xs text-gray-500">{otpSent ? 'Enter the one-time code sent to your inbox.' : 'We’ll email you a one-time verification code. No password needed.'}</p>
