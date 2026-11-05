@@ -83,15 +83,6 @@ export async function searchListings(p: SearchParams = {}) {
   return { listings: (data ?? []) as unknown as ListingFull[], total: count ?? 0, page };
 }
 
-export async function getDemoHomes(limit = 8): Promise<ListingFull[]> {
-  const { data: imgs } = await supabase.from('listing_images').select('listing_id').limit(300);
-  const ids = Array.from(new Set((imgs ?? []).map((r: any) => r.listing_id)));
-  let q = supabase.from('listings').select(CARD).eq('status', 'active').eq('is_sample', true);
-  if (ids.length) q = q.in('id', ids);
-  const { data } = await q.order('view_count', { ascending: false }).limit(limit);
-  return (data ?? []) as unknown as ListingFull[];
-}
-
 export async function getFeatured(limit = 3): Promise<ListingFull[]> {
   const { data } = await supabase.from('listings').select(CARD)
     .eq('status', 'active').eq('is_sample', false).eq('featured', true)
