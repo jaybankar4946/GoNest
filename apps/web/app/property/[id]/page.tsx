@@ -22,7 +22,7 @@ import type { Metadata } from 'next';
 
 export async function generateMetadata({ params }: { params: Promise<{id:string}> }): Promise<Metadata> {
   const{id}=await params;
-  const l=await getListingById(id,false);
+  const l=await getListingById(id);
   if(!l)return{title:'Property not found'};
   const cover=[...(l.listing_images??[])].sort((a:any,b:any)=>a.sort_order-b.sort_order)[0];
   const desc=`${bhkLabel(l.bedrooms,l.property_type)} ${capitalize(l.property_type)} for ${l.purpose==='sale'?'sale':'rent'}. ${formatPrice(l.price,l.purpose)}.`;
@@ -34,7 +34,7 @@ export default async function PropertyPage({ params }: { params: Promise<{id:str
   const demo=(await cookies()).get(DEMO_COOKIE)?.value==='1';
   const l=await getListingById(id,demo);
   if(!l)notFound();
-  const [similar,history]=await Promise.all([getSimilarListings(l,3,false),getPriceHistory(l.id)]);
+  const [similar,history]=await Promise.all([getSimilarListings(l,3),getPriceHistory(l.id)]);
   const ppsf=l.purpose==='sale'&&l.sqft?Math.round(l.price/l.sqft):null;
   const emiEst=l.purpose==='sale'?calcEMI(l.price*0.8,8.5,20):null;
   const imgs=[...(l.listing_images??[])].sort((a:any,b:any)=>a.sort_order-b.sort_order);
