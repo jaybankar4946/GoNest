@@ -35,9 +35,11 @@ function AuthInner() {
   const [method, setMethod] = useState<Method>('email');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<Msg | null>(null);
 
@@ -46,8 +48,35 @@ function AuthInner() {
   }, [router, next]);
 
   const origin = () => window.location.origin;
-  const reset = () => { setMsg(null); setOtp(''); setOtpSent(false); };
+  const reset = () => { setMsg(null); setOtp(''); setOtpSent(false); setResetSent(false); setPassword(''); };
   const fail = (err: { message?: string; status?: number } | null) => setMsg({ type: 'err', text: explain(err) });
+
+  const submitEmailPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setMsg(null);
+    const normalized = email.trim().toLowerCase();
+    if (!normalized || !password) return;
+    setBusy(true);
+    try {
+      const result = tab === 'signin'
+        ? await supabase.auth.signInWithPassword({ email: normalized, password })
+        : await supabase.auth.signUp({ email: normalized, password, options: { emailRedirectTo: origin() + next, data: name.trim() ? { full_name: name.trim() } : undefined } });
+      if (result.error) fail(result.error);
+      else if (tab === 'signup' && !result.data.session) setMsg({ type: 'ok', text: 'Account created. Check your email to verify your address, then sign in.' });
+      else router.replace(next);
+    } finally { setBusy(false); }
+  };
+
+  const resetPassword = async () => {
+    setMsg(null);
+    const normalized = email.trim().toLowerCase();
+    if (!normalized) { setMsg({ type: 'err', text: 'Enter your email address first.' }); return; }
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(normalized, { redirectTo: origin() + '/auth/update-password' });
+      if (error) fail(error); else setResetSent(true);
+    } finally { setBusy(false); }
+  };
 
   const sendEmail = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -187,7 +216,7 @@ function AuthInner() {
         </div>
 
         {method === 'email' && (
-          <form onSubmit={sendEmail} className="flex flex-col gap-3">
+          <form onSubmit={submitEmailPassword} className="flex flex-col gap-3">
             {tab === 'signup' && (
               <input
                 required
@@ -209,19 +238,27 @@ function AuthInner() {
               onChange={e => setEmail(e.target.value)}
               className={field}
             />
+            <input
+              required
+              type="password"
+              autoComplete={tab === 'signin' ? 'current-password' : 'new-password'}
+              aria-label="Password"
+              placeholder="Password"
+              minLength={8}
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              className={field}
+            />
             <button disabled={busy} className={primary}>
-              {busy ? 'Sending…' : tab === 'signin' ? 'Continue with Email' : 'Create account with Email'}
+              {busy ? 'Please wait…' : tab === 'signin' ? 'Sign in with Email' : 'Create account'}
             </button>
-            {otpSent && (
-              <button
-                type="button"
-                onClick={() => { setOtpSent(false); setMsg(null); }}
-                className="inline-flex items-center justify-center gap-1 text-xs font-semibold text-blue-600 hover:underline"
-              >
-                <ArrowLeft size={13} /> Use a different email
+            {tab === 'signin' && (
+              <button type="button" disabled={busy} onClick={() => void resetPassword()} className="text-xs font-semibold text-blue-600 hover:underline">
+                Forgot password?
               </button>
             )}
-            <p className="text-xs text-gray-500 text-center">No password to remember. GoNest will create your account automatically if this email is new.</p>
+            {resetSent && <p className="text-xs text-green-700 text-center">If an account uses that email, we sent password reset instructions.</p>}
+            <p className="text-xs text-gray-500 text-center">Use your email and password, or choose Google or mobile above.</p>
           </form>
         )}
 
