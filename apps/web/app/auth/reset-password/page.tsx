@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { updatePassword } from '@/lib/api';
@@ -10,6 +10,7 @@ const inp: React.CSSProperties={width:'100%',padding:'11px 14px',border:'1px sol
 export default function ResetPasswordPage() {
   const router = useRouter();
   const [ready, setReady] = useState(false);
+  const recoveryEventSeen = useRef(false);
   const [pass, setPass] = useState('');
   const [confirm, setConfirm] = useState('');
   const [loading, setLoading] = useState(false);
@@ -17,15 +18,24 @@ export default function ResetPasswordPage() {
 
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') setReady(true);
+      if (event === 'PASSWORD_RECOVERY') {
+        recoveryEventSeen.current = true;
+        setReady(true);
+        setMsg(null);
+      }
     });
-    supabase.auth.getSession().then(({ data }) => { if (data.session) setReady(true); });
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) setReady(true);
+      else if (!recoveryEventSeen.current) setMsg({ type: 'err', text: 'This password reset link is invalid or expired. Request a new reset email and open the latest link.' });
+    }).catch(() => {
+      if (!recoveryEventSeen.current) setMsg({ type: 'err', text: 'We could not verify this reset link. Request a new reset email.' });
+    });
     return () => sub.subscription.unsubscribe();
   }, []);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (pass.length < 6) { setMsg({ type: 'err', text: 'Password must be at least 6 characters.' }); return; }
+    if (pass.length < 8) { setMsg({ type: 'err', text: 'Password must be at least 8 characters.' }); return; }
     if (pass !== confirm) { setMsg({ type: 'err', text: 'Passwords do not match.' }); return; }
     setLoading(true); setMsg(null);
     try {
@@ -44,15 +54,16 @@ export default function ResetPasswordPage() {
         <p style={{ fontSize: 14, color: '#6B6B6B', marginBottom: 28 }}>
           {ready ? 'Choose a new password for your account.' : 'Verifying your reset link…'}
         </p>
+        {msg && !ready && <div role="alert" style={{ fontSize: 13, padding: '10px 12px', borderRadius: 10, background: '#FEF2F2', color: '#DC2626', marginBottom: 12 }}>{msg.text}</div>}
         {ready && (
           <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <div style={{ position: 'relative' }}>
               <Lock size={15} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#9B9B9B', pointerEvents: 'none' }} />
-              <input required type="password" placeholder="New password" value={pass} onChange={e=>setPass(e.target.value)} style={{ ...inp, paddingLeft: 38 }} />
+              <input required minLength={8} type="password" placeholder="New password" value={pass} onChange={e=>setPass(e.target.value)} style={{ ...inp, paddingLeft: 38 }} />
             </div>
             <div style={{ position: 'relative' }}>
               <Lock size={15} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#9B9B9B', pointerEvents: 'none' }} />
-              <input required type="password" placeholder="Confirm password" value={confirm} onChange={e=>setConfirm(e.target.value)} style={{ ...inp, paddingLeft: 38 }} />
+              <input required minLength={8} type="password" placeholder="Confirm password" value={confirm} onChange={e=>setConfirm(e.target.value)} style={{ ...inp, paddingLeft: 38 }} />
             </div>
             {msg && <div style={{ fontSize: 13, padding: '10px 12px', borderRadius: 10, background: msg.type === 'ok' ? '#F0FDF4' : '#FEF2F2', color: msg.type === 'ok' ? '#16A34A' : '#DC2626' }}>{msg.text}</div>}
             <button type="submit" disabled={loading} style={{ padding: '12px', borderRadius: 9999, fontSize: 14, fontWeight: 600, color: '#fff', background: '#111', border: 'none', cursor: 'pointer', marginTop: 4, opacity: loading ? 0.6 : 1 }}>
