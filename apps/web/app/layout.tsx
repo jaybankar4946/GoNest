@@ -23,10 +23,38 @@ export const metadata: Metadata = {
   openGraph: { siteName: 'GoNest', type: 'website', locale: 'en_IN', title: 'GoNest – Find Your Next Home Across India', description: 'Explore homes to buy or rent, new projects, and property professionals across Mumbai, Bengaluru, Delhi NCR, Pune and Hyderabad.', url: 'https://gonest.in' },
 };
 
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': 'https://gonest.in/#organization',
+      name: 'GoNest',
+      url: 'https://gonest.in/',
+      description: 'GoNest is an Indian residential property marketplace for discovering homes to buy or rent, new residential projects, and property professionals.',
+    },
+    {
+      '@type': 'WebSite',
+      '@id': 'https://gonest.in/#website',
+      name: 'GoNest',
+      alternateName: 'GoNest India',
+      url: 'https://gonest.in/',
+      publisher: { '@id': 'https://gonest.in/#organization' },
+      inLanguage: 'en-IN',
+    },
+  ],
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${jakarta.variable} ${manrope.variable}`}>
-      <body><AuthProvider>{children}<BottomNav /><Analytics /><DemoMode /></AuthProvider></body>
+      <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, '\\u003c') }}
+        />
+        <AuthProvider>{children}<BottomNav /><Analytics /><DemoMode /></AuthProvider>
+      </body>
     </html>
   );
 }
