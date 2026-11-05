@@ -127,12 +127,7 @@ export function AgentDirectory({ agents }: Props) {
         <p className="text-xs font-bold uppercase tracking-widest text-blue-700">GoNest Agent Directory</p>
         <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-950 md:text-4xl">Find real estate agents in Thane, Mumbai and Pune</h2>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">Discover property professionals using the same visual listing experience as Buy and Rent. GoNest-verified agents and public business profiles are clearly distinguished.</p>
-        <div className="mt-6 grid gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:grid-cols-2 lg:grid-cols-4">
-          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search agent, agency, RERA or locality" className="min-h-12 rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none focus:border-blue-500"/>
-          <select value={city} onChange={e=>setCity(e.target.value)} className="min-h-12 rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-semibold text-slate-700">{cities.map(c=><option key={c}>{c}</option>)}</select>
-          <select value={service} onChange={e=>setService(e.target.value)} className="min-h-12 rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-semibold text-slate-700">{serviceFilters.map(s=><option key={s}>{s}</option>)}</select>
-          <select value={minRating} onChange={e=>setMinRating(e.target.value)} className="min-h-12 rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-semibold text-slate-700"><option>Any rating</option><option value="4">4.0+ public rating</option><option value="4.5">4.5+ public rating</option></select>
-        </div>
+
       </div>
     </section>
 
