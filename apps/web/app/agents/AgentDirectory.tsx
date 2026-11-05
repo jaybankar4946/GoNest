@@ -13,23 +13,23 @@ const agencySlug = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '
 function AgentListingCard({ agent }: { agent: Profile }) {
   const name = agent.full_name ?? 'GoNest agent';
   const verified = agent.agent_verified && Boolean(agent.rera_number);
+  const operations = ['Rent', 'Buy', 'Sell'];
   return <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
     <Link href={'/agents/' + agent.id} className="relative block aspect-[4/3] overflow-hidden bg-slate-100">
       {agent.avatar_url ? <img src={agent.avatar_url} alt={name + ' profile'} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"/> : <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 text-slate-500"><span className="text-5xl font-semibold">{name.charAt(0).toUpperCase()}</span><span className="mt-2 text-xs font-semibold uppercase tracking-widest">Profile photo not added</span></div>}
       <span className={"absolute left-3 top-3 rounded-full px-3 py-1.5 text-[11px] font-bold shadow-sm " + (verified ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-800")}>{verified ? "GoNest verified" : "Profile under review"}</span>
-      <span className="absolute bottom-3 left-3 rounded-lg bg-white/95 px-3 py-1.5 text-xs font-bold text-slate-900 shadow-sm">{agent.total_listings} active listing{agent.total_listings === 1 ? '' : 's'}</span>
+      <span className="absolute bottom-3 left-3 rounded-lg bg-white/95 px-3 py-1.5 text-xs font-bold text-slate-900 shadow-sm">{agent.total_listings} active listings</span>
     </Link>
     <div className="flex flex-1 flex-col p-4 sm:p-5">
-      <div className="min-w-0">
-        <h3 className="truncate text-lg font-extrabold text-slate-950">{name}</h3>
-        <p className="mt-1 truncate text-sm font-medium text-slate-600">{agent.agency_name ?? 'Independent agent'}</p>
-      </div>
+      <h3 className="truncate text-lg font-extrabold text-slate-950">{name}</h3>
+      <p className="mt-1 truncate text-sm font-medium text-slate-600">{agent.agency_name ?? 'Independent agent'}</p>
       <div className="mt-3 flex flex-wrap gap-2">
-        {agent.phone_verified && <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-800">Phone verified</span>}
-        {agent.rera_number && <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700">RERA details submitted</span>}{(agent.service_localities?.length || agent.service_pincodes?.length) ? <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700">{[...(agent.service_localities ?? []), ...(agent.service_pincodes ?? [])].join(" · ")}</span> : null}
+        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700">{agent.rera_number ? 'RERA details submitted' : 'RERA details not provided'}</span>
+        {(agent.service_pincodes ?? []).map(pin=><span key={pin} className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700">{pin}</span>)}
+        {(agent.service_localities ?? []).map(locality=><span key={locality} className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700">{locality}</span>)}
       </div>
       {agent.bio && <p className="mt-3 line-clamp-2 min-h-10 text-sm leading-5 text-slate-600">{agent.bio}</p>}
-      {!agent.bio && <p className="mt-3 min-h-10 text-sm leading-5 text-slate-500">{(agent.service_localities ?? []).slice(0,3).join(' · ') || 'Local property professional'}</p>}
+      <p className="mt-3 text-sm font-bold text-slate-900">{operations.join(' · ')}</p>
       <div className="mt-auto grid grid-cols-2 gap-2 pt-5">
         <Link href={'/agents/' + agent.id} className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-3 py-3 text-sm font-bold text-slate-800 hover:border-slate-400">View profile</Link>
         <Link href={'/agents/' + agent.id + '#contact-agent'} className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-3 py-3 text-sm font-bold text-white hover:bg-blue-700">Contact</Link>
@@ -39,29 +39,30 @@ function AgentListingCard({ agent }: { agent: Profile }) {
 }
 
 function PublicAgencyListingCard({ agency }: { agency: (typeof THANE_TOP_AGENTS)[number] }) {
-  const services = agency.services?.length ? agency.services : [];
+  const services = ['Rent', 'Buy', 'Sell'];
+  const pin = agency.address.match(/\\b\\d{6}\\b/)?.[0] ?? null;
+  const slug = agencySlug(agency.name);
+  const profileHref = `/agents/business/${slug}`;
   return <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-    <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200">
-      {agency.imageUrl ? <img src={agency.imageUrl} alt={agency.name + ' business profile'} className="h-full w-full object-contain bg-white p-8"/> : <div className="flex h-24 w-24 items-center justify-center rounded-3xl border border-white/80 bg-white text-3xl font-extrabold text-slate-600 shadow-sm">{agency.name.split(/\\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase()}</div>}
-      <span className="absolute bottom-3 left-3 rounded-lg bg-white/95 px-3 py-1.5 text-xs font-bold text-slate-900 shadow-sm">{agency.area} · {agency.city}</span>
-    </div>
+    <Link href={profileHref} className="relative block aspect-[4/3] overflow-hidden bg-slate-100">
+      {agency.imageUrl ? <img src={agency.imageUrl} alt={agency.name + ' profile'} className="h-full w-full object-contain bg-white p-8"/> : <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 text-slate-500"><span className="text-5xl font-semibold">{agency.name.split(/\\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase()}</span><span className="mt-2 text-xs font-semibold uppercase tracking-widest">Agency profile</span></div>}
+      <span className="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-bold text-slate-800 shadow-sm">Business profile</span>
+      <span className="absolute bottom-3 left-3 rounded-lg bg-white/95 px-3 py-1.5 text-xs font-bold text-slate-900 shadow-sm">0 active listings</span>
+    </Link>
     <div className="flex flex-1 flex-col p-4 sm:p-5">
       <h3 className="text-lg font-extrabold text-slate-950">{agency.name}</h3>
-      <p className="mt-1 text-sm font-medium text-slate-600">{agency.area}</p>
-      <p className="mt-3 text-sm font-bold text-slate-900">
-        {agency.rating != null
-          ? <>★{agency.rating.toFixed(1)} <span className="font-normal text-slate-500">({agency.publicReviewCount != null ? agency.publicReviewCount.toLocaleString('en-IN') + ' public reviews' : 'public rating'})</span></>
-          : <span className="font-medium text-slate-500">Public rating not available</span>}
-      </p>
-      <p className="mt-3 text-sm font-medium text-slate-700">{agency.businessType ?? 'Real estate brokerage / property consultancy'}</p>
-      <p className="mt-2 text-sm font-bold text-slate-900">{services.length ? services.join(' · ') : 'Services: Contact agency for details'}</p>
-      <p className="mt-3 text-sm leading-5 text-slate-600">{agency.address}</p>
-      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
-        {agency.phone && <a href={'tel:' + agency.phone.replace(/[^+\\d]/g, '')} className="text-sm font-semibold text-blue-700 hover:underline">Call {agency.phone}</a>}
-        {agency.websiteUrl && <a href={agency.websiteUrl} target="_blank" rel="noreferrer" className="text-sm font-semibold text-blue-700 hover:underline">Official website</a>}
-        <a href={'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(agency.mapQuery)} target="_blank" rel="noreferrer" className="text-sm font-semibold text-slate-600 hover:underline">Directions</a>
+      <p className="mt-1 text-sm font-medium text-slate-600">{agency.area} · {agency.city}</p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700">RERA details not provided</span>
+        {pin && <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700">{pin}</span>}
       </div>
-      <div className="mt-auto pt-5"><Link href={`/agents/business/${agencySlug(agency.name)}`} className="inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-sm font-bold text-white hover:bg-blue-700">View business profile</Link></div>
+      <p className="mt-3 text-sm font-bold text-slate-900">{services.join(' · ')}</p>
+      <p className="mt-3 text-sm leading-5 text-slate-600">{agency.address}</p>
+      {agency.rating != null && <p className="mt-3 text-sm font-bold text-slate-900">★{agency.rating.toFixed(1)} <span className="font-normal text-slate-500">({agency.publicReviewCount != null ? agency.publicReviewCount.toLocaleString('en-IN') + ' public reviews' : 'public rating'})</span></p>}
+      <div className="mt-auto grid grid-cols-2 gap-2 pt-5">
+        <Link href={profileHref} className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-3 py-3 text-sm font-bold text-slate-800 hover:border-slate-400">View profile</Link>
+        <Link href={profileHref + '#contact-agency'} className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-3 py-3 text-sm font-bold text-white hover:bg-blue-700">Contact</Link>
+      </div>
     </div>
   </article>;
 }
