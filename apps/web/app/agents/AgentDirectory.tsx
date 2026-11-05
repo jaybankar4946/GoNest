@@ -96,6 +96,18 @@ export function AgentDirectory({ agents }: Props) {
       <p className="mt-4 text-xs text-slate-500">Public business listings are not claimed GoNest accounts and are not GoNest-verified.</p>
     </section>
 
+    <section className="border-t border-slate-200 bg-slate-50">
+      <div className="mx-auto max-w-7xl px-5 py-10 md:px-8">
+        <div className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-8">
+          <div>
+            <h2 className="text-xl font-extrabold text-slate-950">Are you a property professional?</h2>
+            <p className="mt-1 text-sm leading-6 text-slate-600">Create a GoNest profile and submit your details for review.</p>
+          </div>
+          <Link href="https://gonest.in/dashboard" className="inline-flex shrink-0 items-center justify-center rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700">Create GoNest profile</Link>
+        </div>
+      </div>
+    </section>
+
     {selectedAgency && <ContactForm agency={selectedAgency} onClose={()=>setSelectedAgency(null)}/>}
   </>;
 }
