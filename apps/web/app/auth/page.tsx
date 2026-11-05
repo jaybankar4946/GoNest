@@ -7,12 +7,12 @@ import type { Provider } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 
 type Tab = 'signin' | 'signup';
-type Method = 'password' | 'link' | 'google';
+type Method = 'password' | 'link' | 'phone';
 type Msg = { type: 'ok' | 'err'; text: string };
 
 // Social / phone methods are switched on with env vars once configured in Supabase (see .env.local.example)
-const PROVIDERS = (process.env.NEXT_PUBLIC_AUTH_PROVIDERS ?? '').split(',').map(s => s.trim()).filter(Boolean) as Provider[];
-const LABEL: Record<string, string> = { google: 'Google', apple: 'Apple', facebook: 'Facebook' };
+const PROVIDERS = [...new Set((process.env.NEXT_PUBLIC_AUTH_PROVIDERS ?? 'google').split(',').map(s => s.trim()).filter(Boolean))] as Provider[];
+const LABEL: Record<string, string> = { google: 'Google', apple: 'Apple', facebook: 'Facebook', azure: 'Microsoft' };
 
 const field = 'w-full px-4 py-3.5 border border-gray-300 rounded-xl text-sm text-gray-900 placeholder-gray-400 bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100';
 const primary = 'w-full py-3.5 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60 transition-colors';
@@ -28,7 +28,8 @@ function explain(err: { message?: string; status?: number } | null): string {
   if (err?.status === 429 || /rate limit|too many/i.test(m)) return 'Too many attempts. Please wait a few minutes and try again.';
   if (/expired|invalid.*(token|otp)|token.*invalid/i.test(m)) return 'That code is invalid or has expired. Request a new one.';
   if (/password/i.test(m) && /(short|weak|least|characters)/i.test(m)) return 'Choose a stronger password (at least 8 characters).';
-  if (/provider.*(disabled|not enabled)|unsupported provider|google/i.test(m)) return 'Google sign-in is not enabled yet. Please use email for now, or enable Google in Supabase Auth settings.';
+  if (/provider.*(disabled|not enabled)|unsupported provider/i.test(m)) return 'This sign-in provider is not enabled yet. Please choose another method or ask GoNest support.';
+  if (/phone|sms/i.test(m) && /disabled|not enabled|provider/i.test(m)) return 'Phone sign-in is not configured yet. Please use another method.';
   
   return 'Something went wrong. Please try again.';
 }
@@ -42,6 +43,9 @@ function AuthInner() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [pass, setPass] = useState('');
+  const [phone, setPhone] = useState('');
+  const [phoneOtp, setPhoneOtp] = useState('');
+  const [phoneCodeSent, setPhoneCodeSent] = useState(false);
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<Msg | null>(null);
@@ -123,7 +127,13 @@ function AuthInner() {
     }
   };
 
-  const methods: { id: Method; label: string }[] = [{ id: 'password', label: 'Email + password' }, { id: 'link', label: 'Email link' }, { id: 'google', label: 'Google' }];
+  const phoneEnabled = process.env.NEXT_PUBLIC_AUTH_PHONE_ENABLED === 'true';
+  const methods: { id: Method | Provider; label: string }[] = [
+    { id: 'password', label: 'Email + password' },
+    { id: 'link', label: 'Email link' },
+    ...(phoneEnabled ? [{ id: 'phone' as const, label: 'Phone OTP' }] : []),
+    ...PROVIDERS.map(provider => ({ id: provider, label: `Continue with ${LABEL[provider] ?? provider}` })),
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
@@ -140,7 +150,7 @@ function AuthInner() {
 
         <div className="flex flex-wrap gap-2 mb-4">
           {methods.map(m => (
-            <button key={m.id} disabled={busy} onClick={() => { if(m.id==='google'){ void oauth('google'); return; } setMethod(m.id); reset(); }} className={`flex-1 min-w-[calc(50%-0.25rem)] sm:min-w-0 px-3 py-2.5 rounded-xl text-xs font-semibold border transition-all disabled:opacity-60 ${method === m.id ? 'bg-blue-50 border-blue-600 text-blue-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`} aria-pressed={method===m.id}>{m.id==='google'?'Continue with Google':m.label}</button>
+            <button key={m.id} disabled={busy} onClick={() => { if(m.id!=='password' && m.id!=='link' && m.id!=='phone'){ void oauth(m.id); return; } setMethod(m.id); reset(); }} className={`flex-1 min-w-[calc(50%-0.25rem)] sm:min-w-0 px-3 py-2.5 rounded-xl text-xs font-semibold border transition-all disabled:opacity-60 ${method === m.id ? 'bg-blue-50 border-blue-600 text-blue-700' : 'border-gray-200 text-gray-600 hover:border-gray-300'}`} aria-pressed={method===m.id}>{m.label}</button>
           ))}
         </div>
 
@@ -154,6 +164,16 @@ function AuthInner() {
             </div>
             {tab === 'signin' && <button type="button" onClick={forgot} disabled={busy} className="self-end text-xs font-semibold text-blue-600 hover:underline disabled:opacity-60">{busy ? 'Sending reset link…' : 'Forgot password?'}</button>}
             <button disabled={busy} className={primary}>{busy ? 'Please wait…' : tab === 'signin' ? 'Sign in' : 'Create account'}</button>
+          </form>
+        )}
+
+        {method === 'phone' && phoneEnabled && (
+          <form onSubmit={async e => { e.preventDefault(); reset(); setBusy(true); try { if (!phoneCodeSent) { const { error } = await supabase.auth.signInWithOtp({ phone: phone.trim(), options: { shouldCreateUser: true } }); if (error) fail(error); else { setPhoneCodeSent(true); setMsg({ type: 'ok', text: 'We sent a one-time code by SMS. Enter it below to continue.' }); } } else { const { error } = await supabase.auth.verifyOtp({ phone: phone.trim(), token: phoneOtp.trim(), type: 'sms' }); if (error) fail(error); else router.replace(next); } } finally { setBusy(false); } }} className="flex flex-col gap-3">
+            <input required type="tel" autoComplete="tel" aria-label="Phone number" placeholder="Phone number (include country code, e.g. +91)" value={phone} onChange={e => setPhone(e.target.value)} className={field} />
+            {phoneCodeSent && <input required inputMode="numeric" autoComplete="one-time-code" aria-label="SMS verification code" placeholder="6-digit SMS code" value={phoneOtp} onChange={e => setPhoneOtp(e.target.value)} className={field} />}
+            <button disabled={busy} className={primary}>{busy ? 'Please wait…' : phoneCodeSent ? 'Verify code and continue' : 'Send SMS code'}</button>
+            {phoneCodeSent && <button type="button" disabled={busy} onClick={() => { setPhoneCodeSent(false); setPhoneOtp(''); }} className="text-xs text-blue-600 font-semibold">Change phone number</button>}
+            <p className="text-xs text-gray-500">SMS availability depends on GoNest&apos;s configured phone provider and country coverage.</p>
           </form>
         )}
 
