@@ -101,7 +101,7 @@ export async function getFeatured(limit = 3): Promise<ListingFull[]> {
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-export async function getListingById(id: string, demo = false): Promise<ListingFull | null> {
+export async function getListingById(id: string): Promise<ListingFull | null> {
   // Reject malformed route IDs before they reach Postgres UUID columns.
   if (!UUID_RE.test(id)) return null;
 
@@ -121,7 +121,7 @@ export async function getListingById(id: string, demo = false): Promise<ListingF
   return { ...data, poster: poster ?? null } as unknown as ListingFull;
 }
 
-export async function getSimilarListings(l: ListingFull, limit = 3, demo = false): Promise<ListingFull[]> {
+export async function getSimilarListings(l: ListingFull, limit = 3): Promise<ListingFull[]> {
   let sq = supabase.from('listings').select(CARD)
     .eq('status', 'active').eq('city_id', l.city_id)
     .eq('purpose', l.purpose).eq('property_type', l.property_type)
