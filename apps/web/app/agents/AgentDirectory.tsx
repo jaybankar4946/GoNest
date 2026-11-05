@@ -12,10 +12,11 @@ const agencySlug = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '
 
 function AgentListingCard({ agent }: { agent: Profile }) {
   const name = agent.full_name ?? 'GoNest agent';
+  const verified = agent.agent_verified && Boolean(agent.rera_number);
   return <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
     <Link href={'/agents/' + agent.id} className="relative block aspect-[4/3] overflow-hidden bg-slate-100">
       {agent.avatar_url ? <img src={agent.avatar_url} alt={name + ' profile'} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"/> : <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 text-slate-500"><span className="text-5xl font-semibold">{name.charAt(0).toUpperCase()}</span><span className="mt-2 text-xs font-semibold uppercase tracking-widest">Profile photo not added</span></div>}
-      <span className="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-bold text-emerald-800 shadow-sm">GoNest verified</span>
+      <span className={"absolute left-3 top-3 rounded-full px-3 py-1.5 text-[11px] font-bold shadow-sm " + (verified ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-800")}>{verified ? "GoNest verified" : "Profile under review"}</span>
       <span className="absolute bottom-3 left-3 rounded-lg bg-white/95 px-3 py-1.5 text-xs font-bold text-slate-900 shadow-sm">{agent.total_listings} active listing{agent.total_listings === 1 ? '' : 's'}</span>
     </Link>
     <div className="flex flex-1 flex-col p-4 sm:p-5">
@@ -25,7 +26,7 @@ function AgentListingCard({ agent }: { agent: Profile }) {
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
         {agent.phone_verified && <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-800">Phone verified</span>}
-        {agent.rera_number && <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700">RERA details on file</span>}
+        {agent.rera_number && <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700">RERA details submitted</span>}{(agent.service_localities?.length || agent.service_pincodes?.length) ? <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700">{[...(agent.service_localities ?? []), ...(agent.service_pincodes ?? [])].join(" · ")}</span> : null}
       </div>
       {agent.bio && <p className="mt-3 line-clamp-2 min-h-10 text-sm leading-5 text-slate-600">{agent.bio}</p>}
       {!agent.bio && <p className="mt-3 min-h-10 text-sm leading-5 text-slate-500">{(agent.service_localities ?? []).slice(0,3).join(' · ') || 'Local property professional'}</p>}
@@ -68,7 +69,14 @@ export function AgentDirectory({ agents }: Props) {
     (minRating === 'Any rating' || (a.rating != null && a.rating >= Number(minRating))) &&
     (a.name + ' ' + a.city + ' ' + a.area + ' ' + a.address + ' ' + (a.services ?? []).join(' ') + ' ' + (a.businessType ?? '')).toLowerCase().includes(search.toLowerCase().trim())
   ), [city, service, minRating, search]);
-  const registeredAgents = useMemo(() => agents.filter(a => a.role === 'agent' && a.agent_verified && Boolean(a.rera_number) && (city === 'All Cities' || [...(a.service_localities ?? []), ...(a.service_pincodes ?? [])].join(' ').toLowerCase().includes(city.toLowerCase())) && (!search.trim() || [a.full_name, a.agency_name, a.bio, a.rera_number, ...(a.service_localities ?? [])].filter(Boolean).join(' ').toLowerCase().includes(search.toLowerCase().trim()))), [agents, city, search]);
+  const registeredAgents = useMemo(() => agents.filter(a => {
+    if (a.role !== 'agent') return false;
+    const locations = [...(a.service_localities ?? []), ...(a.service_pincodes ?? [])].join(' ').toLowerCase();
+    const cityPrefixes: Record<string, string[]> = { Mumbai: ['400'], Thane: ['4006', '401'], Pune: ['411', '412'] };
+    const cityMatch = city === 'All Cities' || locations.includes(city.toLowerCase()) || (cityPrefixes[city] ?? []).some(prefix => (a.service_pincodes ?? []).some(pin => pin.startsWith(prefix)));
+    const searchable = [a.full_name, a.agency_name, a.bio, a.rera_number, ...(a.service_localities ?? []), ...(a.service_pincodes ?? [])].filter(Boolean).join(' ').toLowerCase();
+    return cityMatch && (!search.trim() || searchable.includes(search.toLowerCase().trim()));
+  }), [agents, city, search]);
 
   return <>
     <section className="border-b border-slate-200 bg-slate-50">
@@ -86,7 +94,7 @@ export function AgentDirectory({ agents }: Props) {
     </section>
 
     <section className="mx-auto max-w-7xl px-5 py-9 md:px-8">
-      <div className="mb-5 flex flex-wrap items-end justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-widest text-blue-700">GoNest professionals</p><h2 className="mt-1 text-2xl font-extrabold text-slate-950">Real estate agent profiles</h2><p className="mt-1 text-sm text-slate-600">Explore agent and brokerage profiles in the same image-led, responsive card layout as property search. GoNest verification is shown only where profile evidence has been reviewed.</p></div><span className="text-sm font-semibold text-slate-500">{registeredAgents.length + publicAgencies.length} results</span></div>
+      <div className="mb-5 flex flex-wrap items-end justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-widest text-blue-700">GoNest professionals</p><h2 className="mt-1 text-2xl font-extrabold text-slate-950">Real estate agent profiles</h2><p className="mt-1 text-sm text-slate-600">Explore agent and brokerage profiles in the same image-led, responsive card layout as property search. New agent profiles appear after account creation; verification status is shown separately while details are reviewed.</p></div><span className="text-sm font-semibold text-slate-500">{registeredAgents.length + publicAgencies.length} results</span></div>
       {(registeredAgents.length + publicAgencies.length) > 0 ? <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">{registeredAgents.map(a=><AgentListingCard key={a.id} agent={a}/>)}{publicAgencies.map(agency=><PublicAgencyListingCard key={agency.name} agency={agency}/>)}</div> : <p className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-600">No agent profiles match these filters.</p>}
       <div className="mt-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-blue-50 p-5"><div><h3 className="font-extrabold text-slate-950">Are you a property professional?</h3><p className="mt-1 text-sm text-slate-600">Create a GoNest profile and submit your details for review.</p></div><Link href="/dashboard" className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white">Create GoNest profile</Link></div>
     </section>
