@@ -13,7 +13,7 @@ export function ListingQuickView({ listingId, onClose }: { listingId: string; on
   useEffect(() => {
     let alive = true;
     setLoading(true);
-    getListingById(listingId, false).then(d => { if (alive) { setL(d); setLoading(false); } });
+    getListingById(listingId).then(d => { if (alive) { setL(d); setLoading(false); } });
     return () => { alive = false; };
   }, [listingId]);
 
