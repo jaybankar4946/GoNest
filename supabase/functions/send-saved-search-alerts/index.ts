@@ -34,7 +34,8 @@ Deno.serve(async (req: Request) => {
 
   const { data: searches, error: searchError } = await supabase
     .from("saved_searches")
-    .select("id,user_id,name,filters,last_notified_at,created_at");
+    .select("id,user_id,name,filters,last_notified_at,created_at,notify_enabled")
+    .eq("notify_enabled", true);
 
   if (searchError) return json({ error: "saved_searches_read_failed" }, 500);
 
