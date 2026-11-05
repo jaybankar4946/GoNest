@@ -1,6 +1,7 @@
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
 import { DecisionTools } from './DecisionTools';
+import { AdminOnlyContent } from '@/components/layout/AdminOnlyContent';
 
 export const metadata = {
   title: 'Property Decision Workspace',
@@ -8,5 +9,5 @@ export const metadata = {
 };
 
 export default function DecisionCentrePage() {
-  return <><Nav /><DecisionTools /><Footer /></>;
+  return <><Nav /><AdminOnlyContent><DecisionTools /></AdminOnlyContent><Footer /></>;
 }
