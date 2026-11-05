@@ -20,6 +20,8 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ i
   const agent = await getAgentById(id);
   if (!agent) notFound();
   const listings = await getAgentListings(id);
+  const serviceAreas = [...(agent.service_localities ?? []), ...(agent.service_pincodes ?? [])];
+  const isVerified = agent.agent_verified && Boolean(agent.rera_number);
 
   return (
     <>
@@ -36,12 +38,12 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ i
               <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-950 md:text-4xl">{agent.full_name ?? 'GoNest member'}</h1>
               <p className="mt-2 text-base text-slate-600">{agent.agency_name ?? 'Independent professional'}</p>
               <div className="mt-4 flex flex-wrap gap-2">
-                {agent.agent_verified && <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800">✓ GoNest verified</span>}
+                <span className={"rounded-full px-3 py-1.5 text-xs font-bold " + (isVerified ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-800")}>{isVerified ? '✓ GoNest verified' : 'Profile under review'}</span>
                 {agent.phone_verified && <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800">✓ Phone verified</span>}
-                {agent.rera_number && <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700">RERA: {agent.rera_number}</span>}
+                <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700">{agent.rera_number ? 'RERA details submitted' : 'RERA details not provided'}</span>{serviceAreas.map(area=><span key={area} className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700">{area}</span>)}
                 {agent.rating != null && <span className="rounded-full bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-900">★ {agent.rating.toFixed(1)} · {agent.review_count} reviews</span>}
               </div>
-              {agent.bio && <p className="mt-5 max-w-3xl whitespace-pre-line text-sm leading-7 text-slate-600">{agent.bio}</p>}
+              {agent.bio && <p className="mt-5 max-w-3xl whitespace-pre-line text-sm leading-7 text-slate-600">{agent.bio}</p>}<p className="mt-5 text-sm font-bold text-slate-900">Rent · Buy · Sell Operations</p>
               <div className="mt-6 flex flex-wrap gap-3">
                 {agent.phone && <a href={telHref(agent.phone)} className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700">Call professional</a>}
                 {agent.phone && <a href={waHref(agent.phone, `Hi ${agent.full_name ?? ''}, I found your profile on GoNest and would like to enquire about your properties.`)} target="_blank" rel="noreferrer" className="rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white hover:bg-emerald-700">WhatsApp</a>}
