@@ -212,7 +212,41 @@ export async function getMyListings(userId: string): Promise<ListingFull[]> {
     .eq('posted_by', userId).order('created_at', { ascending: false });
   return (data ?? []) as unknown as ListingFull[];
 }
+function validateListingLimits(input: Record<string, unknown>) {
+  const numericChecks = [
+    { field: 'price', label: 'Price', min: 1, max: 100_000_000_000, optional: false },
+    { field: 'maintenance_monthly', label: 'Monthly maintenance', min: 0, max: 10_000_000, optional: true },
+    { field: 'security_deposit', label: 'Security deposit', min: 0, max: 1_000_000_000, optional: true },
+    { field: 'sqft', label: 'Area', min: 1, max: 1_000_000, optional: true },
+    { field: 'bathrooms', label: 'Bathrooms', min: 0, max: 20, optional: false },
+    { field: 'balconies', label: 'Balconies', min: 0, max: 20, optional: false },
+  ];
+  for (const check of numericChecks) {
+    if (!(check.field in input)) continue;
+    const value = input[check.field];
+    if (check.optional && (value == null || value === '')) continue;
+    const number = Number(value);
+    if (!Number.isFinite(number) || number < check.min || number > check.max) {
+      throw new Error(`${check.label} must be between ${check.min.toLocaleString()} and ${check.max.toLocaleString()}.`);
+    }
+  }
+
+  const textChecks = [
+    { field: 'title', label: 'Title', max: 150, required: true },
+    { field: 'description', label: 'Description', max: 5_000, required: false },
+  ];
+  for (const check of textChecks) {
+    if (!(check.field in input)) continue;
+    const value = input[check.field];
+    if (!check.required && value == null) continue;
+    if (typeof value !== 'string' || Array.from(value).length > check.max) {
+      throw new Error(`${check.label} must be ${check.max.toLocaleString()} characters or fewer.`);
+    }
+  }
+}
+
 export async function createListing(input: Record<string, unknown>): Promise<string> {
+  validateListingLimits(input);
   const { data, error } = await supabase.from('listings')
     .insert({ ...input, status: 'pending_review' }).select('id').single();
   if (error) throw error;
@@ -410,6 +444,7 @@ export async function getListingForEdit(id: string): Promise<ListingFull | null>
 }
 
 export async function updateListing(id: string, input: Record<string, unknown>) {
+  validateListingLimits(input);
   const { data, error } = await supabase.from('listings').update(input).eq('id', id).select('id').maybeSingle();
   if (error) throw error;
   if (!data) throw new Error('Listing was not saved. Check that you own this listing and try again.');
