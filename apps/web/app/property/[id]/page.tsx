@@ -21,6 +21,7 @@ import { ListingDecisionPanel } from '@/components/property/ListingDecisionPanel
 import type { Metadata } from 'next';
 import { cookies } from 'next/headers';
 import { DEMO_COOKIE } from '@/lib/demo';
+import { OwnerEditButton } from '@/components/owner/OwnerEditButton';
 
 export async function generateMetadata({ params }: { params: Promise<{id:string}> }): Promise<Metadata> {
   const{id}=await params;
@@ -79,7 +80,7 @@ export default async function PropertyPage({ params }: { params: Promise<{id:str
               {ppsf&&<span>₹{ppsf.toLocaleString('en-IN')} <span style={{fontWeight:400,color:'#6B7280'}}>per sq ft</span></span>}
               {emiEst&&<span>Est. ₹{emiEst.toLocaleString('en-IN')}/mo <span style={{fontWeight:400,color:'#6B7280'}}>EMI*</span></span>}
             </div>
-            <p style={{fontSize:12,color:'#6B7280',marginBottom:18}}>Listed {timeAgo(l.published_at??l.created_at)} · {l.view_count} views · {l.saved_count??0} saves · Updated {timeAgo(l.updated_at)}{emiEst?<> · *Estimate with 20% down, 8.5% for 20 years. Adjust in the payment calculator.</>:null}</p>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,marginBottom:18,flexWrap:'wrap'}}><p style={{fontSize:12,color:'#6B7280',margin:0}}>Listed {timeAgo(l.published_at??l.created_at)} · {l.view_count} views · {l.saved_count??0} saves · Updated {timeAgo(l.updated_at)}{emiEst?<> · *Estimate with 20% down, 8.5% for 20 years. Adjust in the payment calculator.</>:null}</p><OwnerEditButton kind="listing" id={l.id} ownerId={l.posted_by}/></div>
             <DecisionSummary l={l} emi={emiEst}/>
             <ListingDecisionPanel
               kind={l.purpose === 'rent' ? 'rent' : 'sale'}
