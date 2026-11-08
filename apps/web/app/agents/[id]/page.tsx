@@ -8,6 +8,7 @@ import { telHref, waHref } from '@/lib/contact';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { AgentContactForm } from './AgentContactForm';
+import { OwnerEditButton } from '@/components/owner/OwnerEditButton';
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
@@ -44,7 +45,8 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ i
                 {agent.rating != null && <span className="rounded-full bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-900">★ {agent.rating.toFixed(1)} · {agent.review_count} reviews</span>}
               </div>
               {agent.bio && <p className="mt-5 max-w-3xl whitespace-pre-line text-sm leading-7 text-slate-600">{agent.bio}</p>}<p className="mt-5 text-sm font-bold text-slate-900">Rent · Buy · Sell Operations</p>
-              <div className="mt-6 flex flex-wrap gap-3">
+              <div className="mt-6 flex flex-wrap items-center gap-3">
+                <OwnerEditButton kind="profile" id={id} ownerId={agent.id} />
                 {agent.phone && <a href={telHref(agent.phone)} className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700">Call professional</a>}
                 {agent.phone && <a href={waHref(agent.phone, `Hi ${agent.full_name ?? ''}, I found your profile on GoNest and would like to enquire about your properties.`)} target="_blank" rel="noreferrer" className="rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white hover:bg-emerald-700">WhatsApp</a>}
               </div>
