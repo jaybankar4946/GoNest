@@ -4,8 +4,12 @@ import { Footer } from '@/components/layout/Footer';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { getAgentById, getAgentListings } from '@/lib/api';
 import { telHref, waHref } from '@/lib/contact';
+import { ScheduleVisit } from '@/components/property/ScheduleVisit';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import { AgentContactForm } from './AgentContactForm';
+
+const portraitFor = (id: string) => { const n = [...id].reduce((sum, char) => sum + char.charCodeAt(0), 0) % 90 + 1; return 'https://randomuser.me/api/portraits/' + (n % 2 ? 'women' : 'men') + '/' + n + '.jpg'; };
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
@@ -27,7 +31,7 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ i
         <section className="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="flex flex-col gap-6 p-6 md:flex-row md:items-start md:p-8">
             <div className="flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-100 bg-slate-100 text-4xl font-extrabold text-slate-500">
-              {agent.avatar_url ? <img src={agent.avatar_url} alt="" className="h-full w-full object-cover" /> : (agent.full_name ?? 'G').charAt(0).toUpperCase()}
+              <img src={agent.avatar_url || portraitFor(agent.id)} alt={agent.avatar_url ? (agent.full_name ?? "Agent") + " profile photo" : "Illustrative real-estate agent portrait"} title={agent.avatar_url ? undefined : "Illustrative portrait; upload a verified profile photo in Dashboard Settings"} className="h-full w-full object-cover" />
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-xs font-bold uppercase tracking-widest text-blue-700">{agent.role === 'agent' ? 'Real estate agent / broker' : 'Property owner'}</p>
@@ -40,17 +44,16 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ i
                 {agent.rating != null && <span className="rounded-full bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-900">★ {agent.rating.toFixed(1)} · {agent.review_count} reviews</span>}
               </div>
               {agent.bio && <p className="mt-5 max-w-3xl whitespace-pre-line text-sm leading-7 text-slate-600">{agent.bio}</p>}
-              <div className="mt-6 flex flex-wrap gap-3">
-                {agent.phone && <a href={telHref(agent.phone)} className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700">Call professional</a>}
-                {agent.phone && <a href={waHref(agent.phone, `Hi ${agent.full_name ?? ''}, I found your profile on GoNest and would like to enquire about your properties.`)} target="_blank" rel="noreferrer" className="rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white hover:bg-emerald-700">WhatsApp</a>}
-                {listings.length > 0 && <a href={`/property/${listings[0].id}`} className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-800 hover:border-blue-400">Schedule a property visit ↓</a>}
+              <div id="contact" className="mt-6 flex flex-wrap gap-3">
+                {agent.phone && <a href={telHref(agent.phone)} className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700">Call</a>}
+                <a href="#contact-agent" className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-800 hover:border-blue-400">Contact</a>
+                {listings.length > 0 && <a href="#listings" className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-800 hover:border-blue-400">View active listings</a>}
               </div>
-              {!agent.phone && <p className="mt-4 text-xs text-slate-500">Direct contact details have not been published for this profile. Open a listing below to use its available enquiry or visit-request options.</p>}
             </div>
           </div>
         </section>
 
-        <section className="mt-10">
+        <section id="listings" className="mt-10">
           <div className="mb-5 flex flex-col gap-2 border-b border-slate-200 pb-5 sm:flex-row sm:items-end sm:justify-between">
             <div><p className="text-sm font-bold uppercase tracking-widest text-blue-700">Current inventory</p><h2 className="mt-2 text-2xl font-extrabold text-slate-950 md:text-3xl">Properties listed by {agent.full_name ?? 'this professional'}</h2></div>
             <p className="text-sm text-slate-500">{listings.length} active listing{listings.length === 1 ? '' : 's'}</p>
@@ -60,10 +63,24 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ i
           ) : (
             <>
               <p className="mb-5 max-w-3xl text-sm leading-6 text-slate-600">Open a property to review its details, contact the poster and request a visit. Visit requests are subject to confirmation by the owner or agent.</p>
-              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{listings.map((listing) => <PropertyCard key={listing.id} listing={listing} />)}</div>
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{listings.map((listing) => (
+                <article key={listing.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                  <PropertyCard listing={listing} />
+                  <details className="border-t border-slate-100">
+                    <summary className="cursor-pointer list-none px-5 py-4 text-sm font-extrabold text-blue-700 hover:bg-blue-50">
+                      Schedule visit · Check booking window <span className="float-right" aria-hidden="true">＋</span>
+                    </summary>
+                    <div className="border-t border-slate-100 bg-slate-50">
+                      <div className="px-4 pt-4 text-xs leading-5 text-slate-600">Choose an available date and time for this property. Your request remains pending until the agent confirms it. Slots already requested or confirmed are unavailable.</div>
+                      <ScheduleVisit listingId={listing.id} prefill={{ name: '', phone: '', email: '' }} />
+                    </div>
+                  </details>
+                </article>
+              ))}</div>
             </>
           )}
         </section>
+        <AgentContactForm agentName={agent.full_name ?? 'this professional'} phone={agent.phone ?? null} />
       </main>
       <Footer />
     </>

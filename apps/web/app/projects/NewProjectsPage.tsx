@@ -5,10 +5,11 @@ import { useRouter } from "next/navigation";
 
 import { Nav } from "@/components/layout/Nav";
 import { ProjectUnitInventoryCard } from "./ProjectUnitInventoryCard";
+import { ListingDecisionPanel } from "@/components/property/ListingDecisionPanel";
 import { ProjectImage } from "./ProjectImage";
 import { Footer } from "@/components/layout/Footer";
 import { supabase } from "@/lib/supabase";
-import { ArrowRight, Building2, CalendarDays, CheckCircle2, ExternalLink, Filter, GitCompare, Heart, MapPin, Search, ShieldCheck, SlidersHorizontal, X } from "lucide-react";
+import { ArrowRight, Building2, CalendarDays, Calculator, CheckCircle2, ExternalLink, Filter, GitCompare, Heart, MapPin, Search, ShieldCheck, SlidersHorizontal, X } from "lucide-react";
 
 
 type Project = {
@@ -233,6 +234,7 @@ export default function NewProjectsPage() {
                   <button type="button" aria-pressed={shortlistIds.includes(p.id)} onClick={()=>setShortlistIds(ids=>ids.includes(p.id)?ids.filter(id=>id!==p.id):[...ids,p.id])} className={"inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-bold " + (shortlistIds.includes(p.id) ? "border-rose-200 bg-rose-50 text-rose-700" : "border-slate-200 text-slate-600 hover:bg-slate-50")}><Heart className={"h-3.5 w-3.5 " + (shortlistIds.includes(p.id) ? "fill-current" : "")}/>{shortlistIds.includes(p.id) ? "Saved on this device" : "Save project"}</button>
                   <button type="button" disabled={!compareIds.includes(p.id) && compareIds.length>=3} aria-pressed={compareIds.includes(p.id)} onClick={()=>setCompareIds(ids=>ids.includes(p.id)?ids.filter(id=>id!==p.id):[...ids,p.id])} className={"inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-bold disabled:cursor-not-allowed disabled:opacity-40 " + (compareIds.includes(p.id) ? "border-blue-200 bg-blue-50 text-blue-800" : "border-slate-200 text-slate-600 hover:bg-slate-50")}><GitCompare className="h-3.5 w-3.5"/>{compareIds.includes(p.id) ? "Added to compare" : "Compare"}</button>
                 </div>
+                <button type="button" onClick={()=>router.push(`/projects/${p.id}#decision-intelligence`)} className="mt-4 inline-flex w-full items-center justify-center rounded-xl border border-blue-200 bg-blue-50 px-3 py-2.5 text-xs font-bold text-blue-800 hover:bg-blue-100"><Calculator className="mr-2 h-4 w-4"/>Calculate total cost & affordability</button>
                 <div className="mt-auto flex gap-2 pt-5">
                   <button onClick={()=>router.push(`/projects/${p.id}`)} className="flex-1 rounded-xl bg-slate-950 px-3 py-3 text-sm font-bold text-white hover:bg-blue-800">Explore project & enquire <ArrowRight className="ml-1 inline h-4 w-4"/></button>
                   {p.official_project_url && <a href={p.official_project_url} target="_blank" rel="noreferrer" aria-label="Open official developer project page" className="flex items-center justify-center rounded-xl border border-slate-200 px-3 text-slate-700 hover:bg-slate-50"><ExternalLink className="h-4 w-4"/></a>}
@@ -279,6 +281,19 @@ export default function NewProjectsPage() {
           <div className="rounded-2xl bg-slate-50 p-4"><p className="flex items-center gap-2 font-bold"><MapPin className="h-4 w-4"/>{[selected.locality?.name,selected.city?.name].filter(Boolean).join(", ") || selected.public_address || "Location to be confirmed"}</p><p className="mt-2 text-sm text-slate-600">Project data shown here is limited to recorded source information. Ask the developer to confirm the exact phase, live unit inventory, full price sheet and possession terms.</p>
             <div className="mt-3 flex flex-wrap gap-2">{selected.official_project_url&&<a className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold" href={selected.official_project_url} target="_blank" rel="noreferrer">Official project page <ExternalLink className="ml-1 inline h-3.5 w-3.5"/></a>}<a className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold" href={MAHARERA} target="_blank" rel="noreferrer">MahaRERA search <ExternalLink className="ml-1 inline h-3.5 w-3.5"/></a>{selected.brochure_url&&<a className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold" href={selected.brochure_url} target="_blank" rel="noreferrer">Brochure <ExternalLink className="ml-1 inline h-3.5 w-3.5"/></a>}</div>
           </div>
+          <ListingDecisionPanel
+            kind="project"
+            title={selected.official_name}
+            price={selected.published_price_min_inr}
+            verified={selected.verification_status === "verified"}
+            availabilityVerified={selected.verification_status === "verified" && selected.inventory_status === "verified_available" && isFresh(selected.inventory_verified_at)}
+            observedAt={selected.price_observed_at}
+            sourceUrl={selected.official_project_url}
+            possessionDate={dateLabel(selected.expected_possession_date)}
+            projectStatus={selected.construction_status}
+            unitCount={selected.total_units ?? undefined}
+            comparables={availableUnits.map(unit=>({price:unit.asking_price_inr ?? 0,areaSqft:unit.carpet_area_sqft}))}
+          />
           <section>
             <div className="flex flex-wrap items-center justify-between gap-2"><h3 className="text-lg font-extrabold">Published home configurations</h3><span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-600">Not live availability</span></div>
             <p className="mt-1 text-sm text-slate-500">These are configurations and plan details recorded from project sources. A configuration is not an available apartment; confirm the selected tower, approved carpet area and current quote with the builder.</p>

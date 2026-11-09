@@ -3,10 +3,12 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import type { Profile } from '@/lib/types';
-import { THANE_TOP_AGENTS, businessMapsUrl } from '@/lib/thane-agents';
-import { telHref, waHref } from '@/lib/contact';
+import { THANE_TOP_AGENTS } from '@/lib/thane-agents';
+import { telHref } from '@/lib/contact';
 
 type Props = { agents: Profile[] };
+
+const portraitFor = (id: string) => { const n = [...id].reduce((sum, char) => sum + char.charCodeAt(0), 0) % 90 + 1; return 'https://randomuser.me/api/portraits/' + (n % 2 ? 'women' : 'men') + '/' + n + '.jpg'; };
 
 const FAQ = [
   { q: 'How do I verify an agent’s MahaRERA registration?', a: 'Use the official MahaRERA portal to check the registration number and current status. A number displayed on GoNest should always be checked against the official register.' },
@@ -26,7 +28,7 @@ function AgentCard({ agent, top = false }: { agent: Profile; top?: boolean }) {
                 <div className="p-5">
                   <div className="flex items-start gap-3">
                     <Link href={`/agents/${agent.id}`} aria-label={`View ${agent.full_name ?? 'agent'} profile`} className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-100 bg-slate-100 text-xl font-extrabold text-slate-500">
-                      {agent.avatar_url ? <img src={agent.avatar_url} alt="" className="h-full w-full object-cover" /> : (agent.full_name ?? 'G').charAt(0).toUpperCase()}
+                      <img src={agent.avatar_url || portraitFor(agent.id)} alt={agent.avatar_url ? (agent.full_name ?? 'Agent') + ' profile photo' : 'Illustrative real-estate agent portrait'} title={agent.avatar_url ? undefined : 'Illustrative portrait; replace with the agent’s verified profile photo'} className="h-full w-full object-cover" />
                     </Link>
                     <div className="min-w-0 flex-1">
                       <Link href={`/agents/${agent.id}`} className="block text-lg font-extrabold leading-tight text-slate-950 hover:text-blue-700">{agent.full_name ?? 'GoNest agent'}</Link>
@@ -49,10 +51,9 @@ function AgentCard({ agent, top = false }: { agent: Profile; top?: boolean }) {
                 </div>
                 <div className="mt-auto p-4">
                   {agent.bio && <p className="mb-3 line-clamp-2 text-sm leading-6 text-slate-600">{agent.bio}</p>}
-                  <div className="grid grid-cols-3 gap-2">
-                    {agent.phone ? <a href={telHref(agent.phone)} className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-2 py-2.5 text-sm font-bold text-white hover:bg-blue-700">Call</a> : <span className="inline-flex items-center justify-center rounded-xl bg-slate-100 px-2 py-2.5 text-sm font-semibold text-slate-400">Call</span>}
-                    {agent.phone ? <a href={waHref(agent.phone, `Hi ${agent.full_name ?? ''}, I found your profile on GoNest and would like to enquire.`)} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-2 py-2.5 text-sm font-bold text-slate-700 hover:border-emerald-300 hover:bg-emerald-50">Message</a> : <Link href={`/agents/${agent.id}`} className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-2 py-2.5 text-sm font-bold text-slate-700">Message</Link>}
-                    <Link href={`/agents/${agent.id}`} className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-2 py-2.5 text-sm font-bold text-slate-700 hover:border-blue-300 hover:bg-blue-50">Meet</Link>
+                  <div className="grid grid-cols-2 gap-2">
+                    {agent.phone ? <a href={telHref(agent.phone)} className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-2 py-2.5 text-sm font-bold text-white hover:bg-blue-700">Call</a> : <Link href={`/agents/${agent.id}#contact`} className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-2 py-2.5 text-sm font-bold text-white">View contact</Link>}
+                    <Link href={`/agents/${agent.id}#contact-agent`} className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-2 py-2.5 text-sm font-bold text-slate-700 hover:border-blue-300 hover:bg-blue-50">Contact</Link>
                   </div>
                 </div>
               </article>
@@ -145,8 +146,8 @@ export function AgentDirectory({ agents }: Props) {
         <div className="mx-auto max-w-7xl px-5 sm:px-6 md:px-8">
           <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="mb-2 text-xs font-bold uppercase tracking-widest text-blue-700">Explore by location</p>
-              <h2 className="text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">Real estate agents near you</h2>
+              <p className="mb-2 text-xs font-bold uppercase tracking-widest text-blue-700">Featured collection · Thane</p>
+              <h2 className="text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">Agents For You</h2>
               <p className="mt-2 max-w-2xl text-sm text-slate-600 sm:text-base">Compare local agencies and agent profiles. Public directory information is clearly distinguished from GoNest verification.</p>
             </div>
             <span className="shrink-0 text-sm font-semibold text-slate-600">{THANE_TOP_AGENTS.length} local businesses</span>
@@ -156,14 +157,14 @@ export function AgentDirectory({ agents }: Props) {
               <article key={broker.name} className="group w-[82vw] max-w-[320px] shrink-0 snap-start overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg md:w-auto md:max-w-none">
                 <div className="relative flex h-44 items-center justify-center overflow-hidden bg-gradient-to-br from-slate-50 via-white to-blue-50">
                   {broker.profileImageUrl ? (
-                    <img src={broker.profileImageUrl} alt={`${broker.name} business profile image`} loading="lazy" referrerPolicy="no-referrer" className="h-24 w-24 rounded-2xl border border-slate-200 bg-white p-2 object-contain shadow-sm" />
+                    <img src={broker.profileImageUrl} alt="Illustrative real-estate professional portrait" loading="lazy" referrerPolicy="no-referrer" title="Illustrative portrait only; not a verified staff photograph" className="h-28 w-28 rounded-full border-4 border-white object-cover shadow-md" />
                   ) : (
                     <div aria-label={`${broker.name} logo placeholder`} className="flex h-24 w-24 items-center justify-center rounded-2xl border border-slate-200 bg-white text-3xl font-extrabold text-slate-500 shadow-sm">
                       {broker.name.split(/\\s+/).map((part) => part[0]).slice(0, 2).join("").toUpperCase()}
                     </div>
                   )}
                   <span className="absolute left-3 top-3 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-slate-800">#{index + 1} · Thane</span>
-                  <span className="absolute bottom-3 left-3 rounded-md bg-slate-950/75 px-2.5 py-1 text-[10px] font-semibold text-white">{broker.imageSourceLabel ?? "Business identity pending"}</span>
+                  <span className="absolute bottom-3 left-3 rounded-md bg-slate-950/75 px-2.5 py-1 text-[10px] font-semibold text-white">{broker.imageSourceLabel ?? "Illustrative professional portrait"}</span>
                 </div>
                 <div className="p-5">
                   <h3 className="line-clamp-2 min-h-12 text-lg font-extrabold text-slate-950">{broker.name}</h3>
@@ -173,14 +174,14 @@ export function AgentDirectory({ agents }: Props) {
                   <div className="mt-3 flex flex-wrap gap-1.5">{broker.services.map(service => <span key={service} className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">{service}</span>)}</div>
                   <p className="mt-3 line-clamp-2 min-h-10 text-xs leading-5 text-slate-500">{broker.address}</p>
                   <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-4">
-                    <a href={businessMapsUrl(broker)} target="_blank" rel="noreferrer" className="text-sm font-bold text-blue-700 hover:text-blue-900">View business →</a>
-                    <a href={`https://www.google.com/search?q=${encodeURIComponent(broker.name + " Thane reviews")}`} target="_blank" rel="noreferrer" className="text-sm font-semibold text-slate-600 hover:text-slate-950">Read reviews ↗</a>
+                    <Link href={`/agents/business/${broker.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`} className="text-sm font-bold text-blue-700 hover:text-blue-900">View public profile</Link>
+                    <span className="text-xs font-medium text-slate-500">Bookings after verified claim</span>
                   </div>
                 </div>
               </article>
             ))}
           </div>
-          <p className="mt-3 text-xs leading-5 text-slate-500">Public business-directory ratings are snapshots and may change. They are not GoNest reviews or endorsements. Images are business identity marks where sourced; otherwise a neutral initials placeholder is shown until a matching public team photo can be verified.</p>
+          <p className="mt-3 text-xs leading-5 text-slate-500">Public business-directory ratings are snapshots and may change. They are not GoNest reviews or endorsements. Portraits marked illustrative are representative visuals, not verified photographs of the listed business or its staff.</p>
         </div>
       </section>
 
