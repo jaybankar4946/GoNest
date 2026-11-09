@@ -9,7 +9,7 @@ export default function OpenGraphImage() {
   return new ImageResponse(
     (
       <div style={{ width: '100%', height: '100%', backgroundColor: '#FFFFFF', display: 'flex', alignItems: 'center', padding: '0 90px', fontFamily: 'Arial, Helvetica, sans-serif' }}>
-        <img src="https://www.gonest.in/gonest-icon.png" width="440" height="440" style={{ objectFit: 'contain' }} />
+        <img src="https://www.gonest.in/gonest-icon.svg" width="440" height="440" style={{ objectFit: 'contain' }} />
         <div style={{ marginLeft: 80, display: 'flex', flexDirection: 'column' }}>
           <div style={{ color: '#151B2B', fontSize: 78, fontWeight: 800, lineHeight: 1.1 }}>GoNest</div>
           <div style={{ width: 88, height: 8, borderRadius: 5, backgroundColor: '#1015E8', marginTop: 24, marginBottom: 34 }} />
