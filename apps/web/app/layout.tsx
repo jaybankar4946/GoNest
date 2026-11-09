@@ -21,7 +21,7 @@ export const metadata: Metadata = {
   title: { default: 'GoNest – Discover. Connect. Move Forward.', template: '%s | GoNest' },
   description: 'Discover, buy, rent and list residential properties with GoNest.',
   keywords: ['property Mumbai', 'property Bengaluru', 'property Delhi NCR', 'property Pune', 'property Hyderabad', 'apartments for sale India', 'rent homes India'],
-  icons: { icon: '/icon.svg', shortcut: '/icon.svg', apple: '/icon.svg' },
+  icons: { icon: '/icon.png', shortcut: '/icon.png', apple: '/icon.png' },
   openGraph: {
     siteName: 'GoNest',
     type: 'website',
