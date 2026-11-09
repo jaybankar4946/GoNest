@@ -20,7 +20,22 @@ export const metadata: Metadata = {
   title: { default: 'GoNest – Find Your Next Home Across India', template: '%s | GoNest' },
   description: 'Explore homes to buy or rent, new projects, and property professionals across Mumbai, Bengaluru, Delhi NCR, Pune and Hyderabad. Check listing status and property details before deciding.',
   keywords: ['property Mumbai', 'property Bengaluru', 'property Delhi NCR', 'property Pune', 'property Hyderabad', 'apartments for sale India', 'rent homes India'],
-  openGraph: { siteName: 'GoNest', type: 'website', locale: 'en_IN', title: 'GoNest – Find Your Next Home Across India', description: 'Explore homes to buy or rent, new projects, and property professionals across Mumbai, Bengaluru, Delhi NCR, Pune and Hyderabad.', url: 'https://gonest.in' },
+  icons: { icon: '/icon.svg', shortcut: '/icon.svg', apple: '/icon.svg' },
+  openGraph: {
+    siteName: 'GoNest',
+    type: 'website',
+    locale: 'en_IN',
+    title: 'GoNest – Begin Your Next Chapter with US',
+    description: 'Discover, buy, rent and list residential properties with GoNest.',
+    url: 'https://gonest.in',
+    images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: 'GoNest — Begin Your Next Chapter with US' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'GoNest – Begin Your Next Chapter with US',
+    description: 'Discover, buy, rent and list residential properties with GoNest.',
+    images: ['/opengraph-image'],
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
