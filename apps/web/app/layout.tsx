@@ -17,8 +17,9 @@ const jakarta = Plus_Jakarta_Sans({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://gonest.in'),
+  alternates: { canonical: 'https://gonest.in' },
   title: { default: 'GoNest', template: '%s | GoNest' },
-  description: 'Discover, buy, rent and list residential properties with GoNest.',
+  description: 'Discover homes for sale and rent, explore new projects, and connect with property professionals across India.',
   keywords: ['property Mumbai', 'property Bengaluru', 'property Delhi NCR', 'property Pune', 'property Hyderabad', 'apartments for sale India', 'rent homes India'],
   icons: { icon: '/icon.svg', shortcut: '/icon.svg', apple: '/icon.svg' },
   openGraph: {
@@ -28,13 +29,13 @@ export const metadata: Metadata = {
     title: 'GoNest',
     description: 'Discover, buy, rent and list residential properties with GoNest.',
     url: 'https://gonest.in',
-    images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: 'GoNest logo' }],
+    images: [{ url: '/opengraph-image?v=3', width: 1200, height: 630, alt: 'GoNest' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'GoNest – Discover. Connect. Move Forward.',
+    title: 'GoNest',
     description: 'Discover, buy, rent and list residential properties with GoNest.',
-    images: ['/opengraph-image'],
+    images: ['/opengraph-image?v=3'],
   },
 };
 
