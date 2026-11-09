@@ -17,22 +17,22 @@ const jakarta = Plus_Jakarta_Sans({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://gonest.in'),
-  title: { default: 'GoNest – Find Your Next Home Across India', template: '%s | GoNest' },
-  description: 'Explore homes to buy or rent, new projects, and property professionals across Mumbai, Bengaluru, Delhi NCR, Pune and Hyderabad. Check listing status and property details before deciding.',
+  title: { default: 'GoNest – Discover. Connect. Move Forward.', template: '%s | GoNest' },
+  description: 'Discover, buy, rent and list residential properties with GoNest.',
   keywords: ['property Mumbai', 'property Bengaluru', 'property Delhi NCR', 'property Pune', 'property Hyderabad', 'apartments for sale India', 'rent homes India'],
   icons: { icon: '/icon.svg', shortcut: '/icon.svg', apple: '/icon.svg' },
   openGraph: {
     siteName: 'GoNest',
     type: 'website',
     locale: 'en_IN',
-    title: 'GoNest – Begin Your Next Chapter with US',
+    title: 'GoNest – Discover. Connect. Move Forward.',
     description: 'Discover, buy, rent and list residential properties with GoNest.',
     url: 'https://gonest.in',
-    images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: 'GoNest — Begin Your Next Chapter with US' }],
+    images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: 'GoNest logo' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'GoNest – Begin Your Next Chapter with US',
+    title: 'GoNest – Discover. Connect. Move Forward.',
     description: 'Discover, buy, rent and list residential properties with GoNest.',
     images: ['/opengraph-image'],
   },
