@@ -8,7 +8,7 @@ import { adminGetPendingBrokerages, adminGetSupplyFunnel, type SupplyFunnel, adm
 import { imgUrl } from '@/lib/api';
 import { supabase } from '@/lib/supabase';
 import { formatPrice, timeAgo } from '@/lib/format';
-const TABS=['queue','projects','agencies','listings','supply','brokers','leads','business-enquiries','visits','reports','audit','funnel'] as const;
+const TABS=['queue','projects','developers','agencies','listings','supply','brokers','leads','business-enquiries','visits','reports','audit','funnel'] as const;
 type Tab=typeof TABS[number];
 const SC: Record<string,string>={active:'#16A34A',pending_review:'#D97706',rejected:'#DC2626',draft:'#6B6B6B',archived:'#6B6B6B',new:'#2563EB',contacted:'#D97706',closed:'#16A34A',confirmed:'#16A34A',requested:'#D97706',completed:'#6B6B6B'};
 const SB=(c:string): React.CSSProperties=>({fontSize:11,fontWeight:500,padding:'3px 10px',borderRadius:9999,background:c+'18',color:c});
@@ -16,7 +16,7 @@ const BTN=(c='#111'): React.CSSProperties=>({padding:'6px 14px',borderRadius:999
 const INP: React.CSSProperties={padding:'6px 10px',border:'1px solid #E5E5E5',borderRadius:8,fontSize:12,outline:'none',background:'#fff'};
 export default function AdminPage() {
   const router=useRouter();
-  const{profile,loading}=useAuth();
+  const{user,profile,loading}=useAuth();
   const[tab,setTab]=useState<Tab>('queue');
   const[queue,setQueue]=useState<any[]>([]);
   const[projectQueue,setProjectQueue]=useState<any[]>([]);
@@ -27,6 +27,7 @@ export default function AdminPage() {
   const[agencyErr,setAgencyErr]=useState<string|null>(null);
   const[listings,setListings]=useState<any[]>([]);
   const[brokers,setBrokers]=useState<any[]>([]);
+  const[developers,setDevelopers]=useState<any[]>([]);
   const[leads,setLeads]=useState<any[]>([]);
   const[businessEnquiries,setBusinessEnquiries]=useState<any[]>([]);
   const[businessEnquiryNotes,setBusinessEnquiryNotes]=useState<Record<string,string>>({});
@@ -52,6 +53,7 @@ export default function AdminPage() {
     adminGetPendingBrokerages().then(setAgencyQueue).catch(()=>setAgencyQueue([]));
     adminGetAllListings().then(setListings);
     adminGetBrokers().then(setBrokers);
+    adminGetAllDevelopers().then(setDevelopers).catch(()=>setDevelopers([]));
     adminGetAllLeads().then(setLeads);
     adminGetBusinessEnquiries().then(setBusinessEnquiries).catch(()=>setBusinessEnquiries([]));
     adminGetAllVisits().then(setVisits);
@@ -203,6 +205,16 @@ export default function AdminPage() {
             })}
           </div>
         )}
+        {tab==='developers'&&(
+          <section style={{display:'flex',flexDirection:'column',gap:10}}>
+            <div style={{padding:16,border:'1px solid #E5E5E5',borderRadius:12}}><h2 style={{fontSize:16,fontWeight:700}}>Developer / builder records</h2><p style={{fontSize:12,color:'#666',marginTop:4}}>Edit company identity, public contact details, website, RERA and verification state. Sample records are excluded.</p></div>
+            {developers.map((d:any)=><article key={d.id} style={{padding:14,border:'1px solid #E5E5E5',borderRadius:12,display:'flex',justifyContent:'space-between',gap:12,alignItems:'center',flexWrap:'wrap'}}>
+              <div><b>{d.operating_brand||d.registered_name}</b><p style={{fontSize:12,color:'#666'}}>{d.registered_name} · {d.verification_status} · RERA: {d.rera_registration||'—'}</p></div>
+              <button style={BTN()} onClick={async()=>{const registered_name=prompt('Registered company name',d.registered_name);if(registered_name===null)return;const operating_brand=prompt('Operating brand',d.operating_brand||'');if(operating_brand===null)return;const website_url=prompt('Website URL',d.website_url||'');if(website_url===null)return;const public_phone=prompt('Public phone',d.public_phone||'');if(public_phone===null)return;const public_business_address=prompt('Business address',d.public_business_address||'');if(public_business_address===null)return;const rera_registration=prompt('RERA registration',d.rera_registration||'');if(rera_registration===null)return;try{await adminUpdateDeveloper(d.id,{registered_name,operating_brand,website_url,public_phone,public_business_address,rera_registration});setDevelopers(await adminGetAllDevelopers());}catch(e){alert((e as Error).message||'Developer update failed');}}}>Edit developer</button>
+            </article>)}
+            {developers.length===0&&<p style={{fontSize:13,color:'#666'}}>No real developer records available.</p>}
+          </section>
+        )}
         {tab==='agencies'&&(
           <div style={{display:'flex',flexDirection:'column',gap:12}}>
             <p style={{fontSize:13,color:'#6B6B6B'}}>Agency submissions from agents. Verify only after checking the RERA number on the relevant state RERA website.</p>
@@ -297,12 +309,20 @@ export default function AdminPage() {
                     <p style={{fontSize:11,color:'#777'}}>Submitted verifier label: {u.verified_by||'Not provided'} · Confidence: {u.confidence_score??'Not provided'} · Review status: {u.review_status||'pending'}{u.reviewed_at?' · Reviewed '+new Date(u.reviewed_at).toLocaleString('en-IN'):''}</p>
                     <textarea aria-label={'Admin review notes for '+(project?.official_name||'unit')} placeholder="Evidence checked / reason for rejection (saved to audit history)" value={unitReviewNotes[u.id]??u.review_notes??''} onChange={e=>setUnitReviewNotes(old=>({...old,[u.id]:e.target.value}))} rows={2} style={{...INP,width:'100%',resize:'vertical'}}/>
                     <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+                      <button disabled={busy} onClick={async()=>{const unit_reference=prompt('Unit reference',u.unit_reference||'');if(unit_reference===null)return;const tower_name=prompt('Tower',u.tower_name||'');if(tower_name===null)return;const configuration=prompt('Configuration',u.configuration||'');if(configuration===null)return;const carpet_area_sqft=prompt('Carpet area (sq ft)',u.carpet_area_sqft??'');if(carpet_area_sqft===null)return;const asking_price_inr=prompt('Asking price INR',u.asking_price_inr??'');if(asking_price_inr===null)return;const availability_status=prompt('Availability',u.availability_status||'unknown');if(availability_status===null)return;const source_url=prompt('Evidence source URL',u.source_url||'');if(source_url===null)return;try{const {error}=await supabase.from('project_inventory_observations').update({unit_reference,tower_name,configuration,carpet_area_sqft:carpet_area_sqft?Number(carpet_area_sqft):null,asking_price_inr:asking_price_inr?Number(asking_price_inr):null,availability_status,source_url}).eq('id',u.id);if(error)throw error;setUnitEvidence(old=>old.map(x=>x.id===u.id?{...x,unit_reference,tower_name,configuration,carpet_area_sqft:carpet_area_sqft?Number(carpet_area_sqft):null,asking_price_inr:asking_price_inr?Number(asking_price_inr):null,availability_status,source_url}:x));}catch(e){alert((e as Error).message||'Unit update failed');}}} style={BTN('#374151')}>Edit unit data</button>
                       <button disabled={busy||!fresh||!u.source_url||u.availability_status!=='available'||u.review_status==='approved'} onClick={async()=>{setBusy(true);try{await adminReviewProjectUnit(u.id,'approved',unitReviewNotes[u.id]??'');setUnitEvidence(old=>old.map(x=>x.id===u.id?{...x,review_status:'approved',reviewed_at:new Date().toISOString(),review_notes:unitReviewNotes[u.id]??null}:x));}catch(e){alert((e as {message?:string})?.message??'Could not approve unit evidence.');}finally{setBusy(false);}}} style={{...BTN('#16A34A'),opacity:busy||!fresh||!u.source_url||u.availability_status!=='available'||u.review_status==='approved'?0.45:1}}>Approve unit evidence</button>
                       <button disabled={busy||u.review_status==='rejected'||!(unitReviewNotes[u.id]??'').trim()} onClick={async()=>{setBusy(true);try{await adminReviewProjectUnit(u.id,'rejected',unitReviewNotes[u.id]);setUnitEvidence(old=>old.map(x=>x.id===u.id?{...x,review_status:'rejected',reviewed_at:new Date().toISOString(),review_notes:unitReviewNotes[u.id]}:x));}catch(e){alert((e as {message?:string})?.message??'Could not reject unit evidence.');}finally{setBusy(false);}}} style={{...BTN('#DC2626'),opacity:busy||u.review_status==='rejected'||!(unitReviewNotes[u.id]??'').trim()?0.45:1}}>Reject with reason</button>
                     </div>
                   </article>;
                 })}
               </div>
+            </div>
+            <div style={{padding:16,border:'1px solid #E5E5E5',borderRadius:12,marginTop:10}}>
+              <h3 style={{fontSize:15,fontWeight:700,marginBottom:8}}>Edit project records</h3>
+              {allProjects.filter((p:any)=>p.verification_status!=='pending').map((p:any)=><article key={p.id} style={{padding:10,borderBottom:'1px solid #eee',display:'flex',justifyContent:'space-between',gap:10,alignItems:'center',flexWrap:'wrap'}}>
+                <div><b style={{fontSize:13}}>{p.official_name}</b><p style={{fontSize:11,color:'#666'}}>{p.developer?.operating_brand??'Developer not linked'} · {p.verification_status}</p></div>
+                <button style={BTN()} onClick={async()=>{const official_name=prompt('Project name',p.official_name);if(official_name===null)return;const public_address=prompt('Public address',p.public_address||'');if(public_address===null)return;const rera_number=prompt('RERA number',p.rera_number||'');if(rera_number===null)return;const construction_status=prompt('Construction status',p.construction_status||'unknown');if(construction_status===null)return;const inventory_status=prompt('Inventory status',p.inventory_status||'unknown');if(inventory_status===null)return;const official_project_url=prompt('Official project URL',p.official_project_url||'');if(official_project_url===null)return;try{await adminUpdateProject(p.id,{official_name,public_address,rera_number,construction_status,inventory_status,official_project_url});setAllProjects(await adminGetAllProjects());}catch(e){alert((e as Error).message||'Project update failed');}}}>Edit project</button>
+              </article>)}
             </div>
             <div style={{padding:16,border:'1px solid #E5E5E5',borderRadius:12,marginTop:10}}>
               <h3 style={{fontSize:15,fontWeight:700,marginBottom:8}}>All non-sample projects</h3>
@@ -333,6 +353,7 @@ export default function AdminPage() {
                 <div style={{flex:1,minWidth:0}}><p style={{fontSize:13,fontWeight:600,color:'#111',marginBottom:1}} className="lc1">{l.title}</p><p style={{fontSize:12,color:'#6B6B6B'}}>{l.city?.name} · {formatPrice(l.price,l.purpose)} · {l.view_count} views</p></div>
                 <div style={{display:'flex',alignItems:'center',gap:8,flexShrink:0}}>
                   <span style={SB(SC[l.status]??'#6B6B6B')}>{l.status.replace('_',' ')}</span>
+                  <button onClick={()=>router.push('/dashboard/edit/'+l.id)} style={{...BTN('#111'),fontSize:11}}>Edit details & photos</button>
                   <button onClick={()=>adminToggleFeatured(l.id,!l.featured).then(()=>setListings(p=>p.map(x=>x.id===l.id?{...x,featured:!x.featured}:x)))} style={{...BTN(l.featured?'#6B6B6B':'#2563EB'),fontSize:11}}>{l.featured?'Unfeature':'Feature'}</button>
                   {l.status==='pending_review'&&<button onClick={()=>moderate(l.id,'active','verified')} disabled={busy} style={{...BTN('#16A34A'),fontSize:11}}>Approve</button>}
                   {l.status==='active'&&<button onClick={()=>{if(confirm('Suspend this listing? It will be hidden from public search.'))void moderate(l.id,'suspended','unverified','Suspended by admin');}} disabled={busy} style={{...BTN('#DC2626'),fontSize:11}}>Suspend</button>}
@@ -348,7 +369,15 @@ export default function AdminPage() {
             {brokers.length===0&&<p style={{fontSize:14,color:'#6B6B6B'}}>No agents or owners yet.</p>}
             {brokers.map((b:any)=>(
               <div key={b.id} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 16px',border:'1px solid #E5E5E5',borderRadius:12}}>
-                <div><p style={{fontSize:14,fontWeight:600,color:'#111',marginBottom:2}}>{b.full_name??'—'}</p><p style={{fontSize:12,color:'#6B6B6B'}}>{b.role} · {b.agent_verified?'✓ Verified':'Unverified'}</p>{b.rera_number&&<p style={{fontSize:11,color:'#9B9B9B'}}>RERA: {b.rera_number}</p>}</div>
+                <div style={{display:'flex',gap:12,alignItems:'center',minWidth:0}}>
+                  {b.avatar_url?<img src={b.avatar_url} alt="" style={{width:48,height:48,borderRadius:'50%',objectFit:'cover'}}/>:<div style={{width:48,height:48,borderRadius:'50%',background:'#F3F4F6',display:'grid',placeItems:'center'}}>{(b.full_name??'G').charAt(0)}</div>}
+                  <div><p style={{fontSize:14,fontWeight:600,color:'#111',marginBottom:2}}>{b.full_name??'—'}</p><p style={{fontSize:12,color:'#6B6B6B'}}>{b.role} · {b.agent_verified?'✓ Verified':'Unverified'}</p>{b.rera_number&&<p style={{fontSize:11,color:'#9B9B9B'}}>RERA: {b.rera_number}</p>}
+                    <div style={{display:'flex',gap:6,marginTop:7,flexWrap:'wrap'}}>
+                      <button style={{...BTN('#111'),fontSize:11}} onClick={async()=>{const full_name=prompt('Full name',b.full_name??'');if(full_name===null)return;const phone=prompt('Contact phone',b.phone??'');if(phone===null)return;const agency_name=prompt('Agency / business name',b.agency_name??'');if(agency_name===null)return;const rera_number=prompt('RERA registration number',b.rera_number??'');if(rera_number===null)return;const bio=prompt('Profile bio',b.bio??'');if(bio===null)return;try{await adminUpdateProfile(b.id,{full_name,phone,agency_name,rera_number,bio});setBrokers(await adminGetBrokers());}catch(e){alert((e as Error).message||'Profile update failed');}}}>Edit profile</button>
+                      <label style={{...BTN('#374151'),fontSize:11,cursor:'pointer'}}>Update photo<input type="file" accept="image/jpeg,image/png,image/webp" style={{display:'none'}} onChange={async e=>{const file=e.target.files?.[0];if(!file||!user)return;try{const url=await uploadProfileImage(user.id,file);await adminUpdateProfile(b.id,{avatar_url:url});setBrokers(await adminGetBrokers());}catch(err){alert((err as Error).message||'Photo upload failed');}finally{e.target.value='';}}}/></label>
+                    </div>
+                  </div>
+                </div>
                 <div style={{display:'flex',gap:8,alignItems:'center'}}>
                   <button onClick={async()=>{try{await adminVerifyAgent(b.id,!b.agent_verified);setBrokers(await adminGetBrokers());}catch(e){alert((e as {message?:string})?.message??'Could not update verification.');}}} style={BTN(b.agent_verified?'#6B6B6B':'#16A34A')}>{b.agent_verified?'Unverify':'Verify'}</button>
                   <select value={b.role} aria-label={'Role for '+(b.full_name??'user')} onChange={async e=>{const role=e.target.value;if(!confirm('Change this account role to '+role+'?'))return;try{await adminSetRole(b.id,role);setBrokers(await adminGetBrokers());}catch(err){alert((err as {message?:string})?.message??'Could not update account role.');}}} style={INP}>{['buyer','owner','agent'].map(r=><option key={r} value={r}>{r}</option>)}</select>
