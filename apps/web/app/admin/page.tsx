@@ -200,6 +200,15 @@ export default function AdminPage() {
             })}
           </div>
         )}
+        {tab==='projects'&&(
+          <section style={{marginTop:20,display:'flex',flexDirection:'column',gap:8}}>
+            <h3 style={{fontSize:15,fontWeight:700}}>All real project records ({allProjects.length})</h3>
+            {allProjects.map((p:any)=><article key={p.id} style={{padding:13,border:'1px solid #E5E5E5',borderRadius:10,display:'flex',justifyContent:'space-between',gap:10,alignItems:'center',flexWrap:'wrap'}}>
+              <div><b style={{fontSize:13}}>{p.official_name}</b><p style={{fontSize:11,color:'#666'}}>{p.developer?.operating_brand||'Developer'} · {p.city?.name||'—'} · {p.verification_status} · {p.inventory_status}</p></div>
+              <button style={BTN()} onClick={async()=>{const official_name=prompt('Project name',p.official_name);if(official_name===null)return;const public_address=prompt('Public address',p.public_address||'');if(public_address===null)return;const rera_number=prompt('RERA number',p.rera_number||'');if(rera_number===null)return;const construction_status=prompt('Construction status (upcoming / under_construction / completed / on_hold / cancelled / unknown)',p.construction_status||'unknown');if(construction_status===null)return;const inventory_status=prompt('Inventory status (verified_available / advertised_unverified / sold_out / not_open_for_sale / unknown)',p.inventory_status||'unknown');if(inventory_status===null)return;const official_project_url=prompt('Official project URL',p.official_project_url||'');if(official_project_url===null)return;try{await adminUpdateProject(p.id,{official_name,public_address,rera_number,construction_status,inventory_status,official_project_url});setAllProjects(await adminGetAllProjects());}catch(e){alert((e as Error).message||'Project update failed');}}}>Edit project</button>
+            </article>)}
+          </section>
+        )}
         {tab==='agencies'&&(
           <div style={{display:'flex',flexDirection:'column',gap:12}}>
             <p style={{fontSize:13,color:'#6B6B6B'}}>Agency submissions from agents. Verify only after checking the RERA number on the relevant state RERA website.</p>
