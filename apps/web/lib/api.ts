@@ -287,7 +287,7 @@ export async function adminGetAllListings(): Promise<ListingFull[]> {
   return (data ?? []) as unknown as ListingFull[];
 }
 export async function adminGetBrokers(): Promise<Profile[]> {
-  const { data } = await supabase.from('profiles').select(PUBLIC_PROFILE).in('role', ['agent','owner']).order('agent_verified', { ascending: false }).order('total_listings', { ascending: false }).order('created_at', { ascending: false });
+  const { data } = await supabase.from('profiles').select(PUBLIC_PROFILE+',phone').in('role', ['agent','owner','builder']).order('agent_verified', { ascending: false }).order('total_listings', { ascending: false }).order('created_at', { ascending: false });
   return (data ?? []) as Profile[];
 }
 export async function adminGetAllLeads() {
@@ -464,6 +464,46 @@ export async function updateProfile(userId: string, input: Record<string, unknow
   const { error } = await supabase.from('profiles').update(input).eq('id', userId);
   if (error) throw error;
 }
+
+export async function adminUpdateProfile(profileId: string, input: Record<string, unknown>) {
+  const { error } = await supabase.from('profiles').update(input).eq('id', profileId);
+  if (error) throw error;
+}
+
+export async function adminGetAllDevelopers() {
+  const { data, error } = await supabase.from('developers')
+    .select('id,registered_name,operating_brand,website_url,public_business_address,public_phone,public_enquiry_url,rera_registration,verification_status,operating_cities,is_sample,updated_at')
+    .eq('is_sample', false).order('updated_at', { ascending: false });
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function adminUpdateDeveloper(id: string, input: Record<string, unknown>) {
+  const { error } = await supabase.from('developers').update(input).eq('id', id);
+  if (error) throw error;
+}
+
+export async function adminUpdateProject(id: string, input: Record<string, unknown>) {
+  const { error } = await supabase.from('real_estate_projects').update(input).eq('id', id);
+  if (error) throw error;
+}
+
+export async function adminGetProjectForEdit(id: string) {
+  const { data, error } = await supabase.from('real_estate_projects')
+    .select('id,developer_id,official_name,alternate_names,city_id,locality_id,public_address,rera_number,construction_status,launch_date,expected_possession_date,total_units,configurations,published_price_min_inr,published_price_max_inr,official_project_url,brochure_url,inventory_status,verification_status,is_sample')
+    .eq('id', id).maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
+export async function adminGetDeveloperForEdit(id: string) {
+  const { data, error } = await supabase.from('developers')
+    .select('id,registered_name,operating_brand,website_url,public_business_address,public_phone,public_enquiry_url,city_id,rera_registration,operating_cities,verification_status,is_sample')
+    .eq('id', id).maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
 
 export async function requestPasswordReset(email: string) {
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
