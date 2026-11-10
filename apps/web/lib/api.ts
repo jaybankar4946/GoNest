@@ -253,14 +253,18 @@ export async function createListing(input: Record<string, unknown>): Promise<str
   return data.id as string;
 }
 export async function uploadListingImage(userId: string, listingId: string, file: File, order: number): Promise<string> {
-  const extension = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+  const allowedTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
+  const maxBytes = 10 * 1024 * 1024;
+  if (!allowedTypes.has(file.type)) throw new Error(`“${file.name}” is not a supported image. Use JPG, PNG or WebP.`);
+  if (file.size > maxBytes) throw new Error(`“${file.name}” is too large. Each property photo must be 10 MB or smaller.`);
+  const extension = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg';
   const path = `${userId}/${listingId}/${crypto.randomUUID()}.${extension}`;
-  const { error: uploadError } = await supabase.storage.from('listing-images').upload(path, file, { contentType: file.type, upsert: false });
-  if (uploadError) throw uploadError;
+  const { error: uploadError } = await supabase.storage.from('listing-images').upload(path, file, { contentType: file.type, upsert: false, cacheControl: '31536000' });
+  if (uploadError) throw new Error(`Could not upload “${file.name}”: ${uploadError.message}`);
   const { error: recordError } = await supabase.from('listing_images').insert({ listing_id: listingId, storage_path: path, sort_order: order, is_cover: order === 0 });
   if (recordError) {
     await supabase.storage.from('listing-images').remove([path]);
-    throw recordError;
+    throw new Error(`Photo uploaded but could not be attached to the listing: ${recordError.message}`);
   }
   return path;
 }
