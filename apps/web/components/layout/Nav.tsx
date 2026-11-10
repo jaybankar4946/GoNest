@@ -71,7 +71,7 @@ export function Nav() {
                 <Link href="/enquiries" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 10px', borderRadius: 8, fontSize: 13, color: '#111' }}><MessageSquare size={14} /> My enquiries</Link>
                 <Link href="/saved-searches" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 10px', borderRadius: 8, fontSize: 13, color: '#111' }}>Saved searches</Link>
                 <Link href="/notifications" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 10px', borderRadius: 8, fontSize: 13, color: '#111' }}>Notifications</Link>
-                <Link href="/list-with-gonest" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 10px', borderRadius: 8, fontSize: 13, color: '#111' }}><Plus size={14} /> Post a property</Link>
+                <Link href="/list-with-gonest" onClick={() => setMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 10px', borderRadius: 8, fontSize: 13, color: '#111' }}><Plus size={14} /> List with GoNest</Link>
                 <div style={{ height: 1, background: 'var(--border)', margin: '4px 0' }} />
                 <button onClick={doSignOut} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 10px', borderRadius: 8, fontSize: 13, color: 'var(--err)', width: '100%', textAlign: 'left' }}><LogOut size={14} /> Sign out</button>
               </div></>}
