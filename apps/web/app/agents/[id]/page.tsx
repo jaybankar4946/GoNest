@@ -20,67 +20,142 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ i
   const { id } = await params;
   const agent = await getAgentById(id);
   if (!agent) notFound();
+
   const listings = await getAgentListings(id);
   const serviceAreas = [...(agent.service_localities ?? []), ...(agent.service_pincodes ?? [])];
-  const isVerified = agent.agent_verified && Boolean(agent.rera_number);
+  const isVerified = Boolean(agent.agent_verified && agent.rera_number);
 
   return (
     <>
       <Nav />
-      <main className="mx-auto max-w-7xl px-5 py-8 md:px-8 md:py-12">
-        <Link href="/agents" className="text-sm font-semibold text-blue-700 hover:underline">← All agents & owners</Link>
-        <section className="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <div className="flex flex-col gap-6 p-6 md:flex-row md:items-start md:p-8">
-            <div className="flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-100 bg-slate-100 text-4xl font-extrabold text-slate-500">
-              {agent.avatar_url ? <img src={agent.avatar_url} alt="" className="h-full w-full object-cover" /> : (agent.full_name ?? 'G').charAt(0).toUpperCase()}
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-bold uppercase tracking-widest text-blue-700">{agent.role === 'agent' ? 'Real estate agent / broker' : 'Property owner'}</p>
-              <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-950 md:text-4xl">{agent.full_name ?? 'GoNest member'}</h1>
-              <p className="mt-2 text-base text-slate-600">{agent.agency_name ?? 'Independent professional'}</p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                <span className={"rounded-full px-3 py-1.5 text-xs font-bold " + (isVerified ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-800")}>{isVerified ? '✓ GoNest verified' : 'Profile under review'}</span>
-                {agent.phone_verified && <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800">✓ Phone verified</span>}
-                <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700">{agent.rera_number ? 'RERA details submitted' : 'RERA details not provided'}</span>{serviceAreas.map(area=><span key={area} className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700">{area}</span>)}
-                {agent.rating != null && <span className="rounded-full bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-900">★ {agent.rating.toFixed(1)} · {agent.review_count} reviews</span>}
-              </div>
-              {agent.bio && <p className="mt-5 max-w-3xl whitespace-pre-line text-sm leading-7 text-slate-600">{agent.bio}</p>}<p className="mt-5 text-sm font-bold text-slate-900">Rent · Buy · Sell Operations</p>
-              <div className="mt-6 flex flex-wrap items-center gap-3">
-                <OwnerEditButton kind="profile" id={id} ownerId={agent.id} />
-                {agent.phone && <a href={telHref(agent.phone)} className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700">Call professional</a>}
-                {agent.phone && <a href={waHref(agent.phone, `Hi ${agent.full_name ?? ''}, I found your profile on GoNest and would like to enquire about your properties.`)} target="_blank" rel="noreferrer" className="rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white hover:bg-emerald-700">WhatsApp</a>}
-              </div>
-              {!agent.phone && <p className="mt-4 text-xs text-slate-500">Direct contact details have not been published for this profile.</p>}
-            </div>
-          </div>
-        </section>
+      <main className="bg-slate-50">
+        <div className="mx-auto max-w-7xl px-5 py-7 md:px-8 md:py-10">
+          <Link href="/agents" className="inline-flex items-center text-sm font-semibold text-blue-700 hover:underline">
+            ← All agents
+          </Link>
 
-        <section className="mt-10">
-          <div className="mb-5 flex flex-col gap-2 border-b border-slate-200 pb-5 sm:flex-row sm:items-end sm:justify-between">
-            <div><p className="text-sm font-bold uppercase tracking-widest text-blue-700">Current inventory</p><h2 className="mt-2 text-2xl font-extrabold text-slate-950 md:text-3xl">Properties listed by {agent.full_name ?? 'this professional'}</h2></div>
-            <p className="text-sm text-slate-500">{listings.length} active listing{listings.length === 1 ? '' : 's'}</p>
-          </div>
-          {listings.length === 0 ? (
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-8 text-center"><h3 className="font-bold text-slate-900">No active listings right now</h3><p className="mt-2 text-sm text-slate-600">Check back later or browse other GoNest professionals.</p><Link href="/agents" className="mt-4 inline-flex rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white">Browse other profiles</Link></div>
-          ) : (
-            <>
-              <p className="mb-5 max-w-3xl text-sm leading-6 text-slate-600">Open a property to review its details, contact the poster and request a visit. Visit requests are subject to confirmation by the owner or agent.</p>
-              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{listings.map((listing) => (
-                <article key={listing.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                  <PropertyCard listing={listing} />
-                  <details className="border-t border-slate-100">
-                    <summary className="cursor-pointer list-none px-5 py-4 text-sm font-extrabold text-blue-700 hover:bg-blue-50">Schedule a property visit · Check available times <span className="float-right" aria-hidden="true">＋</span></summary>
-                    <div className="border-t border-slate-100 bg-slate-50">
-                      <p className="px-4 pt-4 text-xs leading-5 text-slate-600">Choose a date and available time for this property. Your request remains pending until the owner or agent confirms it.</p>
-                      <ScheduleVisit listingId={listing.id} prefill={{ name: '', phone: '', email: '' }} />
+          <section className="mt-5 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+            <div className="grid gap-0 lg:grid-cols-[340px_1fr]">
+              <div className="relative min-h-[320px] bg-slate-100">
+                {agent.avatar_url ? (
+                  <img src={agent.avatar_url} alt={agent.full_name ?? 'Agent profile'} className="h-full min-h-[320px] w-full object-cover" />
+                ) : (
+                  <div className="flex h-full min-h-[320px] items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 text-7xl font-extrabold text-slate-400">
+                    {(agent.full_name ?? 'G').charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <span className="absolute left-5 top-5 rounded-full bg-white/95 px-4 py-2 text-xs font-extrabold text-slate-900 shadow-sm">
+                  {agent.total_listings} active listings
+                </span>
+              </div>
+
+              <div className="p-6 md:p-9">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-xs font-bold uppercase tracking-widest text-blue-700">
+                    {agent.role === 'agent' ? 'Real estate agent / broker' : 'Property owner'}
+                  </span>
+                  {isVerified && (
+                    <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-extrabold text-emerald-800">✓ GoNest verified</span>
+                  )}
+                </div>
+
+                <h1 className="mt-3 text-4xl font-extrabold tracking-tight text-slate-950 md:text-5xl">
+                  {agent.full_name ?? 'GoNest member'}
+                </h1>
+                <p className="mt-2 text-base font-semibold text-slate-500">{agent.agency_name ?? 'Independent professional'}</p>
+
+                <div className="mt-5 flex flex-wrap gap-2">
+                  {agent.rating != null && (
+                    <span className="rounded-full bg-amber-50 px-3 py-1.5 text-xs font-extrabold text-amber-900">
+                      ★ {agent.rating.toFixed(1)} · {agent.review_count ?? 0} reviews
+                    </span>
+                  )}
+                  {agent.phone_verified && (
+                    <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800">✓ Phone verified</span>
+                  )}
+                  <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700">
+                    {agent.rera_number ? `RERA details submitted · ${agent.rera_number}` : 'RERA details not provided'}
+                  </span>
+                </div>
+
+                <div className="mt-5 rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                  <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Services</p>
+                  <p className="mt-2 text-base font-extrabold text-slate-950">Rent · Buy · Sell Operations</p>
+                </div>
+
+                {serviceAreas.length > 0 && (
+                  <div className="mt-5">
+                    <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Service areas</p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {serviceAreas.map(area => (
+                        <span key={area} className="rounded-full bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-700">{area}</span>
+                      ))}
                     </div>
-                  </details>
-                </article>
-              ))}</div>
-            </>
-          )}
-        </section>
-        <AgentContactForm agentName={agent.full_name ?? 'this professional'} phone={agent.phone ?? null} />
+                  </div>
+                )}
+
+                {agent.bio && (
+                  <p className="mt-5 max-w-3xl whitespace-pre-line text-sm leading-7 text-slate-600">{agent.bio}</p>
+                )}
+
+                <div className="mt-7 flex flex-wrap gap-3">
+                  <OwnerEditButton kind="profile" id={id} ownerId={agent.id} />
+                  <a href="#contact-agent" className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700">Contact</a>
+                  {agent.phone && (
+                    <a href={waHref(agent.phone, `Hi ${agent.full_name ?? ''}, I found your profile on GoNest and would like to enquire about your properties.`)} target="_blank" rel="noreferrer" className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-700 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700">
+                      WhatsApp
+                    </a>
+                  )}
+                  {agent.phone && <a href={telHref(agent.phone)} className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-bold text-slate-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700">Call</a>}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="mt-10">
+            <div className="mb-5 flex flex-col gap-2 border-b border-slate-200 pb-5 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-widest text-blue-700">Current inventory</p>
+                <h2 className="mt-2 text-2xl font-extrabold text-slate-950 md:text-3xl">
+                  Properties listed by {agent.full_name ?? 'this professional'}
+                </h2>
+              </div>
+              <p className="text-sm font-semibold text-slate-500">{listings.length} active listing{listings.length === 1 ? '' : 's'}</p>
+            </div>
+
+            {listings.length === 0 ? (
+              <div className="rounded-3xl border border-slate-200 bg-white p-10 text-center shadow-sm">
+                <h3 className="font-bold text-slate-900">No active listings right now</h3>
+                <p className="mt-2 text-sm text-slate-600">Check back later or browse other GoNest professionals.</p>
+                <Link href="/agents" className="mt-4 inline-flex rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white">Browse other profiles</Link>
+              </div>
+            ) : (
+              <>
+                <p className="mb-5 max-w-3xl text-sm leading-6 text-slate-600">
+                  Open a property to review its details, contact the poster and request a visit. Visit requests remain pending until confirmed.
+                </p>
+                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                  {listings.map(listing => (
+                    <article key={listing.id} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                      <PropertyCard listing={listing} />
+                      <details className="border-t border-slate-100">
+                        <summary className="cursor-pointer list-none px-5 py-4 text-sm font-extrabold text-blue-700 hover:bg-blue-50">
+                          Schedule a property visit · Check available times <span className="float-right" aria-hidden="true">＋</span>
+                        </summary>
+                        <div className="border-t border-slate-100 bg-slate-50">
+                          <p className="px-4 pt-4 text-xs leading-5 text-slate-600">Choose a date and available time. Your request remains pending until the owner or agent confirms it.</p>
+                          <ScheduleVisit listingId={listing.id} prefill={{ name: '', phone: '', email: '' }} />
+                        </div>
+                      </details>
+                    </article>
+                  ))}
+                </div>
+              </>
+            )}
+          </section>
+
+          <AgentContactForm agentName={agent.full_name ?? 'this professional'} phone={agent.phone ?? null} />
+        </div>
       </main>
       <Footer />
     </>
