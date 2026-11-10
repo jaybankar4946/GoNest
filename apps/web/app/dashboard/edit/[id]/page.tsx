@@ -67,7 +67,7 @@ export default function EditListingPage() {
       const startOrder = (listing.listing_images?.length ?? 0) - removedImageIds.length;
       for (let i = 0; i < newImages.length; i++) await uploadListingImage(user.id, listing.id, newImages[i], startOrder + i);
       router.push('/dashboard');
-    } catch (e) { setErr(e instanceof Error ? e.message : 'Something went wrong.'); }
+    } catch (e) { const detail = e && typeof e === 'object' && 'message' in e ? String((e as { message?: unknown }).message ?? '') : ''; setErr(detail || (typeof e === 'string' ? e : 'The listing could not be saved. Please check the photo format, file size, and your permissions, then try again.')); }
     finally { setSaving(false); }
   };
 
