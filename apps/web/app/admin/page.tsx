@@ -333,6 +333,7 @@ export default function AdminPage() {
                 <div style={{flex:1,minWidth:0}}><p style={{fontSize:13,fontWeight:600,color:'#111',marginBottom:1}} className="lc1">{l.title}</p><p style={{fontSize:12,color:'#6B6B6B'}}>{l.city?.name} · {formatPrice(l.price,l.purpose)} · {l.view_count} views</p></div>
                 <div style={{display:'flex',alignItems:'center',gap:8,flexShrink:0}}>
                   <span style={SB(SC[l.status]??'#6B6B6B')}>{l.status.replace('_',' ')}</span>
+                  <button onClick={()=>router.push(`/dashboard/edit/${l.id}`)} style={{...BTN('#111827'),fontSize:11}}>Edit</button>
                   <button onClick={()=>adminToggleFeatured(l.id,!l.featured).then(()=>setListings(p=>p.map(x=>x.id===l.id?{...x,featured:!x.featured}:x)))} style={{...BTN(l.featured?'#6B6B6B':'#2563EB'),fontSize:11}}>{l.featured?'Unfeature':'Feature'}</button>
                   {l.status==='pending_review'&&<button onClick={()=>moderate(l.id,'active','verified')} disabled={busy} style={{...BTN('#16A34A'),fontSize:11}}>Approve</button>}
                   {l.status==='active'&&<button onClick={()=>{if(confirm('Suspend this listing? It will be hidden from public search.'))void moderate(l.id,'suspended','unverified','Suspended by admin');}} disabled={busy} style={{...BTN('#DC2626'),fontSize:11}}>Suspend</button>}
