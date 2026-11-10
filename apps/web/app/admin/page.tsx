@@ -8,7 +8,8 @@ import { adminGetPendingBrokerages, adminGetSupplyFunnel, type SupplyFunnel, adm
 import { imgUrl } from '@/lib/api';
 import { supabase } from '@/lib/supabase';
 import { formatPrice, timeAgo } from '@/lib/format';
-const TABS=['queue','projects','agencies','listings','supply','brokers','leads','visits','reports','audit','funnel'] as const;
+import { AdminMarketplaceManager } from '@/components/admin/AdminMarketplaceManager';
+const TABS=['manage','queue','projects','agencies','listings','supply','brokers','leads','visits','reports','audit','funnel'] as const;
 type Tab=typeof TABS[number];
 const SC: Record<string,string>={active:'#16A34A',pending_review:'#D97706',rejected:'#DC2626',draft:'#6B6B6B',archived:'#6B6B6B',new:'#2563EB',contacted:'#D97706',closed:'#16A34A',confirmed:'#16A34A',requested:'#D97706',completed:'#6B6B6B'};
 const SB=(c:string): React.CSSProperties=>({fontSize:11,fontWeight:500,padding:'3px 10px',borderRadius:9999,background:c+'18',color:c});
@@ -74,9 +75,9 @@ export default function AdminPage() {
           ))}
         </div>}
         <div style={{display:'flex',gap:4,marginBottom:28,flexWrap:'wrap'}}>
-          {TABS.map(t=><button key={t} onClick={()=>setTab(t)} style={TS(t)}>{t==='queue'?`Review queue (${queue.length})`:t==='reports'?`Reports (${reports.filter(r=>r.status==='open').length})`:t==='audit'?'Audit log':t==='supply'?'Launch inventory':t.charAt(0).toUpperCase()+t.slice(1)}</button>)}
+          {TABS.map(t=><button key={t} onClick={()=>setTab(t)} style={TS(t)}>{t==='manage'?'Marketplace editor':t==='queue'?`Review queue (${queue.length})`:t==='reports'?`Reports (${reports.filter(r=>r.status==='open').length})`:t==='audit'?'Audit log':t==='supply'?'Launch inventory':t.charAt(0).toUpperCase()+t.slice(1)}</button>)}
         </div>
-        {tab==='supply'&&(
+        {tab==='manage'&&<AdminMarketplaceManager/>}\n        {tab==='supply'&&(
           <section style={{display:'flex',flexDirection:'column',gap:18}}>
             <div style={{padding:18,border:'1px solid #E5E5E5',borderRadius:14,background:'#FAFAFA'}}>
               <h2 style={{fontSize:18,fontWeight:700,marginBottom:6}}>Supply-first launch targets</h2>
