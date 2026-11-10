@@ -12,7 +12,7 @@ const lbl: React.CSSProperties={fontSize:13,fontWeight:600,color:'#111',marginBo
 export default function EditListingPage() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
-  const { user, loading: authLoading } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
   const [listing, setListing] = useState<ListingFull | null>(null);
   const [cities, setCities] = useState<any[]>([]);
   const [localities, setLocalities] = useState<any[]>([]);
@@ -43,8 +43,8 @@ export default function EditListingPage() {
   useEffect(() => { if (!f?.city_id) { setLocalities([]); return; } getLocalities(f.city_id).then(setLocalities); }, [f?.city_id]);
 
   useEffect(() => {
-    if (!authLoading && listing && user && listing.posted_by !== user.id) router.push('/dashboard');
-  }, [authLoading, listing, user, router]);
+    if (!authLoading && listing && user && listing.posted_by !== user.id && profile?.role !== 'admin') router.push('/dashboard');
+  }, [authLoading, listing, user, profile?.role, router]);
 
   const upd = useCallback((k: string, v: any) => setF((p: any) => ({ ...p, [k]: v })), []);
   const removeExistingImage = (id: string) => setRemovedImageIds(p => [...p, id]);
