@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
 import { useAuth } from '@/components/layout/AuthProvider';
-import { adminGetPendingBrokerages, adminGetSupplyFunnel, type SupplyFunnel, adminGetPendingListings, adminGetAllListings, adminGetBrokers, adminGetAllLeads, adminGetAllVisits, adminGetStats, adminModerate, adminToggleFeatured, adminVerifyAgent, adminSetRole, adminGetReports, adminResolveReport, adminGetAuditLog, adminGetFunnel, adminGetLaunchInventoryDashboard, adminGetPendingProjects, adminGetAllProjects, adminReviewSubmission, adminReviewProjectUnit, adminGetBusinessEnquiries, adminUpdateBusinessEnquiry } from '@/lib/api';
+import { adminGetPendingBrokerages, adminGetSupplyFunnel, type SupplyFunnel, adminGetPendingListings, adminGetAllListings, adminGetBrokers, adminGetAllLeads, adminGetAllVisits, adminGetStats, adminModerate, adminToggleFeatured, adminVerifyAgent, adminSetRole, adminGetReports, adminResolveReport, adminGetAuditLog, adminGetFunnel, adminGetLaunchInventoryDashboard, adminGetPendingProjects, adminGetAllProjects, adminReviewSubmission, adminReviewProjectUnit, adminGetBusinessEnquiries, adminUpdateBusinessEnquiry, adminUpdateProfile, adminGetAllDevelopers, adminUpdateDeveloper, adminUpdateProject, uploadProfileImage } from '@/lib/api';
 import { imgUrl } from '@/lib/api';
 import { supabase } from '@/lib/supabase';
 import { formatPrice, timeAgo } from '@/lib/format';
