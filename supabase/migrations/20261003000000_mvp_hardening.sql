@@ -50,3 +50,16 @@ create policy p_st_ins on storage.objects for insert to authenticated
 drop policy if exists p_st_del on storage.objects;
 create policy p_st_del on storage.objects for delete to authenticated
   using (bucket_id = 'listing-images' and ((storage.foldername(name))[1] = auth.uid()::text or public.is_admin()));
+
+
+-- Listing photo edit/upload permissions: preserve owner access and allow admins to manage photos on any listing.
+drop policy if exists listing_images_insert_owner on public.listing_images;
+create policy listing_images_insert_owner on public.listing_images for insert to authenticated
+with check (exists (select 1 from public.listings l where l.id=listing_images.listing_id and (l.posted_by=auth.uid() or public.is_admin())));
+drop policy if exists listing_images_update_owner on public.listing_images;
+create policy listing_images_update_owner on public.listing_images for update to authenticated
+using (exists (select 1 from public.listings l where l.id=listing_images.listing_id and (l.posted_by=auth.uid() or public.is_admin())))
+with check (exists (select 1 from public.listings l where l.id=listing_images.listing_id and (l.posted_by=auth.uid() or public.is_admin())));
+drop policy if exists listing_images_delete_owner on public.listing_images;
+create policy listing_images_delete_owner on public.listing_images for delete to authenticated
+using (exists (select 1 from public.listings l where l.id=listing_images.listing_id and (l.posted_by=auth.uid() or public.is_admin())));
