@@ -384,6 +384,15 @@ export const adminGetPending = adminGetPendingListings;
 export const adminGetLeads   = adminGetAllLeads;
 export const adminGetVisits  = adminGetAllVisits;
 
+// --- Public agency directory profiles ---
+export async function getPublicBrokerageBySlug(slug: string) {
+  const { data, error } = await supabase.from('brokerages')
+    .select('id,business_name,public_business_phone,public_enquiry_url,public_business_address,source_url,website_url,localities,rera_registration,verification_status,city_id,city:cities(name)')
+    .eq('is_sample', false).in('verification_status', ['pending', 'verified']);
+  if (error) throw error;
+  return (data ?? []).find((row: any) => row.business_name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') === slug) ?? null;
+}
+
 // --- Agents directory (used by app/agents and app/agents/[id]) ---
 export async function getPublicBrokerages() {
   const { data, error } = await supabase.from('brokerages')
