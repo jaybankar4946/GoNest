@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, useState, useCallback, useRef } f
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 
-type Profile = { id: string; full_name: string|null; phone: string|null; role: string; agency_name: string|null; agent_verified: boolean; rera_number: string|null; avatar_url: string|null; bio: string|null; service_localities: string[]; service_pincodes: string[] };
+type Profile = { id: string; full_name: string|null; phone: string|null; role: string; admin_level: string|null; agency_name: string|null; agent_verified: boolean; rera_number: string|null; avatar_url: string|null; bio: string|null; service_localities: string[]; service_pincodes: string[] };
 type Ctx = { user: User|null; profile: Profile|null; loading: boolean; signOut: ()=>Promise<void>; refresh: ()=>Promise<void> };
 const Ctx = createContext<Ctx>({ user:null, profile:null, loading:true, signOut:async()=>{}, refresh:async()=>{} });
 
@@ -20,7 +20,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // then fetch the user's own phone via the get_my_profile_phone() RPC (non-fatal).
     const { data, error } = await supabase
       .from('profiles')
-      .select('id,full_name,role,agency_name,agent_verified,rera_number,avatar_url,bio,service_localities,service_pincodes')
+      .select('id,full_name,role,admin_level,agency_name,agent_verified,rera_number,avatar_url,bio,service_localities,service_pincodes')
       .eq('id',uid)
       .maybeSingle();
     if (error) throw error;
