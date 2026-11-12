@@ -342,11 +342,24 @@ export default function AdminPage() {
         )}
         {tab==='brokers'&&(
           <div style={{display:'flex',flexDirection:'column',gap:10}}>
+            <div style={{padding:'16px 18px',border:'1px solid #DBEAFE',borderRadius:14,background:'#EFF6FF'}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:12,flexWrap:'wrap'}}>
+                <div><p style={{fontSize:16,fontWeight:800,color:'#111827'}}>Central Marketplace Management</p><p style={{fontSize:12,color:'#475569',marginTop:3}}>Manage every agent profile from one place. Edit profile details, photo, RERA, services and verification.</p></div>
+                <span style={{fontSize:13,fontWeight:800,color:'#1D4ED8'}}>{brokers.filter((b:any)=>b.role==='agent').length} Agents</span>
+              </div>
+            </div>
             {brokers.length===0&&<p style={{fontSize:14,color:'#6B6B6B'}}>No agents or owners yet.</p>}
             {brokers.map((b:any)=>(
-              <div key={b.id} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 16px',border:'1px solid #E5E5E5',borderRadius:12}}>
-                <div><p style={{fontSize:14,fontWeight:600,color:'#111',marginBottom:2}}>{b.full_name??'—'}</p><p style={{fontSize:12,color:'#6B6B6B'}}>{b.role} · {b.agent_verified?'✓ Verified':'Unverified'}</p>{b.rera_number&&<p style={{fontSize:11,color:'#9B9B9B'}}>RERA: {b.rera_number}</p>}</div>
-                <div style={{display:'flex',gap:8,alignItems:'center'}}>
+              <div key={b.id} style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:16,padding:'14px 16px',border:'1px solid #E5E5E5',borderRadius:12,background:'#fff'}}>
+                <div style={{display:'flex',alignItems:'center',gap:12,minWidth:0}}>
+                  <div style={{width:52,height:52,borderRadius:'50%',overflow:'hidden',background:'#EFF6FF',display:'grid',placeItems:'center',flexShrink:0}}>
+                    {b.avatar_url?<img src={b.avatar_url} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}}/>:<span style={{fontSize:18,fontWeight:800,color:'#2563EB'}}>{(b.full_name??'A').charAt(0)}</span>}
+                  </div>
+                  <div>
+                <div><p style={{fontSize:14,fontWeight:600,color:'#111',marginBottom:2}}>{b.full_name??'—'}</p><p style={{fontSize:12,color:'#6B6B6B'}}>{b.role} · {b.agent_verified?'✓ Verified':'Unverified'}</p>{b.rera_number&&<p style={{fontSize:11,color:'#9B9B9B'}}>RERA: {b.rera_number}</p>}</div></div>
+                <div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}>
+                  <a href={`/admin/agents/${b.id}/edit`} style={{...BTN('#2563EB'),textDecoration:'none'}}>Edit Profile</a>
+                  <a href={`/agents/${b.id}`} target="_blank" rel="noopener noreferrer" style={{...BTN('#475569'),textDecoration:'none'}}>View</a>
                   <button onClick={async()=>{try{await adminVerifyAgent(b.id,!b.agent_verified);setBrokers(await adminGetBrokers());}catch(e){alert((e as {message?:string})?.message??'Could not update verification.');}}} style={BTN(b.agent_verified?'#6B6B6B':'#16A34A')}>{b.agent_verified?'Unverify':'Verify'}</button>
                   <select value={b.role} aria-label={'Role for '+(b.full_name??'user')} onChange={async e=>{const role=e.target.value;if(!confirm('Change this account role to '+role+'?'))return;try{await adminSetRole(b.id,role);setBrokers(await adminGetBrokers());}catch(err){alert((err as {message?:string})?.message??'Could not update account role.');}}} style={INP}>{['buyer','owner','agent'].map(r=><option key={r} value={r}>{r}</option>)}</select>
                   <button onClick={async()=>{if(!confirm('Remove this person from the public agent/owner directory? Their account and data will be retained; role changes to buyer.'))return;try{await adminSetRole(b.id,'buyer');setBrokers(await adminGetBrokers());}catch(e){alert((e as {message?:string})?.message??'Could not remove from directory.');}}} style={{...BTN('#B91C1C'),fontSize:11}}>Remove from directory</button>
