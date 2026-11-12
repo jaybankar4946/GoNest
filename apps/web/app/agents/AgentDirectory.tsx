@@ -3,71 +3,48 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import type { Profile } from '@/lib/types';
-import { THANE_TOP_AGENTS } from '@/lib/thane-agents';
 
-type Props = { agents: Profile[] };
-const cities = ['All Cities', 'Thane', 'Mumbai', 'Pune'];
-const serviceFilters = ['All Services', 'Buy', 'Sell', 'Rent'];
+type Props = { agents: Profile[]; brokerages: any[] };
 const agencySlug = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
 function AgentListingCard({ agent }: { agent: Profile }) {
   const name = agent.full_name ?? 'GoNest agent';
   const verified = agent.agent_verified && Boolean(agent.rera_number);
-  const operations = ['Rent', 'Buy', 'Sell'];
-  return <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-    <Link href={'/agents/' + agent.id} className="relative block aspect-[4/3] overflow-hidden bg-slate-100">
-      {agent.avatar_url ? <img src={agent.avatar_url} alt={name + ' profile'} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"/> : <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 text-slate-500"><span className="text-5xl font-semibold">{name.charAt(0).toUpperCase()}</span><span className="mt-2 text-xs font-semibold uppercase tracking-widest">Profile photo not added</span></div>}
-      <span className={"absolute left-3 top-3 rounded-full px-3 py-1.5 text-[11px] font-bold shadow-sm " + (verified ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-800")}>{verified ? "GoNest verified" : "Profile under review"}</span>
-      <span className="absolute bottom-3 left-3 rounded-lg bg-white/95 px-3 py-1.5 text-xs font-bold text-slate-900 shadow-sm">{agent.total_listings} active listings</span>
+  return <article className="flex h-full gap-4 rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-slate-300 hover:shadow-sm">
+    <Link href={'/agents/' + agent.id} aria-label={'View ' + name} className="h-16 w-16 shrink-0 overflow-hidden rounded-full border border-slate-100 bg-slate-100">
+      {agent.avatar_url ? <img src={agent.avatar_url} alt={name} className="h-full w-full object-cover"/> : <span className="flex h-full w-full items-center justify-center text-xl font-bold text-slate-500">{name.charAt(0).toUpperCase()}</span>}
     </Link>
-    <div className="flex flex-1 flex-col p-4 sm:p-5">
-      <h3 className="truncate text-lg font-extrabold text-slate-950">{name}</h3>
-      <p className="mt-1 truncate text-sm font-medium text-slate-600">{agent.agency_name ?? 'Independent agent'}</p>
-      <div className="mt-3 flex flex-wrap gap-2">
-        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700">{agent.rera_number ? 'RERA details submitted' : 'RERA details not provided'}</span>
-        {(agent.service_pincodes ?? []).map(pin=><span key={pin} className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700">{pin}</span>)}
-        {(agent.service_localities ?? []).map(locality=><span key={locality} className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700">{locality}</span>)}
-      </div>
-      {agent.bio && <p className="mt-3 line-clamp-2 min-h-10 text-sm leading-5 text-slate-600">{agent.bio}</p>}
-      <p className="mt-3 text-sm font-bold text-slate-900">{operations.join(' · ')}</p>
-      <div className="mt-auto grid grid-cols-2 gap-2 pt-5">
-        <Link href={'/agents/' + agent.id} className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-3 py-3 text-sm font-bold text-slate-800 hover:border-slate-400">View profile</Link>
-        <Link href={'/agents/' + agent.id + '#contact-agent'} className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-3 py-3 text-sm font-bold text-white hover:bg-blue-700">Contact</Link>
-      </div>
+    <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex flex-wrap items-center gap-2"><h3 className="truncate text-base font-bold text-slate-950">{name}</h3><span className={"rounded-full px-2 py-0.5 text-[10px] font-semibold " + (verified ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600")}>{verified ? "Verified" : "Under review"}</span></div>
+      <p className="mt-0.5 truncate text-sm text-slate-600">{agent.agency_name ?? 'Independent agent'}</p>
+      <p className="mt-1 text-xs text-slate-500">{agent.rera_number ? 'RERA details submitted' : 'RERA details not provided'} · {agent.total_listings ?? 0} active listings</p>
+      {(agent.service_localities ?? []).length > 0 && <p className="mt-1 truncate text-xs text-slate-500">{agent.service_localities.join(' · ')}</p>}
+      <div className="mt-3 flex flex-wrap gap-2"><Link href={'/agents/' + agent.id} className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700">View profile</Link><Link href={'/agents/' + agent.id + '#contact-agent'} className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white">Contact</Link></div>
     </div>
   </article>;
 }
 
-function PublicAgencyListingCard({ agency }: { agency: (typeof THANE_TOP_AGENTS)[number] }) {
-  const services = ['Rent', 'Buy', 'Sell'];
-  const pin = agency.address.match(/\\b\\d{6}\\b/)?.[0] ?? null;
-  const slug = agencySlug(agency.name);
-  const profileHref = `/agents/business/${slug}`;
-  return <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-    <Link href={profileHref} className="relative block aspect-[4/3] overflow-hidden bg-slate-100">
-      {agency.imageUrl ? <img src={agency.imageUrl} alt={agency.name + ' profile'} className="h-full w-full object-contain bg-white p-8"/> : <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 text-slate-500"><span className="text-5xl font-semibold">{agency.name.split(/\\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase()}</span><span className="mt-2 text-xs font-semibold uppercase tracking-widest">Agency profile</span></div>}
-      <span className="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-bold text-slate-800 shadow-sm">Business profile</span>
-      <span className="absolute bottom-3 left-3 rounded-lg bg-white/95 px-3 py-1.5 text-xs font-bold text-slate-900 shadow-sm">0 active listings</span>
-    </Link>
-    <div className="flex flex-1 flex-col p-4 sm:p-5">
-      <h3 className="text-lg font-extrabold text-slate-950">{agency.name}</h3>
-      <p className="mt-1 text-sm font-medium text-slate-600">{agency.area} · {agency.city}</p>
-      <div className="mt-3 flex flex-wrap gap-2">
-        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700">RERA details not provided</span>
-        {pin && <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-700">{pin}</span>}
-      </div>
-      <p className="mt-3 text-sm font-bold text-slate-900">{services.join(' · ')}</p>
-      <p className="mt-3 text-sm leading-5 text-slate-600">{agency.address}</p>
-      {agency.rating != null && <p className="mt-3 text-sm font-bold text-slate-900">★{agency.rating.toFixed(1)} <span className="font-normal text-slate-500">({agency.publicReviewCount != null ? agency.publicReviewCount.toLocaleString('en-IN') + ' public reviews' : 'public rating'})</span></p>}
-      <div className="mt-auto grid grid-cols-2 gap-2 pt-5">
-        <Link href={profileHref} className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-3 py-3 text-sm font-bold text-slate-800 hover:border-slate-400">View profile</Link>
-        <Link href={profileHref + '#contact-agency'} className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-3 py-3 text-sm font-bold text-white hover:bg-blue-700">Contact</Link>
-      </div>
+function PublicAgencyListingCard({ agency }: { agency: any }) {
+  const name = agency.business_name ?? 'Property agency';
+  const area = (agency.localities ?? []).join(' · ');
+  const city = agency.city?.name ?? '';
+  const pin = agency.public_business_address?.match(/\\b\\d{6}\\b/)?.[0] ?? null;
+  const slug = agencySlug(name);
+  const profileHref = '/agents/business/' + slug;
+  const verified = agency.verification_status === 'verified';
+  return <article className="flex h-full gap-4 rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-slate-300 hover:shadow-sm">
+    <Link href={profileHref} aria-label={'View ' + name} className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-slate-100 bg-slate-100 text-lg font-bold text-slate-600">{name.split(/\\s+/).slice(0,2).map((w:string)=>w[0]).join('').toUpperCase()}</Link>
+    <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex flex-wrap items-center gap-2"><h3 className="text-base font-bold text-slate-950">{name}</h3><span className={"rounded-full px-2 py-0.5 text-[10px] font-semibold " + (verified ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600")}>{verified ? "Verified" : "Business profile"}</span></div>
+      <p className="mt-0.5 text-sm text-slate-600">{[area, city].filter(Boolean).join(' · ')}</p>
+      <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-500">{agency.public_business_address ?? 'Address not provided'}{pin ? ' · ' + pin : ''}</p>
+      <p className="mt-1 text-xs text-slate-500">{agency.rera_registration ? 'RERA details submitted' : 'RERA details not provided'}</p>
+      <div className="mt-auto flex flex-wrap gap-2 pt-3"><Link href={profileHref} className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700">View profile</Link>{agency.public_business_phone && <a href={'tel:' + agency.public_business_phone} className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white">Contact</a>}</div>
     </div>
   </article>;
 }
 
-export function AgentDirectory({ agents }: Props) {
+export function AgentDirectory({ agents, brokerages }: Props) {
   const [search, setSearch] = useState('');
   const [city, setCity] = useState('All Cities');
   const [service, setService] = useState('All Services');
@@ -75,16 +52,19 @@ export function AgentDirectory({ agents }: Props) {
   const [loc, setLoc] = useState('');
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [area, setArea] = useState('Any area');
-  const areaOptions = useMemo(() => Array.from(new Set([...THANE_TOP_AGENTS.flatMap(a => a.area.split(' · ')), ...agents.flatMap(a => a.service_localities ?? [])].map(x => x.trim()).filter(Boolean))).sort(), [agents]);
-  const publicAgencies = useMemo(() => THANE_TOP_AGENTS.filter(a =>
-    (city === 'All Cities' || a.city === city) &&
-    !verifiedOnly &&
-    (area === 'Any area' || a.area.includes(area)) &&
-    (!loc.trim() || (a.city + ' ' + a.area + ' ' + a.address).toLowerCase().includes(loc.toLowerCase().trim())) &&
-    (service === 'All Services' || (a.services ?? []).includes(service)) &&
-    (minRating === 'Any rating' || (a.rating != null && a.rating >= Number(minRating))) &&
-    (a.name + ' ' + a.city + ' ' + a.area + ' ' + a.address + ' ' + (a.services ?? []).join(' ') + ' ' + (a.businessType ?? '')).toLowerCase().includes(search.toLowerCase().trim())
-  ), [city, service, minRating, search, loc, verifiedOnly, area]);
+  const areaOptions = useMemo(() => Array.from(new Set([...brokerages.flatMap(a => a.localities ?? []), ...agents.flatMap(a => a.service_localities ?? [])].map((x:string) => x.trim()).filter(Boolean))).sort(), [agents, brokerages]);
+  const publicAgencies = useMemo(() => brokerages.filter(a => {
+    const cityName = a.city?.name ?? '';
+    const areas = (a.localities ?? []).join(' ');
+    const text = [a.business_name, cityName, areas, a.public_business_address, a.public_business_phone, a.rera_registration].filter(Boolean).join(' ').toLowerCase();
+    return (city === 'All Cities' || cityName === city)
+      && (!verifiedOnly || a.verification_status === 'verified')
+      && (area === 'Any area' || (a.localities ?? []).some((x:string) => x.includes(area)))
+      && (!loc.trim() || (cityName + ' ' + areas + ' ' + (a.public_business_address ?? '')).toLowerCase().includes(loc.toLowerCase().trim()))
+      && (service === 'All Services' || ['Buy','Sell','Rent'].includes(service))
+      && (minRating === 'Any rating')
+      && text.includes(search.toLowerCase().trim());
+  }), [brokerages, city, verifiedOnly, area, loc, service, minRating, search]);
   const registeredAgents = useMemo(() => agents.filter(a => {
     if (a.role !== 'agent') return false;
     const locations = [...(a.service_localities ?? []), ...(a.service_pincodes ?? [])].join(' ').toLowerCase();
@@ -123,8 +103,8 @@ export function AgentDirectory({ agents }: Props) {
       </div>
     </section>
     <section id="agent-results" className="mx-auto max-w-7xl px-5 py-9 md:px-8">
-      <div className="mb-5 flex flex-wrap items-end justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-widest text-blue-700">GoNest professionals</p><h2 className="mt-1 text-2xl font-extrabold text-slate-950">Real estate agent profiles</h2><p className="mt-1 text-sm text-slate-600">Explore agent and brokerage profiles in the same image-led, responsive card layout as property search. New agent profiles appear after account creation; verification status is shown separately while details are reviewed.</p></div><span className="text-sm font-semibold text-slate-500">{registeredAgents.length + publicAgencies.length} results</span></div>
-      {(registeredAgents.length + publicAgencies.length) > 0 ? <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-2">{registeredAgents.map(a=><AgentListingCard key={a.id} agent={a}/>)}{publicAgencies.map(agency=><PublicAgencyListingCard key={agency.name} agency={agency}/>)}</div> : <p className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-600">No agent profiles match these filters.</p>}
+      <div className="mb-5 flex flex-wrap items-end justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-widest text-blue-700">GoNest professionals</p><h2 className="mt-1 text-2xl font-extrabold text-slate-950">Real estate agent profiles</h2><p className="mt-1 text-sm text-slate-600">Compact agent and agency profiles with clear contact details and verification status.</p></div><span className="text-sm font-semibold text-slate-500">{registeredAgents.length + publicAgencies.length} results</span></div>
+      {(registeredAgents.length + publicAgencies.length) > 0 ? <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-2">{registeredAgents.map(a=><AgentListingCard key={a.id} agent={a}/>)}{publicAgencies.map(agency=><PublicAgencyListingCard key={agency.name} agency={agency}/>)}</div> : <p className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-600">No agent profiles match these filters.</p>}
     </section>
   </>;
 }
