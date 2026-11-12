@@ -28,12 +28,12 @@ function PublicAgencyListingCard({ agency }: { agency: any }) {
   const name = agency.business_name ?? 'Property agency';
   const area = (agency.localities ?? []).join(' · ');
   const city = agency.city?.name ?? '';
-  const pin = agency.public_business_address?.match(/\\b\\d{6}\\b/)?.[0] ?? null;
+  const pin = agency.public_business_address?.match(/\b\d{6}\b/)?.[0] ?? null;
   const slug = agencySlug(name);
   const profileHref = '/agents/business/' + slug;
   const verified = agency.verification_status === 'verified';
   return <article className="flex h-full gap-4 rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-slate-300 hover:shadow-sm">
-    <Link href={profileHref} aria-label={'View ' + name} className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-slate-100 bg-slate-100 text-lg font-bold text-slate-600">{name.split(/\\s+/).slice(0,2).map((w:string)=>w[0]).join('').toUpperCase()}</Link>
+    <Link href={profileHref} aria-label={'View ' + name} className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-slate-100 bg-slate-100 text-lg font-bold text-slate-600">{name.split(/\s+/).slice(0,2).map((w:string)=>w[0]).join('').toUpperCase()}</Link>
     <div className="flex min-w-0 flex-1 flex-col">
       <div className="flex flex-wrap items-center gap-2"><h3 className="text-base font-bold text-slate-950">{name}</h3><span className={"rounded-full px-2 py-0.5 text-[10px] font-semibold " + (verified ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600")}>{verified ? "Verified" : "Business profile"}</span></div>
       <p className="mt-0.5 text-sm text-slate-600">{[area, city].filter(Boolean).join(' · ')}</p>
@@ -61,7 +61,7 @@ export function AgentDirectory({ agents, brokerages }: Props) {
       && (!verifiedOnly || a.verification_status === 'verified')
       && (area === 'Any area' || (a.localities ?? []).some((x:string) => x.includes(area)))
       && (!loc.trim() || (cityName + ' ' + areas + ' ' + (a.public_business_address ?? '')).toLowerCase().includes(loc.toLowerCase().trim()))
-      && (service === 'All Services' || ['Buy','Sell','Rent'].includes(service))
+      && (service === 'All Services')
       && (minRating === 'Any rating')
       && text.includes(search.toLowerCase().trim());
   }), [brokerages, city, verifiedOnly, area, loc, service, minRating, search]);
