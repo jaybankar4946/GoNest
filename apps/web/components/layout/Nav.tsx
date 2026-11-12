@@ -3,7 +3,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { NotificationBell } from './NotificationBell';
-import { MessageSquare, Home, Heart, User, Plus, Menu, X, LogOut, LayoutDashboard, ShieldCheck } from 'lucide-react';
+import { MessageSquare, Heart, User, Plus, Menu, X, LogOut, LayoutDashboard, ShieldCheck } from 'lucide-react';
 import { useAuth } from './AuthProvider';
 
 const LINKS = [
