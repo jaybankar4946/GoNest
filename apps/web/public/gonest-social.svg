@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#103F34"/><stop offset="1" stop-color="#1B6650"/></linearGradient></defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="1000" cy="80" r="260" fill="#fff" opacity=".045"/><circle cx="110" cy="610" r="250" fill="#D9F3A5" opacity=".08"/>
+  <g transform="translate(118 166)"><rect width="112" height="112" rx="30" fill="#fff"/><path d="m22 54 34-28 34 28v35a7 7 0 0 1-7 7H29a7 7 0 0 1-7-7V54Z" fill="#174C3C"/><path d="m14 55 42-35 42 35" fill="none" stroke="#D9F3A5" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><path d="M47 96V65h18v31" fill="#fff"/></g>
+  <text x="260" y="244" fill="#fff" font-family="Arial,sans-serif" font-size="86" font-weight="700" letter-spacing="-3">GoNest</text>
+  <text x="120" y="390" fill="#fff" font-family="Arial,sans-serif" font-size="48" font-weight="700">Discover. Connect.</text>
+  <text x="120" y="454" fill="#D9F3A5" font-family="Arial,sans-serif" font-size="48" font-weight="700">Move Forward.</text>
+  <text x="120" y="535" fill="#E6F1EC" font-family="Arial,sans-serif" font-size="25">Discover, buy, rent and list residential properties with GoNest.</text>
+</svg>
