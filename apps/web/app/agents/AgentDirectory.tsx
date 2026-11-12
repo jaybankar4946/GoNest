@@ -67,7 +67,7 @@ export function AgentDirectory({ agents, brokerages }: Props) {
   }), [brokerages, city, verifiedOnly, area, loc, service, minRating, search]);
   const registeredAgents = useMemo(() => agents.filter(a => {
     // Only publish complete, RERA-backed individual agent profiles; incomplete accounts remain editable in Super Admin.
-    if (a.role !== 'agent' || a.directory_visible === false || !a.agent_verified || !a.rera_number) return false;
+    if (a.role !== 'agent' || !a.agent_verified || !a.rera_number) return false;
     const locations = [...(a.service_localities ?? []), ...(a.service_pincodes ?? [])].join(' ').toLowerCase();
     const cityPrefixes: Record<string, string[]> = { Mumbai: ['400'], Thane: ['4006', '401'], Pune: ['411', '412'] };
     const cityMatch = city === 'All Cities' || locations.includes(city.toLowerCase()) || (cityPrefixes[city] ?? []).some(prefix => (a.service_pincodes ?? []).some(pin => pin.startsWith(prefix)));
