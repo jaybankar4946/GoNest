@@ -440,20 +440,27 @@ function Sub({ items, value, onChange }: { items: { id: string; label: string }[
   return <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>{items.map(i => <button key={i.id} onClick={() => onChange(i.id)} style={{ ...btn(value === i.id ? 'primary' : 'ghost') }}>{i.label}</button>)}</div>;
 }
 
-export default function CentralMarketplace() {
-  const [access, setAccess] = useState<Access | null>(null); const [err, setErr] = useState<string | null>(null);
+export default function CentralMarketplace({ profile }: { profile: { role?: string; admin_level?: string | null } | null }) {
+  // The authenticated profile is already loaded by AuthProvider before /admin renders.
+  // Use it as the initial UI gate so a transient RPC/session race cannot hide the panel.
+  // All record reads/writes remain protected by the database admin RPCs and their checks.
+  const profileAccess: Access | null = profile?.role === 'admin'
+    ? { is_admin: true, is_super: profile.admin_level === 'super' }
+    : null;
+  const [access, setAccess] = useState<Access | null>(profileAccess); const [err, setErr] = useState<string | null>(null);
   const [mod, setMod] = useState('agents'); const [queue, setQueue] = useState('agents'); const [mediaKind, setMediaKind] = useState('buy');
   useEffect(() => { adminMyAccess().then(a => { setAccess(a); }).catch(e => setErr(errText(e))); }, []);
   const allowed = useMemo(() => MODULES.filter(m => can(access, m.id, 'view')), [access]);
   useEffect(() => { if (allowed.length && !allowed.some(m => m.id === mod)) setMod(allowed[0].id); }, [allowed, mod]);
 
-  if (err) return <section style={{ ...box, padding: 16, marginBottom: 28 }}><Notice m={{ ok: false, text: `Central Marketplace Management could not load: ${err}. Make sure the Super Admin database migration has been applied.` }} /></section>;
+  if (err && !access) return <section style={{ ...box, padding: 16, marginBottom: 28 }}><Notice m={{ ok: false, text: `Central Marketplace Management could not load: ${err}. Make sure the Super Admin database migration has been applied.` }} /></section>;
   if (!access) return <section style={{ ...box, padding: 16, marginBottom: 28, fontSize: 13, color: '#777' }}>Loading Central Marketplace Management…</section>;
   if (!access.is_admin) return null;
   const mediaKinds = ['buy', 'rent', 'projects', 'agents', 'owners', 'builders', 'inventory'].filter(k => can(access, ENTITIES[k].module, 'view'));
 
   return (
     <section aria-label="Central Marketplace Management" style={{ ...box, padding: 18, marginBottom: 32, borderColor: '#BFDBFE' }}>
+      {err && <Notice m={{ ok: false, text: `Admin access details could not refresh: ${err}. Database permissions still apply to every action.` }} />}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
         <h2 style={{ fontSize: 15, fontWeight: 800, letterSpacing: '.08em', color: '#1D4ED8' }}>CENTRAL MARKETPLACE MANAGEMENT</h2>
         <Badge t={access.is_super ? 'Super Admin' : 'Admin Staff'} tone={access.is_super ? 'ok' : 'warn'} />
