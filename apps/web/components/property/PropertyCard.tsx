@@ -32,9 +32,9 @@ export function PropertyCard({ listing: l, isSaved, onToggle, onQuickView }: Pro
   return (
     <motion.div layout initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -3 }} transition={{ duration: 0.22 }}
       onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
-      <Link href={`/property/${l.id}`} style={{ display: 'block', borderRadius: 24, overflow: 'hidden', background: '#fff', border: '1px solid #F3F4F6', boxShadow: hover ? 'var(--shadow-lg)' : 'var(--shadow-sm)', transition: 'box-shadow .25s' }}>
+      <Link href={`/property/${l.id}`} style={{ display: 'block', borderRadius: 16, overflow: 'hidden', background: '#fff', border: '1px solid #F3F4F6', boxShadow: hover ? '0 8px 24px rgba(15,23,42,0.10)' : '0 2px 10px rgba(15,23,42,0.06)', transition: 'box-shadow .25s' }}>
 
-        <div style={{ position: 'relative', aspectRatio: '4/3', background: 'var(--gray-1)', overflow: 'hidden' }}>
+        <div style={{ position: 'relative', aspectRatio: '3/2', background: 'var(--gray-1)', overflow: 'hidden' }}>
           {imgs.length > 0 ? (
             <img loading="lazy" src={imgUrl(imgs[idx].storage_path)} alt={l.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
           ) : (
