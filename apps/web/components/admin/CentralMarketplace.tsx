@@ -444,12 +444,24 @@ export default function CentralMarketplace({ profile }: { profile: { role?: stri
   // The authenticated profile is already loaded by AuthProvider before /admin renders.
   // Use it as the initial UI gate so a transient RPC/session race cannot hide the panel.
   // All record reads/writes remain protected by the database admin RPCs and their checks.
+  const isProfileSuper = profile?.role === 'admin' && profile.admin_level === 'super';
   const profileAccess: Access | null = profile?.role === 'admin'
-    ? { is_admin: true, is_super: profile.admin_level === 'super' }
+    ? { is_admin: true, is_super: isProfileSuper }
     : null;
   const [access, setAccess] = useState<Access | null>(profileAccess); const [err, setErr] = useState<string | null>(null);
   const [mod, setMod] = useState('agents'); const [queue, setQueue] = useState('agents'); const [mediaKind, setMediaKind] = useState('buy');
-  useEffect(() => { adminMyAccess().then(a => { setAccess(a); }).catch(e => setErr(errText(e))); }, []);
+  useEffect(() => {
+    let active = true;
+    adminMyAccess()
+      .then(a => {
+        if (!active) return;
+        // The RLS-protected profile is already loaded for this signed-in user.
+        // Never let a delayed access RPC response downgrade a confirmed Super Admin.
+        setAccess(isProfileSuper ? { ...a, is_admin: true, is_super: true } : a);
+      })
+      .catch(e => { if (active) setErr(errText(e)); });
+    return () => { active = false; };
+  }, [isProfileSuper]);
   const allowed = useMemo(() => MODULES.filter(m => can(access, m.id, 'view')), [access]);
   useEffect(() => { if (allowed.length && !allowed.some(m => m.id === mod)) setMod(allowed[0].id); }, [allowed, mod]);
 
