@@ -54,7 +54,7 @@ export function AgentDirectory({ agents, brokerages }: Props) {
   const [area, setArea] = useState('Any area');
   const areaOptions = useMemo(() => Array.from(new Set([...brokerages.flatMap(a => a.localities ?? []), ...agents.flatMap(a => a.service_localities ?? [])].map((x:string) => x.trim()).filter(Boolean))).sort(), [agents, brokerages]);
   const publicAgencies = useMemo(() => brokerages.filter(a => {
-    const cityName = a.city?.name ?? '';
+    const cityName = a.city?.[0]?.name ?? '';
     const areas = (a.localities ?? []).join(' ');
     const text = [a.business_name, cityName, areas, a.public_business_address, a.public_business_phone, a.rera_registration].filter(Boolean).join(' ').toLowerCase();
     return (city === 'All Cities' || cityName === city)
