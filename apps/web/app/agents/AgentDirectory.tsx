@@ -45,7 +45,7 @@ function PublicAgencyListingCard({ agency }: { agency: (typeof THANE_TOP_AGENTS)
   const profileHref = `/agents/business/${slug}`;
   return <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
     <Link href={profileHref} className="relative block aspect-[4/3] overflow-hidden bg-slate-100">
-      <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 text-slate-500"><span className="text-5xl font-semibold">{agency.name.split(/\\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase()}</span><span className="mt-2 text-xs font-semibold uppercase tracking-widest">Agency profile</span></div>
+      {agency.imageUrl ? <img src={agency.imageUrl} alt={agency.name + ' profile'} className="h-full w-full object-contain bg-white p-8"/> : <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 text-slate-500"><span className="text-5xl font-semibold">{agency.name.split(/\\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase()}</span><span className="mt-2 text-xs font-semibold uppercase tracking-widest">Agency profile</span></div>}
       <span className="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-bold text-slate-800 shadow-sm">Business profile</span>
       <span className="absolute bottom-3 left-3 rounded-lg bg-white/95 px-3 py-1.5 text-xs font-bold text-slate-900 shadow-sm">0 active listings</span>
     </Link>
