@@ -138,7 +138,7 @@ export const ENTITIES: Record<string, Cfg> = {
   brokerages: {
     id: 'brokerages', label: 'Agency Profiles', module: 'agents',
     title: r => r.business_name || '(unnamed agency)',
-    sub: r => [r.public_business_address, r.public_business_phone].filter(Boolean).join(' · '),
+    sub: r => [r.city_name, r.public_business_address, r.public_business_phone].filter(Boolean).join(' · '),
     badges: r => [[r.verification_status || 'pending', r.verification_status === 'verified' ? 'ok' : 'warn'], [r.is_sample ? 'sample' : 'real profile', r.is_sample ? 'muted' : 'ok']],
     fields: [
       { k: 'business_name', label: 'Agency name', req: true },
