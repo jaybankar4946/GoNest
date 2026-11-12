@@ -121,11 +121,16 @@ export default async function PropertyPage({ params }: { params: Promise<{id:str
 
             {/* Poster */}
             {poster&&(
-              <div style={{padding:16,border:'1px solid #E5E7EB',borderRadius:20,marginBottom:24,background:'#F9FAFB'}}>
-                <p style={{fontSize:13,fontWeight:600,color:'#111',marginBottom:2}}><Link href={`/agents/${l.posted_by}`} style={{textDecoration:'underline'}}>{poster.full_name??'Agent'}</Link> · {poster.role==='agent'?'Agent':'Owner'}</p>
-                {poster.agency_name&&<p style={{fontSize:12,color:'#6B6B6B'}}>{poster.agency_name}</p>}
-                {poster.agent_verified&&<p style={{fontSize:11,color:'#16A34A',marginTop:4}}>✓ GoNest verified agent</p>}
-                {poster.rera_number&&<p style={{fontSize:11,color:'#6B6B6B'}}>RERA: {poster.rera_number}</p>}
+              <div style={{display:'flex',alignItems:'center',gap:12,padding:'12px 14px',border:'1px solid #E5E7EB',borderRadius:14,marginBottom:24,background:'#fff'}}>
+                <Link href={`/agents/${l.posted_by}`} aria-label={`View ${poster.full_name??'agent'} profile`} style={{width:44,height:44,flexShrink:0,borderRadius:'50%',overflow:'hidden',display:'flex',alignItems:'center',justifyContent:'center',background:'#F1F5F9',color:'#475569',fontWeight:700,fontSize:16}}>
+                  {poster.avatar_url?<img src={poster.avatar_url} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}}/>:(poster.full_name??'A').charAt(0).toUpperCase()}
+                </Link>
+                <div style={{minWidth:0,flex:1}}>
+                  <p style={{fontSize:13,fontWeight:700,color:'#111',marginBottom:2}}><Link href={`/agents/${l.posted_by}`} style={{textDecoration:'none'}}>{poster.full_name??'Agent'}</Link> <span style={{fontSize:11,fontWeight:500,color:'#6B7280'}}>· {poster.role==='agent'?'Agent':'Owner'}</span></p>
+                  {poster.agency_name&&<p style={{fontSize:12,color:'#6B6B6B'}}>{poster.agency_name}</p>}
+                  <div style={{display:'flex',gap:8,flexWrap:'wrap',marginTop:3}}>{poster.agent_verified&&<span style={{fontSize:10,fontWeight:600,color:'#15803D'}}>✓ GoNest verified</span>}{poster.rera_number&&<span style={{fontSize:10,color:'#6B7280'}}>RERA: {poster.rera_number}</span>}</div>
+                </div>
+                <Link href={`/agents/${l.posted_by}`} style={{fontSize:11,fontWeight:600,color:'#2563EB',whiteSpace:'nowrap'}}>View profile</Link>
               </div>
             )}
 
