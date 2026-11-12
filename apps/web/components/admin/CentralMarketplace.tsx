@@ -452,14 +452,32 @@ export default function CentralMarketplace({ profile }: { profile: { role?: stri
   const [mod, setMod] = useState('agents'); const [queue, setQueue] = useState('agents'); const [mediaKind, setMediaKind] = useState('buy');
   useEffect(() => {
     let active = true;
+
+    // Apply the authenticated profile immediately, including when admin_level
+    // arrives after the component's first render. Do not wait for the RPC to paint
+    // the Super Admin controls.
+    if (isProfileSuper) {
+      setAccess(previous => ({ ...(previous ?? {}), is_admin: true, is_super: true }));
+      setErr(null);
+    }
+
     adminMyAccess()
       .then(a => {
         if (!active) return;
-        // The RLS-protected profile is already loaded for this signed-in user.
-        // Never let a delayed access RPC response downgrade a confirmed Super Admin.
+        // The RLS-protected profile is authoritative for Super Admin status.
         setAccess(isProfileSuper ? { ...a, is_admin: true, is_super: true } : a);
       })
-      .catch(e => { if (active) setErr(errText(e)); });
+      .catch(e => {
+        if (!active) return;
+        // A transient access-RPC failure must not hide controls for a Super Admin
+        // whose role and admin_level have already been confirmed by AuthProvider.
+        if (isProfileSuper) {
+          setAccess(previous => ({ ...(previous ?? {}), is_admin: true, is_super: true }));
+          setErr(errText(e));
+        } else {
+          setErr(errText(e));
+        }
+      });
     return () => { active = false; };
   }, [isProfileSuper]);
   const allowed = useMemo(() => MODULES.filter(m => can(access, m.id, 'view')), [access]);
