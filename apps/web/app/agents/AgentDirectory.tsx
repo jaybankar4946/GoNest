@@ -18,7 +18,7 @@ function AgentListingCard({ agent }: { agent: Profile }) {
       <div className="flex flex-wrap items-center gap-2"><h3 className="truncate text-base font-bold text-slate-950">{name}</h3><span className={"rounded-full px-2 py-0.5 text-[10px] font-semibold " + (verified ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600")}>{verified ? "Verified" : "Under review"}</span></div>
       <p className="mt-0.5 truncate text-sm text-slate-600">{agent.agency_name ?? 'Independent agent'}</p>
       <p className="mt-1 text-xs text-slate-500">{agent.rera_number ? 'RERA details submitted' : 'RERA details not provided'} · {agent.total_listings ?? 0} active listings</p>
-      {(agent.service_localities ?? []).length > 0 && <p className="mt-1 truncate text-xs text-slate-500">{agent.service_localities.join(' · ')}</p>}
+      {(agent.service_localities ?? []).length > 0 && <p className="mt-1 truncate text-xs text-slate-500">{(agent.service_localities ?? []).join(' · ')}</p>}
       <div className="mt-3 flex flex-wrap gap-2"><Link href={'/agents/' + agent.id} className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700">View profile</Link><Link href={'/agents/' + agent.id + '#contact-agent'} className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white">Contact</Link></div>
     </div>
   </article>;
