@@ -42,11 +42,19 @@ function ContactForm({ agency, onClose }: { agency: string; onClose: () => void 
 }
 
 function RegisteredAgentCard({ agent }: { agent: Profile }) {
-  return <article className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-    <div className="flex items-center gap-3"><div className="h-14 w-14 overflow-hidden rounded-full bg-slate-100">{agent.avatar_url ? <img src={agent.avatar_url} alt="" className="h-full w-full object-cover"/> : <div className="flex h-full items-center justify-center text-xl font-bold text-slate-500">{(agent.full_name ?? 'A').charAt(0)}</div>}</div><div className="min-w-0"><h3 className="font-extrabold text-slate-950">{agent.full_name ?? 'GoNest agent'}</h3><p className="text-sm text-slate-500">{agent.agency_name ?? 'Independent agent'}</p></div></div>
-    {agent.bio && <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-600">{agent.bio}</p>}
-    <p className="mt-3 text-xs text-slate-500">MahaRERA details on file: {agent.rera_number}</p>
-    <Link href={'/agents/' + agent.id} className="mt-4 inline-flex justify-center rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white">View agent profile</Link>
+  return <article className="flex h-full items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:shadow-md">
+    <div className="h-16 w-16 shrink-0 overflow-hidden rounded-full bg-slate-100">{agent.avatar_url ? <img src={agent.avatar_url} alt="" className="h-full w-full object-cover"/> : <div className="flex h-full items-center justify-center text-xl font-bold text-slate-500">{(agent.full_name ?? 'A').charAt(0)}</div>}</div>
+    <div className="min-w-0 flex-1">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0"><h3 className="truncate text-base font-extrabold text-slate-950">{agent.full_name ?? 'GoNest agent'}</h3><p className="truncate text-sm text-slate-500">{agent.agency_name ?? 'Independent agent'}</p></div>
+        {agent.agent_verified && <span className="shrink-0 rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-bold text-blue-700">GoNest verified</span>}
+      </div>
+      <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-600">
+        {agent.rera_number && <span>RERA {agent.rera_number}</span>}
+        {(agent.service_localities ?? []).length > 0 && <span>{(agent.service_localities ?? []).slice(0,2).join(' · ')}</span>}
+      </div>
+      <Link href={'/agents/' + agent.id} className="mt-3 inline-flex items-center justify-center rounded-lg border border-blue-600 px-3 py-2 text-xs font-bold text-blue-700 hover:bg-blue-50">View profile</Link>
+    </div>
   </article>;
 }
 
@@ -62,7 +70,7 @@ export function AgentDirectory({ agents }: Props) {
     (minRating === 'Any rating' || (a.rating ?? 0) >= Number(minRating)) &&
     (a.name + ' ' + a.city + ' ' + a.area + ' ' + a.address + ' ' + (a.services ?? []).join(' ') + ' ' + (a.businessType ?? '')).toLowerCase().includes(search.toLowerCase().trim())
   ), [city, service, minRating, search]);
-  const registeredAgents = useMemo(() => agents.filter(a => a.role === 'agent' && a.agent_verified && Boolean(a.rera_number) && (city === 'All Cities' || [...(a.service_localities ?? []), ...(a.service_pincodes ?? [])].join(' ').toLowerCase().includes(city.toLowerCase())) && (!search.trim() || [a.full_name, a.agency_name, a.bio, a.rera_number, ...(a.service_localities ?? [])].filter(Boolean).join(' ').toLowerCase().includes(search.toLowerCase().trim()))), [agents, city, search]);
+  const registeredAgents = useMemo(() => agents.filter(a => a.role === 'agent' && (city === 'All Cities' || [...(a.service_localities ?? []), ...(a.service_pincodes ?? [])].join(' ').toLowerCase().includes(city.toLowerCase())) && (!search.trim() || [a.full_name, a.agency_name, a.bio, a.rera_number, ...(a.service_localities ?? [])].filter(Boolean).join(' ').toLowerCase().includes(search.toLowerCase().trim()))), [agents, city, search]);
 
   return <>
     <section className="border-b border-slate-200 bg-slate-50">
@@ -84,6 +92,14 @@ export function AgentDirectory({ agents }: Props) {
           <Link href="https://gonest-l7x7j1a67-jackfink9663-hues-projects.vercel.app/dashboard" className="inline-flex shrink-0 items-center justify-center rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700">Create GoNest profile</Link>
         </div>
       </div>
+    </section>
+
+    <section className="mx-auto max-w-7xl px-5 py-10 md:px-8">
+      <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+        <div><h2 className="text-2xl font-extrabold text-slate-950">GoNest agents</h2><p className="mt-1 text-sm text-slate-600">Verified and registered professionals with medium-sized profile cards.</p></div>
+        <span className="text-sm font-bold text-slate-500">{registeredAgents.length} agents</span>
+      </div>
+      {registeredAgents.length ? <div className="grid grid-cols-1 gap-4 md:grid-cols-2">{registeredAgents.map(agent => <RegisteredAgentCard key={agent.id} agent={agent}/>)}</div> : <p className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">No GoNest agent profiles match these filters.</p>}
     </section>
 
     <section className="mx-auto max-w-7xl px-5 py-10 md:px-8">
