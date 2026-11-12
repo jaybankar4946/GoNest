@@ -19,7 +19,7 @@ export default async function PublicBusinessProfile({ params }: Props) {
   const agency = await load(slug);
   if (!agency) notFound();
   const name = agency.business_name;
-  const city = agency.city?.name ?? '';
+  const city = agency.city?.[0]?.name ?? '';
   const address = agency.public_business_address ?? 'Address not provided';
   const areas = (agency.localities ?? []).join(' · ');
   const pin = address.match(/\b\d{6}\b/)?.[0] ?? null;
