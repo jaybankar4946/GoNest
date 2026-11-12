@@ -15,35 +15,12 @@ const jakarta = Plus_Jakarta_Sans({
   display: 'swap',
 });
 
-const brandTitle = 'GoNest – Discover. Connect. Move Forward.';
-const brandDescription = 'Discover, buy, rent and list residential properties with GoNest.';
-
 export const metadata: Metadata = {
   metadataBase: new URL('https://gonest.in'),
-  title: { default: brandTitle, template: '%s | GoNest' },
-  description: brandDescription,
-  applicationName: 'GoNest',
+  title: { default: 'GoNest – Find Your Next Home Across India', template: '%s | GoNest' },
+  description: 'Explore homes to buy or rent, new projects, and property professionals across Mumbai, Bengaluru, Delhi NCR, Pune and Hyderabad. Check listing status and property details before deciding.',
   keywords: ['property Mumbai', 'property Bengaluru', 'property Delhi NCR', 'property Pune', 'property Hyderabad', 'apartments for sale India', 'rent homes India'],
-  icons: {
-    icon: [{ url: '/gonest-icon.svg', type: 'image/svg+xml' }],
-    shortcut: ['/gonest-icon.svg'],
-    apple: [{ url: '/gonest-icon.svg', type: 'image/svg+xml' }],
-  },
-  openGraph: {
-    siteName: 'GoNest',
-    type: 'website',
-    locale: 'en_IN',
-    title: brandTitle,
-    description: brandDescription,
-    url: 'https://gonest.in',
-    images: [{ url: '/gonest-social.svg', width: 1200, height: 630, alt: 'GoNest – Discover. Connect. Move Forward.' }],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: brandTitle,
-    description: brandDescription,
-    images: ['/gonest-social.svg'],
-  },
+  openGraph: { siteName: 'GoNest', type: 'website', locale: 'en_IN', title: 'GoNest – Find Your Next Home Across India', description: 'Explore homes to buy or rent, new projects, and property professionals across Mumbai, Bengaluru, Delhi NCR, Pune and Hyderabad.', url: 'https://gonest.in' },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
