@@ -485,7 +485,7 @@ export default function CentralMarketplace({ profile }: { profile: { role?: stri
   const uiAccess: Access | null = isProfileSuper
     ? { ...(access ?? { is_admin: true }), is_admin: true, is_super: true }
     : access;
-  const allowed = useMemo(() => MODULES.filter(m => can(uiAccess, m.id, 'view')), [access]);
+  const allowed = useMemo(() => MODULES.filter(m => can(uiAccess, m.id, 'view')), [uiAccess]);
   useEffect(() => { if (allowed.length && !allowed.some(m => m.id === mod)) setMod(allowed[0].id); }, [allowed, mod]);
 
   if (err && !uiAccess) return <section style={{ ...box, padding: 16, marginBottom: 28 }}><Notice m={{ ok: false, text: `Central Marketplace Management could not load: ${err}. Make sure the Super Admin database migration has been applied.` }} /></section>;
