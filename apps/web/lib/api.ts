@@ -387,8 +387,8 @@ export const adminGetVisits  = adminGetAllVisits;
 // --- Agents directory (used by app/agents and app/agents/[id]) ---
 export async function getPublicBrokerages() {
   const { data, error } = await supabase.from('brokerages')
-    .select('id,business_name,public_business_phone,public_enquiry_url,public_business_address,source_url,city:cities(name)')
-    .eq('is_sample', false).not('source_id', 'is', null)
+    .select('id,business_name,public_business_phone,public_enquiry_url,public_business_address,source_url,website_url,localities,rera_registration,verification_status,city:cities(name)')
+    .eq('is_sample', false)
     .in('verification_status', ['pending', 'verified']).order('business_name');
   if (error) {
     console.error('Could not load public brokerages', error.message);
