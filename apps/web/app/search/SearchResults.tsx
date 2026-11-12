@@ -206,8 +206,8 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
 
       {view === 'list' && (
         <>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:'36px 20px'}}>
-            {results.map(l=><div key={l.id} onMouseEnter={() => setActiveListingId(l.id)} onFocus={() => setActiveListingId(l.id)}><PropertyCard listing={l} onQuickView={setQuickViewId} isSaved={saved.has(l.id)} onToggle={toggle} /><Link href={`/property/${l.id}#decision-intelligence`} className="mt-2 inline-flex w-full items-center justify-center rounded-xl border border-blue-200 bg-blue-50 px-3 py-2.5 text-xs font-bold text-blue-800 hover:bg-blue-100">Home Finder · Calculate true cost & affordability</Link></div>)}
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(320px,1fr))',gap:'24px 18px'}}>
+            {results.map(l=><div key={l.id} onMouseEnter={() => setActiveListingId(l.id)} onFocus={() => setActiveListingId(l.id)}><PropertyCard listing={l} onQuickView={setQuickViewId} isSaved={saved.has(l.id)} onToggle={toggle} /></div>)}
           </div>
           <LoadMoreBtn />
         </>
@@ -225,8 +225,8 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
             <MapView listings={results} activeListingId={activeListingId} onSelect={(l)=>{setActiveListingId(l.id);setQuickViewId(l.id);}} />
           </div>
           <div style={{minWidth:0,order:2}}>
-            <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:'20px 14px'}}>
-              {results.map(l=><div key={l.id}><PropertyCard listing={l} onQuickView={setQuickViewId} isSaved={saved.has(l.id)} onToggle={toggle} /><Link href={`/property/${l.id}#decision-intelligence`} className="mt-2 inline-flex w-full items-center justify-center rounded-xl border border-blue-200 bg-blue-50 px-3 py-2.5 text-xs font-bold text-blue-800 hover:bg-blue-100">Home Finder · Calculate true cost & affordability</Link></div>)}
+            <div style={{display:'grid',gridTemplateColumns:'repeat(2,minmax(0,1fr))',gap:'18px 14px'}}>
+              {results.map(l=><div key={l.id}><PropertyCard listing={l} onQuickView={setQuickViewId} isSaved={saved.has(l.id)} onToggle={toggle} /></div>)}
             </div>
             <LoadMoreBtn />
             <div className="lg:hidden" style={{marginTop:20,height:460}}>
