@@ -43,7 +43,7 @@ export function Nav() {
     <header style={{ position: 'sticky', top: 0, zIndex: 50, background: '#fff', borderBottom: '1px solid var(--border)', backdropFilter: 'blur(12px)' }}>
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 20px', display: 'flex', alignItems: 'center', height: 68, gap: 8 }}>
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, order: 2 }}>
-          <span style={{ width: 34, height: 34, borderRadius: 12, background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}><Home size={17} color="#fff" /><span style={{ position: 'absolute', top: -3, right: -3, width: 11, height: 11, borderRadius: '50%', background: '#34D399', border: '2px solid #fff' }} /></span>
+          <span style={{ width: 34, height: 34, borderRadius: 12, overflow: 'hidden', display: 'inline-flex', flexShrink: 0 }}><img src="/gonest-icon.svg" alt="GoNest" width="34" height="34" /></span>
           <span style={{ fontFamily: 'var(--font-manrope), var(--font-display)', fontWeight: 800, fontSize: 21, letterSpacing: '-0.03em', color: '#111827' }}>GoNest</span>
         </Link>
         <nav style={{ gap: 2, flex: 1, order: 1 }} className="hidden md:flex">
