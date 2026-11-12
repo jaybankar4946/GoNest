@@ -480,35 +480,40 @@ export default function CentralMarketplace({ profile }: { profile: { role?: stri
       });
     return () => { active = false; };
   }, [isProfileSuper]);
-  const allowed = useMemo(() => MODULES.filter(m => can(access, m.id, 'view')), [access]);
+  // Resolve Super Admin UI permissions directly from the authenticated profile on every render.
+  // This prevents a stale async RPC/state snapshot from hiding the entire management section.
+  const uiAccess: Access | null = isProfileSuper
+    ? { ...(access ?? { is_admin: true }), is_admin: true, is_super: true }
+    : access;
+  const allowed = useMemo(() => MODULES.filter(m => can(uiAccess, m.id, 'view')), [access]);
   useEffect(() => { if (allowed.length && !allowed.some(m => m.id === mod)) setMod(allowed[0].id); }, [allowed, mod]);
 
-  if (err && !access) return <section style={{ ...box, padding: 16, marginBottom: 28 }}><Notice m={{ ok: false, text: `Central Marketplace Management could not load: ${err}. Make sure the Super Admin database migration has been applied.` }} /></section>;
-  if (!access) return <section style={{ ...box, padding: 16, marginBottom: 28, fontSize: 13, color: '#777' }}>Loading Central Marketplace Management…</section>;
-  if (!access.is_admin) return null;
-  const mediaKinds = ['buy', 'rent', 'projects', 'agents', 'owners', 'builders', 'inventory'].filter(k => can(access, ENTITIES[k].module, 'view'));
+  if (err && !uiAccess) return <section style={{ ...box, padding: 16, marginBottom: 28 }}><Notice m={{ ok: false, text: `Central Marketplace Management could not load: ${err}. Make sure the Super Admin database migration has been applied.` }} /></section>;
+  if (!uiAccess) return <section style={{ ...box, padding: 16, marginBottom: 28, fontSize: 13, color: '#777' }}>Loading Central Marketplace Management…</section>;
+  if (!uiAccess.is_admin) return null;
+  const mediaKinds = ['buy', 'rent', 'projects', 'agents', 'owners', 'builders', 'inventory'].filter(k => can(uiAccess, ENTITIES[k].module, 'view'));
 
   return (
     <section aria-label="Central Marketplace Management" style={{ ...box, padding: 18, marginBottom: 32, borderColor: '#BFDBFE' }}>
       {err && <Notice m={{ ok: false, text: `Admin access details could not refresh: ${err}. Database permissions still apply to every action.` }} />}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
         <h2 style={{ fontSize: 15, fontWeight: 800, letterSpacing: '.08em', color: '#1D4ED8' }}>CENTRAL MARKETPLACE MANAGEMENT</h2>
-        <Badge t={access.is_super ? 'Super Admin' : 'Admin Staff'} tone={access.is_super ? 'ok' : 'warn'} />
+        <Badge t={uiAccess.is_super ? 'Super Admin' : 'Admin Staff'} tone={uiAccess.is_super ? 'ok' : 'warn'} />
       </div>
-      {!access.is_super && allowed.length === 0 && <p style={{ fontSize: 13, color: '#777' }}>No modules have been assigned to your Admin Staff account yet. Ask a Super Admin to grant access.</p>}
+      {!uiAccess.is_super && allowed.length === 0 && <p style={{ fontSize: 13, color: '#777' }}>No modules have been assigned to your Admin Staff account yet. Ask a Super Admin to grant access.</p>}
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 16 }}>
         {allowed.map((m, i) => <button key={m.id} onClick={() => setMod(m.id)} style={btn(mod === m.id ? 'primary' : 'ghost')}>{i + 1}. {m.label}</button>)}
       </div>
       {mod === 'audit' ? <AuditView />
         : mod === 'verification' ? <>
-          <Sub items={VERIFICATION_QUEUES.filter(v => can(access, ENTITIES[v.entity].module, 'view')).map(v => ({ id: v.id, label: v.label }))} value={queue} onChange={setQueue} />
-          {VERIFICATION_QUEUES.filter(v => v.id === queue).map(v => <EntityManager key={v.id} cfg={ENTITIES[v.entity]} access={access} presetFilters={v.filters} editLabel="Review" />)}
+          <Sub items={VERIFICATION_QUEUES.filter(v => can(uiAccess, ENTITIES[v.entity].module, 'view')).map(v => ({ id: v.id, label: v.label }))} value={queue} onChange={setQueue} />
+          {VERIFICATION_QUEUES.filter(v => v.id === queue).map(v => <EntityManager key={v.id} cfg={ENTITIES[v.entity]} access={uiAccess} presetFilters={v.filters} editLabel="Review" />)}
         </>
         : mod === 'media' ? <>
           <Sub items={mediaKinds.map(k => ({ id: k, label: ENTITIES[k].label }))} value={mediaKind} onChange={setMediaKind} />
-          {mediaKinds.includes(mediaKind) && <EntityManager key={mediaKind} cfg={ENTITIES[mediaKind]} access={access} startTab="photos" editLabel="Manage photos" />}
+          {mediaKinds.includes(mediaKind) && <EntityManager key={mediaKind} cfg={ENTITIES[mediaKind]} access={uiAccess} startTab="photos" editLabel="Manage photos" />}
         </>
-        : ENTITIES[mod] ? <EntityManager key={mod} cfg={ENTITIES[mod]} access={access} /> : null}
+        : ENTITIES[mod] ? <EntityManager key={mod} cfg={ENTITIES[mod]} access={uiAccess} /> : null}
     </section>
   );
 }
