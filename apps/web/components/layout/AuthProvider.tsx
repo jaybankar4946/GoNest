@@ -57,7 +57,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let mounted=true;
     const { data:sub }=supabase.auth.onAuthStateChange((_event,session)=>{
       authEventSeen.current=true;
-      if (mounted) void syncUser(session?.user??null);
+      // Do not call Supabase profile queries inside onAuthStateChange: the auth
+      // client still holds its internal lock while this callback runs. Defer the
+      // profile sync until after the callback returns to avoid a session deadlock.
+      if (mounted) setTimeout(()=>{ if (mounted) void syncUser(session?.user??null); },0);
     });
     supabase.auth.getSession().then(({data,error})=>{
       if (error) console.error('[GoNest auth] Could not read session:',error);
