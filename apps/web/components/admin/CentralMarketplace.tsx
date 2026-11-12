@@ -449,7 +449,7 @@ export default function CentralMarketplace({ profile }: { profile: { role?: stri
     ? { is_admin: true, is_super: isProfileSuper }
     : null;
   const [access, setAccess] = useState<Access | null>(profileAccess); const [err, setErr] = useState<string | null>(null);
-  const [mod, setMod] = useState('agents'); const [queue, setQueue] = useState('agents'); const [mediaKind, setMediaKind] = useState('buy');
+  const [mod, setMod] = useState('agents'); const [queue, setQueue] = useState('agents'); const [mediaKind, setMediaKind] = useState('buy'); const [agentKind, setAgentKind] = useState('agents');
   useEffect(() => {
     let active = true;
 
@@ -513,7 +513,7 @@ export default function CentralMarketplace({ profile }: { profile: { role?: stri
           <Sub items={mediaKinds.map(k => ({ id: k, label: ENTITIES[k].label }))} value={mediaKind} onChange={setMediaKind} />
           {mediaKinds.includes(mediaKind) && <EntityManager key={mediaKind} cfg={ENTITIES[mediaKind]} access={uiAccess} startTab="photos" editLabel="Manage photos" />}
         </>
-        : ENTITIES[mod] ? <EntityManager key={mod} cfg={ENTITIES[mod]} access={uiAccess} /> : null}
+        : mod === 'agents' ? <><Sub items={[{ id: 'agents', label: 'GoNest Agent Accounts' }, { id: 'brokerages', label: 'Agency Profiles' }]} value={agentKind} onChange={setAgentKind} />{ENTITIES[agentKind] && <EntityManager key={agentKind} cfg={ENTITIES[agentKind]} access={uiAccess} />}</> : ENTITIES[mod] ? <EntityManager key={mod} cfg={ENTITIES[mod]} access={uiAccess} /> : null}
     </section>
   );
 }
