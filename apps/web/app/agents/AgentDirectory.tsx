@@ -124,7 +124,7 @@ export function AgentDirectory({ agents }: Props) {
     </section>
     <section id="agent-results" className="mx-auto max-w-7xl px-5 py-9 md:px-8">
       <div className="mb-5 flex flex-wrap items-end justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-widest text-blue-700">GoNest professionals</p><h2 className="mt-1 text-2xl font-extrabold text-slate-950">Real estate agent profiles</h2><p className="mt-1 text-sm text-slate-600">Explore agent and brokerage profiles in the same image-led, responsive card layout as property search. New agent profiles appear after account creation; verification status is shown separately while details are reviewed.</p></div><span className="text-sm font-semibold text-slate-500">{registeredAgents.length + publicAgencies.length} results</span></div>
-      {(registeredAgents.length + publicAgencies.length) > 0 ? <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-2">{registeredAgents.map(a=><AgentListingCard key={a.id} agent={a}/>)}{publicAgencies.map(agency=><PublicAgencyListingCard key={agency.name} agency={agency}/>)}</div> : <p className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-600">No agent profiles match these filters.</p>}
+      {(registeredAgents.length + publicAgencies.length) > 0 ? <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">{registeredAgents.map(a=><AgentListingCard key={a.id} agent={a}/>)}{publicAgencies.map(agency=><PublicAgencyListingCard key={agency.name} agency={agency}/>)}</div> : <p className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-600">No agent profiles match these filters.</p>}
     </section>
   </>;
 }
