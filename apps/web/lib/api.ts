@@ -277,8 +277,24 @@ export async function adminGetAllListings(): Promise<ListingFull[]> {
   return (data ?? []) as unknown as ListingFull[];
 }
 export async function adminGetBrokers(): Promise<Profile[]> {
-  const { data } = await supabase.from('profiles').select(PUBLIC_PROFILE).in('role', ['agent','owner']).order('agent_verified', { ascending: false }).order('total_listings', { ascending: false }).order('created_at', { ascending: false });
+  const { data, error } = await supabase.from('profiles').select(PUBLIC_PROFILE).in('role', ['agent','owner']).order('agent_verified', { ascending: false }).order('total_listings', { ascending: false }).order('created_at', { ascending: false });
+  if (error) throw error;
   return (data ?? []) as Profile[];
+}
+export type AdminBrokerage = { id:string; business_name:string; website_url:string|null; public_business_phone:string|null; public_enquiry_url:string|null; public_business_address:string|null; city_id:string|null; city?:{name:string}|null; localities:string[]; rera_registration:string|null; verification_status:string; source_url:string|null; };
+export async function adminGetBrokerages(): Promise<AdminBrokerage[]> {
+  const { data,error } = await supabase.from('brokerages').select('id,business_name,website_url,public_business_phone,public_enquiry_url,public_business_address,city_id,city:cities(name),localities,rera_registration,verification_status,source_url').eq('is_sample',false).order('business_name');
+  if(error) throw error; return (data??[]) as AdminBrokerage[];
+}
+export async function adminUpdateBrokerage(id:string,input:Partial<AdminBrokerage>) {
+  const allowed=['business_name','website_url','public_business_phone','public_enquiry_url','public_business_address','city_id','localities','rera_registration','verification_status'];
+  const patch:Record<string,unknown>={}; for(const key of allowed) if(key in input) patch[key]=(input as Record<string,unknown>)[key];
+  const {error}=await supabase.from('brokerages').update(patch).eq('id',id); if(error) throw error;
+}
+export async function adminUpdateAgentProfile(userId:string,input:Record<string,unknown>) {
+  const allowed=['full_name','agency_name','rera_number','bio','avatar_url','service_localities','service_pincodes','agent_verified','directory_visible','account_status'];
+  const patch:Record<string,unknown>={}; for(const key of allowed) if(key in input) patch[key]=input[key];
+  const {error}=await supabase.from('profiles').update(patch).eq('id',userId); if(error) throw error;
 }
 export async function adminGetAllLeads() {
   const { data } = await supabase.from('leads').select('*, listing:listings(id,title,city:cities(name))').order('created_at', { ascending: false });
