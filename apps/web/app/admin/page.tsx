@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
 import { useAuth } from '@/components/layout/AuthProvider';
-import { adminGetPendingBrokerages, adminGetSupplyFunnel, type SupplyFunnel, adminGetPendingListings, adminGetAllListings, adminGetBrokers, adminGetAllLeads, adminGetAllVisits, adminGetStats, adminModerate, adminToggleFeatured, adminVerifyAgent, adminSetRole, adminGetReports, adminResolveReport, adminGetAuditLog, adminGetFunnel, adminGetLaunchInventoryDashboard, adminGetPendingProjects, adminGetAllProjects, adminReviewSubmission, adminReviewProjectUnit } from '@/lib/api';
+import { adminGetPendingBrokerages, adminGetSupplyFunnel, type SupplyFunnel, adminGetPendingListings, adminGetAllListings, adminGetBrokers, adminGetBrokerages, adminUpdateBrokerage, adminUpdateAgentProfile, adminGetAllLeads, adminGetAllVisits, adminGetStats, adminModerate, adminToggleFeatured, adminVerifyAgent, adminSetRole, adminGetReports, adminResolveReport, adminGetAuditLog, adminGetFunnel, adminGetLaunchInventoryDashboard, adminGetPendingProjects, adminGetAllProjects, adminReviewSubmission, adminReviewProjectUnit } from '@/lib/api';
 import { imgUrl } from '@/lib/api';
 import { supabase } from '@/lib/supabase';
 import { formatPrice, timeAgo } from '@/lib/format';
@@ -27,6 +27,9 @@ export default function AdminPage() {
   const[agencyErr,setAgencyErr]=useState<string|null>(null);
   const[listings,setListings]=useState<any[]>([]);
   const[brokers,setBrokers]=useState<any[]>([]);
+  const[brokerages,setBrokerages]=useState<any[]>([]);
+  const[editingAgent,setEditingAgent]=useState<any|null>(null);
+  const[editingBrokerage,setEditingBrokerage]=useState<any|null>(null);
   const[leads,setLeads]=useState<any[]>([]);
   const[visits,setVisits]=useState<any[]>([]);
   const[reports,setReports]=useState<any[]>([]);
@@ -50,6 +53,7 @@ export default function AdminPage() {
     adminGetPendingBrokerages().then(setAgencyQueue).catch(()=>setAgencyQueue([]));
     adminGetAllListings().then(setListings);
     adminGetBrokers().then(setBrokers);
+    adminGetBrokerages().then(setBrokerages).catch(()=>setBrokerages([]));
     adminGetAllLeads().then(setLeads);
     adminGetAllVisits().then(setVisits);
     adminGetReports().then(setReports);
@@ -341,18 +345,38 @@ export default function AdminPage() {
           </div>
         )}
         {tab==='brokers'&&(
-          <div style={{display:'flex',flexDirection:'column',gap:10}}>
-            {brokers.length===0&&<p style={{fontSize:14,color:'#6B6B6B'}}>No agents or owners yet.</p>}
-            {brokers.map((b:any)=>(
-              <div key={b.id} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 16px',border:'1px solid #E5E5E5',borderRadius:12}}>
-                <div><p style={{fontSize:14,fontWeight:600,color:'#111',marginBottom:2}}>{b.full_name??'—'}</p><p style={{fontSize:12,color:'#6B6B6B'}}>{b.role} · {b.agent_verified?'✓ Verified':'Unverified'}</p>{b.rera_number&&<p style={{fontSize:11,color:'#9B9B9B'}}>RERA: {b.rera_number}</p>}</div>
-                <div style={{display:'flex',gap:8,alignItems:'center'}}>
-                  <button onClick={async()=>{try{await adminVerifyAgent(b.id,!b.agent_verified);setBrokers(await adminGetBrokers());}catch(e){alert((e as {message?:string})?.message??'Could not update verification.');}}} style={BTN(b.agent_verified?'#6B6B6B':'#16A34A')}>{b.agent_verified?'Unverify':'Verify'}</button>
-                  <select value={b.role} aria-label={'Role for '+(b.full_name??'user')} onChange={async e=>{const role=e.target.value;if(!confirm('Change this account role to '+role+'?'))return;try{await adminSetRole(b.id,role);setBrokers(await adminGetBrokers());}catch(err){alert((err as {message?:string})?.message??'Could not update account role.');}}} style={INP}>{['buyer','owner','agent'].map(r=><option key={r} value={r}>{r}</option>)}</select>
-                  <button onClick={async()=>{if(!confirm('Remove this person from the public agent/owner directory? Their account and data will be retained; role changes to buyer.'))return;try{await adminSetRole(b.id,'buyer');setBrokers(await adminGetBrokers());}catch(e){alert((e as {message?:string})?.message??'Could not remove from directory.');}}} style={{...BTN('#B91C1C'),fontSize:11}}>Remove from directory</button>
-                </div>
+          <div style={{display:'flex',flexDirection:'column',gap:12}}>
+            <div style={{padding:'12px 16px',border:'1px solid #DDE7F7',background:'#F7FAFF',borderRadius:12}}>
+              <p style={{fontSize:14,fontWeight:700,color:'#111'}}>Central Agent & Brokerage Control</p>
+              <p style={{fontSize:12,color:'#6B6B6B',marginTop:3}}>All GoNest agent profiles plus all 22 public brokerage records are shown here for Admin.</p>
+            </div>
+            {brokers.map((b:any)=><div key={'p'+b.id} style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,padding:'12px 16px',border:'1px solid #E5E5E5',borderRadius:12}}>
+              <div><p style={{fontSize:14,fontWeight:600,color:'#111'}}>{b.full_name??'—'}</p><p style={{fontSize:12,color:'#6B6B6B'}}>GoNest {b.role} · {b.agent_verified?'✓ Verified':'Unverified'}</p></div>
+              <div style={{display:'flex',gap:8}}><button onClick={()=>setEditingAgent({...b})} style={BTN('#2563EB')}>Edit</button><button onClick={async()=>{try{await adminVerifyAgent(b.id,!b.agent_verified);setBrokers(await adminGetBrokers());}catch(e){alert((e as any)?.message??'Could not update verification.');}}} style={BTN(b.agent_verified?'#6B6B6B':'#16A34A')}>{b.agent_verified?'Unverify':'Verify'}</button></div>
+            </div>)}
+            {brokerages.map((b:any)=><div key={'b'+b.id} style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,padding:'12px 16px',border:'1px solid #E5E5E5',borderRadius:12}}>
+              <div><p style={{fontSize:14,fontWeight:600,color:'#111'}}>{b.business_name}</p><p style={{fontSize:12,color:'#6B6B6B'}}>Public brokerage · {(Array.isArray(b.city)?b.city[0]?.name:b.city?.name)??'—'} · {b.verification_status}</p></div>
+              <button onClick={()=>setEditingBrokerage({...b})} style={BTN('#2563EB')}>Edit</button>
+            </div>)}
+            {editingAgent&&<div style={{position:'fixed',inset:0,zIndex:100,background:'rgba(15,23,42,.45)',display:'flex',alignItems:'center',justifyContent:'center',padding:20}}><div style={{width:'100%',maxWidth:620,maxHeight:'90vh',overflow:'auto',background:'#fff',borderRadius:16,padding:20}}>
+              <h3 style={{fontSize:18,fontWeight:700,color:'#111'}}>Edit GoNest Agent</h3>
+              <div style={{display:'grid',gap:10,marginTop:14}}>
+                {['full_name','agency_name','rera_number','avatar_url','bio'].map(key=><label key={key} style={{fontSize:12,fontWeight:600}}>{key.replaceAll('_',' ')}<input style={{...INP,width:'100%',marginTop:4}} value={editingAgent[key]??''} onChange={e=>setEditingAgent((x:any)=>({...x,[key]:e.target.value}))}/></label>)}
+                <label style={{fontSize:12,fontWeight:600}}>Service localities<input style={{...INP,width:'100%',marginTop:4}} value={(editingAgent.service_localities??[]).join(', ')} onChange={e=>setEditingAgent((x:any)=>({...x,service_localities:e.target.value.split(',').map(v=>v.trim()).filter(Boolean)}))}/></label>
+                <label style={{fontSize:12,fontWeight:600}}>Service pincodes<input style={{...INP,width:'100%',marginTop:4}} value={(editingAgent.service_pincodes??[]).join(', ')} onChange={e=>setEditingAgent((x:any)=>({...x,service_pincodes:e.target.value.split(',').map(v=>v.trim()).filter(Boolean)}))}/></label>
+                <label style={{display:'flex',gap:8,alignItems:'center',fontSize:12,fontWeight:600}}><input type="checkbox" checked={editingAgent.agent_verified===true} onChange={e=>setEditingAgent((x:any)=>({...x,agent_verified:e.target.checked}))}/> Verified</label>
               </div>
-            ))}
+              <div style={{display:'flex',justifyContent:'flex-end',gap:8,marginTop:16}}><button onClick={()=>setEditingAgent(null)} style={BTN('#6B6B6B')}>Cancel</button><button onClick={async()=>{try{await adminUpdateAgentProfile(editingAgent.id,editingAgent);setBrokers(await adminGetBrokers());setEditingAgent(null);}catch(e){alert((e as any)?.message??'Could not save agent.');}}} style={BTN('#16A34A')}>Save</button></div>
+            </div></div>}
+            {editingBrokerage&&<div style={{position:'fixed',inset:0,zIndex:100,background:'rgba(15,23,42,.45)',display:'flex',alignItems:'center',justifyContent:'center',padding:20}}><div style={{width:'100%',maxWidth:620,maxHeight:'90vh',overflow:'auto',background:'#fff',borderRadius:16,padding:20}}>
+              <h3 style={{fontSize:18,fontWeight:700,color:'#111'}}>Edit Public Brokerage</h3>
+              <div style={{display:'grid',gap:10,marginTop:14}}>
+                {['business_name','public_business_phone','public_business_address','website_url','public_enquiry_url','rera_registration'].map(key=><label key={key} style={{fontSize:12,fontWeight:600}}>{key.replaceAll('_',' ')}<input style={{...INP,width:'100%',marginTop:4}} value={editingBrokerage[key]??''} onChange={e=>setEditingBrokerage((x:any)=>({...x,[key]:e.target.value}))}/></label>)}
+                <label style={{fontSize:12,fontWeight:600}}>Localities<input style={{...INP,width:'100%',marginTop:4}} value={(editingBrokerage.localities??[]).join(', ')} onChange={e=>setEditingBrokerage((x:any)=>({...x,localities:e.target.value.split(',').map(v=>v.trim()).filter(Boolean)}))}/></label>
+                <label style={{fontSize:12,fontWeight:600}}>Verification status<select style={{...INP,width:'100%',marginTop:4}} value={editingBrokerage.verification_status??'pending'} onChange={e=>setEditingBrokerage((x:any)=>({...x,verification_status:e.target.value}))}>{['unverified','pending','verified','rejected','stale'].map(v=><option key={v}>{v}</option>)}</select></label>
+              </div>
+              <div style={{display:'flex',justifyContent:'flex-end',gap:8,marginTop:16}}><button onClick={()=>setEditingBrokerage(null)} style={BTN('#6B6B6B')}>Cancel</button><button onClick={async()=>{try{await adminUpdateBrokerage(editingBrokerage.id,editingBrokerage);setBrokerages(await adminGetBrokerages());setEditingBrokerage(null);}catch(e){alert((e as any)?.message??'Could not save brokerage.');}}} style={BTN('#16A34A')}>Save</button></div>
+            </div></div>}
           </div>
         )}
         {tab==='leads'&&(
