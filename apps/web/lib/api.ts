@@ -281,7 +281,7 @@ export async function adminGetBrokers(): Promise<Profile[]> {
   if (error) throw error;
   return (data ?? []) as Profile[];
 }
-export type AdminBrokerage = { id:string; business_name:string; website_url:string|null; public_business_phone:string|null; public_enquiry_url:string|null; public_business_address:string|null; city_id:string|null; city?:{name:string}|null; localities:string[]; rera_registration:string|null; verification_status:string; source_url:string|null; };
+export type AdminBrokerage = { id:string; business_name:string; website_url:string|null; public_business_phone:string|null; public_enquiry_url:string|null; public_business_address:string|null; city_id:string|null; city?:{name:string}[]|null; localities:string[]; rera_registration:string|null; verification_status:string; source_url:string|null; };
 export async function adminGetBrokerages(): Promise<AdminBrokerage[]> {
   const { data,error } = await supabase.from('brokerages').select('id,business_name,website_url,public_business_phone,public_enquiry_url,public_business_address,city_id,city:cities(name),localities,rera_registration,verification_status,source_url').eq('is_sample',false).order('business_name');
   if(error) throw error; return (data??[]) as AdminBrokerage[];
