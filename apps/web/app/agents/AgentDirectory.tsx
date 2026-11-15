@@ -9,6 +9,13 @@ type Props = { agents: Profile[] };
 const cities = ['All Cities', 'Thane', 'Mumbai', 'Pune'];
 const serviceFilters = ['All Services', 'Buy', 'Sell', 'Rent'];
 const agencySlug = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const profilePhoto = (seed: string) => {
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
+  const gender = hash % 2 === 0 ? 'men' : 'women';
+  const number = (hash % 70) + 1;
+  return `https://randomuser.me/api/portraits/${gender}/${number}.jpg`;
+};
 
 function AgentListingCard({ agent }: { agent: Profile }) {
   const name = agent.full_name ?? 'GoNest agent';
@@ -16,7 +23,7 @@ function AgentListingCard({ agent }: { agent: Profile }) {
   const operations = ['Rent', 'Buy', 'Sell'];
   return <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
     <Link href={'/agents/' + agent.id} className="relative block aspect-[4/3] overflow-hidden bg-slate-100">
-      {agent.avatar_url ? <img src={agent.avatar_url} alt={name + ' profile'} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"/> : <div className="flex h-full w-full flex-col items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 text-slate-500"><span className="text-5xl font-semibold">{name.charAt(0).toUpperCase()}</span><span className="mt-2 text-xs font-semibold uppercase tracking-widest">Profile photo not added</span></div>}
+      <img src={agent.avatar_url || profilePhoto(agent.id + name)} alt={name + ' profile'} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"/>
       <span className={"absolute left-3 top-3 rounded-full px-3 py-1.5 text-[11px] font-bold shadow-sm " + (verified ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-800")}>{verified ? "GoNest verified" : "Profile under review"}</span>
     </Link>
     <div className="flex flex-1 flex-col p-4 sm:p-5">
