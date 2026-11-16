@@ -30,6 +30,8 @@ export default function AdminPage() {
   const[brokerages,setBrokerages]=useState<any[]>([]);
   const[editingAgent,setEditingAgent]=useState<any|null>(null);
   const[directoryAgents,setDirectoryAgents]=useState<any[]>([]);
+  const[directoryAgentsError,setDirectoryAgentsError]=useState<string|null>(null);
+  const[agentSearch,setAgentSearch]=useState('');
   const[editingDirectoryAgent,setEditingDirectoryAgent]=useState<any|null>(null);
   const[editingBrokerage,setEditingBrokerage]=useState<any|null>(null);
   const[leads,setLeads]=useState<any[]>([]);
@@ -54,7 +56,7 @@ export default function AdminPage() {
     adminGetAllProjects().then(setAllProjects).catch(()=>setAllProjects([]));
     adminGetPendingBrokerages().then(setAgencyQueue).catch(()=>setAgencyQueue([]));
     adminGetAllListings().then(setListings);
-    adminGetBrokers().then(setBrokers); adminGetDirectoryAgents().then(setDirectoryAgents).catch(()=>setDirectoryAgents([]));
+    adminGetBrokers().then(setBrokers).catch(()=>setBrokers([])); adminGetDirectoryAgents().then(rows=>{setDirectoryAgents(rows);setDirectoryAgentsError(null);}).catch((e:any)=>{setDirectoryAgents([]);setDirectoryAgentsError(e?.message??'Could not load directory agents. Check Admin access and directory_agents RLS.');});
     adminGetBrokerages().then(setBrokerages).catch(()=>setBrokerages([]));
     adminGetAllLeads().then(setLeads);
     adminGetAllVisits().then(setVisits);
@@ -351,24 +353,31 @@ export default function AdminPage() {
             <section style={{marginBottom:24}}>
               <div style={{padding:'14px 16px',border:'1px solid #DDE7F7',background:'#F7FAFF',borderRadius:12,marginBottom:12}}>
                 <p style={{fontSize:15,fontWeight:750,color:'#111'}}>CENTRAL MARKETPLACE MANAGEMENT · Agents</p>
-                <p style={{fontSize:12,color:'#6B6B6B',marginTop:4}}>Admin-controlled directory records. Edit all 21 directory agents here without changing the real GoNest account profiles.</p>
+                <p style={{fontSize:12,color:'#6B6B6B',marginTop:4}}>Manage every public Agent Directory record from directory_agents, separately from registered GoNest accounts. {directoryAgents.length} directory records loaded · {brokers.length} registered agent/owner accounts.</p>
               </div>
               <div style={{display:'flex',flexDirection:'column',gap:8}}>
-                {directoryAgents.map((a:any)=><div key={a.id} style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,padding:'12px 14px',border:'1px solid #E5E5E5',borderRadius:10}}>
-                  <div style={{minWidth:0}}><p style={{fontSize:13,fontWeight:650,color:'#111'}}>{a.name}</p><p style={{fontSize:11,color:'#6B6B6B'}}>{a.city} · {a.area??'Area not set'} · {a.directory_visible?'Visible':'Hidden'}</p></div>
-                  <button onClick={()=>setEditingDirectoryAgent({...a})} style={BTN('#2563EB')}>Edit</button>
+                {directoryAgentsError&&<p role="alert" style={{padding:12,border:'1px solid #FECACA',background:'#FEF2F2',borderRadius:8,color:'#B91C1C',fontSize:12}}>Directory records could not be loaded: {directoryAgentsError}</p>}
+                <input aria-label="Search directory agents" placeholder="Search all directory agents by name, city, area, agency or RERA" value={agentSearch} onChange={e=>setAgentSearch(e.target.value)} style={{...INP,width:'100%',padding:'10px 12px'}}/>
+                <p style={{fontSize:11,color:'#6B6B6B'}}>{directoryAgents.filter((a:any)=>[a.name,a.city,a.area,a.agency_name,a.rera_number].filter(Boolean).join(' ').toLowerCase().includes(agentSearch.toLowerCase().trim())).length} matching directory records</p>
+                {directoryAgents.filter((a:any)=>[a.name,a.city,a.area,a.agency_name,a.rera_number].filter(Boolean).join(' ').toLowerCase().includes(agentSearch.toLowerCase().trim())).map((a:any)=><div key={a.id} style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,padding:'12px 14px',border:'1px solid #E5E5E5',borderRadius:10}}>
+                  <div style={{minWidth:0,flex:1}}><p style={{fontSize:13,fontWeight:650,color:'#111'}}>{a.name}</p><p style={{fontSize:11,color:'#6B6B6B'}}>{a.agency_name??a.business_type??'Public business'} · {a.city} · {a.area??'Area not set'}</p><p style={{fontSize:11,color:'#6B6B6B'}}>Approval: {a.approval_status??'—'} · Verification: {a.verification_status??'unverified'} · Directory: {a.directory_visible?'Visible':'Hidden'}</p></div>
+                  <div style={{display:'flex',gap:6,flexWrap:'wrap',justifyContent:'flex-end'}}><button onClick={()=>setEditingDirectoryAgent({...a})} style={BTN('#2563EB')}>Edit</button><button onClick={async()=>{try{await adminUpdateDirectoryAgent(a.id,{approval_status:a.approval_status==='approved'?'pending':'approved'});setDirectoryAgents(await adminGetDirectoryAgents());}catch(e){alert((e as any)?.message??'Could not update approval.');}}} style={BTN(a.approval_status==='approved'?'#6B6B6B':'#16A34A')}>{a.approval_status==='approved'?'Unapprove':'Approve'}</button><button onClick={async()=>{try{await adminUpdateDirectoryAgent(a.id,{verification_status:a.verification_status==='verified'?'unverified':'verified'});setDirectoryAgents(await adminGetDirectoryAgents());}catch(e){alert((e as any)?.message??'Could not update verification.');}}} style={BTN(a.verification_status==='verified'?'#6B6B6B':'#0F766E')}>{a.verification_status==='verified'?'Unverify':'Verify'}</button></div>
                 </div>)}
+                {!directoryAgentsError&&directoryAgents.length===0&&<p style={{fontSize:13,color:'#B45309'}}>No directory records returned. This is a data-access issue, not an empty public directory; check the Admin RLS policy and signed-in admin session.</p>}
               </div>
               {editingDirectoryAgent&&<div style={{position:'fixed',inset:0,zIndex:110,background:'rgba(15,23,42,.45)',display:'flex',alignItems:'center',justifyContent:'center',padding:20}}>
                 <div style={{width:'100%',maxWidth:620,maxHeight:'90vh',overflow:'auto',background:'#fff',borderRadius:16,padding:20}}>
                   <h3 style={{fontSize:18,fontWeight:700,color:'#111'}}>Edit Directory Agent</h3>
                   <div style={{display:'grid',gap:10,marginTop:14}}>
-                    {['name','city','area','address','map_query','website_url','photo_url','business_type'].map((key)=><label key={key} style={{fontSize:12,fontWeight:600}}>{key.replaceAll('_',' ')}<input style={{...INP,width:'100%',marginTop:4}} value={editingDirectoryAgent[key]??''} onChange={e=>setEditingDirectoryAgent((x:any)=>({...x,[key]:e.target.value}))}/></label>)}
+                    {['name','city','area','address','map_query','website_url','photo_url','business_type','agency_name','phone','email','bio','rera_number'].map((key)=><label key={key} style={{fontSize:12,fontWeight:600}}>{key.replaceAll('_',' ')}<input style={{...INP,width:'100%',marginTop:4}} value={editingDirectoryAgent[key]??''} onChange={e=>setEditingDirectoryAgent((x:any)=>({...x,[key]:e.target.value}))}/></label>)}
                     <label style={{fontSize:12,fontWeight:600}}>Services<input style={{...INP,width:'100%',marginTop:4}} value={(editingDirectoryAgent.services??[]).join(', ')} onChange={e=>setEditingDirectoryAgent((x:any)=>({...x,services:e.target.value.split(',').map((v:string)=>v.trim()).filter(Boolean)}))}/></label>
                     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
                       <label style={{fontSize:12,fontWeight:600}}>Rating<input type="number" step="0.1" style={{...INP,width:'100%',marginTop:4}} value={editingDirectoryAgent.rating??''} onChange={e=>setEditingDirectoryAgent((x:any)=>({...x,rating:e.target.value?Number(e.target.value):null}))}/></label>
                       <label style={{fontSize:12,fontWeight:600}}>Public reviews<input type="number" style={{...INP,width:'100%',marginTop:4}} value={editingDirectoryAgent.public_review_count??''} onChange={e=>setEditingDirectoryAgent((x:any)=>({...x,public_review_count:e.target.value?Number(e.target.value):null}))}/></label>
                     </div>
+                    <label style={{fontSize:12,fontWeight:600}}>Bio<textarea rows={3} style={{...INP,width:'100%',marginTop:4}} value={editingDirectoryAgent.bio??''} onChange={e=>setEditingDirectoryAgent((x:any)=>({...x,bio:e.target.value}))}/></label>
+                    <label style={{fontSize:12,fontWeight:600}}>Gallery photo URLs (one per line)<textarea rows={3} style={{...INP,width:'100%',marginTop:4}} value={(editingDirectoryAgent.gallery_urls??[]).join('\n')} onChange={e=>setEditingDirectoryAgent((x:any)=>({...x,gallery_urls:e.target.value.split('\n').map((v:string)=>v.trim()).filter(Boolean)}))}/></label>
+                    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}><label style={{fontSize:12,fontWeight:600}}>Approval status<select style={{...INP,width:'100%',marginTop:4}} value={editingDirectoryAgent.approval_status??'pending'} onChange={e=>setEditingDirectoryAgent((x:any)=>({...x,approval_status:e.target.value}))}>{['pending','approved','rejected'].map(v=><option key={v} value={v}>{v}</option>)}</select></label><label style={{fontSize:12,fontWeight:600}}>Verification status<select style={{...INP,width:'100%',marginTop:4}} value={editingDirectoryAgent.verification_status??'unverified'} onChange={e=>setEditingDirectoryAgent((x:any)=>({...x,verification_status:e.target.value}))}>{['unverified','pending','verified','rejected'].map(v=><option key={v} value={v}>{v}</option>)}</select></label></div>
                     <label style={{display:'flex',gap:8,alignItems:'center',fontSize:12,fontWeight:600}}><input type="checkbox" checked={editingDirectoryAgent.directory_visible!==false} onChange={e=>setEditingDirectoryAgent((x:any)=>({...x,directory_visible:e.target.checked}))}/> Visible in Agent Directory</label>
                   </div>
                   <div style={{display:'flex',justifyContent:'flex-end',gap:8,marginTop:16}}><button onClick={()=>setEditingDirectoryAgent(null)} style={BTN('#6B6B6B')}>Cancel</button><button onClick={async()=>{try{await adminUpdateDirectoryAgent(editingDirectoryAgent.id,editingDirectoryAgent);setDirectoryAgents(await adminGetDirectoryAgents());setEditingDirectoryAgent(null);}catch(e){alert((e as any)?.message??'Could not save directory agent.');}}} style={BTN('#16A34A')}>Save</button></div>
