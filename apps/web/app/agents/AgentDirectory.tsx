@@ -6,7 +6,7 @@ import type { Profile } from '@/lib/types';
 import { THANE_TOP_AGENTS } from '@/lib/thane-agents';
 import { supabase } from '@/lib/supabase';
 
-type DirectoryAgent = { id:string; name:string; city:string; area:string|null; address:string|null; map_query:string; website_url:string|null; rating:number|null; public_review_count:number|null; services:string[]; business_type:string|null; photo_url:string|null; directory_visible:boolean; sort_order:number; };
+type DirectoryAgent = { id:string; businessType?:string|null; publicReviewCount?:number|null; name:string; city:string; area:string|null; address:string|null; map_query:string; website_url:string|null; rating:number|null; public_review_count:number|null; services:string[]; business_type:string|null; photo_url:string|null; directory_visible:boolean; sort_order:number; };
 type Props = { agents: Profile[]; directoryAgents?: DirectoryAgent[] };
 const cities = ['All Cities', 'Thane', 'Mumbai', 'Pune'];
 const serviceFilters = ['All Services', 'Buy', 'Sell', 'Rent'];
