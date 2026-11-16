@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
 import { useAuth } from '@/components/layout/AuthProvider';
-import { adminGetPendingBrokerages, adminGetSupplyFunnel, type SupplyFunnel, adminGetPendingListings, adminGetAllListings, adminGetBrokers, adminGetBrokerages, adminUpdateBrokerage, adminUpdateAgentProfile, adminGetAllLeads, adminGetAllVisits, adminGetStats, adminModerate, adminToggleFeatured, adminVerifyAgent, adminSetRole, adminGetReports, adminResolveReport, adminGetAuditLog, adminGetFunnel, adminGetLaunchInventoryDashboard, adminGetPendingProjects, adminGetAllProjects, adminReviewSubmission, adminReviewProjectUnit } from '@/lib/api';
+import { adminGetDirectoryAgents, adminUpdateDirectoryAgent, adminGetPendingBrokerages, adminGetSupplyFunnel, type SupplyFunnel, adminGetPendingListings, adminGetAllListings, adminGetBrokers, adminGetBrokerages, adminUpdateBrokerage, adminUpdateAgentProfile, adminGetAllLeads, adminGetAllVisits, adminGetStats, adminModerate, adminToggleFeatured, adminVerifyAgent, adminSetRole, adminGetReports, adminResolveReport, adminGetAuditLog, adminGetFunnel, adminGetLaunchInventoryDashboard, adminGetPendingProjects, adminGetAllProjects, adminReviewSubmission, adminReviewProjectUnit } from '@/lib/api';
 import { imgUrl } from '@/lib/api';
 import { supabase } from '@/lib/supabase';
 import { formatPrice, timeAgo } from '@/lib/format';
@@ -29,6 +29,8 @@ export default function AdminPage() {
   const[brokers,setBrokers]=useState<any[]>([]);
   const[brokerages,setBrokerages]=useState<any[]>([]);
   const[editingAgent,setEditingAgent]=useState<any|null>(null);
+  const[directoryAgents,setDirectoryAgents]=useState<any[]>([]);
+  const[editingDirectoryAgent,setEditingDirectoryAgent]=useState<any|null>(null);
   const[editingBrokerage,setEditingBrokerage]=useState<any|null>(null);
   const[leads,setLeads]=useState<any[]>([]);
   const[visits,setVisits]=useState<any[]>([]);
@@ -52,7 +54,7 @@ export default function AdminPage() {
     adminGetAllProjects().then(setAllProjects).catch(()=>setAllProjects([]));
     adminGetPendingBrokerages().then(setAgencyQueue).catch(()=>setAgencyQueue([]));
     adminGetAllListings().then(setListings);
-    adminGetBrokers().then(setBrokers);
+    adminGetBrokers().then(setBrokers); adminGetDirectoryAgents().then(setDirectoryAgents).catch(()=>setDirectoryAgents([]));
     adminGetBrokerages().then(setBrokerages).catch(()=>setBrokerages([]));
     adminGetAllLeads().then(setLeads);
     adminGetAllVisits().then(setVisits);
@@ -343,6 +345,37 @@ export default function AdminPage() {
               </div>
             ))}
           </div>
+        )}
+        {tab==='brokers'&&(
+          <>
+            <section style={{marginBottom:24}}>
+              <div style={{padding:'14px 16px',border:'1px solid #DDE7F7',background:'#F7FAFF',borderRadius:12,marginBottom:12}}>
+                <p style={{fontSize:15,fontWeight:750,color:'#111'}}>CENTRAL MARKETPLACE MANAGEMENT · Agents</p>
+                <p style={{fontSize:12,color:'#6B6B6B',marginTop:4}}>Admin-controlled directory records. Edit all 21 directory agents here without changing the real GoNest account profiles.</p>
+              </div>
+              <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                {directoryAgents.map((a:any)=><div key={a.id} style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,padding:'12px 14px',border:'1px solid #E5E5E5',borderRadius:10}}>
+                  <div style={{minWidth:0}}><p style={{fontSize:13,fontWeight:650,color:'#111'}}>{a.name}</p><p style={{fontSize:11,color:'#6B6B6B'}}>{a.city} · {a.area??'Area not set'} · {a.directory_visible?'Visible':'Hidden'}</p></div>
+                  <button onClick={()=>setEditingDirectoryAgent({...a})} style={BTN('#2563EB')}>Edit</button>
+                </div>)}
+              </div>
+              {editingDirectoryAgent&&<div style={{position:'fixed',inset:0,zIndex:110,background:'rgba(15,23,42,.45)',display:'flex',alignItems:'center',justifyContent:'center',padding:20}}>
+                <div style={{width:'100%',maxWidth:620,maxHeight:'90vh',overflow:'auto',background:'#fff',borderRadius:16,padding:20}}>
+                  <h3 style={{fontSize:18,fontWeight:700,color:'#111'}}>Edit Directory Agent</h3>
+                  <div style={{display:'grid',gap:10,marginTop:14}}>
+                    {['name','city','area','address','map_query','website_url','photo_url','business_type'].map((key)=><label key={key} style={{fontSize:12,fontWeight:600}}>{key.replaceAll('_',' ')}<input style={{...INP,width:'100%',marginTop:4}} value={editingDirectoryAgent[key]??''} onChange={e=>setEditingDirectoryAgent((x:any)=>({...x,[key]:e.target.value}))}/></label>)}
+                    <label style={{fontSize:12,fontWeight:600}}>Services<input style={{...INP,width:'100%',marginTop:4}} value={(editingDirectoryAgent.services??[]).join(', ')} onChange={e=>setEditingDirectoryAgent((x:any)=>({...x,services:e.target.value.split(',').map((v:string)=>v.trim()).filter(Boolean)}))}/></label>
+                    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+                      <label style={{fontSize:12,fontWeight:600}}>Rating<input type="number" step="0.1" style={{...INP,width:'100%',marginTop:4}} value={editingDirectoryAgent.rating??''} onChange={e=>setEditingDirectoryAgent((x:any)=>({...x,rating:e.target.value?Number(e.target.value):null}))}/></label>
+                      <label style={{fontSize:12,fontWeight:600}}>Public reviews<input type="number" style={{...INP,width:'100%',marginTop:4}} value={editingDirectoryAgent.public_review_count??''} onChange={e=>setEditingDirectoryAgent((x:any)=>({...x,public_review_count:e.target.value?Number(e.target.value):null}))}/></label>
+                    </div>
+                    <label style={{display:'flex',gap:8,alignItems:'center',fontSize:12,fontWeight:600}}><input type="checkbox" checked={editingDirectoryAgent.directory_visible!==false} onChange={e=>setEditingDirectoryAgent((x:any)=>({...x,directory_visible:e.target.checked}))}/> Visible in Agent Directory</label>
+                  </div>
+                  <div style={{display:'flex',justifyContent:'flex-end',gap:8,marginTop:16}}><button onClick={()=>setEditingDirectoryAgent(null)} style={BTN('#6B6B6B')}>Cancel</button><button onClick={async()=>{try{await adminUpdateDirectoryAgent(editingDirectoryAgent.id,editingDirectoryAgent);setDirectoryAgents(await adminGetDirectoryAgents());setEditingDirectoryAgent(null);}catch(e){alert((e as any)?.message??'Could not save directory agent.');}}} style={BTN('#16A34A')}>Save</button></div>
+                </div>
+              </div>}
+            </section>
+          </>
         )}
         {tab==='brokers'&&(
           <div style={{display:'flex',flexDirection:'column',gap:12}}>
