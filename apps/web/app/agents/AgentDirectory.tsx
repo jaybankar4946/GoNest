@@ -4,8 +4,10 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import type { Profile } from '@/lib/types';
 import { THANE_TOP_AGENTS } from '@/lib/thane-agents';
+import { supabase } from '@/lib/supabase';
 
-type Props = { agents: Profile[] };
+type DirectoryAgent = { id:string; name:string; city:string; area:string|null; address:string|null; map_query:string; website_url:string|null; rating:number|null; public_review_count:number|null; services:string[]; business_type:string|null; photo_url:string|null; directory_visible:boolean; sort_order:number; };
+type Props = { agents: Profile[]; directoryAgents?: DirectoryAgent[] };
 const cities = ['All Cities', 'Thane', 'Mumbai', 'Pune'];
 const serviceFilters = ['All Services', 'Buy', 'Sell', 'Rent'];
 
@@ -50,18 +52,19 @@ function RegisteredAgentCard({ agent }: { agent: Profile }) {
   </article>;
 }
 
-export function AgentDirectory({ agents }: Props) {
+export function AgentDirectory({ agents, directoryAgents = [] }: Props) {
   const [search, setSearch] = useState('');
   const [city, setCity] = useState('All Cities');
   const [service, setService] = useState('All Services');
   const [minRating, setMinRating] = useState('Any rating');
   const [selectedAgency, setSelectedAgency] = useState<string | null>(null);
-  const publicAgencies = useMemo(() => THANE_TOP_AGENTS.filter(a =>
+  const managedDirectoryAgents = useMemo(() => directoryAgents.filter(a => a.directory_visible), [directoryAgents]);
+  const publicAgencies = useMemo(() => (managedDirectoryAgents.length ? managedDirectoryAgents : THANE_TOP_AGENTS).filter(a =>
     (city === 'All Cities' || a.city === city) &&
     (service === 'All Services' || (a.services ?? []).includes(service)) &&
     (minRating === 'Any rating' || (a.rating ?? 0) >= Number(minRating)) &&
     (a.name + ' ' + a.city + ' ' + a.area + ' ' + a.address + ' ' + (a.services ?? []).join(' ') + ' ' + (a.businessType ?? '')).toLowerCase().includes(search.toLowerCase().trim())
-  ), [city, service, minRating, search]);
+  ), [managedDirectoryAgents, city, service, minRating, search]);
   const registeredAgents = useMemo(() => agents.filter(a => a.role === 'agent' && a.agent_verified && Boolean(a.rera_number) && (city === 'All Cities' || [...(a.service_localities ?? []), ...(a.service_pincodes ?? [])].join(' ').toLowerCase().includes(city.toLowerCase())) && (!search.trim() || [a.full_name, a.agency_name, a.bio, a.rera_number, ...(a.service_localities ?? [])].filter(Boolean).join(' ').toLowerCase().includes(search.toLowerCase().trim()))), [agents, city, search]);
 
   return <>
