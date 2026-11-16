@@ -276,6 +276,16 @@ export async function adminGetAllListings(): Promise<ListingFull[]> {
     .order('created_at', { ascending: false });
   return (data ?? []) as unknown as ListingFull[];
 }
+export type DirectoryAgent = { id:string; name:string; city:string; area:string|null; address:string|null; map_query:string; website_url:string|null; rating:number|null; public_review_count:number|null; services:string[]; business_type:string|null; photo_url:string|null; directory_visible:boolean; sort_order:number; };
+export async function adminGetDirectoryAgents(): Promise<DirectoryAgent[]> {
+  const { data,error } = await supabase.from('directory_agents').select('*').order('sort_order').order('name');
+  if(error) throw error; return (data??[]) as DirectoryAgent[];
+}
+export async function adminUpdateDirectoryAgent(id:string,input:Partial<DirectoryAgent>) {
+  const allowed=['name','city','area','address','map_query','website_url','rating','public_review_count','services','business_type','photo_url','directory_visible','sort_order'];
+  const patch:Record<string,unknown>={}; for(const key of allowed) if(key in input) patch[key]=input[key];
+  const {error}=await supabase.from('directory_agents').update({...patch,updated_at:new Date().toISOString()}).eq('id',id); if(error) throw error;
+}
 export async function adminGetBrokers(): Promise<Profile[]> {
   const { data, error } = await supabase.from('profiles').select(PUBLIC_PROFILE).in('role', ['agent','owner']).order('agent_verified', { ascending: false }).order('total_listings', { ascending: false }).order('created_at', { ascending: false });
   if (error) throw error;
