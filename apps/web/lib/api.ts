@@ -283,7 +283,7 @@ export async function adminGetDirectoryAgents(): Promise<DirectoryAgent[]> {
 }
 export async function adminUpdateDirectoryAgent(id:string,input:Partial<DirectoryAgent>) {
   const allowed=['name','city','area','address','map_query','website_url','rating','public_review_count','services','business_type','photo_url','directory_visible','sort_order'];
-  const patch:Record<string,unknown>={}; for(const key of allowed) if(key in input) patch[key]=input[key];
+  const patch:Record<string,unknown>={}; for(const key of allowed) if(key in input) patch[key]=(input as Record<string,unknown>)[key];
   const {error}=await supabase.from('directory_agents').update({...patch,updated_at:new Date().toISOString()}).eq('id',id); if(error) throw error;
 }
 export async function adminGetBrokers(): Promise<Profile[]> {
