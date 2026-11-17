@@ -145,13 +145,14 @@ function MediaManager({ cfg, row, onChanged }: { cfg: Cfg; row: Row; onChanged: 
     setBusy(true); setMsg(null);
     try { await fn(); setMsg({ ok: true, text: label }); } catch (e) { setMsg({ ok: false, text: errText(e) }); } finally { setBusy(false); }
   };
-  const pick = (files: FileList | null) => {
-    if (!files) return;
-    setPending(p => [...p, ...Array.from(files).map(file => ({ file, preview: URL.createObjectURL(file), err: validateImage(file) }))]);
+   const pick = (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    // Copy the files NOW: ...
+    const chosen = Array.from(files).map(file => ({ file, preview: URL.createObjectURL(file), err: validateImage(file) }));
+    setPending(p => [...p, ...chosen]);
   };
   const clearPending = () => { pending.forEach(p => URL.revokeObjectURL(p.preview)); setPending([]); };
   const valid = pending.filter(p => !p.err);
-
   // ---- listing_images mode
   const reloadListing = async () => { const imgs = await getListingImages(row.id); setImages(imgs); onChanged({ ...row, image_count: imgs.length }); };
   const lUpload = () => run(`${valid.length} photo(s) uploaded`, async () => {
