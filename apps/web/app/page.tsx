@@ -6,7 +6,7 @@ import { PropertyCard } from '@/components/property/PropertyCard';
 import { DemoHomes } from '@/components/home/DemoHomes';
 import { HomeSearch } from './HomeSearch';
 import { HomeEMI } from './HomeEMI';
-import { getFeatured, getCities, getHomeStats, getPopularLocalities } from '@/lib/api';
+import { getFeatured, getCities, getHomeStats, getPopularLocalities, getDirectoryAgents } from '@/lib/api';
 import { THANE_TOP_AGENTS, businessMapsUrl } from '@/lib/thane-agents';
 import type { Metadata } from 'next';
 
@@ -32,7 +32,7 @@ const TRUST = [
   { icon: Flag, title: 'Report anything', items: ['Report button on every listing', 'Reasons include fake, wrong price, already sold', 'Owners can mark listings sold or rented'] },
 ];
 export default async function HomePage() {
-  const [featured, cities, stats, popular] = await Promise.all([getFeatured(6), getCities(), getHomeStats(), getPopularLocalities(8)]);
+  const [featured, cities, stats, popular, directoryAgents] = await Promise.all([getFeatured(6), getCities(), getHomeStats(), getPopularLocalities(8), getDirectoryAgents(10)]);
   const strip = [
     { v: stats.listings, l: 'Live listings' },
     { v: stats.verified, l: 'Verified listings' },
@@ -195,37 +195,41 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Agent Explore uses the same featured collection card format as Homes For You */}
-        <section className="bg-white py-16 sm:py-20">
-          <div className="mx-auto max-w-7xl px-5 sm:px-6">
-            <div className="mb-7 flex items-end justify-between gap-4">
-              <div>
-                <p className="mb-2 text-xs font-bold uppercase tracking-widest text-blue-700">Featured collection · Thane</p>
-                <h2 className="text-3xl font-extrabold tracking-tight text-gray-950 sm:text-4xl" style={{ ...display, letterSpacing: '-0.03em' }}>Agents For You</h2>
-                <p className="mt-2 text-sm text-gray-600 sm:text-base">Explore local real estate agents and brokerages across Thane.</p>
+        {/* Managed agent recommendations — always sourced from the same admin-controlled directory as /agents */}
+        {directoryAgents.length > 0 && (
+          <section className="border-t border-slate-100 bg-white py-16 sm:py-20">
+            <div className="mx-auto max-w-7xl px-5 sm:px-6">
+              <div className="mb-8 flex items-end justify-between gap-4">
+                <div>
+                  <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-blue-700">Local professionals</p>
+                  <h2 className="text-3xl font-extrabold tracking-tight text-gray-950 sm:text-4xl" style={{ ...display, letterSpacing: '-0.03em' }}>Agents For You</h2>
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-600 sm:text-base">Find local property professionals selected for the GoNest directory.</p>
+                </div>
+                <Link href="/agents" className="shrink-0 text-sm font-bold text-blue-700 hover:text-blue-900">Explore agents →</Link>
               </div>
-              <Link href="/agents" className="shrink-0 text-sm font-bold text-blue-700 hover:text-blue-900">Explore agents →</Link>
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                {directoryAgents.map((broker) => (
+                  <article key={broker.id} className="group overflow-hidden rounded-2xl border border-gray-200 bg-white transition duration-300 hover:-translate-y-1 hover:shadow-xl">
+                    <Link href={broker.website_url || '/agents'} className="block" target={broker.website_url ? '_blank' : undefined} rel={broker.website_url ? 'noreferrer' : undefined}>
+                      <div className="relative h-44 overflow-hidden bg-slate-100">
+                        {broker.photo_url ? <img src={broker.photo_url} alt={broker.name} loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="flex h-full items-center justify-center text-4xl font-extrabold text-slate-400">{broker.name.slice(0, 1).toUpperCase()}</div>}
+                        <span className="absolute left-3 top-3 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-gray-800 shadow-sm">{broker.city}{broker.area ? ' · ' + broker.area : ''}</span>
+                      </div>
+                    </Link>
+                    <div className="p-5">
+                      <h3 className="line-clamp-2 min-h-12 text-base font-extrabold text-gray-950">{broker.name}</h3>
+                      {broker.rating != null && <p className="mt-1 text-sm font-bold text-gray-900">★ {broker.rating.toFixed(1)} <span className="font-normal text-gray-500">({(broker.public_review_count ?? 0).toLocaleString('en-IN')} public reviews)</span></p>}
+                      <p className="mt-2 line-clamp-2 text-sm leading-5 text-gray-600">{broker.address || broker.area || broker.city}</p>
+                      {broker.services?.length ? <div className="mt-3 flex flex-wrap gap-1.5">{broker.services.slice(0, 3).map(service => <span key={service} className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-bold text-blue-800">{service}</span>)}</div> : null}
+                      <Link href="/agents" className="mt-4 inline-flex text-sm font-bold text-blue-700 hover:text-blue-900">Explore agent →</Link>
+                    </div>
+                  </article>
+                ))}
+              </div>
+              <p className="mt-4 text-xs leading-5 text-gray-500">Public ratings and review counts are displayed as public business information, not GoNest reviews or endorsements.</p>
             </div>
-            <div className="-mx-5 flex snap-x snap-mandatory gap-5 overflow-x-auto px-5 pb-4 sm:-mx-6 sm:px-6">
-              {THANE_TOP_AGENTS.map((broker, index) => (
-                <article key={broker.name} className="w-[78vw] max-w-[300px] shrink-0 snap-start overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg sm:w-[270px]">
-                  <div className="relative h-40 overflow-hidden bg-slate-100">
-                    <img src={["https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600607687644-c7171b42498f?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600566752355-35792bedcfea?w=800&h=480&fit=crop&auto=format","https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=800&h=480&fit=crop&auto=format"][index]} alt={`Illustrative property photography for ${broker.name}`} loading="lazy" className="h-full w-full object-cover transition duration-500 hover:scale-105" />
-                    <span className="absolute left-3 top-3 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-gray-800">{broker.city} · {broker.area}</span>
-                  </div>
-                  <div className="p-4 sm:p-5">
-                    <h3 className="line-clamp-2 min-h-10 text-base font-extrabold text-gray-950">{broker.name}</h3>
-                    <p className="mt-1 line-clamp-2 min-h-8 text-sm text-gray-600">{broker.area}</p>
-                    <p className="mt-2 line-clamp-2 min-h-10 text-sm leading-5 text-gray-600">{broker.address}</p>
-                    <Link href="/agents" className="mt-4 inline-flex w-full items-center justify-center rounded-xl border border-gray-200 px-3 py-2.5 text-sm font-bold text-blue-700 hover:bg-blue-50">Explore agent →</Link>
-                  </div>
-                </article>
-              ))}
-            </div>
-            <p className="mt-3 text-xs leading-5 text-gray-500">Public business-directory ratings are snapshots, not GoNest reviews or endorsements. Photos are illustrative property photography, not verified photos of each business or its staff.</p>
-          </div>
-        </section>
-
+          </section>
+        )}
         {/* Post property CTA */}
         <section className="bg-blue-600 py-24 overflow-hidden relative">
           <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-500 rounded-full opacity-30 translate-x-1/3 -translate-y-1/3" />
