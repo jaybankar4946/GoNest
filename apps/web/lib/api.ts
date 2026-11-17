@@ -400,13 +400,6 @@ export async function getAgents(): Promise<Profile[]> {
   return (data ?? []) as Profile[];
 }
 
-export type DirectoryAgent = {
-  id: string; name: string; city: string; area: string | null; address: string | null;
-  map_query: string; website_url: string | null; rating: number | null;
-  public_review_count: number | null; services: string[]; business_type: string | null;
-  photo_url: string | null; directory_visible: boolean; sort_order: number;
-};
-
 export async function getDirectoryAgents(limit = 12): Promise<DirectoryAgent[]> {
   const { data, error } = await supabase.from('directory_agents')
     .select('id,name,city,area,address,map_query,website_url,rating,public_review_count,services,business_type,photo_url,directory_visible,sort_order')
