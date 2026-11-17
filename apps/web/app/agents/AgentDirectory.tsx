@@ -81,7 +81,11 @@ export function AgentDirectory({ agents }: Props) {
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [area, setArea] = useState('Any area');
   const areaOptions = useMemo(() => Array.from(new Set([...THANE_TOP_AGENTS.flatMap(a => a.area.split(' · ')), ...agents.flatMap(a => a.service_localities ?? [])].map(x => x.trim()).filter(Boolean))).sort(), [agents]);
+  // A built-in business listing is replaced by its admin-managed profile once that profile is public.
+  const norm = (v?: string | null) => (v ?? '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+  const claimedNames = useMemo(() => new Set(agents.flatMap(a => [norm(a.agency_name), norm(a.full_name)]).filter(Boolean)), [agents]);
   const publicAgencies = useMemo(() => THANE_TOP_AGENTS.filter(a =>
+    !claimedNames.has(norm(a.name)) &&
     (city === 'All Cities' || a.city === city) &&
     !verifiedOnly &&
     (area === 'Any area' || a.area.includes(area)) &&
@@ -89,7 +93,7 @@ export function AgentDirectory({ agents }: Props) {
     (service === 'All Services' || (a.services ?? []).includes(service)) &&
     (minRating === 'Any rating' || (a.rating != null && a.rating >= Number(minRating))) &&
     (a.name + ' ' + a.city + ' ' + a.area + ' ' + a.address + ' ' + (a.services ?? []).join(' ') + ' ' + (a.businessType ?? '')).toLowerCase().includes(search.toLowerCase().trim())
-  ), [city, service, minRating, search, loc, verifiedOnly, area]);
+  ), [city, service, minRating, search, loc, verifiedOnly, area, claimedNames]);
   const registeredAgents = useMemo(() => agents.filter(a => {
     if (a.role !== 'agent') return false;
     const locations = [...(a.service_localities ?? []), ...(a.service_pincodes ?? [])].join(' ').toLowerCase();
@@ -101,7 +105,6 @@ export function AgentDirectory({ agents }: Props) {
     const locMatch = !loc.trim() || [...(a.service_localities ?? []), ...(a.service_pincodes ?? [])].join(' ').toLowerCase().includes(loc.toLowerCase().trim());
     return cityMatch && areaMatch && locMatch && (!verifiedOnly || isVerified) && (!search.trim() || searchable.includes(search.toLowerCase().trim()));
   }), [agents, city, search, loc, verifiedOnly, area]);
-
   const toggleService = (v: string) => setService(service === v ? 'All Services' : v);
   const chipCls = (on: boolean) => "rounded-full border px-4 py-2 text-sm font-semibold transition " + (on ? "border-blue-600 bg-blue-50 text-blue-700" : "border-slate-300 bg-white text-slate-800 hover:border-slate-500");
 
