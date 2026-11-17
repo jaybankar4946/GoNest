@@ -399,6 +399,27 @@ export async function getAgents(): Promise<Profile[]> {
     .in('role', ['agent','owner']).order('created_at', { ascending: false });
   return (data ?? []) as Profile[];
 }
+
+export type DirectoryAgent = {
+  id: string; name: string; city: string; area: string | null; address: string | null;
+  map_query: string; website_url: string | null; rating: number | null;
+  public_review_count: number | null; services: string[]; business_type: string | null;
+  photo_url: string | null; directory_visible: boolean; sort_order: number;
+};
+
+export async function getDirectoryAgents(limit = 12): Promise<DirectoryAgent[]> {
+  const { data, error } = await supabase.from('directory_agents')
+    .select('id,name,city,area,address,map_query,website_url,rating,public_review_count,services,business_type,photo_url,directory_visible,sort_order')
+    .eq('directory_visible', true)
+    .order('sort_order', { ascending: true })
+    .order('name', { ascending: true })
+    .limit(limit);
+  if (error) {
+    console.error('Could not load homepage directory agents', error.message);
+    return [];
+  }
+  return (data ?? []) as DirectoryAgent[];
+}
 export async function getAgentById(id: string): Promise<Profile | null> {
   const { data } = await supabase.from('profiles').select(PUBLIC_PROFILE).eq('id', id).maybeSingle();
   return data as Profile | null;
