@@ -39,7 +39,7 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ i
               <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-950 md:text-4xl">{agent.full_name ?? 'GoNest member'}</h1>
               <p className="mt-2 text-base text-slate-600">{agent.agency_name ?? 'Independent professional'}</p>
               <div className="mt-4 flex flex-wrap gap-2">
-                <span className={"rounded-full px-3 py-1.5 text-xs font-bold " + (isVerified ? "bg-emerald-50 text-emerald-800" : "bg-amber-50 text-amber-800")}>{isVerified ? '✓ GoNest verified' : 'Profile under review'}</span>
+                {isVerified && <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800">✓ GoNest verified</span>}
                 {agent.phone_verified && <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800">✓ Phone verified</span>}
                 <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700">{agent.rera_number ? 'RERA details submitted' : 'RERA details not provided'}</span>{serviceAreas.map(area=><span key={area} className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700">{area}</span>)}
                 {agent.rating != null && <span className="rounded-full bg-amber-50 px-3 py-1.5 text-xs font-bold text-amber-900">★ {agent.rating.toFixed(1)} · {agent.review_count} reviews</span>}
