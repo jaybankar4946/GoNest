@@ -8,6 +8,7 @@ import { HomeSearch } from './HomeSearch';
 import { HomeEMI } from './HomeEMI';
 import { getFeatured, getCities, getHomeStats, getPopularLocalities, getAgents } from '@/lib/api';
 import { AgentShowcase } from '@/components/home/AgentShowcase';
+import { SlideRail } from '@/components/home/SlideRail';
 import type { Metadata } from 'next';
 
 export const revalidate = 60;
@@ -119,16 +120,20 @@ export default async function HomePage() {
         {featured.length > 0 && (
           <section className="bg-gray-50 py-24">
             <div className="max-w-7xl mx-auto px-6">
-              <div className="flex items-end justify-between mb-12">
+              <div className="mb-7 flex items-end justify-between gap-4">
                 <div>
-                  <div className="inline-flex items-center gap-2 text-xs font-semibold text-blue-600 bg-blue-100 px-3 py-1.5 rounded-full mb-4"><BadgeCheck className="w-3.5 h-3.5" /> Featured</div>
+                  <p className="mb-2 text-xs font-bold uppercase tracking-widest text-blue-700">Featured collection</p>
                   <h2 className="text-4xl font-extrabold text-gray-900" style={{ ...display, letterSpacing: '-0.025em' }}>Featured properties</h2>
                 </div>
                 <Link href="/search" className="hidden md:block text-sm font-semibold text-blue-600 hover:text-blue-700">View all →</Link>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: '36px 24px' }}>
-                {featured.map(l => <PropertyCard key={l.id} listing={l} />)}
-              </div>
+              <SlideRail>
+                {featured.map(l => (
+                  <div key={l.id} className="w-[278px] shrink-0 snap-start sm:w-[310px]">
+                    <PropertyCard listing={l} />
+                  </div>
+                ))}
+              </SlideRail>
             </div>
           </section>
         )}
@@ -159,7 +164,7 @@ export default async function HomePage() {
               </div>
               <Link href="/search?q=Hiranandani" className="shrink-0 text-sm font-bold text-blue-700 hover:text-blue-900">See all homes →</Link>
             </div>
-            <div className="-mx-5 flex snap-x snap-mandatory gap-5 overflow-x-auto px-5 pb-4 sm:-mx-6 sm:px-6">
+            <SlideRail>
               {[
                 { name: 'Villa Carino', config: '1 BHK', area: '438–453 sq ft carpet', location: 'Beside The Walk, Hiranandani Estate', image: 'https://www.houseofhiranandani.com/_next/image?q=75&url=%2Fvilla-carino-desk.jpg&w=1200', href: '/homes/villa-carino', status: 'Ready to move' },
                 { name: 'Solitaire', config: '1 BHK', area: '366–409 sq ft carpet', location: 'Hiranandani Estate, Thane West', image: 'https://jll-global-gdim-res.cloudinary.com/image/upload/t_ip-resi-v2-property-detail-web/v1623152189/IN/Horizon/Resi/Prod/JLL_Mumbai_Hiranandani_Solitaire_4300_EXT_1.jpg', href: '/homes/solitaire', status: 'Ready to move' },
@@ -169,7 +174,7 @@ export default async function HomePage() {
                 { name: 'Villa Rica', config: '2 BHK', area: 'Area varies by unit', location: 'Hiranandani Estate, Thane', image: 'https://www.addressofchoice.com/aoc_assets/elevation/41837/Hiranandani_Villa_Rica_41837.jpeg', href: '/homes/villa-rica', status: 'Ready to move' },
                 { name: 'Hill Grange', config: 'Multiple configurations', area: 'Area varies by unit', location: 'Hiranandani Estate, Thane', image: 'https://im.proptiger.com/1/504452/6/44981810.jpeg', href: '/homes/hill-cranje', status: 'Ready to move' },
                 { name: 'Skylark Enclave', config: '2 & 3 BHK', area: 'Area varies by unit', location: 'Hiranandani Estate, Thane', image: 'https://imgcdn.houssed.com/assets/Files/Projects/8667/Project%20Image/a36f59f2e94b5b11eb1ae0ef11593f51.webp', href: '/homes/skylark-enclave', status: 'Ready to move' },
-                { name: 'Rodas Enclave – Annora', config: 'Multiple configurations', area: 'Area varies by unit', location: 'Hiranandani Estate, Thane', image: 'https://is1-2.housingcdn.com/4f2250e8/599b97385ee7ee2cb1a25c7afe2efe00/v5/fs/hiranandani_rodas_enclave_annora-hiranandani_estate-thane-hiranandani_developers_pvt_ltd.jpg', href: '/homes/annora', status: 'Ready to move' },
+                { name: 'Rodas Enclave – Annora', config: 'Multiple configurations', area: 'Area varies by unit', location: 'Hiranandani Estate, Thane', image: 'https://is1-2.housingcdn.com/4f2250e8/599b97385ee7ee2cb1a25c7afe2efe00/v5/fs/hiranandani_rodas_enclave_annora-hiranandani_developers_pvt_ltd.jpg', href: '/homes/annora', status: 'Ready to move' },
                 { name: 'Villa Nebula', config: 'Multiple configurations', area: 'Area varies by unit', location: 'Hiranandani Estate, Thane', image: 'https://www.ghar.tv/projectimages/9057/photo-91412.jpg', href: '/homes/villa-nebula', status: 'Ready to move' },
               ].map(home => (
                 <article key={home.href} className="w-[278px] shrink-0 snap-start overflow-hidden rounded-2xl border border-gray-200 bg-white transition hover:-translate-y-0.5 hover:shadow-lg sm:w-[310px]">
@@ -190,7 +195,7 @@ export default async function HomePage() {
                   </Link>
                 </article>
               ))}
-            </div>
+            </SlideRail>
             <p className="mt-2 text-xs leading-5 text-gray-500">Project reference information. Prices and individual unit availability are not assumed; confirm the exact unit, documents and current status before making a decision.</p>
           </div>
         </section>
