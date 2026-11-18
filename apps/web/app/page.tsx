@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ShieldCheck, Layers, Eye, Search, Heart, MessageCircle, Check, ClipboardCheck, BadgeCheck, Calendar, FileCheck2, Landmark, Flag, Users, Navigation } from 'lucide-react';
+import { ShieldCheck, Layers, Search, Heart, MessageCircle, ClipboardCheck } from 'lucide-react';
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
 import { PropertyCard } from '@/components/property/PropertyCard';
@@ -26,12 +26,6 @@ const WHY = [
   { icon: MessageCircle, title: 'Talk to the owner directly', desc: 'Call, WhatsApp, send an enquiry or book a visit slot in one tap.' },
 ];
 
-const TRUST = [
-  { icon: ClipboardCheck, title: 'Reviewed listings', items: ['Checked by the GoNest team before going live', 'Duplicate and unusual-price warnings for reviewers', 'Rejected listings never appear in search'] },
-  { icon: BadgeCheck, title: 'Verified badge', items: ['Shown only after GoNest review', 'Platform-verified marks a deeper check', 'Not a guarantee of title or ownership'] },
-  { icon: Users, title: 'Agent profiles', items: ['RERA number shown when the agent provides it', 'Verified agents carry a badge', 'See every active listing by an agent'] },
-  { icon: Flag, title: 'Report anything', items: ['Report button on every listing', 'Reasons include fake, wrong price, already sold', 'Owners can mark listings sold or rented'] },
-];
 export default async function HomePage() {
   const [featured, cities, stats, popular, agents] = await Promise.all([getFeatured(6), getCities(), getHomeStats(), getPopularLocalities(8), getAgents()]);
   const strip = [
@@ -104,18 +98,6 @@ export default async function HomePage() {
         </section>
 
         <DemoHomes />
-        {/* Live stats (real counts) */}
-        {stats.listings >= 20 && (<section className="border-y border-gray-100 bg-white">
-          <div className="max-w-7xl mx-auto px-6 py-6 grid grid-cols-2 md:grid-cols-4 divide-x divide-gray-100">
-            {strip.map(s => (
-              <div key={s.l} className="text-center py-2 px-4">
-                <p className="text-2xl font-extrabold text-gray-900" style={display}>{s.v.toLocaleString('en-IN')}</p>
-                <p className="text-xs text-gray-500 mt-0.5 font-medium">{s.l}</p>
-              </div>
-            ))}
-          </div>
-        </section>)}
-
         {/* Featured */}
         {featured.length > 0 && (
           <section className="bg-gray-50 py-24">
@@ -201,28 +183,6 @@ export default async function HomePage() {
         </section>
 
         <AgentShowcase agents={agents} />
-
-        {/* Trust: how GoNest reviews listings and agents */}
-        <section className="border-t border-gray-100 bg-gray-50 py-16 sm:py-20">
-          <div className="mx-auto max-w-7xl px-5 sm:px-6">
-            <div className="mb-8 max-w-2xl sm:mb-10">
-              <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-blue-700">Trust & transparency</p>
-              <h2 className="text-3xl font-extrabold tracking-tight text-gray-950 sm:text-4xl" style={{ ...display, letterSpacing: '-0.03em' }}>Search with confidence</h2>
-              <p className="mt-3 text-base leading-7 text-gray-600">Clear checks, honest labels and a way to report anything that looks wrong.</p>
-            </div>
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-              {TRUST.map(t => (
-                <div key={t.title} className="rounded-2xl border border-gray-200 bg-white p-6">
-                  <t.icon className="h-6 w-6 text-blue-700" aria-hidden="true" />
-                  <h3 className="mt-4 text-lg font-extrabold text-gray-950">{t.title}</h3>
-                  <ul className="mt-3 space-y-2 text-sm leading-6 text-gray-600">
-                    {t.items.map(i => <li key={i} className="flex gap-2"><Check className="mt-1 h-3.5 w-3.5 shrink-0 text-emerald-600" aria-hidden="true" /><span>{i}</span></li>)}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
 
         {/* Post property CTA */}
         <section className="bg-blue-600 py-24 overflow-hidden relative">
