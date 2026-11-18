@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Profile } from '@/lib/types';
+import { SlideRail } from '@/components/home/SlideRail';
 
 const SERVICES = ['Buy', 'Rent', 'Sell'];
 
@@ -55,9 +56,9 @@ export function AgentShowcase({ agents }: { agents: Profile[] }) {
           </div>
           <Link href="/agents" className="shrink-0 text-sm font-bold text-blue-700 hover:text-blue-900">Explore agents →</Link>
         </div>
-        <div className="-mx-5 flex snap-x snap-mandatory gap-5 overflow-x-auto px-5 pb-4 sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-4">
+        <SlideRail className="sm:-mx-6">
           {list.map(a => <AgentCard key={a.id} agent={a} />)}
-        </div>
+        </SlideRail>
         <p className="mt-3 text-xs leading-5 text-gray-500">Profiles are managed by GoNest. A verified badge means GoNest has reviewed the agent’s details; it is not an endorsement or a guarantee of any transaction.</p>
       </div>
     </section>
