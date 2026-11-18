@@ -31,7 +31,7 @@ export default async function AgentProfilePage({ params }: { params: Promise<{ i
         <Link href="/agents" className="text-sm font-semibold text-blue-700 hover:underline">← All agents & owners</Link>
         <section className="mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="flex flex-col gap-6 p-6 md:flex-row md:items-start md:p-8">
-            <div className="flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-full border border-slate-100 bg-slate-100 text-4xl font-extrabold text-slate-500">
+            <div className="flex h-36 w-36 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-100 bg-slate-100 text-5xl font-extrabold text-slate-500 md:h-44 md:w-44">
               {agent.avatar_url ? <img src={agent.avatar_url} alt="" className="h-full w-full object-cover" /> : (agent.full_name ?? 'G').charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0 flex-1">

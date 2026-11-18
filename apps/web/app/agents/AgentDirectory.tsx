@@ -16,27 +16,26 @@ function AgentListingCard({ agent }: { agent: Profile }) {
   const places = [...(agent.service_localities ?? [])].slice(0, 3);
   const pins = (agent.service_pincodes ?? []).slice(0, 2);
   const profileHref = '/agents/' + agent.id;
-  return <article className="flex h-full flex-col rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-slate-300 hover:shadow-md sm:p-5">
-    <div className="flex items-start gap-4">
-      <Link href={profileHref} aria-label={'View ' + name} className="h-16 w-16 shrink-0 overflow-hidden rounded-full border border-slate-200 bg-slate-100 sm:h-[72px] sm:w-[72px]">
-        {agent.avatar_url ? <img src={agent.avatar_url} alt={name + ' profile'} loading="lazy" className="h-full w-full object-cover"/> : <span className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 text-xl font-semibold text-slate-500">{initials(agent.agency_name || name)}</span>}
-      </Link>
-      <div className="min-w-0 flex-1">
-        <Link href={profileHref} className="block"><h3 className="truncate text-base font-extrabold text-slate-950 hover:underline sm:text-lg">{name}</h3></Link>
-        {brokerage && <p className="truncate text-sm text-slate-600">{brokerage}</p>}
-        {agent.rating != null && <p className="mt-1 text-sm font-bold text-slate-900">★ {Number(agent.rating).toFixed(1)} <span className="font-normal text-slate-500">({agent.review_count > 0 ? agent.review_count.toLocaleString('en-IN') : 'rating'})</span></p>}
-        {verified && <span className="mt-1.5 inline-flex rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800">✓ GoNest verified</span>}
+  return <article className="flex h-full gap-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:shadow-md sm:gap-5 sm:p-5">
+    <Link href={profileHref} aria-label={'View ' + name} className="h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-slate-100 sm:h-32 sm:w-32">
+      {agent.avatar_url ? <img src={agent.avatar_url} alt={name + ' profile'} loading="lazy" className="h-full w-full object-cover"/> : <span className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 text-3xl font-semibold text-slate-500 sm:text-4xl">{initials(agent.agency_name || name)}</span>}
+    </Link>
+    <div className="flex min-w-0 flex-1 flex-col">
+      <Link href={profileHref} className="block"><h3 className="line-clamp-2 text-base font-bold leading-snug text-slate-950 hover:underline sm:text-lg">{name}</h3></Link>
+      {brokerage && <p className="truncate text-sm text-slate-600">{brokerage}</p>}
+      <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+        {agent.rating != null && <p className="text-sm font-bold text-slate-900">{Number(agent.rating).toFixed(1)} <span className="text-amber-500">★</span> <span className="font-normal text-slate-500">({agent.review_count > 0 ? agent.review_count.toLocaleString('en-IN') : 'rating'})</span></p>}
+        {verified && <span className="inline-flex rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800">✓ GoNest verified</span>}
       </div>
-    </div>
-    <div className="mt-4 space-y-1 text-sm text-slate-600">
-      <p><span className="font-semibold text-slate-900">Services:</span> Rent · Buy · Sell</p>
-      {(places.length > 0 || pins.length > 0) && <p className="line-clamp-1"><span className="font-semibold text-slate-900">Areas:</span> {[...places, ...pins].join(' · ')}</p>}
-      <p><span className="font-semibold text-slate-900">RERA:</span> {agent.rera_number ? 'details submitted' : 'not provided'}</p>
-    </div>
-    {agent.bio && <p className="mt-3 line-clamp-2 text-sm leading-5 text-slate-600">{agent.bio}</p>}
-    <div className="mt-auto grid grid-cols-2 gap-2 pt-4">
-      <Link href={profileHref} className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-3 py-2 text-sm font-bold text-slate-800 hover:border-slate-500">View profile</Link>
-      <Link href={profileHref + '#contact-agent'} className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-3 py-2 text-sm font-bold text-white hover:bg-blue-700">Contact</Link>
+      <div className="mt-2 space-y-0.5 text-sm text-slate-700">
+        <p>{agent.total_listings > 0 ? agent.total_listings.toLocaleString('en-IN') + ' active listing' + (agent.total_listings === 1 ? '' : 's') : 'Rent · Buy · Sell'}</p>
+        {(places.length > 0 || pins.length > 0) && <p className="line-clamp-1 text-slate-600">{[...places, ...pins].join(' · ')}</p>}
+        <p className="text-slate-600">RERA {agent.rera_number ? 'details submitted' : 'not provided'}</p>
+      </div>
+      <div className="mt-auto flex flex-wrap gap-2 pt-3">
+        <Link href={profileHref} className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2 text-sm font-bold text-slate-800 hover:border-slate-500">View profile</Link>
+        <Link href={profileHref + '#contact-agent'} className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700">Contact</Link>
+      </div>
     </div>
   </article>;
 }
@@ -88,7 +87,7 @@ export function AgentDirectory({ agents }: Props) {
     </section>
     <section id="agent-results" className="mx-auto max-w-7xl px-5 py-9 md:px-8">
       <div className="mb-5 flex flex-wrap items-end justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-widest text-blue-700">GoNest professionals</p><h2 className="mt-1 text-2xl font-extrabold text-slate-950">Real estate agent profiles</h2><p className="mt-1 text-sm text-slate-600">Explore agent and brokerage profiles in the same image-led, responsive card layout as property search. New agent profiles appear after account creation; verification status is shown separately while details are reviewed.</p></div><span className="text-sm font-semibold text-slate-500">{registeredAgents.length} results</span></div>
-      {registeredAgents.length > 0 ? <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">{registeredAgents.map(a=><AgentListingCard key={a.id} agent={a}/>)}</div> : <p className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-600">No agent profiles match these filters.</p>}
+      {registeredAgents.length > 0 ? <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">{registeredAgents.map(a=><AgentListingCard key={a.id} agent={a}/>)}</div> : <p className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-600">No agent profiles match these filters.</p>}
       <div className="mt-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-blue-50 p-5"><div><h3 className="font-extrabold text-slate-950">Are you a property professional?</h3><p className="mt-1 text-sm text-slate-600">Create a GoNest profile and submit your details for review.</p></div><Link href="/dashboard" className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white">Create GoNest profile</Link></div>
     </section>
   </>;

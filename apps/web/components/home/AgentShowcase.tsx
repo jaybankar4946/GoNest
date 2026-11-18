@@ -14,25 +14,25 @@ function AgentCard({ agent }: { agent: Profile }) {
   const places = [...(agent.service_localities ?? [])].slice(0, 2).join(' · ');
   const href = '/agents/' + agent.id;
   return (
-    <article className="flex h-full w-[82vw] max-w-[320px] shrink-0 snap-start flex-col rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:border-gray-300 hover:shadow-md sm:w-auto sm:max-w-none sm:p-5">
-      <div className="flex items-start gap-4">
-        <Link href={href} aria-label={'View ' + title} className="h-16 w-16 shrink-0 overflow-hidden rounded-full border border-gray-200 bg-slate-100">
-          {agent.avatar_url
-            ? <img src={agent.avatar_url} alt={title} loading="lazy" className="h-full w-full object-cover" />
-            : <span className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 text-xl font-semibold text-slate-500">{initials(title)}</span>}
-        </Link>
-        <div className="min-w-0 flex-1">
-          <Link href={href}><h3 className="truncate text-base font-extrabold text-gray-950 hover:underline">{title}</h3></Link>
-          {brokerage && <p className="truncate text-sm text-gray-600">{brokerage}</p>}
-          {agent.rating != null && <p className="mt-1 text-sm font-bold text-gray-900">★ {Number(agent.rating).toFixed(1)} <span className="font-normal text-gray-500">({agent.review_count > 0 ? agent.review_count.toLocaleString('en-IN') : 'rating'})</span></p>}
-          {verified && <span className="mt-1.5 inline-flex rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800">✓ GoNest verified</span>}
+    <article className="flex h-full w-[88vw] max-w-[380px] shrink-0 snap-start gap-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md sm:w-auto sm:max-w-none sm:p-5">
+      <Link href={href} aria-label={'View ' + title} className="h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-slate-100 sm:h-28 sm:w-28">
+        {agent.avatar_url
+          ? <img src={agent.avatar_url} alt={title} loading="lazy" className="h-full w-full object-cover" />
+          : <span className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 text-3xl font-semibold text-slate-500">{initials(title)}</span>}
+      </Link>
+      <div className="flex min-w-0 flex-1 flex-col">
+        <Link href={href}><h3 className="line-clamp-2 text-base font-bold leading-snug text-gray-950 hover:underline">{title}</h3></Link>
+        {brokerage && <p className="truncate text-sm text-gray-600">{brokerage}</p>}
+        <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+          {agent.rating != null && <p className="text-sm font-bold text-gray-900">{Number(agent.rating).toFixed(1)} <span className="text-amber-500">★</span> <span className="font-normal text-gray-500">({agent.review_count > 0 ? agent.review_count.toLocaleString('en-IN') : 'rating'})</span></p>}
+          {verified && <span className="inline-flex rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800">✓ GoNest verified</span>}
         </div>
+        <div className="mt-2 space-y-0.5 text-sm text-gray-700">
+          <p>{SERVICES.join(' · ')}</p>
+          {places && <p className="line-clamp-1 text-gray-600">{places}</p>}
+        </div>
+        <Link href={href} className="mt-auto pt-3 text-sm font-bold text-blue-700 hover:text-blue-900">Explore agent →</Link>
       </div>
-      <div className="mt-4 space-y-1 text-sm text-gray-600">
-        {places && <p className="line-clamp-1"><span className="font-semibold text-gray-900">Areas:</span> {places}</p>}
-        <p><span className="font-semibold text-gray-900">Services:</span> {SERVICES.join(' · ')}</p>
-      </div>
-      <Link href={href} className="mt-auto inline-flex w-full items-center justify-center rounded-lg border border-gray-300 px-3 py-2 text-sm font-bold text-blue-700 hover:bg-blue-50" style={{ marginTop: 16 }}>Explore agent →</Link>
     </article>
   );
 }
@@ -42,7 +42,7 @@ export function AgentShowcase({ agents }: { agents: Profile[] }) {
   const list = agents
     .filter(a => a.role === 'agent')
     .sort((a, b) => Number(Boolean(b.agent_verified && b.rera_number)) - Number(Boolean(a.agent_verified && a.rera_number)) || Number(Boolean(b.avatar_url)) - Number(Boolean(a.avatar_url)))
-    .slice(0, 8);
+    .slice(0, 6);
   if (list.length === 0) return null;
   return (
     <section className="bg-white py-16 sm:py-20">
