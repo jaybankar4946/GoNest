@@ -65,7 +65,11 @@ export default function EditListingPage() {
         if (removedImageIds.includes(img.id)) await deleteListingImage(img.id, img.storage_path);
       }
       const startOrder = (listing.listing_images?.length ?? 0) - removedImageIds.length;
-      for (let i = 0; i < newImages.length; i++) await uploadListingImage(user.id, listing.id, newImages[i], startOrder + i);
+      const uploadedPaths: string[] = [];
+      for (let i = 0; i < newImages.length; i++) {
+        const path = await uploadListingImage(user.id, listing.id, newImages[i], startOrder + i);
+        uploadedPaths.push(path);
+      }
       router.push('/dashboard');
     } catch (e) { setErr(e instanceof Error ? e.message : 'Something went wrong.'); }
     finally { setSaving(false); }
