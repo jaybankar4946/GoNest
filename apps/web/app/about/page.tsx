@@ -181,7 +181,7 @@ export default function AboutPage() {
           <div className="wrap">
             <div className="now">
               <h2>Where we are today</h2>
-              <p>GoNest is an early-stage company with homes across Mumbai, Bengaluru, Delhi NCR, Pune and Hyderabad. We would rather be excellent in a few neighbourhoods than average everywhere, so we are building our listings carefully, one area at a time.</p>
+              <p>GoNest has a presence across Mumbai, Bengaluru, Delhi NCR, Pune and Hyderabad. We would rather be excellent in a few neighbourhoods than average everywhere, so we are building our listings carefully, one area at a time.</p>
               <ul>
                 <li>The marketplace is live for buying, renting, new projects and agents.</li>
                 <li>Owners, agents and builders each have a dashboard to manage listings and leads.</li>
