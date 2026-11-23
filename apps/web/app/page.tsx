@@ -52,11 +52,11 @@ export default async function HomePage() {
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Reviewed listings from verified owners and agents
             </div>
             <h1 className="text-5xl md:text-6xl lg:text-[68px] font-extrabold text-white leading-none max-w-4xl mb-4" style={{ ...display, letterSpacing: '-0.035em' }}>
-              Find your next home.
+              Find the right home. Move forward with confidence.
             </h1>
-            <p className="text-lg text-white/70 max-w-lg leading-relaxed mb-10">
-              Search apartments, villas and plots to buy or rent, with clear prices, real photos and direct contact.
-            </p>
+            <p className="text-sm font-semibold text-white/80 max-w-3xl leading-relaxed mb-3">Find the right home · Know what it really costs · Connect with the right people · Move forward with confidence</p>
+            <p className="text-lg text-white/70 max-w-lg leading-relaxed mb-10">Search properties, compare your options, understand the real cost, and connect with the right people to take your next step.</p>
+            <div className="mb-4 flex flex-wrap justify-center gap-2 text-xs font-bold text-white"><Link href="/buy" className="rounded-full border border-white/20 bg-white/10 px-4 py-2 hover:bg-white/20">Buy</Link><Link href="/rent" className="rounded-full border border-white/20 bg-white/10 px-4 py-2 hover:bg-white/20">Rent</Link><Link href="/projects" className="rounded-full border border-white/20 bg-white/10 px-4 py-2 hover:bg-white/20">New Projects</Link></div>
             <HomeSearch cities={cities} />
             {cities.length > 0 && (
               <div className="mt-8 flex flex-wrap justify-center gap-2.5">
