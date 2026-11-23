@@ -51,8 +51,8 @@ export function DecisionTools() {
     <section className="bg-[#0c1b34] px-5 py-12 text-white sm:py-16"><div className="mx-auto max-w-6xl">
       <Link href="/" className="mb-6 inline-flex text-sm text-white/70 hover:text-white">← GoNest home</Link>
       <div className="flex items-center gap-2 text-sm font-semibold text-blue-200"><Calculator size={16}/> PROPERTY DECISION WORKSPACE</div>
-      <h1 className="mt-3 max-w-3xl text-3xl font-extrabold tracking-tight sm:text-5xl">Understand the full cost before you decide.</h1>
-      <p className="mt-4 max-w-2xl text-base leading-7 text-white/70">Plan rent, resale purchases and new-project costs in one place. Adjust assumptions to match the actual quote and documents you receive.</p>
+      <h1 className="mt-3 max-w-3xl text-3xl font-extrabold tracking-tight sm:text-5xl">Make a property decision with confidence.</h1>
+      <p className="mt-4 max-w-2xl text-base leading-7 text-white/70">Compare properties · Understand total cost · Check affordability · Compare locations · See recurring costs · Weigh trade-offs</p>
       <div className="mt-7 flex flex-wrap gap-3 text-xs text-white/70"><span className="rounded-full border border-white/20 px-3 py-2">INR · India-first</span><span className="rounded-full border border-white/20 px-3 py-2">Editable assumptions</span><span className="rounded-full border border-white/20 px-3 py-2">No invented quotes</span></div>
     </div></section>
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
