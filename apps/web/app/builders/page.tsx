@@ -152,8 +152,8 @@ export default function BuildersPage() {
       <section className="bg-slate-950 text-white">
         <div className="mx-auto max-w-7xl px-5 py-14 md:px-8 md:py-20">
           <p className="mb-4 text-sm font-bold uppercase tracking-[.18em] text-blue-300">GoNest · Builder inventory</p>
-          <h1 className="max-w-4xl text-4xl font-extrabold tracking-tight md:text-6xl">Explore projects. Check the source. Decide with confidence.</h1>
-          <p className="mt-5 max-w-3xl text-base leading-7 text-slate-300 md:text-lg">One live directory across the developer records currently tracked by GoNest. Compare configurations, official sources, registration references and price notes. A project record is not proof of current unit availability.</p>
+          <h1 className="max-w-4xl text-4xl font-extrabold tracking-tight md:text-6xl">Make your projects discoverable and turn buyer interest into site visits.</h1>
+          <p className="mt-5 max-w-3xl text-base leading-7 text-slate-300 md:text-lg">Help buyers understand your project, review the available information, and take the next step toward a site visit.</p>
           <div className="mt-7 flex flex-wrap gap-3">
             <a href="https://maharera.maharashtra.gov.in/" target="_blank" rel="noreferrer" className="rounded-xl bg-blue-500 px-5 py-3 text-sm font-bold text-white hover:bg-blue-400">Check official MahaRERA ↗</a>
             <Link href="/projects" className="rounded-xl border border-white/20 px-5 py-3 text-sm font-bold text-white hover:bg-white/10">Browse New Projects →</Link>
