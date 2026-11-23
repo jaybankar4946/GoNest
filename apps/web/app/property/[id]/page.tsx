@@ -141,7 +141,7 @@ export default async function PropertyPage({ params }: { params: Promise<{id:str
           </div>
 
           {/* Right col — contact panel */}
-          <ContactForms listingId={l.id}/>
+          <div><h2 style={{fontSize:18,fontWeight:800,color:'#111827',margin:'0 0 10px'}}>Want to see it?</h2><ContactForms listingId={l.id}/></div>
         </div>
 
         <ReviewsAndReport listingId={l.id}/>
