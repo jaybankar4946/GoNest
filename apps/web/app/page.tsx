@@ -56,8 +56,8 @@ export default async function HomePage() {
             </h1>
             <p className="text-sm font-semibold text-white/80 max-w-3xl leading-relaxed mb-3">Find the right home · Know what it really costs · Connect with the right people · Move forward with confidence</p>
             <p className="text-lg text-white/70 max-w-lg leading-relaxed mb-10">Search properties, compare your options, understand the real cost, and connect with the right people to take your next step.</p>
-            <div className="mb-4 flex flex-wrap justify-center gap-2 text-xs font-bold text-white"><Link href="/buy" className="rounded-full border border-white/20 bg-white/10 px-4 py-2 hover:bg-white/20">Buy</Link><Link href="/rent" className="rounded-full border border-white/20 bg-white/10 px-4 py-2 hover:bg-white/20">Rent</Link><Link href="/projects" className="rounded-full border border-white/20 bg-white/10 px-4 py-2 hover:bg-white/20">New Projects</Link></div>
             <HomeSearch cities={cities} />
+            <div className="mt-4 flex flex-wrap justify-center gap-2 text-xs font-bold text-white"><Link href="/buy" className="rounded-full border border-white/20 bg-white/10 px-4 py-2 hover:bg-white/20">Buy</Link><Link href="/rent" className="rounded-full border border-white/20 bg-white/10 px-4 py-2 hover:bg-white/20">Rent</Link><Link href="/projects" className="rounded-full border border-white/20 bg-white/10 px-4 py-2 hover:bg-white/20">New Projects</Link></div>
             {cities.length > 0 && (
               <div className="mt-8 flex flex-wrap justify-center gap-2.5">
                 {cities.slice(0, 6).map(c => (
