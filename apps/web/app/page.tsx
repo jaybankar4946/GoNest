@@ -51,7 +51,7 @@ export default async function HomePage() {
             <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-lg border border-white/20 text-white text-xs font-semibold px-4 py-2 rounded-full mb-8">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Reviewed listings from verified owners and agents
             </div>
-            <h1 className="text-5xl md:text-6xl lg:text-[68px] font-extrabold text-white leading-none max-w-4xl mb-4" style={{ ...display, letterSpacing: '-0.035em' }}>
+            <h1 className="text-5xl md:text-6xl lg:text-[62px] font-extrabold text-white leading-none max-w-6xl mb-4 lg:whitespace-nowrap" style={{ ...display, letterSpacing: '-0.035em' }}>
               Find the right home. Move forward with confidence.
             </h1>
             <p className="text-sm font-semibold text-white/80 max-w-3xl leading-relaxed mb-3">Find the right home · Know what it really costs · Connect with the right people · Move forward with confidence</p>
