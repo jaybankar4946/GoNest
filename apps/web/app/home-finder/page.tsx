@@ -18,8 +18,8 @@ export default function HomeFinderPage() {
   return <><Nav /><main className="min-h-screen bg-slate-50">
     <section className="bg-slate-950 px-5 py-16 text-white sm:py-20"><div className="mx-auto max-w-6xl">
       <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-blue-200"><BrainCircuit size={18}/> GoNest Home Finder Intelligence</div>
-      <h1 className="mt-4 max-w-3xl text-4xl font-extrabold tracking-tight sm:text-5xl">Find a home. Understand the real cost. Decide with confidence.</h1>
-      <p className="mt-5 max-w-2xl text-base leading-7 text-slate-300">Home Finder Intelligence brings practical decision support into individual GoNest resale, rental and new-project listings. Start with a journey below, then open a listing to use its own facts and editable cost assumptions.</p>
+      <h1 className="mt-4 max-w-3xl text-4xl font-extrabold tracking-tight sm:text-5xl">Make a property decision with confidence.</h1>
+      <p className="mt-5 max-w-2xl text-base leading-7 text-slate-300">Compare properties · Understand total cost · Check affordability · Compare locations · See recurring costs · Weigh trade-offs</p>
       <Link href="/decision-centre" className="mt-7 inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-slate-950 hover:bg-blue-50"><Calculator size={17}/> Open Decision Tools <ArrowRight size={16}/></Link>
     </div></section>
     <section className="mx-auto max-w-6xl px-5 py-12 sm:py-16">
