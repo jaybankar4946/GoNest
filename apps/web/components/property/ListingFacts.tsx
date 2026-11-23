@@ -22,7 +22,7 @@ export function ListingFacts({ l }: { l: ListingFull }) {
   const amenities = ((l as any).amenities ?? []) as string[];
   return (
     <section id="facts" style={{ scrollMarginTop: 130, marginBottom: 32 }}>
-      <h2 style={{ fontSize: 20, fontWeight: 800, color: '#111827', marginBottom: 16 }}>Facts &amp; features</h2>
+      <h2 style={{ fontSize: 20, fontWeight: 800, color: '#111827', marginBottom: 16 }}>What are you getting?</h2>
       <Group title="Interior" rows={[
         ['Bedrooms', l.bedrooms > 0 ? String(l.bedrooms) : null], ['Bathrooms', l.bathrooms > 0 ? String(l.bathrooms) : null],
         ['Balconies', l.balconies > 0 ? String(l.balconies) : null], ['Furnishing', l.furnishing ? capitalize(l.furnishing.replace('-', ' ')) : null],
