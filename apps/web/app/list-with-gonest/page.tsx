@@ -8,7 +8,7 @@ const roles = [
   {
     role: 'owner',
     title: 'I own a property',
-    detail: 'Create a rental or resale listing, add photos and update availability from your account.',
+    detail: 'Reach relevant people with a genuine property listing and manage enquiries and visits from your account.',
     action: 'List my property',
     icon: KeyRound,
   },
@@ -36,8 +36,8 @@ export default function ListWithGoNestPage() {
       <main style={{ maxWidth: 1120, margin: '0 auto', padding: '56px 24px 80px' }}>
         <section style={{ maxWidth: 760, margin: '0 auto 36px', textAlign: 'center' }}>
           <p style={{ color: 'var(--primary)', fontSize: 12, fontWeight: 800, letterSpacing: '.12em', textTransform: 'uppercase', marginBottom: 12 }}>GoNest supply onboarding</p>
-          <h1 style={{ fontSize: 'clamp(32px, 5vw, 48px)', lineHeight: 1.08, letterSpacing: '-.04em', fontWeight: 800, color: '#111827', margin: '0 0 16px' }}>Bring your property inventory to GoNest</h1>
-          <p style={{ color: '#5B6472', fontSize: 17, lineHeight: 1.7, margin: '0 auto', maxWidth: 650 }}>Create one account, choose your role and manage submissions from your dashboard. Start with Mumbai and Pune; every new submission is reviewed before it can be shown as approved inventory.</p>
+          <h1 style={{ fontSize: 'clamp(32px, 5vw, 48px)', lineHeight: 1.08, letterSpacing: '-.04em', fontWeight: 800, color: '#111827', margin: '0 0 16px' }}>Reach relevant people. Manage real demand.</h1>
+          <p style={{ color: '#5B6472', fontSize: 17, lineHeight: 1.7, margin: '0 auto', maxWidth: 650 }}>Manage enquiries and visits for your property in one place.</p>
         </section>
 
         <section aria-label="Choose supplier account type" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 16 }}>
