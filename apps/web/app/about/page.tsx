@@ -90,7 +90,7 @@ export default function AboutPage() {
         </section>
 
         <section className="mx-auto max-w-5xl px-5 py-12 md:py-16">
-          <div className="mb-10 max-w-3xl">
+          <div className="mb-10 max-w-3xl"><p className="mb-3 text-sm leading-6 text-slate-600">GoNest is a technology-enabled residential real-estate marketplace connecting people with homes, property professionals and new projects.</p>
             <h2 className="text-2xl font-bold tracking-tight md:text-3xl">What “Verified” actually means.</h2>
             <p className="mt-3 leading-7 text-slate-600">
               A badge should only appear after the relevant review step. We aim to state plainly what was checked, what was not checked, and when information still needs confirmation.
