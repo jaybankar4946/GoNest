@@ -80,7 +80,9 @@ export default async function PropertyPage({ params }: { params: Promise<{id:str
               {emiEst&&<span>Est. ₹{emiEst.toLocaleString('en-IN')}/mo <span style={{fontWeight:400,color:'#6B7280'}}>EMI*</span></span>}
             </div>
             <p style={{fontSize:12,color:'#6B7280',marginBottom:18}}>Listed {timeAgo(l.published_at??l.created_at)} · {l.view_count} views · {l.saved_count??0} saves · Updated {timeAgo(l.updated_at)}{emiEst?<> · *Estimate with 20% down, 8.5% for 20 years. Adjust in the payment calculator.</>:null}</p>
+            <h2 style={{fontSize:18,fontWeight:800,color:'#111827',margin:'0 0 10px'}}>What do we know about this listing?</h2>
             <DecisionSummary l={l} emi={emiEst}/>
+            <h2 style={{fontSize:18,fontWeight:800,color:'#111827',margin:'24px 0 10px'}}>What will this home really cost each month?</h2>
             <ListingDecisionPanel
               kind={l.purpose === 'rent' ? 'rent' : 'sale'}
               title={l.title}
@@ -115,6 +117,7 @@ export default async function PropertyPage({ params }: { params: Promise<{id:str
                 <ShareButton title={l.title}/>
               </div>
             )}
+            <h2 style={{fontSize:18,fontWeight:800,color:'#111827',margin:'24px 0 10px'}}>How does this fit your daily life?</h2>
             <DetailMap listing={l}/>
             {(l as any).video_url&&<video src={(l as any).video_url} controls style={{width:'100%',borderRadius:12,marginBottom:24}}/>}
 
