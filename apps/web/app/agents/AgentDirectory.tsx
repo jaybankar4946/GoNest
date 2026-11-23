@@ -70,9 +70,9 @@ export function AgentDirectory({ agents, directoryAgents = [] }: Props) {
   return <>
     <section className="border-b border-slate-200 bg-slate-50">
       <div className="mx-auto max-w-7xl px-5 py-10 md:px-8">
-        <p className="text-xs font-bold uppercase tracking-widest text-blue-700">GoNest Agent Directory</p>
-        <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-950 md:text-4xl">Find real estate agents in Thane, Mumbai and Pune</h1>
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">Browse local agencies and GoNest agent profiles. Public business listings are separate from GoNest-verified professionals.</p>
+        <p className="text-xs font-bold uppercase tracking-widest text-blue-700">Thane · Mumbai · Pune</p>
+        <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-slate-950 md:text-4xl">Find a property professional who understands your market.</h1>
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">Check their RERA details, see what they specialise in, and contact them directly.</p>
         <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search agency, agent or locality" className="min-h-12 rounded-xl border border-slate-300 bg-white px-4 text-sm outline-none focus:border-blue-500"/>
           <select value={city} onChange={e=>setCity(e.target.value)} className="min-h-12 rounded-xl border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700">{cities.map(c=><option key={c}>{c}</option>)}</select>
