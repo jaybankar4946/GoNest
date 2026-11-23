@@ -176,7 +176,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
 
       {savedMsg&&<p role="status" style={{fontSize:13,color:'#065F46',background:'#ECFDF5',padding:'8px 12px',borderRadius:10,marginBottom:12}}>{savedMsg} <a href="/saved-searches" style={{textDecoration:'underline'}}>View saved searches</a></p>}
       <p style={{fontSize:13,color:'var(--gray-4)',marginBottom:12}}>
-        {loading ? 'Searching…' : `${total} ${total===1?'property':'properties'} found`}
+        {loading ? 'Searching…' : `${total} ${total===1?'property':'properties'} found${total > 0 ? `. Narrow to a confident shortlist.` : ''}`}
       </p>
 
       {loading && results.length === 0 && (<div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:'36px 20px'}}>{[1,2,3,4,5,6].map(i=><PropertyCardSkeleton key={i}/>)}</div>)}
@@ -207,7 +207,7 @@ export function SearchResults({ cities, init }: { cities: City[]; init: Record<s
       {view === 'list' && (
         <>
           <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:'36px 20px'}}>
-            {results.map(l=><div key={l.id} onMouseEnter={() => setActiveListingId(l.id)} onFocus={() => setActiveListingId(l.id)}><PropertyCard listing={l} onQuickView={setQuickViewId} isSaved={saved.has(l.id)} onToggle={toggle} /><Link href={`/property/${l.id}#decision-intelligence`} className="mt-2 inline-flex w-full items-center justify-center rounded-xl border border-blue-200 bg-blue-50 px-3 py-2.5 text-xs font-bold text-blue-800 hover:bg-blue-100">Home Finder · Calculate true cost & affordability</Link></div>)}
+            {results.map(l=><div key={l.id} onMouseEnter={() => setActiveListingId(l.id)} onFocus={() => setActiveListingId(l.id)}><PropertyCard listing={l} onQuickView={setQuickViewId} isSaved={saved.has(l.id)} onToggle={toggle} /></div>)}
           </div>
           <LoadMoreBtn />
         </>
