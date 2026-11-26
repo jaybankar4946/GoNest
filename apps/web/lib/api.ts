@@ -31,7 +31,7 @@ export async function searchListings(p: SearchParams = {}) {
     // Resolve locality/city names in two bounded queries, not two queries per token.
     // Preserve Unicode letters and numbers so Indian-language locality searches work.
     const terms = Array.from(new Set(
-      p.q.toLowerCase().replace(/[^\\p{L}\\p{N}\\s-]/gu, ' ').split(/\\s+/).filter(t => t.length > 1),
+      p.q.toLowerCase().replace(/[^\p{L}\p{N}\s-]/gu, ' ').split(/\s+/).filter(t => t.length > 1),
     )).slice(0, 8);
 
     if (terms.length) {
