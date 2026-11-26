@@ -1,189 +1,80 @@
-# 🏘️ GoNest - Property Listings Platform
+# GoNest
 
-## Overview
-GoNest is a modern property listing platform built with Next.js and React, featuring real-time property search and Vercel performance monitoring.
+GoNest is a residential real-estate marketplace built with Next.js, React, TypeScript and Supabase. The product supports property discovery and listing workflows for buyers, renters, owners, agents and builders.
 
-## 🚀 Features
-- **Next.js 16** - Latest React framework
-- **React 19** - Modern React with hooks
-- **Vercel Analytics** - Real-time performance monitoring
-- **Vercel Speed Insights** - Web Vitals tracking
-- **Tailwind CSS** - Utility-first CSS framework
-- **TypeScript** - Type-safe development
-- **Responsive Design** - Mobile-first approach
+## Repository structure
 
-## 📁 Project Structure
-```
-goNest/
-├── apps/
-│   └── web/
-│       ├── app/
-│       │   ├── page.tsx (Home)
-│       │   ├── listings/page.tsx (Listings)
-│       │   ├── layout.tsx (Root Layout)
-│       │   └── globals.css
-│       ├── lib/
-│       │   └── api.ts (API helpers)
-│       ├── package.json
-│       └── tsconfig.json
-├── vercel.json (Deployment config)
-└── README.md
+```text
+apps/
+  web/                 Next.js application
+    app/               App Router pages and route handlers
+    components/        UI and workflow components
+    lib/               Supabase client, API helpers and shared types
+supabase/
+  migrations/          Database schema and policy migrations
+  remote_schema.sql    Schema snapshot (not a substitute for migrations)
+docs/                  Product and operating-model documentation
 ```
 
-## 🔧 Setup & Installation
+## Requirements
 
-### Prerequisites
-- Node.js 18.x or higher
-- npm or yarn
+- Node.js 22 (Node.js 20.9+ is required by the current Next.js version)
+- npm
+- Supabase project credentials for running the application against a real backend
 
-### Local Development
+## Local development
+
+Run commands from the web application directory:
+
 ```bash
-# Install dependencies
+cd apps/web
 npm install
+cp .env.local.example .env.local
+```
 
-# Run development server
+Set the Supabase URL and publishable/anon key in `.env.local`. Never put a Supabase service-role key or secret key in a `NEXT_PUBLIC_*` variable or browser code.
+
+Then run:
+
+```bash
 npm run dev
-
-# Open browser
-# Visit http://localhost:3000
 ```
 
-### Build & Production
+Open http://localhost:3000.
+
+## Quality checks
+
+From `apps/web`:
+
 ```bash
-# Build for production
+npm run typecheck
 npm run build
-
-# Start production server
-npm run start
-
-# Lint code
-npm run lint
 ```
 
-## 🌐 API Configuration
+The `typecheck` script runs the TypeScript compiler without emitting files. The build requires valid application configuration and may need working Supabase environment variables for pages that fetch data during prerendering.
 
-The application connects to a backend API at:
-```
-https://gonest-1.onrender.com
-```
+A GitHub Actions workflow runs the typecheck on pushes and pull requests. The repository currently has no committed npm lockfile; add and review one before relying on deterministic dependency installation or production release gates.
 
-### Available Endpoints
-- `GET /listings` - Fetch all property listings
-- `GET /listings/:id` - Fetch specific property
+## Environment variables
 
-## 📊 Monitoring & Performance
+See [apps/web/.env.local.example](apps/web/.env.local.example) for the supported variables. Configure production values in the hosting provider's environment settings. Do not commit local environment files, credentials, private documents or production data.
 
-### Vercel Analytics
-- Real-time web traffic analytics
-- Performance metrics tracking
-- User engagement monitoring
+## Database and security
 
-**Enable in Vercel Dashboard:**
-```
-Project → Analytics → Enable Web Analytics
-```
+- Apply reviewed SQL migrations to the intended Supabase environment.
+- Keep Row Level Security enabled on exposed tables and verify policies with separate anonymous and authenticated test accounts.
+- Treat `service_role` credentials as server-only secrets.
+- Verify storage policies, RPC execute grants, admin authorization and cross-account isolation before release.
+- Never represent demo/sample inventory as genuine available property.
 
-### Speed Insights
-- Core Web Vitals tracking
-- Real User Monitoring (RUM)
-- Performance trends
+See [docs/GO_NEST_OPERATING_MODEL.md](docs/GO_NEST_OPERATING_MODEL.md) for product workflows, data provenance requirements and release gates.
 
-**Enable in Vercel Dashboard:**
-```
-Project → Speed Insights → Enable Speed Insights
-```
+## Deployment
 
-## 🚢 Deployment
+The application is hosted on Vercel. Confirm the Vercel project's Root Directory is `apps/web`, and verify the intended production branch and environment variables in project settings. Pull requests should be validated on preview deployments before promotion to production.
 
-### Deploy to Vercel
-```bash
-# Push to GitHub
-git push origin main
+Do not deploy a branch merely because its Vercel build is marked READY: confirm the commit, environment, domain aliases and end-to-end workflows first.
 
-# Vercel auto-deploys on push
-# Visit: https://vercel.com/jaybankar4946-hues-projects/go-nest
-```
+## Product principle
 
-### Environment Variables
-Set these in Vercel Dashboard → Settings → Environment Variables:
-```
-NEXT_PUBLIC_API_URL=https://gonest-1.onrender.com
-```
-
-## 📱 Pages
-
-### Home Page (`/`)
-- Welcome message
-- Property statistics
-- Navigation to listings
-
-### Listings Page (`/listings`)
-- All available properties
-- Property cards with:
-  - Title
-  - City/Location
-  - Responsive grid layout
-- Error handling
-- Loading states
-
-## 🐛 Error Handling
-
-- API errors caught and displayed
-- Loading states for better UX
-- Fallback UI for empty states
-- Console logging for debugging
-
-## 📈 Performance
-
-- **Lighthouse Scores:**
-  - Performance: 95+
-  - Accessibility: 95+
-  - Best Practices: 95+
-  - SEO: 100
-
-- **Web Vitals:**
-  - LCP (Largest Contentful Paint): < 2.5s
-  - FID (First Input Delay): < 100ms
-  - CLS (Cumulative Layout Shift): < 0.1
-
-## 🔐 Security
-
-- Environment variables for sensitive data
-- CORS configured
-- Security headers enabled
-- CSP (Content Security Policy) configured
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open Pull Request
-
-## 📝 License
-
-MIT License - feel free to use this project
-
-## 👤 Author
-
-**jaybankar4946**
-- GitHub: [@jaybankar4946](https://github.com/jaybankar4946)
-- Project: [GoNest](https://github.com/jaybankar4946/GoNest)
-
-## 🔗 Live Demo
-
-- **Main Site:** https://go-nest-9a.vercel.app
-- **Custom Domain:** https://gonest.in
-- **Alternative:** https://go-nest.vercel.app
-
-## 📞 Support
-
-For issues or questions:
-1. Check [GitHub Issues](https://github.com/jaybankar4946/GoNest/issues)
-2. Create new issue with details
-3. Include error logs and screenshots
-
----
-
-**Made with ❤️ by jaybankar4946**
+GoNest prioritizes genuine inventory, transparent verification status, reliable enquiries and confirmed visits. A submitted enquiry is not a confirmed visit, and a project record is not proof of currently available units.
