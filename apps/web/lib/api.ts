@@ -28,28 +28,36 @@ export async function searchListings(p: SearchParams = {}) {
   let q = supabase.from('listings').select(CARD, { count: 'exact' }).eq('status', 'active');
   if (!demoOnClient()) q = q.eq('is_sample', false);
   if (p.q) {
-    // Search every meaningful token across property title, locality, city, landmark, address and PIN.
-    // Applying each token as an OR group lets a query such as "Hiranandani Estate Thane 400607"
-    // match the relevant fields without requiring the whole phrase in one database column.
-    const terms = Array.from(new Set(p.q.toLowerCase().replace(/[^a-z0-9\s-]/g, ' ').split(/\s+/).filter(t => t.length > 1))).slice(0, 8);
-    for (const term of terms) {
-      const [{ data: locs }, { data: cityRows }] = await Promise.all([
-        supabase.from('localities').select('id').ilike('name', `%${term}%`).limit(30),
-        supabase.from('cities').select('id').ilike('name', `%${term}%`).eq('is_active', true).limit(20),
+    // Resolve locality/city names in two bounded queries, not two queries per token.
+    // Preserve Unicode letters and numbers so Indian-language locality searches work.
+    const terms = Array.from(new Set(
+      p.q.toLowerCase().replace(/[^\p{L}\p{N}\s-]/gu, ' ').split(/\s+/).filter(t => t.length > 1),
+    )).slice(0, 8);
+
+    if (terms.length) {
+      const nameFilters = terms.map(term => `name.ilike.%${term}%`).join(',');
+      const [{ data: localityRows }, { data: cityRows }] = await Promise.all([
+        supabase.from('localities').select('id,name').or(nameFilters).limit(1000),
+        supabase.from('cities').select('id,name').eq('is_active', true).or(nameFilters).limit(100),
       ]);
-      const localityIds = (locs ?? []).map((l: any) => l.id);
-      const cityIds = (cityRows ?? []).map((city: any) => city.id);
-      const ors = [
-        `title.ilike.%${term}%`,
-        `address_line.ilike.%${term}%`,
-        `landmark.ilike.%${term}%`,
-        `neighbourhood.ilike.%${term}%`,
-        `pincode.ilike.%${term}%`,
-        localityIds.length ? `locality_id.in.(${localityIds.join(',')})` : '',
-        cityIds.length ? `city_id.in.(${cityIds.join(',')})` : '',
-      ].filter(Boolean);
-      if (ors.length) q = q.or(ors.join(','));
-      else q = q.ilike('title', `%${term}%`);
+      const localities = localityRows ?? [];
+      const cities = cityRows ?? [];
+
+      for (const term of terms) {
+        const localityIds = localities.filter((l: any) => l.name?.toLowerCase().includes(term)).map((l: any) => l.id);
+        const cityIds = cities.filter((city: any) => city.name?.toLowerCase().includes(term)).map((city: any) => city.id);
+        const ors = [
+          `title.ilike.%${term}%`,
+          `address_line.ilike.%${term}%`,
+          `landmark.ilike.%${term}%`,
+          `neighbourhood.ilike.%${term}%`,
+          `pincode.ilike.%${term}%`,
+          localityIds.length ? `locality_id.in.(${localityIds.join(',')})` : '',
+          cityIds.length ? `city_id.in.(${cityIds.join(',')})` : '',
+        ].filter(Boolean);
+        if (ors.length) q = q.or(ors.join(','));
+        else q = q.ilike('title', `%${term}%`);
+      }
     }
   }
   if (p.pincode) q = q.ilike('pincode', `%${p.pincode.replace(/[^0-9]/g, '').slice(0, 6)}%`);
